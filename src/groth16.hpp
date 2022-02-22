@@ -5,7 +5,6 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#include "binfile_utils.hpp"
 #include "fft.hpp"
 
 namespace Groth16 {

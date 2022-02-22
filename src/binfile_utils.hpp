@@ -32,7 +32,7 @@ namespace BinFileUtils {
 
     public:
 
-        BinFile(std::string fileName, std::string type, uint32_t maxVersion);
+        BinFile(const void *fileData, size_t fileSize, std::string _type, uint32_t maxVersion);
         ~BinFile();
 
         void *getSetcionData(u_int32_t sectionId, u_int32_t sectionPos = 0);

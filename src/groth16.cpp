@@ -1,8 +1,5 @@
-#include <sodium.h>
-
-#include "logger.hpp"
-
-using namespace CPlusPlusLogging;
+#include "random_generator.hpp"
+#include "logging.hpp"
 
 namespace Groth16 {
 
