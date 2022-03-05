@@ -58,8 +58,9 @@ git submodule update
 ./build_gmp.sh ios
 mkdir build_prover_ios && cd build_prover_ios
 cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_ios
-make -j$(nproc) && make install
 ````
+Open generated Xcode project and compile prover.
+
 
 ## Building proof
 

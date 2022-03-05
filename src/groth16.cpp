@@ -57,10 +57,12 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     }
 
     LOG_TRACE("Processing coefs");
+#ifdef _OPENMP
     #define NLOCKS 1024
     omp_lock_t locks[NLOCKS];
     for (int i=0; i<NLOCKS; i++) omp_init_lock(&locks[i]);
     #pragma omp parallel for 
+#endif
     for (u_int64_t i=0; i<nCoefs; i++) {
         typename Engine::FrElement *ab = (coefs[i].m == 0) ? a : b;
         typename Engine::FrElement aux;
@@ -70,17 +72,21 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
             wtns[coefs[i].s],
             coefs[i].coef
         );
-
+#ifdef _OPENMP
         omp_set_lock(&locks[coefs[i].c % NLOCKS]);
+#endif
         E.fr.add(
             ab[coefs[i].c],
             ab[coefs[i].c],
             aux
         );
+#ifdef _OPENMP
         omp_unset_lock(&locks[coefs[i].c % NLOCKS]);
+#endif
     }
+#ifdef _OPENMP
     for (int i=0; i<NLOCKS; i++) omp_destroy_lock(&locks[i]);
-
+#endif
 
     LOG_TRACE("Calculating c");
     #pragma omp parallel for

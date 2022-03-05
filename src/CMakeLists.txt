@@ -28,6 +28,7 @@ endif()
 
 include_directories(
     ../src
+    ../build
     ../depends/ffiasm/c
     ../depends/json/single_include)
 
@@ -47,12 +48,23 @@ if(USE_SODIUM)
     target_link_libraries(prover sodium)
 endif()
 
-find_package(OpenMP)
 
-if(OpenMP_CXX_FOUND)
-    if(TARGET_PLATFORM MATCHES "android")
-        target_link_libraries(prover -static-openmp -fopenmp)
-    else()
-        target_link_libraries(prover OpenMP::OpenMP_CXX)
+if(USE_OPENMP)
+    find_package(OpenMP)
+
+    if(OpenMP_CXX_FOUND)
+
+        if(TARGET_PLATFORM MATCHES "android")
+            target_link_libraries(prover -static-openmp -fopenmp)
+            add_definitions(-DUSE_OPENMP)
+
+        elseif(TARGET_PLATFORM MATCHES "ios")
+            message("OpenMP is not used on iOS")
+
+        else()
+            target_link_libraries(prover OpenMP::OpenMP_CXX)
+            add_definitions(-DUSE_OPENMP)
+        endif()
+
     endif()
 endif()
