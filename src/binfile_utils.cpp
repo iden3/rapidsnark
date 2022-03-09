@@ -1,45 +1,30 @@
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <system_error>
 #include <string>
 #include <memory.h>
 #include <stdexcept>
 
 #include "binfile_utils.hpp"
+#include "fileloader.hpp"
 
 namespace BinFileUtils {
 
-BinFile::BinFile(std::string fileName, std::string _type, uint32_t maxVersion) {
+BinFile::BinFile(const void *fileData, size_t fileSize, std::string _type, uint32_t maxVersion) {
 
-    int fd;
-    struct stat sb;
-
-    fd = open(fileName.c_str(), O_RDONLY);
-    if (fd == -1)
-        throw std::system_error(errno, std::generic_category(), "open");
-        
-
-    if (fstat(fd, &sb) == -1)           /* To obtain file size */
-        throw std::system_error(errno, std::generic_category(), "fstat");
-
-    size = sb.st_size;
-    void *addrmm = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
-    addr = malloc(sb.st_size);
-    memcpy(addr, addrmm, sb.st_size);
-    munmap(addrmm, sb.st_size);
-    close(fd);
+    size = fileSize;
+    addr = malloc(size);
+    memcpy(addr, fileData, size);
 
     type.assign((const char *)addr, 4);
     pos = 4;
 
     if (type != _type) {
+        free(addr);
         throw new std::invalid_argument("Invalid file type. It should be " + _type + " and it us " + type);
     }
 
     version = readU32LE();
     if (version > maxVersion) {
+        free(addr);
         throw new std::invalid_argument("Invalid version. It should be <=" + std::to_string(maxVersion) + " and it us " + std::to_string(version));
     }
 
@@ -140,7 +125,10 @@ void *BinFile::read(u_int64_t len) {
 }
 
 std::unique_ptr<BinFile> openExisting(std::string filename, std::string type, uint32_t maxVersion) {
-    return std::unique_ptr<BinFile>(new BinFile(filename, type, maxVersion));
+
+    FileLoader fileLoader(filename);
+
+    return std::unique_ptr<BinFile>(new BinFile(fileLoader.dataBuffer(), fileLoader.dataSize(), type, maxVersion));
 }
 
 } // Namespace
