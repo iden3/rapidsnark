@@ -18,7 +18,7 @@ typedef struct __attribute__((__packed__)) {
 } FrElement;
 
 typedef FrElement *PFrElement;
-#define FR_ASM
+//#define FR_ASM
 
 #ifdef FR_ASM
 

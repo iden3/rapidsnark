@@ -18,7 +18,7 @@ typedef struct __attribute__((__packed__)) {
 } FqElement;
 typedef FqElement *PFqElement;
 
-#define FQ_ASM
+//#define FQ_ASM
 
 #ifdef FQ_ASM
 
