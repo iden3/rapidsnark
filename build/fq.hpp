@@ -7,6 +7,7 @@
 
 #define Fq_N64 4
 #define Fq_SHORT 0x00000000
+#define Fq_SHORTMONTGOMERY 0x40000000
 #define Fq_LONG 0x80000000
 #define Fq_LONGMONTGOMERY 0xC0000000
 typedef uint64_t FqRawElement[Fq_N64];
@@ -16,17 +17,25 @@ typedef struct __attribute__((__packed__)) {
     FqRawElement longVal;
 } FqElement;
 typedef FqElement *PFqElement;
-//extern FqElement Fq_q;
-//extern FqElement Fq_R3;
-//extern FqRawElement Fq_rawq;
-//extern FqRawElement Fq_rawR3;
 
-//extern "C" void Fq_copy(PFqElement r, PFqElement a);
+#define FQ_ASM
+
+#ifdef FQ_ASM
+
+extern "C"
+{
+    extern FqElement Fq_q;
+    extern FqElement Fq_R3;
+    extern FqRawElement Fq_rawq;
+    extern FqRawElement Fq_rawR3;
+}
+
+
 //extern "C" void Fq_copyn(PFqElement r, PFqElement a, int n);
 //extern "C" void Fq_add(PFqElement r, PFqElement a, PFqElement b);
 //extern "C" void Fq_sub(PFqElement r, PFqElement a, PFqElement b);
 //extern "C" void Fq_neg(PFqElement r, PFqElement a);
-void Fq_mul(PFqElement r, PFqElement a, PFqElement b);
+
 //extern "C" void Fq_square(PFqElement r, PFqElement a);
 //extern "C" void Fq_band(PFqElement r, PFqElement a, PFqElement b);
 //extern "C" void Fq_bor(PFqElement r, PFqElement a, PFqElement b);
@@ -43,13 +52,34 @@ void Fq_mul(PFqElement r, PFqElement a, PFqElement b);
 //extern "C" void Fq_land(PFqElement r, PFqElement a, PFqElement b);
 //extern "C" void Fq_lor(PFqElement r, PFqElement a, PFqElement b);
 //extern "C" void Fq_lnot(PFqElement r, PFqElement a);
-void Fq_toNormal(PFqElement r, PFqElement a);
+
 //extern "C" void Fq_toLongNormal(PFqElement r, PFqElement a);
 //extern "C" void Fq_toMontgomery(PFqElement r, PFqElement a);
 
 //extern "C" int Fq_isTrue(PFqElement pE);
 //extern "C" int Fq_toInt(PFqElement pE);
 
+extern "C" void Fq_copy(PFqElement r, PFqElement a);
+extern "C" void Fq_mul(PFqElement r, PFqElement a, PFqElement b);
+extern "C" void Fq_toNormal(PFqElement r, PFqElement a);
+extern "C" void Fq_rawCopy(FqRawElement pRawResult, FqRawElement pRawA);
+extern "C" void Fq_rawSwap(FqRawElement pRawResult, FqRawElement pRawA);
+extern "C" void Fq_rawAdd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB);
+extern "C" void Fq_rawSub(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB);
+extern "C" void Fq_rawNeg(FqRawElement pRawResult, FqRawElement pRawA);
+extern "C" void Fq_rawMMul(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB);
+extern "C" void Fq_rawMSquare(FqRawElement pRawResult, FqRawElement pRawA);
+extern "C" void Fq_rawMMul1(FqRawElement pRawResult, FqRawElement pRawA, uint64_t pRawB);
+extern "C" void Fq_rawToMontgomery(FqRawElement pRawResult, FqRawElement pRawA);
+extern "C" void Fq_rawFromMontgomery(FqRawElement pRawResult, FqRawElement pRawA);
+extern "C"  int Fq_rawIsEq(FqRawElement pRawA, FqRawElement pRawB);
+extern "C" int Fq_rawIsZero(FqRawElement pRawB);
+
+extern "C" void Fq_fail();
+#else
+void Fq_copy(PFqElement r, PFqElement a);
+void Fq_mul(PFqElement r, PFqElement a, PFqElement b);
+void Fq_toNormal(PFqElement r, PFqElement a);
 void Fq_rawCopy(FqRawElement pRawResult, FqRawElement pRawA);
 void Fq_rawSwap(FqRawElement pRawResult, FqRawElement pRawA);
 void Fq_rawAdd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB);
@@ -64,7 +94,7 @@ int Fq_rawIsEq(FqRawElement pRawA, FqRawElement pRawB);
 int Fq_rawIsZero(FqRawElement pRawB);
 
 void Fq_fail();
-
+#endif
 
 // Pending functions to convert
 
