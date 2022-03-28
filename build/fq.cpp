@@ -317,7 +317,7 @@ Fq_to_mpz(mpz_ptr dst, FqRawElement src)
 static inline void
 Fq_to_rawElement(FqRawElement dst, mpz_ptr src)
 {
-    //assert(mpz_size(src) == Fr_N64);
+    assert(mpz_size(src) <= Fq_N64);
 
     std::memset(dst, 0, sizeof(FqRawElement));
     mpz_export(dst, NULL, -1, 8, -1, 0, src);
@@ -397,7 +397,7 @@ void Fq_rawAdd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
     mp_limb_t carry;
 
     carry = mpn_add_n(&mr[0], &ma[0], &mb[0], 4);
-    if(carry)
+    if(carry || mpn_cmp(mr, mq, 4) >= 0)
     {
         mpn_sub_n(&mr[0], &mr[0], &mq[0], 4);
     }

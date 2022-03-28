@@ -300,7 +300,7 @@ Fr_to_mpz(mpz_ptr dst, FrRawElement src)
 static inline void
 Fr_to_rawElement(FrRawElement dst, mpz_ptr src)
 {
-    //assert(mpz_size(src) == Fr_N64);
+    assert(mpz_size(src) <= Fr_N64);
 
     std::memset(dst, 0, sizeof(FrRawElement));
     mpz_export(dst, NULL, -1, 8, -1, 0, src);
@@ -397,7 +397,7 @@ void Fr_rawSub(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     mp_limb_t carry;
 
     carry = mpn_sub_n(&mr[0], &ma[0], &mb[0], 4);
-    if(carry)
+    if(carry || mpn_cmp(mr, mq, 4) >= 0)
     {
         mpn_add_n(&mr[0], &mr[0], &mq[0], 4);
     }
