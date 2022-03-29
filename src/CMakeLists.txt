@@ -61,13 +61,15 @@ if(USE_OPENMP)
         if(TARGET_PLATFORM MATCHES "android")
             target_link_libraries(prover -static-openmp -fopenmp)
             add_definitions(-DUSE_OPENMP)
+            message("OpenMP is used")
 
         elseif(TARGET_PLATFORM MATCHES "ios")
             message("OpenMP is not used on iOS")
 
-        else()
+        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
             target_link_libraries(prover OpenMP::OpenMP_CXX)
             add_definitions(-DUSE_OPENMP)
+            message("OpenMP is used")
         endif()
 
     endif()
