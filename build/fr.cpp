@@ -380,7 +380,7 @@ void Fr_rawAdd(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     mp_limb_t carry;
 
     carry = mpn_add_n(&mr[0], &ma[0], &mb[0], 4);
-    if(carry)
+    if(carry || mpn_cmp(mr, mq, 4) >= 0)
     {
         mpn_sub_n(&mr[0], &mr[0], &mq[0], 4);
     }
@@ -397,7 +397,7 @@ void Fr_rawSub(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     mp_limb_t carry;
 
     carry = mpn_sub_n(&mr[0], &ma[0], &mb[0], 4);
-    if(carry || mpn_cmp(mr, mq, 4) >= 0)
+    if(carry)
     {
         mpn_add_n(&mr[0], &mr[0], &mq[0], 4);
     }
