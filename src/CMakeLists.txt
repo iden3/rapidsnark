@@ -16,9 +16,11 @@ set(LIB_SOURCES
     ../depends/ffiasm/c/splitparstr.cpp
     ../depends/ffiasm/c/alt_bn128.cpp
     ../build/fq.hpp
+    ../build/fq_asm.hpp
     ../build/fq.cpp
     ../build/fq.o
     ../build/fr.hpp
+    ../build/fr_asm.hpp
     ../build/fr.cpp
     ../build/fr.o
     )
