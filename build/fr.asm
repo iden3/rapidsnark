@@ -276,94 +276,94 @@ u64toLong_adjust_neg:
 ; Returs:
 ;   rax <= The value
 ;;;;;;;;;;;;;;;;;;;;;;;
-Fr_toInt:
-        mov     rax, [rdi]
-        bt      rax, 63
-        jc      Fr_long
-        movsx   rax, eax
-        ret
+;Fr_toInt:
+;        mov     rax, [rdi]
+;        bt      rax, 63
+;        jc      Fr_long
+;        movsx   rax, eax
+;        ret
+;
+;Fr_long:
+;        push   rbp
+;        push   rsi
+;        push   rdx
+;        mov    rbp, rsp
+;        bt      rax, 62
+;        jnc     Fr_longNormal
+;Fr_longMontgomery:
+;
+;        mov  r8, rdi
+;        sub  rsp, 40
+;        mov  rdi, rsp
+;        push rdx
+;        push r8
+;        call Fr_toNormal
+;        mov  rsi, rdi
+;        pop  rdi
+;        pop  rdx
 
-Fr_long:
-        push   rbp
-        push   rsi
-        push   rdx
-        mov    rbp, rsp
-        bt      rax, 62
-        jnc     Fr_longNormal
-Fr_longMontgomery:
 
-        mov  r8, rdi
-        sub  rsp, 40
-        mov  rdi, rsp
-        push rdx
-        push r8
-        call Fr_toNormal
-        mov  rsi, rdi
-        pop  rdi
-        pop  rdx
+;Fr_longNormal:
+;        mov     rax, [rdi + 8]
+;        mov     rcx, rax
+;        shr     rcx, 31
+;        jnz     Fr_longNeg
+;
+;        mov     rcx, [rdi + 16]
+;        test    rcx, rcx
+;        jnz     Fr_longNeg
+;
+;        mov     rcx, [rdi + 24]
+;        test    rcx, rcx
+;        jnz     Fr_longNeg
+;
+;        mov     rcx, [rdi + 32]
+;        test    rcx, rcx
+;        jnz     Fr_longNeg
+;
+;        mov rsp, rbp
+;        pop rdx
+;        pop rsi
+;        pop rbp
+;        ret
 
-
-Fr_longNormal:
-        mov     rax, [rdi + 8]
-        mov     rcx, rax
-        shr     rcx, 31
-        jnz     Fr_longNeg
-
-        mov     rcx, [rdi + 16]
-        test    rcx, rcx
-        jnz     Fr_longNeg
-
-        mov     rcx, [rdi + 24]
-        test    rcx, rcx
-        jnz     Fr_longNeg
-
-        mov     rcx, [rdi + 32]
-        test    rcx, rcx
-        jnz     Fr_longNeg
-
-        mov rsp, rbp
-        pop rdx
-        pop rsi
-        pop rbp
-        ret
-
-Fr_longNeg:
-        mov     rax, [rdi + 8]
-        sub     rax, [q]
-        jnc     Fr_longErr
-
-        mov     rcx, [rdi + 16]
-        sbb     rcx, [q + 8]
-        jnc     Fr_longErr
-
-        mov     rcx, [rdi + 24]
-        sbb     rcx, [q + 16]
-        jnc     Fr_longErr
-
-        mov     rcx, [rdi + 32]
-        sbb     rcx, [q + 24]
-        jnc     Fr_longErr
-
-        mov     rcx, rax
-        sar     rcx, 31
-        add     rcx, 1
-        jnz     Fr_longErr
-        mov rsp, rbp
-        pop rdx
-        pop rsi
-        pop rbp
-        ret
-
-Fr_longErr:
-        push    rdi
-        mov     rdi, 0
-        call    Fr_fail
-        pop     rdi
-        mov rsp, rbp
-        pop rdx
-        pop rsi
-        pop rbp
-        ret
+;Fr_longNeg:
+;        mov     rax, [rdi + 8]
+;        sub     rax, [q]
+;        jnc     Fr_longErr
+;
+;        mov     rcx, [rdi + 16]
+;        sbb     rcx, [q + 8]
+;        jnc     Fr_longErr
+;
+;        mov     rcx, [rdi + 24]
+;        sbb     rcx, [q + 16]
+;        jnc     Fr_longErr
+;
+;        mov     rcx, [rdi + 32]
+;        sbb     rcx, [q + 24]
+;        jnc     Fr_longErr
+;
+;        mov     rcx, rax
+;        sar     rcx, 31
+;        add     rcx, 1
+;        jnz     Fr_longErr
+;        mov rsp, rbp
+;        pop rdx
+;        pop rsi
+;        pop rbp
+;        ret
+;
+;Fr_longErr:
+;        push    rdi
+;        mov     rdi, 0
+;        call    Fr_fail
+;        pop     rdi
+;        mov rsp, rbp
+;        pop rdx
+;        pop rsi
+;        pop rbp
+;        ret
 
 
 

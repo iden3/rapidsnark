@@ -1,0 +1,5 @@
+#nasm -f elf64 fr.asm # assemble the program  
+#ld -s -o fr fr.o # link the object file nasm produced into an executable file  
+#./fr # fr is an executable file
+
+nasm -f elf64 -d ELF_TYPE fr.asm -o fr.o
