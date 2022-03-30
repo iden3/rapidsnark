@@ -400,6 +400,7 @@ void Fq_rawAdd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
     if(carry || mpn_cmp(mr, mq, 4) >= 0)
     {
         mpn_sub_n(&mr[0], &mr[0], &mq[0], 4);
+        std::cout << "Fq_rawAdd in if" << "\n";
     }
 
     for (int i=0; i<Fq_N64; i++) pRawResult[i] = mr[i];
@@ -417,6 +418,7 @@ void Fq_rawSub(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
     if(carry)
     {
         mpn_add_n(&mr[0], &mr[0], &mq[0], 4);
+        std::cout << "Fq_rawSub in if" << "\n";
     }
 
     for (int i=0; i<Fq_N64; i++) pRawResult[i] = mr[i];
@@ -432,6 +434,15 @@ void Fq_rawNeg(FqRawElement pRawResult, FqRawElement pRawA)
     if (mpn_cmp(&ma[0], &mz[0], 4) != 0)
     {
         mpn_sub_n(&mr[0], &mq[0], &ma[0], 4);
+        std::cout << "Fq_rawNeg in if" << "\n";
+    }
+    else
+    {
+        mr[0] = mz[0];
+        mr[1] = mz[1];
+        mr[2] = mz[2];
+        mr[3] = mz[3];
+        std::cout << "Fq_rawNeg in else" << "\n";
     }
 
     for (int i=0; i<Fq_N64; i++) pRawResult[i] = mr[i];
@@ -527,6 +538,7 @@ void Fq_rawMMul(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
     if (mpz_cmp(result, mq) >= 0)
     {
         mpz_sub(result, result, mq);
+        std::cout << "Fq_rawMMul in if" << "\n";
     }
 
     //mpz_mod(result, result, md);
@@ -595,6 +607,7 @@ void Fq_rawMMul1(FqRawElement pRawResult, FqRawElement pRawA, uint64_t pRawB)
     if (mpz_cmp(result, mq) >= 0)
     {
         mpz_sub(result, result, mq);
+        std::cout << "Fq_rawMMul1 in if" << "\n";
     }
 
     Fq_to_rawElement(pRawResult, result);
@@ -661,6 +674,7 @@ void Fq_rawFromMontgomery(FqRawElement pRawResult, FqRawElement pRawA)
     if (mpz_cmp(result, mq) >= 0)
     {
         mpz_sub(result, result, mq);
+        std::cout << "Fq_rawFromMontgomery in if" << "\n";
     }
 
     Fq_to_rawElement(pRawResult, result);
@@ -676,10 +690,12 @@ void Fq_toNormal(PFqElement r, PFqElement a)
         r->type = Fq_LONG;
         //r->shortVal = a->shortVal;
         Fq_rawFromMontgomery(r->longVal, a->longVal);
+        std::cout << "Fq_toNormal in if" << "\n";
     }
     else
     {
         Fq_copy(r, a);
+        std::cout << "Fq_toNormal in else Fq_copy" << "\n";
     }
 }
 
@@ -825,13 +841,13 @@ void mul_s1s2(PFqElement r, PFqElement a, PFqElement b)
     if (!mpz_fits_sint_p(rax))
     {
         rawCopyS2L(r, temp);
-        //std::cout << "rawCopyS2L" << "\n";
+        std::cout << "mul_s1s2 rawCopyS2L" << "\n";
     }
     else
     {
         r->type = Fq_LONG;
         //r->longVal[0] = temp;
-        //std::cout << "not in rawCopyS2L" << "\n";
+        std::cout << "mul_s1s2 not in rawCopyS2L" << "\n";
     }
     mpz_clear(rax);
 }
@@ -920,6 +936,7 @@ void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b)
             tmp2.longVal[i] = Fq_R3.longVal[i];
         }
         Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
+        std::cout << "mul_l1ns2n in b->shortVal >= 0" << "\n";
     }
     else
     {
@@ -937,6 +954,7 @@ void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b)
             tmp2.longVal[i] = Fq_R3.longVal[i];
         }
         Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
+        std::cout << "mul_l1ns2n in b->shortVal < 0" << "\n";
     }
 }
 
@@ -962,6 +980,7 @@ void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b)
             tmp2.longVal[i] = Fq_R3.longVal[i];
         }
         Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
+        std::cout << "mul_s1nl2n in a->shortVal >= 0" << "\n";
     }
     else
     {
@@ -979,6 +998,7 @@ void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b)
             tmp2.longVal[i] = Fq_R3.longVal[i];
         }
         Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
+        std::cout << "mul_s1nl2n in a->shortVal < 0" << "\n";
     }
 }
 
@@ -994,6 +1014,7 @@ void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b)
         // tmp_7:
         Fq_rawMMul1(&r->longVal[0], &a->longVal[0], b->shortVal);
         // tmp_8:
+        std::cout << "mul_l1ms2n in b->shortVal >= 0" << "\n";
     }
     else
     {
@@ -1001,6 +1022,7 @@ void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b)
         Fq_rawMMul1(&r->longVal[0], &a->longVal[0], tmp3);
         Fq_rawNeg(&r->longVal[0], &r->longVal[0]);
         // tmp_8:
+        std::cout << "mul_l1ms2n in b->shortVal < 0" << "\n";
     }
 }
 
@@ -1016,6 +1038,7 @@ void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b)
         // tmp_11:
         Fq_rawMMul1(&r->longVal[0], &b->longVal[0], a->shortVal);
         // tmp_12:
+        std::cout << "mul_s1nl2m in a->shortVal >= 0" << "\n";
     }
     else
     {
@@ -1023,6 +1046,7 @@ void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b)
         Fq_rawMMul1(&r->longVal[0], &b->longVal[0], tmp3);
         Fq_rawNeg(&r->longVal[0], &r->longVal[0]);
         // tmp_12:
+        std::cout << "mul_s1nl2m in a->shortVal < 0" << "\n";
     }
 }
 
