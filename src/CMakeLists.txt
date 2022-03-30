@@ -1,3 +1,7 @@
+if(USE_ASM)
+    add_definitions(-DUSE_ASM)
+endif()
+
 set(LIB_SOURCES
     binfile_utils.hpp
     binfile_utils.cpp
@@ -16,14 +20,14 @@ set(LIB_SOURCES
     ../depends/ffiasm/c/splitparstr.cpp
     ../depends/ffiasm/c/alt_bn128.cpp
     ../build/fq.hpp
-    ../build/fq_asm.hpp
     ../build/fq.cpp
-    ../build/fq.o
     ../build/fr.hpp
-    ../build/fr_asm.hpp
     ../build/fr.cpp
-    ../build/fr.o
     )
+
+if(USE_ASM)
+    set(LIB_SOURCES ${LIB_SOURCES} ../build/fq.o ../build/fr.o)
+endif()
 
 if(USE_LOGGER)
     set(LIB_SOURCES ${LIB_SOURCES} logger.cpp)
@@ -40,7 +44,6 @@ include_directories(
 add_library(rapidsnark STATIC ${LIB_SOURCES})
 
 add_executable(prover main_prover.cpp)
-#add_executable(prover test_prover.cpp)
 
 target_link_libraries(prover rapidsnark ${GMP_LIB})
 
@@ -74,3 +77,19 @@ if(USE_OPENMP)
 
     endif()
 endif()
+
+
+set(UNIT_TEST_SOURCES
+    ../build/fq.hpp
+    ../build/fq.cpp
+    ../build/fr.hpp
+    ../build/fr.cpp
+    )
+
+if(USE_ASM)
+    set(UNIT_TEST_SOURCES ${UNIT_TEST_SOURCES} ../build/fq.o ../build/fr.o)
+endif()
+
+add_executable(test_prover test_prover.cpp ${UNIT_TEST_SOURCES})
+
+target_link_libraries(test_prover ${GMP_LIB})

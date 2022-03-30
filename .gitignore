@@ -69,3 +69,6 @@ tmp
 CMakeLists.txt.user
 
 depends/gmp*
+
+build_*
+package*

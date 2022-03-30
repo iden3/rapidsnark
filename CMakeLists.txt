@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 include(cmake/platform.cmake)
 
+set(USE_ASM OFF CACHE BOOL "Use asm implementation for Fr and Fq")
+
 project(rapidsnark LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -19,7 +21,7 @@ link_directories(${GMP_LIB_DIR})
 add_subdirectory(src)
 
 
-install(TARGETS prover rapidsnark
+install(TARGETS prover rapidsnark test_prover
     RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
     BUNDLE DESTINATION ${CMAKE_INSTALL_PREFIX}/app
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

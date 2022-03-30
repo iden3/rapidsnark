@@ -14,14 +14,18 @@ static mpz_t one;
 static mpz_t mask;
 static size_t nBits;
 static bool initialized = false;
-#ifndef FR_ASM
-FrElement Fr_q = {0, 0x80000000, {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029}};
-FrRawElement Fr_rawq  = {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-FrElement Fr_R3 = {0, 0x80000000, {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c}};
-FrRawElement Fr_rawR3 = {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c};
-FrRawElement Fr_rawR2 = {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
-uint64_t Fr_np  = {0xc2e1f593efffffff};
+
+#ifndef USE_ASM
+
+static FrElement    Fr_q     = {0, 0x80000000, {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029}};
+static FrRawElement Fr_rawq  =                 {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+static FrElement    Fr_R3    = {0, 0x80000000, {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c}};
+static FrRawElement Fr_rawR3 =                 {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c};
+static FrRawElement Fr_rawR2 = {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
+static uint64_t     Fr_np    = {0xc2e1f593efffffff};
+
 #endif
+
 void Fr_toMpz(mpz_t r, PFrElement pE) {
     FrElement tmp;
     Fr_toNormal(&tmp, pE);
@@ -279,11 +283,11 @@ static bool init = Fr_init();
 
 RawFr RawFr::field;
 
+#ifndef USE_ASM
+
 /*****************************************************************************************
  * ASM Functions to C/C++ using GNU MP Lib Begin
 ******************************************************************************************/
-#ifndef FR_ASM
-
 
 static inline void
 Fr_to_mpz(mpz_ptr dst, uint64_t src)
@@ -345,7 +349,7 @@ void debug(T val, const char *name = 0, const char *msg = 0)
     debug_val(val);
 }
 
-uint64_t get_carry(mpz_ptr val, mpz_ptr carry)
+void get_carry(mpz_ptr val, mpz_ptr carry)
 {
     if (mpz_size(val) <= 4)
     {
@@ -355,19 +359,6 @@ uint64_t get_carry(mpz_ptr val, mpz_ptr carry)
     {
         mpz_set_ui(carry, 1);
         mpz_mul_2exp(carry, carry, 64);
-    }
-}
-
-uint64_t get_carry1(mpz_ptr val, mpz_ptr carry)
-{
-    if (mpz_size(val) <= 4)
-    {
-        mpz_set_ui(carry, 0);
-    }
-    else
-    {
-        mpz_set_ui(carry, 1);
-        //mpz_mul_2exp(carry, carry, 64);
     }
 }
 
@@ -1066,4 +1057,5 @@ void mul_s1ml2n(PFrElement r,PFrElement a,PFrElement b)
 /*****************************************************************************************
  * ASM Functions to C/C++ using GNU MP Lib End
 ******************************************************************************************/
+
 #endif

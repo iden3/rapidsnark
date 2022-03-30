@@ -18,9 +18,8 @@ typedef struct __attribute__((__packed__)) {
 } FrElement;
 
 typedef FrElement *PFrElement;
-//#define FR_ASM
 
-#ifdef FR_ASM
+#ifdef USE_ASM
 
 extern "C"
 {
@@ -29,9 +28,6 @@ extern "C"
     extern FrRawElement Fr_rawq;
     extern FrRawElement Fr_rawR3;
 }
-
-
-
 
 //extern "C" void Fr_copyn(PFrElement r, PFrElement a, int n);
 //extern "C" void Fr_add(PFrElement r, PFrElement a, PFrElement b);
@@ -81,6 +77,7 @@ extern "C" int Fr_rawIsZero(FrRawElement pRawB);
 extern "C" void Fr_fail();
 
 #else
+
 void Fr_copy(PFrElement r, PFrElement a);
 void Fr_mul(PFrElement r, PFrElement a, PFrElement b);
 void Fr_toNormal(PFrElement r, PFrElement a);
@@ -166,7 +163,6 @@ public:
     static RawFr field;
 
 };
-
 
 #endif // __FR_H
 

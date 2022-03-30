@@ -18,9 +18,7 @@ typedef struct __attribute__((__packed__)) {
 } FqElement;
 typedef FqElement *PFqElement;
 
-//#define FQ_ASM
-
-#ifdef FQ_ASM
+#ifdef USE_ASM
 
 extern "C"
 {
@@ -29,7 +27,6 @@ extern "C"
     extern FqRawElement Fq_rawq;
     extern FqRawElement Fq_rawR3;
 }
-
 
 //extern "C" void Fq_copyn(PFqElement r, PFqElement a, int n);
 //extern "C" void Fq_add(PFqElement r, PFqElement a, PFqElement b);
@@ -76,7 +73,9 @@ extern "C"  int Fq_rawIsEq(FqRawElement pRawA, FqRawElement pRawB);
 extern "C" int Fq_rawIsZero(FqRawElement pRawB);
 
 extern "C" void Fq_fail();
+
 #else
+
 void Fq_copy(PFqElement r, PFqElement a);
 void Fq_mul(PFqElement r, PFqElement a, PFqElement b);
 void Fq_toNormal(PFqElement r, PFqElement a);
@@ -94,6 +93,7 @@ int Fq_rawIsEq(FqRawElement pRawA, FqRawElement pRawB);
 int Fq_rawIsZero(FqRawElement pRawB);
 
 void Fq_fail();
+
 #endif
 
 // Pending functions to convert

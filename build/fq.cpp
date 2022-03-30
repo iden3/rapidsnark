@@ -15,29 +15,15 @@ static mpz_t mask;
 static size_t nBits;
 static bool initialized = false;
 
-#ifndef FQ_ASM
-FqElement Fq_q        = {0, 0x80000000, {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029}};
-FqRawElement Fq_rawq  = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
-FqElement Fq_R3       = {0, 0x80000000, {0xb1cd6dafda1530df,0x62f210e6a7283db6,0xef7f0b0c0ada0afb,0x20fd6e902d592544}};
-FqRawElement Fq_rawR3 = {0xb1cd6dafda1530df,0x62f210e6a7283db6,0xef7f0b0c0ada0afb,0x20fd6e902d592544};
-FqRawElement Fq_rawR2 = {0xf32cfc5b538afa89,0xb5e71911d44501fb,0x47ab1eff0a417ff6,0x06d89f71cab8351f};
-uint64_t Fq_np        = {0x87d20782e4866389};
+#ifndef USE_ASM
 
-// ASM
-//Fq_q:
-//        dd      0
-//        dd      0x80000000
-//Fq_rawq:
-//q       dq      0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029
-//half    dq      0x9e10460b6c3e7ea3,0xcbc0b548b438e546,0xdc2822db40c0ac2e,0x183227397098d014
-//R2      dq      0xf32cfc5b538afa89,0xb5e71911d44501fb,0x47ab1eff0a417ff6,0x06d89f71cab8351f
-//Fq_R3:
-//        dd      0
-//        dd      0x80000000
-//Fq_rawR3:
-//R3      dq      0xb1cd6dafda1530df,0x62f210e6a7283db6,0xef7f0b0c0ada0afb,0x20fd6e902d592544
-//lboMask dq      0x3fffffffffffffff
-//np      dq      0x87d20782e4866389
+static FqElement    Fq_q     = {0, 0x80000000, {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029}};
+static FqRawElement Fq_rawq  =                 {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
+static FqElement    Fq_R3    = {0, 0x80000000, {0xb1cd6dafda1530df,0x62f210e6a7283db6,0xef7f0b0c0ada0afb,0x20fd6e902d592544}};
+static FqRawElement Fq_rawR3 =                 {0xb1cd6dafda1530df,0x62f210e6a7283db6,0xef7f0b0c0ada0afb,0x20fd6e902d592544};
+static FqRawElement Fq_rawR2 =                 {0xf32cfc5b538afa89,0xb5e71911d44501fb,0x47ab1eff0a417ff6,0x06d89f71cab8351f};
+static uint64_t     Fq_np    = {0x87d20782e4866389};
+
 #endif
 
 void Fq_toMpz(mpz_t r, PFqElement pE) {
@@ -297,7 +283,7 @@ static bool init = Fq_init();
 
 RawFq RawFq::field;
 
-#ifndef FQ_ASM
+#ifndef USE_ASM
 
 /*****************************************************************************************
  * ASM Functions to C/C++ using GNU MP Lib Begin
@@ -362,7 +348,7 @@ void Fq_debug(T val, const char *name = 0, const char *msg = 0)
     Fq_debug_val(val);
 }
 
-uint64_t Fq_get_carry(mpz_ptr val, mpz_ptr carry)
+void Fq_get_carry(mpz_ptr val, mpz_ptr carry)
 {
     if (mpz_size(val) <= 4)
     {
@@ -372,19 +358,6 @@ uint64_t Fq_get_carry(mpz_ptr val, mpz_ptr carry)
     {
         mpz_set_ui(carry, 1);
         mpz_mul_2exp(carry, carry, 64);
-    }
-}
-
-uint64_t Fq_get_carry1(mpz_ptr val, mpz_ptr carry)
-{
-    if (mpz_size(val) <= 4)
-    {
-        mpz_set_ui(carry, 0);
-    }
-    else
-    {
-        mpz_set_ui(carry, 1);
-        //mpz_mul_2exp(carry, carry, 64);
     }
 }
 
