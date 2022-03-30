@@ -39,8 +39,8 @@ include_directories(
 
 add_library(rapidsnark STATIC ${LIB_SOURCES})
 
-add_executable(prover main_prover.cpp)
-#add_executable(prover test_prover.cpp)
+#add_executable(prover main_prover.cpp)
+add_executable(prover test_prover.cpp)
 
 target_link_libraries(prover rapidsnark ${GMP_LIB})
 

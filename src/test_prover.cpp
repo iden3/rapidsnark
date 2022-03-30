@@ -41,6 +41,12 @@ uint64_t uRawResult = 0;
 uint64_t uRawResult1 = 0;
 uint64_t uRawResult2 = 0;
 uint64_t uRawResult3 = 0;
+uint64_t uRawResult4 = 0;
+uint64_t uRawResult5 = 0;
+uint64_t uRawResult6 = 0;
+uint64_t uRawResult7 = 0;
+uint64_t uRawResult8 = 0;
+uint64_t uRawResult9 = 0;
 FrRawElement pRawResult = {0,0,0,0};
 FrRawElement pRawA = {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
 FrRawElement pRawB = {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
@@ -65,6 +71,21 @@ FrRawElement pRawResult5 = {0,0,0,0};
 FrRawElement pRawA5      = {0x0,0,0,0};
 FrRawElement pRawB5      = {0x2,0,0,0};
 
+FrRawElement pRawResult6 = {0,0,0,0};
+FrRawElement pRawA6      = {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+FrRawElement pRawB6      = {0x0,0,0,0};
+
+FrRawElement pRawResult7 = {0,0,0,0};
+FrRawElement pRawA7      = {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+FrRawElement pRawB7      = {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+
+FrRawElement pRawResult8 = {0,0,0,0};
+FrRawElement pRawA8      = {0x1,0,0,0};
+FrRawElement pRawB8      = {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+
+FrRawElement pRawResult9 = {0,0,0,0};
+FrRawElement pRawA9      = {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+FrRawElement pRawB9      = {1,0,0,0};
 
 
 //#define Fr_SHORT 0x00000000
@@ -638,22 +659,28 @@ void Fr_Rw_Neg_unit_test()
     FrRawElement pRawResult2= {0x43e1f593f0000003,0x2833e84879b97090,0xb85045b68181585d,0x30644e72e131a029};
     //Fr_Rw_Neg_test 3:
     FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-    FrRawElement pRawResult3= {0x43e1f593f0000003,0x2833e84879b97092,0xb85045b68181585e,0x30644e72e131a02a};
+    FrRawElement pRawResult3= {0x43e1f593f0000003,0x2833e84879b97092,0xb85045b68181585e,0x30644e72e131a02a}; 
+    //Fr_Rw_Neg_test 5:
+    FrRawElement pRawA5= {0x0,0x0,0x0,0x0};
+    FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
 
     FrRawElement pRawResult0_c;
     FrRawElement pRawResult1_c;
     FrRawElement pRawResult2_c;
     FrRawElement pRawResult3_c;
+    FrRawElement pRawResult5_c;
 
     Fr_rawNeg(pRawResult0_c, pRawA0);
     Fr_rawNeg(pRawResult1_c, pRawA1);
     Fr_rawNeg(pRawResult2_c, pRawA2);
     Fr_rawNeg(pRawResult3_c, pRawA3);
+    Fr_rawNeg(pRawResult5_c, pRawA5);
 
     compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fr_Rw_Neg_unit_test");
     compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fr_Rw_Neg_unit_test");
     compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fr_Rw_Neg_unit_test");
     compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fr_Rw_Neg_unit_test");
+    compare_rawResult(pRawResult5, pRawResult5_c, 5, "Fr_Rw_Neg_unit_test");
 }
 
 
@@ -716,21 +743,28 @@ void Fr_Rw_add_unit_test()
     FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
     FrRawElement pRawB3= {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
     FrRawElement pRawResult3= {0xbc1e0a6c0ffffffc,0xd7cc17b786468f6d,0x47afba497e7ea7a1,0xcf9bb18d1ece5fd5};
+    //Fr_rawAdd Test 6:
+    FrRawElement pRawA6= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+    FrRawElement pRawB6= {0x0,0x0,0x0,0x0};
+    FrRawElement pRawResult6= {0x0,0x0,0x0,0x0};
 
     FrRawElement pRawResult0_c;
     FrRawElement pRawResult1_c;
     FrRawElement pRawResult2_c;
     FrRawElement pRawResult3_c;
+    FrRawElement pRawResult6_c;
 
     Fr_rawAdd(pRawResult0_c, pRawA0, pRawB0);
     Fr_rawAdd(pRawResult1_c, pRawA1, pRawB1);
     Fr_rawAdd(pRawResult2_c, pRawA2, pRawB2);
     Fr_rawAdd(pRawResult3_c, pRawA3, pRawB3);
+    Fr_rawAdd(pRawResult6_c, pRawA6, pRawB6);
 
     compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fr_Rw_add_unit_test");
     compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fr_Rw_add_unit_test");
     compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fr_Rw_add_unit_test");
     compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fr_Rw_add_unit_test");
+    compare_rawResult(pRawResult6, pRawResult6_c, 6, "Fr_Rw_add_unit_test");
 }
 
 void Fr_Rw_sub_unit_test()
@@ -814,7 +848,11 @@ void Fr_Rw_mul_unit_test()
     //Fr_Rw_mul_test 5:
     FrRawElement pRawA5= {0x0,0x0,0x0,0x0};
     FrRawElement pRawB5= {0x2,0x0,0x0,0x0};
-    FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
+    FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};   
+    //Fr_Rw_mul_test 8:
+    FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
+    FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+    FrRawElement pRawResult8= {0x0,0x0,0x0,0x0};
 
     FrRawElement pRawResult0_c;
     FrRawElement pRawResult1_c;
@@ -822,6 +860,7 @@ void Fr_Rw_mul_unit_test()
     FrRawElement pRawResult3_c;
     FrRawElement pRawResult4_c;
     FrRawElement pRawResult5_c;
+    FrRawElement pRawResult8_c;
 
     Fr_rawMMul(pRawResult0_c, pRawA0, pRawB0);
     Fr_rawMMul(pRawResult1_c, pRawA1, pRawB1);
@@ -829,6 +868,7 @@ void Fr_Rw_mul_unit_test()
     Fr_rawMMul(pRawResult3_c, pRawA3, pRawB3);
     Fr_rawMMul(pRawResult4_c, pRawA4, pRawB4);
     Fr_rawMMul(pRawResult5_c, pRawA5, pRawB5);
+    Fr_rawMMul(pRawResult8_c, pRawA8, pRawB8);
 
     compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fr_Rw_mul_unit_test");
     compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fr_Rw_mul_unit_test");
@@ -836,6 +876,7 @@ void Fr_Rw_mul_unit_test()
     compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fr_Rw_mul_unit_test");
     compare_rawResult(pRawResult4, pRawResult4_c, 4, "Fr_Rw_mul_unit_test");
     compare_rawResult(pRawResult5, pRawResult5_c, 5, "Fr_Rw_mul_unit_test");
+    compare_rawResult(pRawResult8, pRawResult8_c, 8, "Fr_Rw_mul_unit_test");
 }
 
 void Fr_Rw_mul_test(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB, int idx)
@@ -905,22 +946,29 @@ void Fr_Rw_mul1_unit_test()
     //Fr_Rw_mul1_test 3:
     FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
     FrRawElement pRawB3= {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
-    FrRawElement pRawResult3= {0x35f905313fdf50bb,0x5bab176e33b97efa,0xafd63944c55782d,0x1402c8cfdb71d335};
+    FrRawElement pRawResult3= {0x35f905313fdf50bb,0x5bab176e33b97efa,0xafd63944c55782d,0x1402c8cfdb71d335};    
+    //Fr_Rw_mul1_test 9:
+    FrRawElement pRawA9= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+    FrRawElement pRawB9= {0x1,0x0,0x0,0x0};
+    FrRawElement pRawResult9= {0x0,0x0,0x0,0x0};
 
     FrRawElement pRawResult0_c;
     FrRawElement pRawResult1_c;
     FrRawElement pRawResult2_c;
     FrRawElement pRawResult3_c;
+    FrRawElement pRawResult9_c;
 
     Fr_rawMMul1(pRawResult0_c, pRawA0, pRawB0[0]);
     Fr_rawMMul1(pRawResult1_c, pRawA1, pRawB1[0]);
     Fr_rawMMul1(pRawResult2_c, pRawA2, pRawB2[0]);
     Fr_rawMMul1(pRawResult3_c, pRawA3, pRawB3[0]);
+    Fr_rawMMul1(pRawResult9_c, pRawA9, pRawB9[0]);
 
     compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fr_Rw_mul1_unit_test");
     compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fr_Rw_mul1_unit_test");
     compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fr_Rw_mul1_unit_test");
     compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fr_Rw_mul1_unit_test");
+    compare_rawResult(pRawResult9, pRawResult9_c, 9, "Fr_Rw_mul1_unit_test");
 }
 
 void Fr_Rw_mul1_test(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB, int idx)
@@ -1001,20 +1049,28 @@ void Fr_Rw_IsEq_unit_test()
     FrRawElement pRawB3= {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
     FrRawElement pRawResult3= {0x0};
 
+    //Fr_rawIsEq 7:
+    FrRawElement pRawA7= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+    FrRawElement pRawB7= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+    FrRawElement pRawResult7= {0x1};
+
     FrRawElement pRawResult0_c = {0};
     FrRawElement pRawResult1_c = {0};
     FrRawElement pRawResult2_c = {0};
     FrRawElement pRawResult3_c = {0};
+    FrRawElement pRawResult7_c = {0};
 
     pRawResult0_c[0] = Fr_rawIsEq(pRawA0, pRawB0);
     pRawResult1_c[0] = Fr_rawIsEq(pRawA1, pRawB1);
     pRawResult2_c[0] = Fr_rawIsEq(pRawA2, pRawB2);
     pRawResult3_c[0] = Fr_rawIsEq(pRawA3, pRawB3);
+    pRawResult7_c[0] = Fr_rawIsEq(pRawA7, pRawB7);
 
     compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fr_Rw_IsEq_unit_test");
     compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fr_Rw_IsEq_unit_test");
     compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fr_Rw_IsEq_unit_test");
     compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fr_Rw_IsEq_unit_test");
+    compare_rawResult(pRawResult7, pRawResult7_c, 7, "Fr_Rw_IsEq_unit_test");
 }
 
 
@@ -1043,20 +1099,27 @@ void Fr_rawIsZero_unit_test()
     FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
     FrRawElement pRawResult3= {0x0};
 
+    //Fr_rawIsZero_test 5:
+    FrRawElement pRawA5= {0x0,0x0,0x0,0x0};
+    FrRawElement pRawResult5= {0x1};
+
     FrRawElement pRawResult0_c = {0};
     FrRawElement pRawResult1_c = {0};
     FrRawElement pRawResult2_c = {0};
     FrRawElement pRawResult3_c = {0};
+    FrRawElement pRawResult5_c = {0};
 
     pRawResult0_c[0] = Fr_rawIsZero(pRawA0);
     pRawResult1_c[0] = Fr_rawIsZero(pRawA1);
     pRawResult2_c[0] = Fr_rawIsZero(pRawA2);
     pRawResult3_c[0] = Fr_rawIsZero(pRawA3);
+    pRawResult5_c[0] = Fr_rawIsZero(pRawA5);
 
     compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fr_rawIsZero_unit_test");
     compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fr_rawIsZero_unit_test");
     compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fr_rawIsZero_unit_test");
     compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fr_rawIsZero_unit_test");
+    compare_rawResult(pRawResult5, pRawResult5_c, 5, "Fr_rawIsZero_unit_test");
 }
 
 void Fr_Rw_FromMontgomery_unit_test()
@@ -2867,6 +2930,7 @@ int main()
     Fr_Rw_add_test(pRawResult1, pRawA1, pRawB1, 1);
     Fr_Rw_add_test(pRawResult2, pRawA2, pRawB2, 2);
     Fr_Rw_add_test(pRawResult3, pRawA3, pRawB3, 3);
+    Fr_Rw_add_test(pRawResult6, pRawA6, pRawB6, 6);
 #endif
 
 #ifdef TEST_FR_C_FUNCTIONS
@@ -2903,12 +2967,14 @@ int main()
 //    Fr_Rw_Neg_test(pRawResult1, pRawA1, pRawB1, 1);
 //    Fr_Rw_Neg_test(pRawResult2, pRawA2, pRawB2, 2);
 //    Fr_Rw_Neg_test(pRawResult3, pRawA3, pRawB3, 3);
+//    Fr_Rw_Neg_test(pRawResult5, pRawA5, pRawB5, 5);
 #endif
 #ifdef TEST_FR_ASM_FUNCTIONS
     Fr_Rw_Neg_test(pRawResult,  pRawA,  pRawB, 0);
     Fr_Rw_Neg_test(pRawResult1, pRawA1, pRawB1, 1);
     Fr_Rw_Neg_test(pRawResult2, pRawA2, pRawB2, 2);
     Fr_Rw_Neg_test(pRawResult3, pRawA3, pRawB3, 3);
+    Fr_Rw_Neg_test(pRawResult5, pRawA5, pRawB5, 5);
 #endif
 
 #ifdef TEST_FR_C_FUNCTIONS
@@ -2927,6 +2993,7 @@ int main()
     Fr_Rw_mul_test(pRawResult3, pRawA3, pRawB3, 3);
     Fr_Rw_mul_test(pRawResult4, pRawA4, pRawB4, 4);
     Fr_Rw_mul_test(pRawResult5, pRawA5, pRawB5, 5);
+    Fr_Rw_mul_test(pRawResult8, pRawA8, pRawB8, 8);
 #endif
 
 #ifdef TEST_FR_C_FUNCTIONS
@@ -2955,6 +3022,7 @@ int main()
     Fr_Rw_mul1_test(pRawResult1, pRawA1, pRawB1, 1);
     Fr_Rw_mul1_test(pRawResult2, pRawA2, pRawB2, 2);
     Fr_Rw_mul1_test(pRawResult3, pRawA3, pRawB3, 3);
+    Fr_Rw_mul1_test(pRawResult9, pRawA9, pRawB9, 9);
 #endif
 
 #ifdef TEST_FR_C_FUNCTIONS
@@ -2983,6 +3051,7 @@ int main()
     Fr_rawIsEq_test(uRawResult1, pRawA1, pRawB1, 1);
     Fr_rawIsEq_test(uRawResult2, pRawA2, pRawB2, 2);
     Fr_rawIsEq_test(uRawResult3, pRawA3, pRawB3, 3);
+    Fr_rawIsEq_test(uRawResult7, pRawA7, pRawB7, 7);
 #endif
 
 #ifdef TEST_FR_C_FUNCTIONS
@@ -2997,6 +3066,7 @@ int main()
     Fr_rawIsZero_test(uRawResult1, pRawA1, pRawB1, 1);
     Fr_rawIsZero_test(uRawResult2, pRawA2, pRawB2, 2);
     Fr_rawIsZero_test(uRawResult3, pRawA3, pRawB3, 3);
+    Fr_rawIsZero_test(uRawResult5, pRawA5, pRawB5, 5);
 #endif
 
 #ifdef TEST_FR_C_FUNCTIONS
