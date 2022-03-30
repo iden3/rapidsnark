@@ -824,6 +824,7 @@ void mul_s1s2(PFrElement r, PFrElement a, PFrElement b)
     r->longVal[0] = temp;
     mpz_import(rax, 1, -1, 8, -1, 0, (const void *)r);
     // mul_manageOverflow
+    //if (!mpz_fits_sint_p(rax))
     if (!mpz_fits_sint_p(rax))
     {
         rawCopyS2L(r, temp);
@@ -854,6 +855,7 @@ void rawCopyS2L(PFrElement r, int64_t temp)
     if (temp < 0)
     {
        mpz_add(mr, mr, mq);
+       std::cout << "mul_s1s2 rawCopyS2L temp < 0" << "\n";
     }
     Fr_fromMpz(r, mr);
     mpz_clear(mr);
@@ -940,7 +942,7 @@ void mul_l1ns2n(PFrElement r,PFrElement a,PFrElement b)
             tmp2.longVal[i] = Fr_R3.longVal[i];
         }
         Fr_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-        std::cout << "mul_l1ns2n else " << "\n";
+        std::cout << "mul_l1ns2n b->shortVal < 0 " << "\n";
     }
 }
 
@@ -966,7 +968,7 @@ void mul_s1nl2n(PFrElement r,PFrElement a,PFrElement b)
             tmp2.longVal[i] = Fr_R3.longVal[i];
         }
         Fr_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-        std::cout << "mul_s1nl2n b->shortVal >= 0" << "\n";
+        std::cout << "mul_s1nl2n a->shortVal >= 0" << "\n";
     }
     else
     {
@@ -984,7 +986,7 @@ void mul_s1nl2n(PFrElement r,PFrElement a,PFrElement b)
             tmp2.longVal[i] = Fr_R3.longVal[i];
         }
         Fr_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-        std::cout << "mul_s1nl2n else" << "\n";
+        std::cout << "mul_s1nl2n a->shortVal < 0" << "\n";
     }
 }
 
@@ -1008,7 +1010,7 @@ void mul_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
         Fr_rawMMul1(&r->longVal[0], &a->longVal[0], tmp3);
         Fr_rawNeg(&r->longVal[0], &r->longVal[0]);
         // tmp_8:
-        std::cout << "mul_l1ms2n else" << "\n";
+        std::cout << "mul_l1ms2n b->shortVal < 0" << "\n";
     }
 }
 
@@ -1024,7 +1026,7 @@ void mul_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
         // tmp_11:
         Fr_rawMMul1(&r->longVal[0], &b->longVal[0], a->shortVal);
         // tmp_12:
-        std::cout << "mul_s1nl2m b->shortVal >= 0" << "\n";
+        std::cout << "mul_s1nl2m a->shortVal >= 0" << "\n";
     }
     else
     {
@@ -1032,7 +1034,7 @@ void mul_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
         Fr_rawMMul1(&r->longVal[0], &b->longVal[0], tmp3);
         Fr_rawNeg(&r->longVal[0], &r->longVal[0]);
         // tmp_12:
-        std::cout << "mul_s1nl2m else" << "\n";
+        std::cout << "mul_s1nl2m a->shortVal < 0" << "\n";
     }
 }
 

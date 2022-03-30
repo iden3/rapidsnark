@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <stdint.h>
+#include <limits.h>
 
 #define TEST_FR_C_FUNCTIONS
 //#define TEST_FR_ASM_FUNCTIONS
@@ -125,8 +127,8 @@ FrElement A2_s1s2 = {0xa1f0, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xd
 FrElement B2_s1s2 = {0x1bb8, Fr_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
 
 FrElement Result3_s1s2 = {0,0,{0,0,0,0}};
-FrElement A3_s1s2 = {0xffff, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FrElement B3_s1s2 = {0xffff, Fr_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+FrElement A3_s1s2 = {INT_MAX, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FrElement B3_s1s2 = {INT_MAX, Fr_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
 
 // mul_l1nl2n
 FrElement Result_l1nl2n = {0,0,{0,0,0,0}};
@@ -210,8 +212,8 @@ FrElement A2_l1ns2n = {0xa1f0, Fr_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0x
 FrElement B2_l1ns2n= {0x1bb8, Fr_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
 
 FrElement Result3_l1ns2n = {0,0,{0,0,0,0}};
-FrElement A3_l1ns2n = {0xffff, Fr_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FrElement B3_l1ns2n = {0xffff, Fr_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FrElement A3_l1ns2n = {INT_MAX, Fr_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FrElement B3_l1ns2n = {-1, Fr_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
 
 //mul_s1nl2n
 FrElement Result_s1nl2n = {0,0,{0,0,0,0}};
@@ -227,8 +229,8 @@ FrElement A2_s1nl2n = {0xa1f0, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0
 FrElement B2_s1nl2n= {0x1bb8, Fr_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
 
 FrElement Result3_s1nl2n = {0,0,{0,0,0,0}};
-FrElement A3_s1nl2n = {0xffff, Fr_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FrElement B3_s1nl2n = {0xffff, Fr_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FrElement A3_s1nl2n= {-1,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FrElement B3_s1nl2n= {INT_MAX,Fr_LONG,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
 
 //mul_s1nl2m
 FrElement Result_s1nl2m = {0,0,{0,0,0,0}};
@@ -244,8 +246,9 @@ FrElement A2_s1nl2m = {0xa1f0, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0
 FrElement B2_s1nl2m = {0x1bb8, Fr_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
 
 FrElement Result3_s1nl2m = {0,0,{0,0,0,0}};
-FrElement A3_s1nl2m = {0xffff, Fr_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FrElement B3_s1nl2m = {0xffff, Fr_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FrElement A3_s1nl2m= {-1,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FrElement B3_s1nl2m= {INT_MAX,Fr_LONGMONTGOMERY,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
+
 
 //mul_l1ms2n
 FrElement Result_l1ms2n = {0,0,{0,0,0,0}};
@@ -261,8 +264,10 @@ FrElement A2_l1ms2n = {0xa1f0, Fr_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243
 FrElement B2_l1ms2n= {0x1bb8, Fr_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
 
 FrElement Result3_l1ms2n = {0,0,{0,0,0,0}};
-FrElement A3_l1ms2n = {0xffff, Fr_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FrElement B3_l1ms2n = {0xffff, Fr_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+
+FrElement A3_l1ms2n= {0xffff,0xc0000000,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
+FrElement B3_l1ms2n= {-1,0x0,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
+
 
 //mul_l1ns2m
 FrElement Result_l1ns2m = {0,0,{0,0,0,0}};
@@ -1226,9 +1231,9 @@ void Fr_mul_s1s2_unit_test()
     FrElement pB_s1s22= {0x1bb8,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
     FrElement pResult_s1s22= {0x0,0x80000000,{0x1188b480,0x0,0x0,0x0}};
     //Fr_mul_s1s2_test 3:
-    FrElement pA_s1s23= {0xffff,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement pB_s1s23= {0xffff,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
-    FrElement pResult_s1s23= {0x0,0x80000000,{0xfffe0001,0x0,0x0,0x0}};
+    FrElement pA_s1s23= {0x7fffffff,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_s1s23= {0x7fffffff,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_s1s23= {0x0,0x80000000,{0x3fffffff00000001,0x0,0x0,0x0}};
 
     FrElement Result0_c = {0,0,{0,0,0,0}};
     FrElement Result1_c = {0,0,{0,0,0,0}};
@@ -1437,9 +1442,9 @@ void Fr_mul_l1ns2n_unit_test()
     FrElement pB_l1ns2n2= {0x1bb8,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
     FrElement pResult_l1ns2n2= {0x0,0xc0000000,{0x2d67d8d2e0004952,0xaddd11ecde7f7ae3,0xed975f635da0de4d,0x1a7fe303489132eb}};
     //Fr_mul_l1ns2n_test 3:
-    FrElement pA_l1ns2n3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-    FrElement pB_l1ns2n3= {0xffff,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-    FrElement pResult_l1ns2n3= {0x0,0xc0000000,{0x3fa7b78c6f8ad18e,0x8906f63f7f752307,0x3d4ab0ac8b21d4aa,0xaeb97c8bbd84e34}};
+    FrElement pA_l1ns2n3= {0x7fffffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_l1ns2n3= {-1,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_l1ns2n3= {0x0,0xc0000000,{0x90dd4dd6a1de9254,0xe2fe3be3bc047346,0xda25203224bdc5a8,0xbf3a7101ab99a89}};
 
     FrElement Result0_c = {0,0,{0,0,0,0}};
     FrElement Result1_c = {0,0,{0,0,0,0}};
@@ -1481,9 +1486,9 @@ void Fr_mul_s1nl2n_unit_test()
     FrElement pB_s1nl2n2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
     FrElement pResult_s1nl2n2= {0x0,0xc0000000,{0x3c79e7002385099,0x69bfe0da5a608f7b,0x3dbd93ce32b4e2b3,0x773561b6a940451}};
     //Fr_mul_s1nl2n_test 3:
-    FrElement pA_s1nl2n3= {0xffff,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-    FrElement pB_s1nl2n3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-    FrElement pResult_s1nl2n3= {0x0,0xc0000000,{0x3fa7b78c6f8ad18e,0x8906f63f7f752307,0x3d4ab0ac8b21d4aa,0xaeb97c8bbd84e34}};
+    FrElement pA_s1nl2n3= {-1,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_s1nl2n3= {0x7fffffff,0x80000000,{0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff}};
+    FrElement pResult_s1nl2n3= {0x0,0xc0000000,{0x7c8b07120fa19dd4,0x19b02d60cfbeb467,0xe1f374b7a57d8ed5,0x22a83208b264056d}};
 
     FrElement Result0_c = {0,0,{0,0,0,0}};
     FrElement Result1_c = {0,0,{0,0,0,0}};
@@ -1525,9 +1530,9 @@ void Fr_mul_s1nl2m_unit_test()
     FrElement pB_s1nl2m2= {0x1bb8,0xc0000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
     FrElement pResult_s1nl2m2= {0x0,0x80000000,{0xd708561abffca754,0x6c6d984a2702a36a,0xc0f6e8587da122fb,0x164b29d2c31ce3ab}};
     //Fr_mul_s1nl2m_test 3:
-    FrElement pA_s1nl2m3= {0xffff,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-    FrElement pB_s1nl2m3= {0xffff,0xc0000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-    FrElement pResult_s1nl2m3= {0x0,0x80000000,{0x808d8e74d4648d45,0x5706a97c2dc05e64,0x5755e426e15ac79c,0xd0410ffa0ae732d}};
+    FrElement pA_s1nl2m3= {-1,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_s1nl2m3= {0x7fffffff,0xc0000000,{0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff}};
+    FrElement pResult_s1nl2m3= {0x0,0x80000000,{0xab57780eac37ddd2,0x9ffb06c643291bf,0xb327f5cb01f66c9e,0x2f40c4dcc2ed6d85}};
 
     FrElement Result0_c = {0,0,{0,0,0,0}};
     FrElement Result1_c = {0,0,{0,0,0,0}};
@@ -1570,9 +1575,10 @@ void Fr_mul_l1ms2n_unit_test()
     FrElement pB_l1ms2n2= {0x1bb8,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
     FrElement pResult_l1ms2n2= {0x0,0x80000000,{0x5d70bdff3d855140,0xfab648d14060e580,0xc8cd54f7f14513ba,0x23995be618ce6b27}};
     //Fr_mul_l1ms2n_test 3:
-    FrElement pA_l1ms2n3= {0xffff,0xc0000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-    FrElement pB_l1ms2n3= {0xffff,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-    FrElement pResult_l1ms2n3= {0x0,0x80000000,{0x808d8e74d4648d45,0x5706a97c2dc05e64,0x5755e426e15ac79c,0xd0410ffa0ae732d}};
+    FrElement pA_l1ms2n3= {0xffff,0xc0000000,{0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff}};
+    FrElement pB_l1ms2n3= {-1,0x0,{0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff}};
+    FrElement pResult_l1ms2n3= {0x0,0x80000000,{0xab57780eac37ddd2,0x9ffb06c643291bf,0xb327f5cb01f66c9e,0x2f40c4dcc2ed6d85}};
+
     FrElement Result0_c = {0,0,{0,0,0,0}};
     FrElement Result1_c = {0,0,{0,0,0,0}};
     FrElement Result2_c= {0,0,{0,0,0,0}};
