@@ -4,10 +4,10 @@
 #include <stdint.h>
 #include <limits.h>
 
-//#define TEST_FR_C_FUNCTIONS
+#define TEST_FR_C_FUNCTIONS
 //#define TEST_FR_ASM_FUNCTIONS
 
-#define TEST_FQ_C_FUNCTIONS
+//#define TEST_FQ_C_FUNCTIONS
 //#define TEST_FQ_ASM_FUNCTIONS
 
 #ifdef TEST_FR_C_FUNCTIONS

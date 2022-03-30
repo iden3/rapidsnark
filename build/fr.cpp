@@ -383,7 +383,7 @@ void Fr_rawAdd(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     if(carry || mpn_cmp(mr, mq, 4) >= 0)
     {
         mpn_sub_n(&mr[0], &mr[0], &mq[0], 4);
-        std::cout << "Fr_rawAdd in if" <<"\n";
+        //std::cout << "Fr_rawAdd in if" <<"\n";
     }
 
     for (int i=0; i<Fr_N64; i++) pRawResult[i] = mr[i];
@@ -401,7 +401,7 @@ void Fr_rawSub(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     if(carry)
     {
         mpn_add_n(&mr[0], &mr[0], &mq[0], 4);
-        std::cout << "Fr_rawSub in if" <<"\n";
+        //std::cout << "Fr_rawSub in if" <<"\n";
     }
 
     for (int i=0; i<Fr_N64; i++) pRawResult[i] = mr[i];
@@ -417,7 +417,7 @@ void Fr_rawNeg(FrRawElement pRawResult, FrRawElement pRawA)
     if (mpn_cmp(&ma[0], &mz[0], 4) != 0)
     {
         mpn_sub_n(&mr[0], &mq[0], &ma[0], 4);
-        std::cout << "Fr_rawNeg in if" <<"\n";
+        //std::cout << "Fr_rawNeg in if" <<"\n";
     }
     else
     {
@@ -425,7 +425,7 @@ void Fr_rawNeg(FrRawElement pRawResult, FrRawElement pRawA)
         mr[1] = mz[1];
         mr[2] = mz[2];
         mr[3] = mz[3];
-        std::cout << "Fr_rawNeg in else" <<"\n";
+        //std::cout << "Fr_rawNeg in else" <<"\n";
     }
 
     for (int i=0; i<Fr_N64; i++) pRawResult[i] = mr[i];
@@ -521,7 +521,7 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     if (mpz_cmp(result, mq) >= 0)
     {
         mpz_sub(result, result, mq);
-        std::cout << "Fr_rawMMul in if" <<"\n";
+        //std::cout << "Fr_rawMMul in if" <<"\n";
     }
 
     //mpz_mod(result, result, md);
@@ -590,7 +590,7 @@ void Fr_rawMMul1(FrRawElement pRawResult, FrRawElement pRawA, uint64_t pRawB)
     if (mpz_cmp(result, mq) >= 0)
     {
         mpz_sub(result, result, mq);
-        std::cout << "Fr_rawMMul1 in if" <<"\n";
+        //std::cout << "Fr_rawMMul1 in if" <<"\n";
     }
 
     Fr_to_rawElement(pRawResult, result);
@@ -657,7 +657,7 @@ void Fr_rawFromMontgomery(FrRawElement pRawResult, FrRawElement pRawA)
     if (mpz_cmp(result, mq) >= 0)
     {
         mpz_sub(result, result, mq);
-        std::cout << "Fr_rawFromMontgomery in if" <<"\n";
+        //std::cout << "Fr_rawFromMontgomery in if" <<"\n";
     }
 
     Fr_to_rawElement(pRawResult, result);
@@ -673,12 +673,12 @@ void Fr_toNormal(PFrElement r, PFrElement a)
         r->type = Fr_LONG;
         //r->shortVal = a->shortVal;
         Fr_rawFromMontgomery(r->longVal, a->longVal);
-        std::cout << "Fr_toNormal in if Fr_LONGMONTGOMERY" <<"\n";
+        //std::cout << "Fr_toNormal in if Fr_LONGMONTGOMERY" <<"\n";
     }
     else
     {
         Fr_copy(r, a);
-        std::cout << "Fr_toNormal in else Fr_copy" <<"\n";
+        //std::cout << "Fr_toNormal in else Fr_copy" <<"\n";
     }
 }
 
@@ -828,13 +828,13 @@ void mul_s1s2(PFrElement r, PFrElement a, PFrElement b)
     if (!mpz_fits_sint_p(rax))
     {
         rawCopyS2L(r, temp);
-        std::cout << "mul_s1s2 rawCopyS2L" << "\n";
+        //std::cout << "mul_s1s2 rawCopyS2L" << "\n";
     }
     else
     {
         r->type = Fr_LONG;
         //r->longVal[0] = temp;
-        std::cout << "mul_s1s2 not in rawCopyS2L" << "\n";
+        //std::cout << "mul_s1s2 not in rawCopyS2L" << "\n";
     }
     mpz_clear(rax);
 }
@@ -855,7 +855,7 @@ void rawCopyS2L(PFrElement r, int64_t temp)
     if (temp < 0)
     {
        mpz_add(mr, mr, mq);
-       std::cout << "mul_s1s2 rawCopyS2L temp < 0" << "\n";
+       //std::cout << "mul_s1s2 rawCopyS2L temp < 0" << "\n";
     }
     Fr_fromMpz(r, mr);
     mpz_clear(mr);
@@ -924,7 +924,7 @@ void mul_l1ns2n(PFrElement r,PFrElement a,PFrElement b)
             tmp2.longVal[i] = Fr_R3.longVal[i];
         }
         Fr_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-        std::cout << "mul_l1ns2n b->shortVal >= 0" << "\n";
+        //std::cout << "mul_l1ns2n b->shortVal >= 0" << "\n";
     }
     else
     {
@@ -942,7 +942,7 @@ void mul_l1ns2n(PFrElement r,PFrElement a,PFrElement b)
             tmp2.longVal[i] = Fr_R3.longVal[i];
         }
         Fr_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-        std::cout << "mul_l1ns2n b->shortVal < 0 " << "\n";
+        //std::cout << "mul_l1ns2n b->shortVal < 0 " << "\n";
     }
 }
 
@@ -968,7 +968,7 @@ void mul_s1nl2n(PFrElement r,PFrElement a,PFrElement b)
             tmp2.longVal[i] = Fr_R3.longVal[i];
         }
         Fr_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-        std::cout << "mul_s1nl2n a->shortVal >= 0" << "\n";
+        //std::cout << "mul_s1nl2n a->shortVal >= 0" << "\n";
     }
     else
     {
@@ -986,7 +986,7 @@ void mul_s1nl2n(PFrElement r,PFrElement a,PFrElement b)
             tmp2.longVal[i] = Fr_R3.longVal[i];
         }
         Fr_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-        std::cout << "mul_s1nl2n a->shortVal < 0" << "\n";
+        //std::cout << "mul_s1nl2n a->shortVal < 0" << "\n";
     }
 }
 
@@ -1002,7 +1002,7 @@ void mul_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
         // tmp_7:
         Fr_rawMMul1(&r->longVal[0], &a->longVal[0], b->shortVal);
         // tmp_8:
-        std::cout << "mul_l1ms2n b->shortVal >= 0" << "\n";
+        //std::cout << "mul_l1ms2n b->shortVal >= 0" << "\n";
     }
     else
     {
@@ -1010,7 +1010,7 @@ void mul_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
         Fr_rawMMul1(&r->longVal[0], &a->longVal[0], tmp3);
         Fr_rawNeg(&r->longVal[0], &r->longVal[0]);
         // tmp_8:
-        std::cout << "mul_l1ms2n b->shortVal < 0" << "\n";
+        //std::cout << "mul_l1ms2n b->shortVal < 0" << "\n";
     }
 }
 
@@ -1026,7 +1026,7 @@ void mul_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
         // tmp_11:
         Fr_rawMMul1(&r->longVal[0], &b->longVal[0], a->shortVal);
         // tmp_12:
-        std::cout << "mul_s1nl2m a->shortVal >= 0" << "\n";
+        //std::cout << "mul_s1nl2m a->shortVal >= 0" << "\n";
     }
     else
     {
@@ -1034,7 +1034,7 @@ void mul_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
         Fr_rawMMul1(&r->longVal[0], &b->longVal[0], tmp3);
         Fr_rawNeg(&r->longVal[0], &r->longVal[0]);
         // tmp_12:
-        std::cout << "mul_s1nl2m a->shortVal < 0" << "\n";
+        //std::cout << "mul_s1nl2m a->shortVal < 0" << "\n";
     }
 }
 
