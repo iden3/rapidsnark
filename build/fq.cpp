@@ -825,26 +825,26 @@ void mul_s1s2(PFqElement r, PFqElement a, PFqElement b)
     mpz_clear(rax);
 }
 
-void rawCopyS2L(PFqElement r, int64_t temp)
+void rawCopyS2L(PFqElement pResult, int64_t val)
 {
-    r->longVal[0] = temp; // с расширением знака до 256 бит
-    r->type = Fq_LONG;      // с расширением знака до 256 бит
+    mpz_t result, mq;
 
-    mpz_t mr;
-    mpz_init(mr);
-    Fq_toMpz(mr, r);
-    mpz_t mq;
-    mpz_init(mq);
-    Fq_toMpz(mq, &Fq_q);
+    mpz_inits(result, mq);
 
+    mpz_set_si(result, val);
 
-    if (temp < 0)
+    if (val < 0)
     {
-       mpz_add(mr, mr, mq);
+        Fq_to_mpz(mq, Fq_rawq);
+
+        mpz_add(result, result, mq);
     }
-    Fq_fromMpz(r, mr);
-    mpz_clear(mr);
-    mpz_clear(mq);
+
+    pResult->type = Fq_LONG;
+    pResult->shortVal = 0;
+    Fq_to_rawElement(pResult->longVal, result);
+
+    mpz_clears(result, mq);
 }
 
 void mul_l1nl2n(PFqElement r,PFqElement a,PFqElement b)

@@ -21,8 +21,9 @@ static FrElement    Fr_q     = {0, 0x80000000, {0x43e1f593f0000001,0x2833e84879b
 static FrRawElement Fr_rawq  =                 {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 static FrElement    Fr_R3    = {0, 0x80000000, {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c}};
 static FrRawElement Fr_rawR3 =                 {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c};
-static FrRawElement Fr_rawR2 = {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
+static FrRawElement Fr_rawR2 =                 {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
 static uint64_t     Fr_np    = {0xc2e1f593efffffff};
+
 
 #endif
 
@@ -830,27 +831,26 @@ void mul_s1s2(PFrElement r, PFrElement a, PFrElement b)
     mpz_clear(rax);
 }
 
-void rawCopyS2L(PFrElement r, int64_t temp)
+void rawCopyS2L(PFrElement pResult, int64_t val)
 {
-    r->longVal[0] = temp; // с расширением знака до 256 бит
-    r->type = Fr_LONG;      // с расширением знака до 256 бит
+    mpz_t result, mq;
 
-    mpz_t mr;
-    mpz_init(mr);
-    Fr_toMpz(mr, r);
-    mpz_t mq;
-    mpz_init(mq);
-    Fr_toMpz(mq, &Fr_q);
+    mpz_inits(result, mq);
 
+    mpz_set_si(result, val);
 
-    if (temp < 0)
+    if (val < 0)
     {
-       mpz_add(mr, mr, mq);
-       //std::cout << "mul_s1s2 rawCopyS2L temp < 0" << "\n";
+        Fr_to_mpz(mq, Fr_rawq);
+
+        mpz_add(result, result, mq);
     }
-    Fr_fromMpz(r, mr);
-    mpz_clear(mr);
-    mpz_clear(mq);
+
+    pResult->type = Fr_LONG;
+    pResult->shortVal = 0;
+    Fr_to_rawElement(pResult->longVal, result);
+
+    mpz_clears(result, mq);
 }
 
 void mul_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
