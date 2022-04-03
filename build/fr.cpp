@@ -438,7 +438,7 @@ int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB)
 
 
 // FirstLoop 0
-// Second Loop 0
+// Second Loop 0 ASM
 ////Fr_Rw_mul_test 0:
 //FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
 //FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
@@ -466,167 +466,6 @@ int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB)
 ////Fr_Rw_mul_test 8:
 //FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
 //FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-
-////Fr_Rw_mul_test 0:
-//FirstLoop 0 product= cd4d769e76216da7, 74e35452ef1a9705, 25f2e5b49bc9d231, d155f4a16a3ed651, 15250af3534de67
-//Second Loop 0 result= 81c4c7a252af4887, 81d6fff3f3af68ff, e357f9dbfbeb7aff, fbf7d45beefd1ac1, 19f69453a6d418c1
-
-
-//carry = mpn_add(&result[0], &np0q[0], 4, &product[0], 5);
-////Fr_Rw_mul_test 0:
-//FirstLoop 0 product= b1949058c8000000, 20e519a10bbe3d22, 99a96277480e51ac, cf3f23efeaf091ab, 15250af3534de67
-//Second Loop 0 result= 0, 2b5f03ec9137536d, 806e49a91514a16c, 31762d353b74a158, 13d4d397da065264
-//carry= 0
-//FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
-//FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
-//FrRawElement pRawResult0= {0x0,0x2b5f03ec9137536d,0x806e49a91514a16c,0x31762d353b74a158};
-////Fr_Rw_mul_test 1:
-//FirstLoop 0 product= 2, 0, 0, 0, 0
-//Second Loop 0 result= 0, 169b0b13d72ddc99, 6c5b3334dcbfb509, ad619b286e68fcca, 1949259d0e237ddf
-//carry= 0
-//FrRawElement pRawA1= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB1= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult1= {0x0,0x169b0b13d72ddc99,0x6c5b3334dcbfb509,0xad619b286e68fcca};
-////Fr_Rw_mul_test 2:
-//FirstLoop 0 product= 2, fffffffffffffffd, 0, 0, 0
-//Second Loop 0 result= 0, 169b0b13d72ddc96, 6c5b3334dcbfb50a, ad619b286e68fcca, 1949259d0e237ddf
-//carry= 0
-//FrRawElement pRawA2= {0xfffffffffffffffe,0x0,0x0,0x0};
-//FrRawElement pRawB2= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult2= {0x0,0x169b0b13d72ddc96,0x6c5b3334dcbfb50a,0xad619b286e68fcca};
-////Fr_Rw_mul_test 3:
-//FirstLoop 0 product= 2, ffffffffffffffff, ffffffffffffffff, ffffffffffffffff, fffffffffffffffd
-//Second Loop 0 result= 0, 169b0b13d72ddc98, 6c5b3334dcbfb509, ad619b286e68fcca, 1949259d0e237ddd
-//carry= 1
-//FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB3= {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
-//FrRawElement pRawResult3= {0x0,0x169b0b13d72ddc98,0x6c5b3334dcbfb509,0xad619b286e68fcca};
-////Fr_Rw_mul_test 4:
-//FirstLoop 0 product= 2, fffffffffffffffd, 0, 0, 0
-//Second Loop 0 result= 0, 169b0b13d72ddc96, 6c5b3334dcbfb50a, ad619b286e68fcca, 1949259d0e237ddf
-//carry= 0
-//FrRawElement pRawA4= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB4= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult4= {0x0,0x169b0b13d72ddc96,0x6c5b3334dcbfb50a,0xad619b286e68fcca};
-////Fr_Rw_mul_test 5:
-//FirstLoop 0 product= 0, 0, 0, 0, 0
-//Second Loop 0 result= 0, 0, 0, 0, 0
-//carry= 0
-//FrRawElement pRawA5= {0x0,0x0,0x0,0x0};
-//FrRawElement pRawB5= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
-////Fr_Rw_mul_test 8:
-//FirstLoop 0 product= 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029, 0
-//Second Loop 0 result= 0, 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029
-//carry= 0
-//FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-//FrRawElement pRawResult8= {0x0,0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d};
-
-
-//carry = mpn_add(&result[0], &np0q[0], 4, &product[0], 4);
-////Fr_Rw_mul_test 0:
-//FirstLoop 0 product= b1949058c8000000, 20e519a10bbe3d22, 99a96277480e51ac, cf3f23efeaf091ab, 15250af3534de67
-//Second Loop 0 result= 0, 2b5f03ec9137536d, 806e49a91514a16c, 31762d353b74a158, 0
-//carry= 1
-//FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
-//FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
-//FrRawElement pRawResult0= {0x0,0x2b5f03ec9137536d,0x806e49a91514a16c,0x31762d353b74a158};
-////Fr_Rw_mul_test 1:
-//FirstLoop 0 product= 2, 0, 0, 0, 0
-//Second Loop 0 result= 0, 169b0b13d72ddc99, 6c5b3334dcbfb509, ad619b286e68fcca, 0
-//carry= 0
-//FrRawElement pRawA1= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB1= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult1= {0x0,0x169b0b13d72ddc99,0x6c5b3334dcbfb509,0xad619b286e68fcca};
-////Fr_Rw_mul_test 2:
-//FirstLoop 0 product= 2, fffffffffffffffd, 0, 0, 0
-//Second Loop 0 result= 0, 169b0b13d72ddc96, 6c5b3334dcbfb50a, ad619b286e68fcca, 0
-//carry= 0
-//FrRawElement pRawA2= {0xfffffffffffffffe,0x0,0x0,0x0};
-//FrRawElement pRawB2= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult2= {0x0,0x169b0b13d72ddc96,0x6c5b3334dcbfb50a,0xad619b286e68fcca};
-////Fr_Rw_mul_test 3:
-//FirstLoop 0 product= 2, ffffffffffffffff, ffffffffffffffff, ffffffffffffffff, fffffffffffffffd
-//Second Loop 0 result= 0, 169b0b13d72ddc98, 6c5b3334dcbfb509, ad619b286e68fcca, 0
-//carry= 1
-//FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB3= {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
-//FrRawElement pRawResult3= {0x0,0x169b0b13d72ddc98,0x6c5b3334dcbfb509,0xad619b286e68fcca};
-////Fr_Rw_mul_test 4:
-//FirstLoop 0 product= 2, fffffffffffffffd, 0, 0, 0
-//Second Loop 0 result= 0, 169b0b13d72ddc96, 6c5b3334dcbfb50a, ad619b286e68fcca, 0
-//carry= 0
-//FrRawElement pRawA4= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB4= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult4= {0x0,0x169b0b13d72ddc96,0x6c5b3334dcbfb50a,0xad619b286e68fcca};
-////Fr_Rw_mul_test 5:
-//FirstLoop 0 product= 0, 0, 0, 0, 0
-//Second Loop 0 result= 0, 0, 0, 0, 0
-//carry= 0
-//FrRawElement pRawA5= {0x0,0x0,0x0,0x0};
-//FrRawElement pRawB5= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
-////Fr_Rw_mul_test 8:
-//FirstLoop 0 product= 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029, 0
-//Second Loop 0 result= 0, 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 0
-//carry= 0
-//FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-//FrRawElement pRawResult8= {0x0,0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d};
-
-
-
-////Fr_Rw_mul_test 0:
-//FirstLoop 0 product= b1949058c8000000, 20e519a10bbe3d22, 99a96277480e51ac, cf3f23efeaf091ab, 15250af3534de67
-//Second Loop 0 result= 2b5f03ec9137536d, 806e49a91514a16c, 31762d353b74a158, 13d4d397da065264, 0
-//carry= 0
-//FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
-//FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
-//FrRawElement pRawResult0= {0x2b5f03ec9137536d,0x806e49a91514a16c,0x31762d353b74a158,0x13d4d397da065264};
-////Fr_Rw_mul_test 1:
-//FirstLoop 0 product= 2, 0, 0, 0, 0
-//Second Loop 0 result= 169b0b13d72ddc99, 6c5b3334dcbfb509, ad619b286e68fcca, 1949259d0e237ddf, 0
-//carry= 0
-//FrRawElement pRawA1= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB1= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult1= {0x169b0b13d72ddc99,0x6c5b3334dcbfb509,0xad619b286e68fcca,0x1949259d0e237ddf};
-////Fr_Rw_mul_test 2:
-//FirstLoop 0 product= 2, fffffffffffffffd, 0, 0, 0
-//Second Loop 0 result= 169b0b13d72ddc96, 6c5b3334dcbfb50a, ad619b286e68fcca, 1949259d0e237ddf, 0
-//carry= 0
-//FrRawElement pRawA2= {0xfffffffffffffffe,0x0,0x0,0x0};
-//FrRawElement pRawB2= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult2= {0x169b0b13d72ddc96,0x6c5b3334dcbfb50a,0xad619b286e68fcca,0x1949259d0e237ddf};
-////Fr_Rw_mul_test 3:
-//FirstLoop 0 product= 2, ffffffffffffffff, ffffffffffffffff, ffffffffffffffff, fffffffffffffffd
-//Second Loop 0 result= 169b0b13d72ddc98, 6c5b3334dcbfb509, ad619b286e68fcca, 1949259d0e237ddd, 0
-//carry= 1
-//FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB3= {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
-//FrRawElement pRawResult3= {0x169b0b13d72ddc98,0x6c5b3334dcbfb509,0xad619b286e68fcca,0x1949259d0e237ddd};
-////Fr_Rw_mul_test 4:
-//FirstLoop 0 product= 2, fffffffffffffffd, 0, 0, 0
-//Second Loop 0 result= 169b0b13d72ddc96, 6c5b3334dcbfb50a, ad619b286e68fcca, 1949259d0e237ddf, 0
-//carry= 0
-//FrRawElement pRawA4= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB4= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult4= {0x169b0b13d72ddc96,0x6c5b3334dcbfb50a,0xad619b286e68fcca,0x1949259d0e237ddf};
-////Fr_Rw_mul_test 5:
-//FirstLoop 0 product= 0, 0, 0, 0, 0
-//Second Loop 0 result= 0, 0, 0, 0, 0
-//carry= 0
-//FrRawElement pRawA5= {0x0,0x0,0x0,0x0};
-//FrRawElement pRawB5= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
-////Fr_Rw_mul_test 8:
-//FirstLoop 0 product= 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029, 0
-//Second Loop 0 result= 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029, 0
-//carry= 0
-//FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-//FrRawElement pRawResult8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-
 
 
 // FirstLoop 1
@@ -656,57 +495,6 @@ int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB)
 //FrRawElement pRawB5= {0x2,0x0,0x0,0x0};
 //FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
 ////Fr_Rw_mul_test 8:
-//FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-//FrRawElement pRawResult8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-
-// C:
-////Fr_Rw_mul_test 0:
-//FirstLoop 0 product= b018ee96f0f23265, e256414c8486e83, c33c6675f156c527, ec537c68c558e3c2, 13566df098c5aa6
-//Second Loop 0 result= 2b5f03ec9137536d, 806e49a91514a16c, 31762d353b74a158, 13d4d397da065264, 0
-//carry= 0
-//FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
-//FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
-//FrRawElement pRawResult0= {0xb018ee96f0f23265,0xe256414c8486e83,0xc33c6675f156c527,0xec537c68c558e3c2};
-////Fr_Rw_mul_test 1:
-//FirstLoop 0 product= 169b0b13d72ddc99, 6c5b3334dcbfb509, ad619b286e68fcca, 1949259d0e237ddf, 0
-//Second Loop 0 result= 169b0b13d72ddc99, 6c5b3334dcbfb509, ad619b286e68fcca, 1949259d0e237ddf, 0
-//carry= 0
-//FrRawElement pRawA1= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB1= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult1= {0x169b0b13d72ddc99,0x6c5b3334dcbfb509,0xad619b286e68fcca,0x1949259d0e237ddf};
-////Fr_Rw_mul_test 2:
-//FirstLoop 0 product= 169b0b13d72ddc96, 6c5b3334dcbfb50a, ad619b286e68fcca, 1949259d0e237ddf, 0
-//Second Loop 0 result= 169b0b13d72ddc96, 6c5b3334dcbfb50a, ad619b286e68fcca, 1949259d0e237ddf, 0
-//carry= 0
-//FrRawElement pRawA2= {0xfffffffffffffffe,0x0,0x0,0x0};
-//FrRawElement pRawB2= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult2= {0x169b0b13d72ddc96,0x6c5b3334dcbfb50a,0xad619b286e68fcca,0x1949259d0e237ddf};
-////Fr_Rw_mul_test 3:
-//FirstLoop 0 product= 169b0b13d72ddc9a, 6c5b3334dcbfb509, ad619b286e68fcca, 1949259d0e237ddd, fffffffffffffffd
-//Second Loop 0 result= 169b0b13d72ddc98, 6c5b3334dcbfb509, ad619b286e68fcca, 1949259d0e237ddd, 0
-//carry= 1
-//FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB3= {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
-//FrRawElement pRawResult3= {0x169b0b13d72ddc9a,0x6c5b3334dcbfb509,0xad619b286e68fcca,0x1949259d0e237ddd};
-////Fr_Rw_mul_test 4:
-//FirstLoop 0 product= 169b0b13d72ddc98, 6c5b3334dcbfb507, ad619b286e68fccb, 1949259d0e237ddf, 0
-//Second Loop 0 result= 169b0b13d72ddc96, 6c5b3334dcbfb50a, ad619b286e68fcca, 1949259d0e237ddf, 0
-//carry= 0
-//FrRawElement pRawA4= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB4= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult4= {0x169b0b13d72ddc98,0x6c5b3334dcbfb507,0xad619b286e68fccb,0x1949259d0e237ddf};
-////Fr_Rw_mul_test 5:
-//FirstLoop 0 product= 0, 0, 0, 0, 0
-//Second Loop 0 result= 0, 0, 0, 0, 0
-//carry= 0
-//FrRawElement pRawA5= {0x0,0x0,0x0,0x0};
-//FrRawElement pRawB5= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
-////Fr_Rw_mul_test 8:
-//FirstLoop 0 product= 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029, 0
-//Second Loop 0 result= 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029, 0
-//carry= 0
 //FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
 //FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 //FrRawElement pRawResult8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
@@ -743,59 +531,8 @@ int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB)
 //FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 //FrRawElement pRawResult8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 
-////Fr_Rw_mul_test 0:
-//FirstLoop 1 product= b018ee96f0f23265, e256414c8486e83, c33c6675f156c527, ec537c68c558e3c2, 13566df098c5aa6
-//Second Loop 1 result= b3571702bd2958e5, 9a382a6c97774a46, d9a87dd3463f79dc, 27beaa5f8eb19105, 0
-//carry= 0
-//FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
-//FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
-//FrRawElement pRawResult0= {0xb3571702bd2958e5,0x9a382a6c97774a46,0xd9a87dd3463f79dc,0x27beaa5f8eb19105};
-////Fr_Rw_mul_test 1:
-//FirstLoop 1 product= 169b0b13d72ddc99, 6c5b3334dcbfb509, ad619b286e68fcca, 1949259d0e237ddf, 0
-//Second Loop 1 result= 31dcea78edf3b8de, a95afc294653ce1e, 562c6cde9eed09be, 266201ae3fbe6af2, 0
-//carry= 0
-//FrRawElement pRawA1= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB1= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult1= {0x31dcea78edf3b8de,0xa95afc294653ce1e,0x562c6cde9eed09be,0x266201ae3fbe6af2};
-////Fr_Rw_mul_test 2:
-//FirstLoop 1 product= 169b0b13d72ddc96, 6c5b3334dcbfb50a, ad619b286e68fcca, 1949259d0e237ddf, 0
-//Second Loop 1 result= 31e554a5232eedfa, 9aec237e3810f6d9, ae4226fd3a103abd, 18a6707c1b21fe37, 0
-//carry= 0
-//FrRawElement pRawA2= {0xfffffffffffffffe,0x0,0x0,0x0};
-//FrRawElement pRawB2= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult2= {0x31e554a5232eedfa,0x9aec237e3810f6d9,0xae4226fd3a103abd,0x18a6707c1b21fe37};
-////Fr_Rw_mul_test 3:
-//FirstLoop 1 product= 169b0b13d72ddc9a, 6c5b3334dcbfb509, ad619b286e68fcca, 1949259d0e237ddd, fffffffffffffffd
-//Second Loop 1 result= 1b397538e18aa72a, 4b6ea19f77d6f05a, 50b517979560dbf3, 1ad46d43563759cb, 0
-//carry= 1
-//FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB3= {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
-//FrRawElement pRawResult3= {0x1b397538e18aa72a,0x4b6ea19f77d6f05a,0x50b517979560dbf3,0x1ad46d43563759cb};
-////Fr_Rw_mul_test 4:
-//FirstLoop 1 product= 169b0b13d72ddc98, 6c5b3334dcbfb507, ad619b286e68fccb, 1949259d0e237ddf, 0
-//Second Loop 1 result= 49e6a250a5cca8f, df136e6a9b173b52, a3537c6f26f7df2a, 18b47a64813dbed, 0
-//carry= 0
-//FrRawElement pRawA4= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB4= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult4= {0x49e6a250a5cca8f,0xdf136e6a9b173b52,0xa3537c6f26f7df2a,0x18b47a64813dbed};
-////Fr_Rw_mul_test 5:
-//FirstLoop 1 product= 0, 0, 0, 0, 0
-//Second Loop 1 result= 0, 0, 0, 0, 0
-//carry= 0
-//FrRawElement pRawA5= {0x0,0x0,0x0,0x0};
-//FrRawElement pRawB5= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
-////Fr_Rw_mul_test 8:
-//FirstLoop 1 product= 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029, 0
-//Second Loop 1 result= 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029, 0
-//carry= 0
-//FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-//FrRawElement pRawResult8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 
-
-
-// FirstLoop 2
+// FirstLoop 2 ASM
 ////Fr_Rw_mul_test 0:
 //FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
 //FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
@@ -826,57 +563,8 @@ int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB)
 //FrRawElement pRawResult8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 
 
-////Fr_Rw_mul_test 0:
-//FirstLoop 2 product= b3571702bd2958e5, 9a382a6c97774a46, d9a87dd3463f79dc, 27beaa5f8eb19105, 0
-//Second Loop 2 result= b3571702bd2958e5, 9a382a6c97774a46, d9a87dd3463f79dc, 27beaa5f8eb19105, 0
-//carry= 0
-//FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
-//FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
-//FrRawElement pRawResult0= {0xb3571702bd2958e5,0x9a382a6c97774a46,0xd9a87dd3463f79dc,0x27beaa5f8eb19105};
-////Fr_Rw_mul_test 1:
-//FirstLoop 2 product= 31dcea78edf3b8de, a95afc294653ce1e, 562c6cde9eed09be, 266201ae3fbe6af2, 0
-//Second Loop 2 result= 31dcea78edf3b8de, a95afc294653ce1e, 562c6cde9eed09be, 266201ae3fbe6af2, 0
-//carry= 0
-//FrRawElement pRawA1= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB1= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult1= {0x31dcea78edf3b8de,0xa95afc294653ce1e,0x562c6cde9eed09be,0x266201ae3fbe6af2};
-////Fr_Rw_mul_test 2:
-//FirstLoop 2 product= 31e554a5232eedfa, 9aec237e3810f6d9, ae4226fd3a103abd, 18a6707c1b21fe37, 0
-//Second Loop 2 result= 31e554a5232eedfa, 9aec237e3810f6d9, ae4226fd3a103abd, 18a6707c1b21fe37, 0
-//carry= 0
-//FrRawElement pRawA2= {0xfffffffffffffffe,0x0,0x0,0x0};
-//FrRawElement pRawB2= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult2= {0x31e554a5232eedfa,0x9aec237e3810f6d9,0xae4226fd3a103abd,0x18a6707c1b21fe37};
-////Fr_Rw_mul_test 3:
-//FirstLoop 2 product= 1b397538e18aa72b, 4b6ea19f77d6f05a, 50b517979560dbf3, 1ad46d43563759cb, 0
-//Second Loop 2 result= 1b397538e18aa72a, 4b6ea19f77d6f05a, 50b517979560dbf3, 1ad46d43563759cb, 0
-//carry= 1
-//FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB3= {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
-//FrRawElement pRawResult3= {0x1b397538e18aa72b,0x4b6ea19f77d6f05a,0x50b517979560dbf3,0x1ad46d43563759cb};
-////Fr_Rw_mul_test 4:
-//FirstLoop 2 product= 49e6a250a5cca8f, df136e6a9b173b52, a3537c6f26f7df2a, 18b47a64813dbed, 0
-//Second Loop 2 result= 49e6a250a5cca8f, df136e6a9b173b52, a3537c6f26f7df2a, 18b47a64813dbed, 0
-//carry= 0
-//FrRawElement pRawA4= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB4= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult4= {0x49e6a250a5cca8f,0xdf136e6a9b173b52,0xa3537c6f26f7df2a,0x18b47a64813dbed};
-////Fr_Rw_mul_test 5:
-//FirstLoop 2 product= 0, 0, 0, 0, 0
-//Second Loop 2 result= 0, 0, 0, 0, 0
-//carry= 0
-//FrRawElement pRawA5= {0x0,0x0,0x0,0x0};
-//FrRawElement pRawB5= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
-////Fr_Rw_mul_test 8:
-//FirstLoop 2 product= 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029, 0
-//Second Loop 2 result= 43e1f593f0000001, 2833e84879b97091, b85045b68181585d, 30644e72e131a029, 0
-//carry= 0
-//FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-//FrRawElement pRawResult8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 
-// secondLoop 2
+// secondLoop 2 ASM
 ////Fr_Rw_mul_test 0:
 //FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
 //FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
@@ -906,7 +594,7 @@ int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB)
 //FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 //FrRawElement pRawResult8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 
-// FirstLoop 3
+// FirstLoop 3 ASM
 ////Fr_Rw_mul_test 0:
 //FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
 //FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
@@ -936,7 +624,7 @@ int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB)
 //FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 //FrRawElement pRawResult8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 
-// secondLoop 3
+// secondLoop 3 ASM
 ////Fr_Rw_mul_test 0:
 //FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
 //FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
@@ -962,43 +650,10 @@ int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB)
 //FrRawElement pRawB5= {0x2,0x0,0x0,0x0};
 //FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
 ////Fr_Rw_mul_test 8:
-//FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
+//FrRawElement pRawA8= {0x1,0x0,0x0,0x0};result
 //FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 //FrRawElement pRawResult8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 
-
-////Fr_Rw_mul_test 0:
-//FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
-//FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
-//FrRawElement pRawResult0= {0xcba5e0bbd0000003,0x789bb8d96d2c51b3,0x28f0d12384840917,0x112ceb58a394e07d};
-////Fr_Rw_mul_test 0:
-//FrRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
-//FrRawElement pRawB0= {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5};
-//FrRawElement pRawResult0= {0xcba5e0bbd0000003,0x789bb8d96d2c51b3,0x28f0d12384840917,0x112ceb58a394e07d};
-////Fr_Rw_mul_test 1:
-//FrRawElement pRawA1= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB1= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult1= {0xb8b7400adb62329c,0x121deb53c223d90f,0x904c1bc95d70baba,0x2bd7f2a3058aaa39};
-////Fr_Rw_mul_test 2:
-//FrRawElement pRawA2= {0xfffffffffffffffe,0x0,0x0,0x0};
-//FrRawElement pRawB2= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult2= {0x8663902cfae5d423,0x95d2440ac403ddd3,0x1ad411b88e349a0f,0x1ebf106109e4fa8d};
-////Fr_Rw_mul_test 3:
-//FrRawElement pRawA3= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB3= {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
-//FrRawElement pRawResult3= {0xd13604f1e300865c,0xba58b3d2a99f4ba5,0x1b4e415146d47f95,0x55c593ff9cfbf0a};
-////Fr_Rw_mul_test 4:
-//FrRawElement pRawA4= {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-//FrRawElement pRawB4= {0xffffffffffffffff,0x0,0x0,0x0};
-//FrRawElement pRawResult4= {0x1d0a8ff4c8e5744c,0x6fd9959908f97ec,0xdfe72d24fcdef34e,0xd1c7f8bb929dbb};
-////Fr_Rw_mul_test 5:
-//FrRawElement pRawA5= {0x0,0x0,0x0,0x0};
-//FrRawElement pRawB5= {0x2,0x0,0x0,0x0};
-//FrRawElement pRawResult5= {0x0,0x0,0x0,0x0};
-////Fr_Rw_mul_test 8:
-//FrRawElement pRawA8= {0x1,0x0,0x0,0x0};
-//FrRawElement pRawB8= {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
-//FrRawElement pRawResult8= {0x0,0x0,0x0,0x0};
 
 void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 {
