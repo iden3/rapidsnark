@@ -1047,7 +1047,7 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 //          product[4] = 0;
       mpn_add(&result[0], &np0q[0], 5, &product[0], 5);
 
-    if(result[4] != 0)
+    if(product[4] != 0)
     {
         carry = 1;
         //std::cout << "product[4] != 0" << "\n";
