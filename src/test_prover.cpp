@@ -2987,7 +2987,7 @@ void Fq_mul_s1ml2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int id
 
 int main()
 {
-
+/*
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_Rw_add_unit_test();
 //    Fr_Rw_add_test(pRawResult,  pRawA,  pRawB, 0);
@@ -3717,7 +3717,7 @@ int main()
     Fq_mul_s1ml2n_test(&Result2_s1ml2n,  &A2_s1ml2n,  &B2_s1ml2n, 2);
     Fq_mul_s1ml2n_test(&Result3_s1ml2n,  &A3_s1ml2n,  &B3_s1ml2n, 3);
 #endif
-
+*/
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_Rw_mul_unit_test();
     Fr_Rw_mul_test(pRawResult,  pRawA,  pRawB, 0);

@@ -1029,7 +1029,35 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 //    mpz_mul_ui(np0q, mq, np0);
       mpn_mul(&np0q[0], &mq[0], 4, &np0, 1);
 //    mpz_add(result, np0q, product);
-      carry = mpn_add(&result[0], &np0q[0], 4, &product[0], 5);
+//      if(product[4] != 0)
+//      {
+//          carry = 1;
+//          mpn_add(&result[0], &np0q[0], 4, &product[0], 5);
+//          std::cout << "product[4] != 0" << "\n";
+//      }
+//      else
+//      {
+//          carry = mpn_add(&result[0], &np0q[0], 4, &product[0], 4);
+//          std::cout << "product[4] == 0" << "\n";
+//      }
+//          product[0] = product[1];
+//          product[1] = product[2];
+//          product[2] = product[3];
+//          product[3] = product[4];
+//          product[4] = 0;
+      mpn_add(&result[0], &np0q[0], 5, &product[0], 5);
+
+    if(result[4] != 0)
+    {
+        carry = 1;
+        //std::cout << "product[4] != 0" << "\n";
+    }
+    else
+    {
+        carry = 0;
+        //std::cout << "product[4] == 0" << "\n";
+    }
+
 //    mpz_tdiv_q_2exp(result, result, 64);
 //      mpn_rshift(&result[0], &result[0], 5, 64);
 //    //get_carry(result, fcarry);
@@ -1054,10 +1082,12 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 ////    mpz_mod(result, result, md);
 //      mpn_mod_1 (&result[0] , 5 , md);
 
-
+    std::cout << "FirstLoop 0 product= " << std::hex << product[0] << ", " << product[1] << ", " << product[2] << ", " << product[3] << ", " << product[4] << "\n";
+    std::cout << "Second Loop 0 result= " << std::hex << result[0] << ", " << result[1] << ", " << result[2] << ", " << result[3] << ", " << result[4] << "\n";
+    std::cout << "carry= " << carry << "\n";
 
     //mpz_mul_ui(np0q, mq, np0);
-     if(result[4] != 0 )
+     //if(result[4] != 0 )
      {
         result[0] = result[1];
         result[1] = result[2];
@@ -1066,16 +1096,25 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
         result[4] = 0;
      }
 
+//     //mpn_add(&result[0], &result[0], 4, &carry, 1);
+     result[0] += carry;
+
+
+
+     product[0] = 0;
+     product[1] = 0;
+     product[2] = 0;
+     product[3] = 0;
+     product[4] = 0;
+
 
      pRawResult[0] = result[0];
      pRawResult[1] = result[1];
      pRawResult[2] = result[2];
      pRawResult[3] = result[3];
     //mpz_add(result, np0q, product);
-    std::cout << "FirstLoop 0 product= " << std::hex << product[0] << ", " << product[1] << ", " << product[2] << ", " << product[3] << ", " << product[4] << "\n";
-    std::cout << "Second Loop 0 result= " << std::hex << result[0] << ", " << result[1] << ", " << result[2] << ", " << result[3] << ", " << result[4] << "\n";
-    std::cout << "carry= " << carry << "\n";
-/*
+
+
 //    pRawResult[0] = result[0];
 //    pRawResult[1] = result[1];
 //    pRawResult[2] = result[2];
@@ -1085,7 +1124,7 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     // mpz_mul_ui(product, b, pRawA[1]);
     mpn_mul(&product[0], &mb[0], 4, &ma[1], 1);
     //mpz_add(product, result, product);
-    carry = mpn_add(&product[0], &result[0], 4, &product[0], 4);
+    mpn_add(&product[0], &result[0], 4, &product[0], 4);
     //mpz_add(product, product, fcarry);
     mpn_add(&product[0], &product[0], 1, &carry, 1);
     //mpn_add(&product[0], &product[0], 1, &carry, 1);
@@ -1109,11 +1148,22 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 //    mpz_mul_ui(np0q, mq, np0);
       mpn_mul(&np0q[0], &mq[0], 4, &np0, 1);
 //    mpz_add(result, np0q, product);
-      carry = mpn_add(&result[0], &np0q[0], 4, &product[0], 5);
+      mpn_add(&result[0], &np0q[0], 4, &product[0], 5);
 //    mpz_tdiv_q_2exp(result, result, 64);
 //    get_carry(result, fcarry);
 //    mpz_mod(result, result, md);
-      if (result[4] != 0)
+      if(product[4] != 0)
+      {
+          carry = 1;
+          //std::cout << "product[4] != 0" << "\n";
+      }
+      else
+      {
+          carry = 0;
+          //std::cout << "product[4] == 0" << "\n";
+      }
+
+      //if (result[4] != 0)
       {
          result[0] = result[1];
          result[1] = result[2];
@@ -1122,12 +1172,21 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
          result[4] = 0;
       }
 
-//      result[3] += carry;
+      result[0] += carry;
+
+
 
 //      //mpz_add(result, np0q, product);
 //      std::cout << "FirstLoop 1 product= " << std::hex << product[0] << ", " << product[1] << ", " << product[2] << ", " << product[3] << ", " << product[4] << "\n";
 //      std::cout << "Second Loop 1 result= " << std::hex << result[0] << ", " << result[1] << ", " << result[2] << ", " << result[3] << ", " << result[4] << "\n";
 //      std::cout << "carry= " << carry << "\n";
+
+      product[0] = 0;
+      product[1] = 0;
+      product[2] = 0;
+      product[3] = 0;
+      product[4] = 0;
+
 
 //      pRawResult[0] = result[0];
 //      pRawResult[1] = result[1];
@@ -1159,10 +1218,22 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 //      mpz_mul_ui(np0q, mq, np0);
       mpn_mul(&np0q[0], &mq[0], 4, &np0, 1);
 //      mpz_add(result, np0q, product);
-      carry = mpn_add(&result[0], &np0q[0], 5, &product[0], 5);
+      mpn_add(&result[0], &np0q[0], 5, &product[0], 5);
 //      mpz_tdiv_q_2exp(result, result, 64);
 //      get_carry(result, fcarry);
 //      mpz_mod(result, result, md);
+
+      if(product[4] != 0)
+      {
+          carry = 1;
+          //std::cout << "product[4] != 0" << "\n";
+      }
+      else
+      {
+          carry = 0;
+          //std::cout << "product[4] == 0" << "\n";
+      }
+
       if (result[4] != 0)
       {
          result[0] = result[1];
@@ -1171,6 +1242,12 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
          result[3] = result[4];
          result[4] = 0;
       }
+
+      product[0] = 0;
+      product[1] = 0;
+      product[2] = 0;
+      product[3] = 0;
+      product[4] = 0;
 
 //      // FirstLoop 3
 //      mpz_mul_ui(product, b, pRawA[3]);
@@ -1186,9 +1263,269 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 //      mpz_mul_ui(np0q, mq, np0);
       mpn_mul(&np0q[0], &mq[0], 4, &np0, 1);
 //      mpz_add(result, np0q, product);
-      carry = mpn_add(&result[0], &np0q[0], 5, &product[0], 5);
+      mpn_add(&result[0], &np0q[0], 5, &product[0], 5);
 //      mpz_tdiv_q_2exp(result, result, 64);
 //      mpz_mod(result, result, md);
+
+      if(product[4] != 0)
+      {
+          carry = 1;
+          //std::cout << "product[4] != 0" << "\n";
+      }
+      else
+      {
+          carry = 0;
+          //std::cout << "product[4] == 0" << "\n";
+      }
+
+      //if (result[4] != 0)
+      {
+         result[0] = result[1];
+         result[1] = result[2];
+         result[2] = result[3];
+         result[3] = result[4];
+         result[4] = 0;
+      }
+      result[0] += carry;
+
+
+      if (mpn_cmp(&result[0], &mq[0], 4) >= 0)
+      {
+          mpn_sub(&result[0], &result[0], 4, &mq[0], 4);
+      }
+
+
+//      pRawResult[0] = result[0];
+//      pRawResult[1] = result[1];
+//      pRawResult[2] = result[2];
+//      pRawResult[3] = result[3];
+
+/*
+    mp_limb_t ma[Fr_N64] = {pRawA[0], pRawA[1], pRawA[2], pRawA[3]};
+    mp_limb_t mb[Fr_N64] = {pRawB[0], pRawB[1], pRawB[2], pRawB[3]};
+    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
+    mp_limb_t mr[Fr_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
+    mp_limb_t mz[Fr_N64] = {0, 0, 0, 0};
+    mp_limb_t product[Fr_N64 + 1] = {0, 0, 0, 0, 0};
+    mp_limb_t result[Fr_N64 + 1]  = {0, 0, 0, 0, 0};
+    mp_limb_t np0q[Fr_N64] = {0, 0, 0, 0};
+    mp_limb_t np0 = Fr_np;
+    mp_limb_t carry = 0;
+//    mp_limb_t md= 0;
+
+//    mpz_init_set_ui(md, 1);
+//    mpz_mul_2exp(md, md, 256);
+//    md = 1;
+//    mpn_lshift(&md, &md, 4, 256);
+
+    // FirstLoop 0
+    //mpz_mul_ui(product, b, pRawA[0]);
+    mpn_mul(&product[0], &mb[0], 4, &ma[0], 1);
+
+    // Second Loop 0
+//    np0 = Fr_np * mpz_getlimbn(product, 0);
+      mpn_mul(&np0, &Fr_np, 1, &product[0], 1);
+//    mpz_mul_ui(np0q, mq, np0);
+      mpn_mul(&np0q[0], &mq[0], 4, &np0, 1);
+//    mpz_add(result, np0q, product);
+//      if(product[4] != 0)
+//      {
+//          carry = 1;
+//          mpn_add(&result[0], &np0q[0], 4, &product[0], 5);
+//          std::cout << "product[4] != 0" << "\n";
+//      }
+//      else
+//      {
+//          carry = mpn_add(&result[0], &np0q[0], 4, &product[0], 4);
+//          std::cout << "product[4] == 0" << "\n";
+//      }
+      mpn_add(&result[0], &np0q[0], 4, &product[0], 5);
+
+    if(product[4] != 0)
+    {
+        carry = 1;
+        //std::cout << "product[4] != 0" << "\n";
+    }
+    else
+    {
+        carry = 0;
+        //std::cout << "product[4] == 0" << "\n";
+    }
+
+//    mpz_tdiv_q_2exp(result, result, 64);
+//      mpn_rshift(&result[0], &result[0], 5, 64);
+//    //get_carry(result, fcarry);
+////      if (mpn_size(val) <= 4)
+////      {
+////          mpz_set_ui(carry, 0);
+////      }
+////      else
+////      {
+////          mpz_set_ui(carry, 1);
+////          mpz_mul_2exp(carry, carry, 64);
+////      }
+//      if (result[4] != 0)
+//      {
+//          carry = 1;
+//          mpn_lshift(&carry, &carry, 4, 64);
+//      }
+//      else
+//      {
+//          carry = 0;
+//      }
+////    mpz_mod(result, result, md);
+//      mpn_mod_1 (&result[0] , 5 , md);
+
+
+
+    //mpz_mul_ui(np0q, mq, np0);
+     //if(result[4] != 0 )
+     {
+        result[0] = result[1];
+        result[1] = result[2];
+        result[2] = result[3];
+        result[3] = result[4];
+        result[4] = 0;
+     }
+
+     //mpn_add(&result[0], &result[0], 4, &carry, 1);
+     result[0] += carry;
+
+     product[0] = 0;
+     product[1] = 0;
+     product[2] = 0;
+     product[3] = 0;
+     product[4] = 0;
+
+
+//     pRawResult[0] = result[0];
+//     pRawResult[1] = result[1];
+//     pRawResult[2] = result[2];
+//     pRawResult[3] = result[3];
+//    //mpz_add(result, np0q, product);
+//    std::cout << "FirstLoop 0 product= " << std::hex << product[0] << ", " << product[1] << ", " << product[2] << ", " << product[3] << ", " << product[4] << "\n";
+//    std::cout << "Second Loop 0 result= " << std::hex << result[0] << ", " << result[1] << ", " << result[2] << ", " << result[3] << ", " << result[4] << "\n";
+//    std::cout << "carry= " << carry << "\n";
+
+//    pRawResult[0] = result[0];
+//    pRawResult[1] = result[1];
+//    pRawResult[2] = result[2];
+//    pRawResult[3] = result[3];
+
+    // FirstLoop 1
+    // mpz_mul_ui(product, b, pRawA[1]);
+    mpn_mul(&product[0], &mb[0], 4, &ma[1], 1);
+    //mpz_add(product, result, product);
+    mpn_add(&product[0], &result[0], 4, &product[0], 4);
+    //mpz_add(product, product, fcarry);
+    mpn_add(&product[0], &product[0], 1, &carry, 1);
+    //mpn_add(&product[0], &product[0], 1, &carry, 1);
+//       mpz_tdiv_q_2exp(result, result, 64);
+//       get_carry(result, fcarry);
+//       mpz_mod(result, result, md);
+
+//    //mpz_add(result, np0q, product);
+//    std::cout << "FirstLoop 0 product= " << std::hex << product[0] << ", " << product[1] << ", " << product[2] << ", " << product[3] << ", " << product[4] << "\n";
+//    std::cout << "Second Loop 0 result= " << std::hex << result[0] << ", " << result[1] << ", " << result[2] << ", " << result[3] << ", " << result[4] << "\n";
+//    std::cout << "carry= " << carry << "\n";
+
+//    pRawResult[0] = product[0];
+//    pRawResult[1] = product[1];
+//    pRawResult[2] = product[2];
+//    pRawResult[3] = product[3];
+
+    // Second Loop 1
+//    np0 = Fr_np * mpz_getlimbn(product, 0);
+      mpn_mul(&np0, &Fr_np, 4, &product[0], 1);
+//    mpz_mul_ui(np0q, mq, np0);
+      mpn_mul(&np0q[0], &mq[0], 4, &np0, 1);
+//    mpz_add(result, np0q, product);
+      mpn_add(&result[0], &np0q[0], 4, &product[0], 5);
+//    mpz_tdiv_q_2exp(result, result, 64);
+//    get_carry(result, fcarry);
+//    mpz_mod(result, result, md);
+      if(product[4] != 0)
+      {
+          carry = 1;
+          //std::cout << "product[4] != 0" << "\n";
+      }
+      else
+      {
+          carry = 0;
+          //std::cout << "product[4] == 0" << "\n";
+      }
+
+      //if (result[4] != 0)
+      {
+         result[0] = result[1];
+         result[1] = result[2];
+         result[2] = result[3];
+         result[3] = result[4];
+         result[4] = 0;
+      }
+
+      result[0] += carry;
+
+
+
+//      //mpz_add(result, np0q, product);
+//      std::cout << "FirstLoop 1 product= " << std::hex << product[0] << ", " << product[1] << ", " << product[2] << ", " << product[3] << ", " << product[4] << "\n";
+//      std::cout << "Second Loop 1 result= " << std::hex << result[0] << ", " << result[1] << ", " << result[2] << ", " << result[3] << ", " << result[4] << "\n";
+//      std::cout << "carry= " << carry << "\n";
+
+      product[0] = 0;
+      product[1] = 0;
+      product[2] = 0;
+      product[3] = 0;
+      product[4] = 0;
+
+
+//      pRawResult[0] = result[0];
+//      pRawResult[1] = result[1];
+//      pRawResult[2] = result[2];
+//      pRawResult[3] = result[3];
+
+//    // FirstLoop 2
+//    mpz_mul_ui(product, b, pRawA[2]);
+      mpn_mul(&product[0], &mb[0], 4, &ma[2], 1);
+//    mpz_add(product, result, product);
+      mpn_add(&product[0], &result[0], 4, &product[0], 4);
+//    mpz_add(product, product, fcarry);
+      mpn_add(&product[0], &product[0], 4, &carry, 1);
+      //product[0] +=carry;
+
+//      //mpz_add(result, np0q, product);
+//      std::cout << "FirstLoop 2 product= " << std::hex << product[0] << ", " << product[1] << ", " << product[2] << ", " << product[3] << ", " << product[4] << "\n";
+//      std::cout << "Second Loop 2 result= " << std::hex << result[0] << ", " << result[1] << ", " << result[2] << ", " << result[3] << ", " << result[4] << "\n";
+//      std::cout << "carry= " << carry << "\n";
+
+//      pRawResult[0] = product[0];
+//      pRawResult[1] = product[1];
+//      pRawResult[2] = product[2];
+//      pRawResult[3] = product[3];
+
+//      // Second Loop 2
+//      np0 = Fr_np * mpz_getlimbn(product, 0);
+      mpn_mul(&np0, &Fr_np, 4, &product[0], 1);
+//      mpz_mul_ui(np0q, mq, np0);
+      mpn_mul(&np0q[0], &mq[0], 4, &np0, 1);
+//      mpz_add(result, np0q, product);
+      mpn_add(&result[0], &np0q[0], 5, &product[0], 5);
+//      mpz_tdiv_q_2exp(result, result, 64);
+//      get_carry(result, fcarry);
+//      mpz_mod(result, result, md);
+
+      if(product[4] != 0)
+      {
+          carry = 1;
+          //std::cout << "product[4] != 0" << "\n";
+      }
+      else
+      {
+          carry = 0;
+          //std::cout << "product[4] == 0" << "\n";
+      }
+
       if (result[4] != 0)
       {
          result[0] = result[1];
@@ -1198,15 +1535,63 @@ void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
          result[4] = 0;
       }
 
+      product[0] = 0;
+      product[1] = 0;
+      product[2] = 0;
+      product[3] = 0;
+      product[4] = 0;
+
+//      // FirstLoop 3
+//      mpz_mul_ui(product, b, pRawA[3]);
+      mpn_mul(&product[0], &mb[0], 4, &ma[3], 1);
+//      mpz_add(product, result, product);
+      mpn_add(&product[0], &result[0], 4, &product[0], 4);
+//      mpz_add(product, product, fcarry);
+      mpn_add(&product[0], &product[0], 4, &carry, 1);
+
+//      // Second Loop 3
+//      np0 = Fr_np * mpz_getlimbn(product, 0);
+      mpn_mul(&np0, &Fr_np, 4, &product[0], 1);
+//      mpz_mul_ui(np0q, mq, np0);
+      mpn_mul(&np0q[0], &mq[0], 4, &np0, 1);
+//      mpz_add(result, np0q, product);
+      mpn_add(&result[0], &np0q[0], 5, &product[0], 5);
+//      mpz_tdiv_q_2exp(result, result, 64);
+//      mpz_mod(result, result, md);
+
+      if(product[4] != 0)
+      {
+          carry = 1;
+          //std::cout << "product[4] != 0" << "\n";
+      }
+      else
+      {
+          carry = 0;
+          //std::cout << "product[4] == 0" << "\n";
+      }
+
+      //if (result[4] != 0)
+      {
+         result[0] = result[1];
+         result[1] = result[2];
+         result[2] = result[3];
+         result[3] = result[4];
+         result[4] = 0;
+      }
+      result[0] += carry;
+
+
       if (mpn_cmp(&result[0], &mq[0], 4) >= 0)
       {
           mpn_sub(&result[0], &result[0], 4, &mq[0], 4);
       }
 
 
-
+      pRawResult[0] = result[0];
+      pRawResult[1] = result[1];
+      pRawResult[2] = result[2];
+      pRawResult[3] = result[3];
 */
-
 
 /*
     mp_limb_t ma[Fr_N64] = {pRawA[0], pRawA[1], pRawA[2], pRawA[3]};
