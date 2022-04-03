@@ -15,7 +15,7 @@
 #endif
 
 #ifdef TEST_FR_ASM_FUNCTIONS
-#include "fr_asm.hpp"
+#include "fr.hpp"
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
@@ -23,7 +23,7 @@
 #endif
 
 #ifdef TEST_FQ_ASM_FUNCTIONS
-#include "fq_asm.hpp"
+#include "fq.hpp"
 #endif
 #include <assert.h>
 using namespace std;
@@ -3351,6 +3351,10 @@ int main()
     Fr_mul_s1ml2n_test(&Result3_s1ml2n,  &A3_s1ml2n,  &B3_s1ml2n, 3);
 #endif
 
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_Rw_mul_test(pRawResult,  pRawA,  pRawB, 0);
+#endif
+
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_add_unit_test();
 //    Fq_Rw_add_test(pRawResult,  pRawA,  pRawB, 0);
@@ -3712,6 +3716,26 @@ int main()
     Fq_mul_s1ml2n_test(&Result1_s1ml2n,  &A1_s1ml2n,  &B1_s1ml2n, 1);
     Fq_mul_s1ml2n_test(&Result2_s1ml2n,  &A2_s1ml2n,  &B2_s1ml2n, 2);
     Fq_mul_s1ml2n_test(&Result3_s1ml2n,  &A3_s1ml2n,  &B3_s1ml2n, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_Rw_mul_unit_test();
+    Fr_Rw_mul_test(pRawResult,  pRawA,  pRawB, 0);
+    Fr_Rw_mul_test(pRawResult1, pRawA1, pRawB1, 1);
+    Fr_Rw_mul_test(pRawResult2, pRawA2, pRawB2, 2);
+    Fr_Rw_mul_test(pRawResult3, pRawA3, pRawB3, 3);
+    Fr_Rw_mul_test(pRawResult4, pRawA4, pRawB4, 4);
+    Fr_Rw_mul_test(pRawResult5, pRawA5, pRawB5, 5);
+    Fr_Rw_mul_test(pRawResult8, pRawA8, pRawB8, 8);
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_Rw_mul_test(pRawResult,  pRawA,  pRawB, 0);
+    Fr_Rw_mul_test(pRawResult1, pRawA1, pRawB1, 1);
+    Fr_Rw_mul_test(pRawResult2, pRawA2, pRawB2, 2);
+    Fr_Rw_mul_test(pRawResult3, pRawA3, pRawB3, 3);
+    Fr_Rw_mul_test(pRawResult4, pRawA4, pRawB4, 4);
+    Fr_Rw_mul_test(pRawResult5, pRawA5, pRawB5, 5);
+    Fr_Rw_mul_test(pRawResult8, pRawA8, pRawB8, 8);
 #endif
 
 return 0;

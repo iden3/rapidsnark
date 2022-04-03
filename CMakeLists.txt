@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 include(cmake/platform.cmake)
 
-set(USE_ASM OFF CACHE BOOL "Use asm implementation for Fr and Fq")
+set(USE_ASM OFF)
 
 project(rapidsnark LANGUAGES CXX)
 
