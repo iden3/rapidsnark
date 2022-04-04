@@ -4,6 +4,8 @@
 #include <gmp.h>
 #include <assert.h>
 #include <string>
+#include <iostream>
+#include <cstring>
 
 
 static mpz_t q;
@@ -13,8 +15,16 @@ static mpz_t mask;
 static size_t nBits;
 static bool initialized = false;
 
-FqElement Fq_q = {0, 0x80000000, {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029}};
-FqRawElement Fq_rawR3 = {0xb1cd6dafda1530df,0x62f210e6a7283db6,0xef7f0b0c0ada0afb,0x20fd6e902d592544};
+#ifndef USE_ASM
+
+static FqElement    Fq_q     = {0, 0x80000000, {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029}};
+static FqRawElement Fq_rawq  =                 {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
+static FqElement    Fq_R3    = {0, 0x80000000, {0xb1cd6dafda1530df,0x62f210e6a7283db6,0xef7f0b0c0ada0afb,0x20fd6e902d592544}};
+static FqRawElement Fq_rawR3 =                 {0xb1cd6dafda1530df,0x62f210e6a7283db6,0xef7f0b0c0ada0afb,0x20fd6e902d592544};
+static FqRawElement Fq_rawR2 =                 {0xf32cfc5b538afa89,0xb5e71911d44501fb,0x47ab1eff0a417ff6,0x06d89f71cab8351f};
+static uint64_t     Fq_np    = {0x87d20782e4866389};
+
+#endif
 
 void Fq_toMpz(mpz_t r, PFqElement pE) {
     FqElement tmp;
@@ -178,7 +188,7 @@ RawFq::RawFq() {
 
 RawFq::~RawFq() {
 }
-
+extern "C"
 void RawFq::fromString(Element &r, std::string s) {
     mpz_t mr;
     mpz_init_set_str(mr, s.c_str(), 10);
@@ -273,73 +283,737 @@ static bool init = Fq_init();
 
 RawFq RawFq::field;
 
+#ifndef USE_ASM
 
-void Fq_mul(PFqElement r, PFqElement a, PFqElement b)
+/*****************************************************************************************
+ * ASM Functions to C/C++ using GNU MP Lib Begin
+******************************************************************************************/
+static inline void
+Fq_to_mpz(mpz_ptr dst, uint64_t src)
 {
-    *r = *a;
+     mpz_import(dst, 1, -1, sizeof(src), -1, 0, &src);
 }
 
-void Fq_toNormal(PFqElement r, PFqElement a)
+static inline void
+Fq_to_mpz(mpz_ptr dst, FqRawElement src)
 {
-    *r = *a;
+     mpz_import(dst, Fq_N64, -1, sizeof(*src), -1, 0, src);
 }
 
-void Fq_rawCopy(FqRawElement pRawResult, FqRawElement pRawA)
+static inline void
+Fq_to_rawElement(FqRawElement dst, mpz_ptr src)
 {
-    *pRawResult = *pRawA;
+    assert(mpz_size(src) <= Fq_N64);
+
+    std::memset(dst, 0, sizeof(FqRawElement));
+    mpz_export(dst, NULL, -1, 8, -1, 0, src);
 }
 
-void Fq_rawSwap(FqRawElement pRawResult, FqRawElement pRawA)
+
+void Fq_debug_val(uint64_t val)
 {
-    *pRawResult = *pRawA;
+    std::cout << std::hex << "{ " << val << " };" << std::endl;
+}
+
+void Fq_debug_val(FqRawElement val)
+{
+    std::cout << std::hex << "{ " << val[0] << ", " << val[1] << ", " << val[2] << ", " << val[3] << " };" << std::endl;
+}
+
+void Fq_debug_val(mpz_t val)
+{
+     std::cout << std::hex << "{ ";
+
+    int i = 0;
+    for(; i < val->_mp_size-1; i++) {
+         std::cout <<  val->_mp_d[i] << ", ";
+    }
+
+    std::cout <<  val->_mp_d[i];
+
+    std::cout << " };" << std::endl;
+}
+
+template <typename T>
+void Fq_debug(T val, const char *name = 0, const char *msg = 0)
+{
+    if (msg) {
+        std::cout << msg << std::endl;
+    }
+
+    if (name) {
+        std::cout << name << " = ";
+    }
+
+    Fq_debug_val(val);
+}
+
+void Fq_get_carry(mpz_ptr val, mpz_ptr carry)
+{
+    if (mpz_size(val) <= 4)
+    {
+        mpz_set_ui(carry, 0);
+    }
+    else
+    {
+        mpz_set_ui(carry, 1);
+        mpz_mul_2exp(carry, carry, 64);
+    }
 }
 
 void Fq_rawAdd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
 {
-    *pRawResult = *pRawA;
+    mp_limb_t ma[Fq_N64] = {pRawA[0], pRawA[1], pRawA[2], pRawA[3]};
+    mp_limb_t mb[Fq_N64] = {pRawB[0], pRawB[1], pRawB[2], pRawB[3]};
+    mp_limb_t mq[Fq_N64] = {Fq_rawq[0], Fq_rawq[1], Fq_rawq[2], Fq_rawq[3]};
+    mp_limb_t mr[Fq_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
+    mp_limb_t carry;
+
+    carry = mpn_add_n(&mr[0], &ma[0], &mb[0], 4);
+    if(carry || mpn_cmp(mr, mq, 4) >= 0)
+    {
+        mpn_sub_n(&mr[0], &mr[0], &mq[0], 4);
+    }
+    std::memcpy(pRawResult, mr, sizeof(FqRawElement));
 }
 
 void Fq_rawSub(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
 {
-    *pRawResult = *pRawA;
+    mp_limb_t ma[Fq_N64] = {pRawA[0], pRawA[1], pRawA[2], pRawA[3]};
+    mp_limb_t mb[Fq_N64] = {pRawB[0], pRawB[1], pRawB[2], pRawB[3]};
+    mp_limb_t mq[Fq_N64] = {Fq_rawq[0], Fq_rawq[1], Fq_rawq[2], Fq_rawq[3]};
+    mp_limb_t mr[Fq_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
+    mp_limb_t carry;
+
+    carry = mpn_sub_n(&mr[0], &ma[0], &mb[0], 4);
+    if(carry)
+    {
+        mpn_add_n(&mr[0], &mr[0], &mq[0], 4);
+    }
+    std::memcpy(pRawResult, mr, sizeof(FqRawElement));
 }
 
 void Fq_rawNeg(FqRawElement pRawResult, FqRawElement pRawA)
 {
-    *pRawResult = *pRawA;
+    mp_limb_t ma[Fq_N64] = {pRawA[0], pRawA[1], pRawA[2], pRawA[3]};
+    mp_limb_t mq[Fq_N64] = {Fq_rawq[0], Fq_rawq[1], Fq_rawq[2], Fq_rawq[3]};
+    mp_limb_t mr[Fq_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
+    mp_limb_t mz[Fq_N64] = {0, 0, 0, 0};
+
+    if (mpn_cmp(&ma[0], &mz[0], 4) != 0)
+    {
+        mpn_sub_n(&mr[0], &mq[0], &ma[0], 4);
+    }
+    else
+    {
+        std::memcpy(mr, mz, sizeof(FqRawElement));
+    }
+
+    std::memcpy(pRawResult, mr, sizeof(FqRawElement));
 }
 
-void Fq_rawMMul(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+void Fq_rawCopy(FqRawElement pRawResult, FqRawElement pRawA)
 {
-    *pRawResult = *pRawA;
+    std::memcpy(pRawResult, pRawA, sizeof(FqRawElement));
 }
 
-void Fq_rawMSquare(FqRawElement pRawResult, FqRawElement pRawA)
+void Fq_copy(PFqElement r, PFqElement a)
 {
-    *pRawResult = *pRawA;
-}
-
-void Fq_rawMMul1(FqRawElement pRawResult, FqRawElement pRawA, uint64_t pRawB)
-{
-    *pRawResult = *pRawA;
-}
-
-void Fq_rawToMontgomery(FqRawElement pRawResult, FqRawElement pRawA)
-{
-    *pRawResult = *pRawA;
-}
-
-void Fq_rawFromMontgomery(FqRawElement pRawResult, FqRawElement pRawA)
-{
-    *pRawResult = *pRawA;
+    r->shortVal = a->shortVal;
+    r->type = a->type;
+    std::memcpy(r->longVal, a->longVal, sizeof(FqRawElement));
 }
 
 int Fq_rawIsEq(FqRawElement pRawA, FqRawElement pRawB)
 {
+    for (int i=0; i<Fq_N64; i++)
+    {
+        if (pRawA[i] != pRawB[i])
+            return 0;
+    }
     return 1;
+}
+
+void Fq_rawMMul(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+{
+    uint64_t np0;
+    mpz_t a, b, mq, product, np0q, result, md, fcarry;
+
+    mpz_inits(a, b, mq, product, np0q, result, md, fcarry, NULL);
+
+    mpz_init_set_ui(md, 1);
+    mpz_mul_2exp(md, md, 256);
+
+    Fq_to_mpz(a, pRawA);
+    Fq_to_mpz(b, pRawB);
+    Fq_to_mpz(mq, Fq_rawq);
+
+    // FirstLoop 0
+    mpz_mul_ui(product, b, pRawA[0]);
+
+    // Second Loop 0
+    np0 = Fq_np * mpz_getlimbn(product, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, product);
+    mpz_tdiv_q_2exp(result, result, 64);
+    Fq_get_carry(result, fcarry);
+    mpz_mod(result, result, md);
+
+    // FirstLoop 1
+    mpz_mul_ui(product, b, pRawA[1]);
+    mpz_add(product, result, product);
+    mpz_add(product, product, fcarry);
+
+    // Second Loop 1
+    np0 = Fq_np * mpz_getlimbn(product, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, product);
+    mpz_tdiv_q_2exp(result, result, 64);
+    Fq_get_carry(result, fcarry);
+    mpz_mod(result, result, md);
+
+    // FirstLoop 2
+    mpz_mul_ui(product, b, pRawA[2]);
+    mpz_add(product, result, product);
+    mpz_add(product, product, fcarry);
+
+    // Second Loop 2
+    np0 = Fq_np * mpz_getlimbn(product, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, product);
+    mpz_tdiv_q_2exp(result, result, 64);
+    Fq_get_carry(result, fcarry);
+    mpz_mod(result, result, md);
+
+    // FirstLoop 3
+    mpz_mul_ui(product, b, pRawA[3]);
+    mpz_add(product, result, product);
+    mpz_add(product, product, fcarry);
+
+    // Second Loop 3
+    np0 = Fq_np * mpz_getlimbn(product, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, product);
+    mpz_tdiv_q_2exp(result, result, 64);
+    mpz_mod(result, result, md);
+
+    if (mpz_cmp(result, mq) >= 0)
+    {
+        mpz_sub(result, result, mq);
+    }
+
+    Fq_to_rawElement(pRawResult, result);
+
+    mpz_clears(a, b, mq, product, np0q, result, md, fcarry, NULL);
+}
+
+void Fq_rawMSquare(FqRawElement pRawResult, FqRawElement pRawA)
+{
+    Fq_rawMMul(pRawResult, pRawA, pRawA);
+}
+
+void Fq_rawMMul1(FqRawElement pRawResult, FqRawElement pRawA, uint64_t pRawB)
+{
+    uint64_t np0;
+    mpz_t a, mq, product, np0q, result, md, fcarry;
+
+    mpz_inits(a, mq, product, np0q, result, md, fcarry, NULL);
+
+    mpz_init_set_ui(md, 1);
+    mpz_mul_2exp(md, md, 256);
+
+    Fq_to_mpz(a, pRawA);
+    Fq_to_mpz(mq, Fq_rawq);
+
+    // FirstLoop 0
+    mpz_mul_ui(product, a, pRawB);
+
+    // Second Loop 0
+    np0 = Fq_np * mpz_getlimbn(product, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, product);
+    mpz_tdiv_q_2exp(result, result, 64);
+    Fq_get_carry(result, fcarry);
+    mpz_mod(result, result, md);
+
+    // Second Loop 1
+    np0 = Fq_np * mpz_getlimbn(result, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, result);
+    mpz_add(result, result, fcarry);
+    mpz_tdiv_q_2exp(result, result, 64);
+    Fq_get_carry(result, fcarry);
+    mpz_mod(result, result, md);
+
+    // Second Loop 2
+    np0 = Fq_np * mpz_getlimbn(result, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, result);
+    mpz_add(result, result, fcarry);
+    mpz_tdiv_q_2exp(result, result, 64);
+    Fq_get_carry(result, fcarry);
+    mpz_mod(result, result, md);
+
+    // Second Loop 3
+    np0 = Fq_np * mpz_getlimbn(result, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, result);
+    mpz_add(result, result, fcarry);
+    mpz_tdiv_q_2exp(result, result, 64);
+    mpz_mod(result, result, md);
+
+    if (mpz_cmp(result, mq) >= 0)
+    {
+        mpz_sub(result, result, mq);
+    }
+
+    Fq_to_rawElement(pRawResult, result);
+
+    mpz_clears(a, mq, product, np0q, result, md, fcarry, NULL);
+}
+
+void Fq_rawToMontgomery(FqRawElement pRawResult, FqRawElement pRawA)
+{
+    Fq_rawMMul(pRawResult, pRawA, Fq_rawR2);
+}
+
+void Fq_rawFromMontgomery(FqRawElement pRawResult, FqRawElement pRawA)
+{
+    uint64_t np0;
+    mpz_t a, mq, product, np0q, result, md, fcarry;
+
+    mpz_inits(a, mq, product, np0q, result, md, fcarry, NULL);
+
+    mpz_init_set_ui(md, 1);
+    mpz_mul_2exp(md, md, 256);
+
+    Fq_to_mpz(a, pRawA);
+    Fq_to_mpz(mq, Fq_rawq);
+
+    // FirstLoop 0
+    mpz_set(product, a);
+
+    // Second Loop 0
+    np0 = Fq_np * mpz_getlimbn(product, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, product);
+    mpz_tdiv_q_2exp(result, result, 64);
+    Fq_get_carry(result, fcarry);
+    mpz_mod(result, result, md);
+
+    // Second Loop 1
+    np0 = Fq_np * mpz_getlimbn(result, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, result);
+    mpz_add(result, result, fcarry);
+    mpz_tdiv_q_2exp(result, result, 64);
+    Fq_get_carry(result, fcarry);
+    mpz_mod(result, result, md);
+
+    // Second Loop 2
+    np0 = Fq_np * mpz_getlimbn(result, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, result);
+    mpz_add(result, result, fcarry);
+    mpz_tdiv_q_2exp(result, result, 64);
+    Fq_get_carry(result, fcarry);
+    mpz_mod(result, result, md);
+
+    // Second Loop 3
+    np0 = Fq_np * mpz_getlimbn(result, 0);
+    mpz_mul_ui(np0q, mq, np0);
+    mpz_add(result, np0q, result);
+    mpz_add(result, result, fcarry);
+    mpz_tdiv_q_2exp(result, result, 64);
+    mpz_mod(result, result, md);
+
+    if (mpz_cmp(result, mq) >= 0)
+    {
+        mpz_sub(result, result, mq);
+    }
+
+    Fq_to_rawElement(pRawResult, result);
+
+    mpz_clears(a, mq, product, np0q, result, md, fcarry, NULL);
+}
+
+void Fq_toNormal(PFqElement r, PFqElement a)
+{
+    if (a->type == Fq_LONGMONTGOMERY)
+    {
+        r->type = Fq_LONG;
+        Fq_rawFromMontgomery(r->longVal, a->longVal);
+    }
+    else
+    {
+        Fq_copy(r, a);
+    }
 }
 
 int Fq_rawIsZero(FqRawElement pRawB)
 {
-    return 0;
+    for (int i=0; i<Fq_N64; i++)
+    {
+        if (pRawB[i] != 0)
+            return 0;
+    }
+    return 1;
 }
+
+void Fq_rawSwap(FqRawElement pRawResult, FqRawElement pRawA)
+{
+    FqRawElement tmp = {0};
+    for (int i=0; i<Fq_N64; i++)
+    {
+        tmp[i] = pRawResult[i];
+        pRawResult[i] = pRawA[i];
+        pRawA[i] = tmp[i];
+    }
+}
+
+void rawCopyS2L(PFqElement r, int64_t temp);
+void mul_s1s2(PFqElement r, PFqElement a, PFqElement b);
+void mul_l1nl2n(PFqElement r, PFqElement a, PFqElement b);
+void mul_l1ml2n(PFqElement r,PFqElement a,PFqElement b);
+void mul_l1nl2m(PFqElement r, PFqElement a, PFqElement b);
+void mul_l1ml2m(PFqElement r,PFqElement a,PFqElement b);
+
+void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b);
+void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b);
+void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b);
+void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b);
+
+void mul_l1ns2m(PFqElement r,PFqElement a,PFqElement b);
+void mul_l1ms2m(PFqElement r,PFqElement a,PFqElement b);
+void mul_s1ml2n(PFqElement r,PFqElement a,PFqElement b);
+void mul_s1ml2m(PFqElement r,PFqElement a,PFqElement b);
+
+
+void Fq_mul(PFqElement r, PFqElement a, PFqElement b)
+{
+    //mpz_import(mr3, Fr_N64, -1, 8, -1, 0, (const void *)Fr_rawR3);
+
+    if (a->type & Fq_LONG) // if (mpz_tstbit (ma, 63)) // 2267 ; Check if is short first operand
+    {
+        // jc     mul_l1
+        if (b->type & Fq_LONG) //if (mpz_tstbit (mb, 63)) // 2293 ; Check if is short second operand
+        {
+            // mul_l1l2
+            if (a->type == Fq_LONGMONTGOMERY) // if (mpz_tstbit (ma, 62)) // 2511 ; check if montgomery first
+            {
+                // mul_l1ml2
+                if (b->type == Fq_LONGMONTGOMERY) //if (mpz_tstbit (mb, 62)) // 2554 ; check if montgomery second
+                {
+                    mul_l1ml2m(r, a, b);
+                }
+                else
+                {
+                    mul_l1ml2n(r, a, b);
+                }
+            }
+            else if (b->type == Fq_LONGMONTGOMERY) //if (mpz_tstbit (mb, 62)) // 2514 ; check if montgomery second
+            {
+                mul_l1nl2m(r, a, b);
+            }
+            else
+            {
+                mul_l1nl2n(r, a, b);
+            }
+        }
+        //mul_l1s2:
+        else if (a->type == Fq_LONGMONTGOMERY) //if (mpz_tstbit (ma, 62)) // 2298 ; check if montgomery first
+        {
+            // mul_l1ms2
+            if (b->type == Fq_SHORT) //if (mpz_tstbit (mb, 62)) // 2358 ; check if montgomery second
+            {
+
+                mul_l1ms2n(r, a, b);
+            }
+            else
+            {
+                mul_l1ms2m(r, a, b);
+            }
+
+        }
+        // mul_l1ns2
+        else
+        {
+            if (b->type == Fq_SHORTMONTGOMERY) //if (mpz_tstbit (mb, 62)) // 2301 ; check if montgomery second
+            {
+                mul_l1ns2m(r, a, b);
+            }
+            else
+            {
+                mul_l1ns2n(r, a, b);
+            }
+        }
+    }
+    else if (b->type & Fq_LONG)//if (mpz_tstbit (mb, 63)) // 2269  ; Check if is short second operand
+    {
+        // mul_s1l2
+        if (a->type == Fq_SHORTMONTGOMERY)//if (mpz_tstbit (ma, 62)) // 2406  ; check if montgomery first
+        {
+            // mul_s1ml2
+            if (b->type == Fq_LONGMONTGOMERY)//if (mpz_tstbit (mb, 62)) // 2479  ; check if montgomery second
+            {
+                mul_s1ml2m(r, a, b);
+            }
+            else
+            {
+                mul_s1ml2n(r,a, b);
+            }
+        }
+        // mul_s1nl2
+        else if (b->type == Fq_LONGMONTGOMERY) //if (mpz_tstbit (mb, 62)) // 2409; check if montgomery second
+        {
+            mul_s1nl2m(r, a, b);
+        }
+        // mul_s1nl2n
+        else
+        {
+            mul_s1nl2n(r, a, b);
+        }
+    }
+    else
+    {
+         mul_s1s2(r, a, b);
+    }
+}
+
+void mul_s1s2(PFqElement r, PFqElement a, PFqElement b)
+{
+    mpz_t rax;
+    mpz_init(rax);
+
+    int64_t temp = (int64_t)a->shortVal * (int64_t)b->shortVal;
+    r->longVal[0] = temp;
+    mpz_import(rax, 1, -1, 8, -1, 0, (const void *)r);
+    // mul_manageOverflow
+    if (!mpz_fits_sint_p(rax))
+    {
+        rawCopyS2L(r, temp);
+    }
+    else
+    {
+        r->type = Fq_LONG;
+    }
+    mpz_clear(rax);
+}
+
+void rawCopyS2L(PFqElement pResult, int64_t val)
+{
+    mpz_t result, mq;
+
+    mpz_inits(result, mq);
+
+    mpz_set_si(result, val);
+
+    if (val < 0)
+    {
+        Fq_to_mpz(mq, Fq_rawq);
+
+        mpz_add(result, result, mq);
+    }
+
+    pResult->type = Fq_LONG;
+    pResult->shortVal = 0;
+    Fq_to_rawElement(pResult->longVal, result);
+
+    mpz_clears(result, mq);
+}
+
+void mul_l1nl2n(PFqElement r,PFqElement a,PFqElement b)
+{
+    FqElement tmp1;
+    FqElement tmp2;
+
+    r->type = Fq_LONGMONTGOMERY;
+    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+
+    tmp1.type = Fq_LONG;
+    tmp2.type = Fq_LONG;
+    tmp1.shortVal = 0;
+    tmp2.shortVal = 0;
+    for (int i=0; i<Fq_N64; i++)
+    {
+        tmp1.longVal[i] = r->longVal[i];
+        tmp2.longVal[i] = Fq_R3.longVal[i];
+    }    
+    Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
+}
+
+void mul_l1nl2m(PFqElement r,PFqElement a,PFqElement b)
+{
+    r->type = Fq_LONG;
+    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+
+void mul_l1ml2m(PFqElement r,PFqElement a,PFqElement b)
+{
+    r->type = Fq_LONGMONTGOMERY;
+    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+
+void mul_l1ml2n(PFqElement r,PFqElement a,PFqElement b)
+{
+    r->type = Fq_LONG;
+    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+
+void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b)
+{
+    FqElement tmp1;
+    FqElement tmp2;
+    int32_t   tmp3;
+
+    r->type = Fq_LONGMONTGOMERY;
+    if (b->shortVal >= 0)
+    {
+        // tmp_5:
+        Fq_rawMMul1(&r->longVal[0], &a->longVal[0], b->shortVal);
+        // tmp_6:
+        tmp1.type = Fq_LONG;
+        tmp2.type = Fq_LONG;
+        tmp1.shortVal = 0;
+        tmp2.shortVal = 0;
+        for (int i=0; i<Fq_N64; i++)
+        {
+            tmp1.longVal[i] = r->longVal[i];
+            tmp2.longVal[i] = Fq_R3.longVal[i];
+        }
+        Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
+    }
+    else
+    {
+        tmp3 = b->shortVal * (-1);
+        Fq_rawMMul1(&r->longVal[0], &a->longVal[0], tmp3);
+        Fq_rawNeg(&r->longVal[0], &r->longVal[0]);
+        // tmp_6:
+        tmp1.type = Fq_LONG;
+        tmp2.type = Fq_LONG;
+        tmp1.shortVal = 0;
+        tmp2.shortVal = 0;
+        for (int i=0; i<Fq_N64; i++)
+        {
+            tmp1.longVal[i] = r->longVal[i];
+            tmp2.longVal[i] = Fq_R3.longVal[i];
+        }
+        Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
+    }
+}
+
+void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b)
+{
+    FqElement tmp1;
+    FqElement tmp2;
+    int32_t   tmp3;
+
+    r->type = Fq_LONGMONTGOMERY;
+    if (a->shortVal >= 0)
+    {
+        // tmp_9:
+        Fq_rawMMul1(&r->longVal[0], &b->longVal[0], a->shortVal);
+        // tmp_10:
+        tmp1.type = Fq_LONG;
+        tmp2.type = Fq_LONG;
+        tmp1.shortVal = 0;
+        tmp2.shortVal = 0;
+        for (int i=0; i<Fq_N64; i++)
+        {
+            tmp1.longVal[i] = r->longVal[i];
+            tmp2.longVal[i] = Fq_R3.longVal[i];
+        }
+        Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
+    }
+    else
+    {
+        tmp3 = a->shortVal * (-1);
+        Fq_rawMMul1(&r->longVal[0], &b->longVal[0], tmp3);
+        Fq_rawNeg(&r->longVal[0], &r->longVal[0]);
+        // tmp_6:
+        tmp1.type = Fq_LONG;
+        tmp2.type = Fq_LONG;
+        tmp1.shortVal = 0;
+        tmp2.shortVal = 0;
+        for (int i=0; i<Fq_N64; i++)
+        {
+            tmp1.longVal[i] = r->longVal[i];
+            tmp2.longVal[i] = Fq_R3.longVal[i];
+        }
+        Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
+    }
+}
+
+void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b)
+{
+    FqElement tmp1;
+    FqElement tmp2;
+    int32_t   tmp3;
+
+    r->type = Fq_LONG;
+    if (b->shortVal >= 0)
+    {
+        // tmp_7:
+        Fq_rawMMul1(&r->longVal[0], &a->longVal[0], b->shortVal);
+        // tmp_8:
+    }
+    else
+    {
+        tmp3 = b->shortVal * (-1);
+        Fq_rawMMul1(&r->longVal[0], &a->longVal[0], tmp3);
+        Fq_rawNeg(&r->longVal[0], &r->longVal[0]);
+        // tmp_8:
+    }
+}
+
+void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b)
+{
+    FqElement tmp1;
+    FqElement tmp2;
+    int32_t   tmp3;
+
+    r->type = Fq_LONG;
+    if (a->shortVal >= 0)
+    {
+        // tmp_11:
+        Fq_rawMMul1(&r->longVal[0], &b->longVal[0], a->shortVal);
+        // tmp_12:
+    }
+    else
+    {
+        tmp3 = a->shortVal * (-1);
+        Fq_rawMMul1(&r->longVal[0], &b->longVal[0], tmp3);
+        Fq_rawNeg(&r->longVal[0], &r->longVal[0]);
+        // tmp_12:
+    }
+}
+
+void mul_l1ns2m(PFqElement r,PFqElement a,PFqElement b)
+{
+    r->type = Fq_LONG;
+    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+
+void mul_l1ms2m(PFqElement r,PFqElement a,PFqElement b)
+{
+    r->type = Fq_LONGMONTGOMERY;
+    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+
+void mul_s1ml2m(PFqElement r,PFqElement a,PFqElement b)
+{
+    r->type = Fq_LONGMONTGOMERY;
+    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+
+void mul_s1ml2n(PFqElement r,PFqElement a,PFqElement b)
+{
+    r->type = Fq_LONG;
+    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+
+/*****************************************************************************************
+ * ASM Functions to C/C++ using GNU MP Lib End
+******************************************************************************************/
+
+#endif

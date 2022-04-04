@@ -1,3 +1,7 @@
+if(USE_ASM)
+    add_definitions(-DUSE_ASM)
+endif()
+
 set(LIB_SOURCES
     binfile_utils.hpp
     binfile_utils.cpp
@@ -21,6 +25,10 @@ set(LIB_SOURCES
     ../build/fr.cpp
     )
 
+if(USE_ASM)
+    set(LIB_SOURCES ${LIB_SOURCES} ../build/fq.o ../build/fr.o)
+endif()
+
 if(USE_LOGGER)
     set(LIB_SOURCES ${LIB_SOURCES} logger.cpp)
     add_definitions(-DUSE_LOGGER)
@@ -36,7 +44,6 @@ include_directories(
 add_library(rapidsnark STATIC ${LIB_SOURCES})
 
 add_executable(prover main_prover.cpp)
-
 
 target_link_libraries(prover rapidsnark ${GMP_LIB})
 
@@ -57,14 +64,32 @@ if(USE_OPENMP)
         if(TARGET_PLATFORM MATCHES "android")
             target_link_libraries(prover -static-openmp -fopenmp)
             add_definitions(-DUSE_OPENMP)
+            message("OpenMP is used")
 
         elseif(TARGET_PLATFORM MATCHES "ios")
             message("OpenMP is not used on iOS")
 
-        else()
+        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
             target_link_libraries(prover OpenMP::OpenMP_CXX)
             add_definitions(-DUSE_OPENMP)
+            message("OpenMP is used")
         endif()
 
     endif()
 endif()
+
+
+set(UNIT_TEST_SOURCES
+    ../build/fq.hpp
+    ../build/fq.cpp
+    ../build/fr.hpp
+    ../build/fr.cpp
+    )
+
+if(USE_ASM)
+    set(UNIT_TEST_SOURCES ${UNIT_TEST_SOURCES} ../build/fq.o ../build/fr.o)
+endif()
+
+add_executable(test_prover test_prover.cpp ${UNIT_TEST_SOURCES})
+
+target_link_libraries(test_prover ${GMP_LIB})
