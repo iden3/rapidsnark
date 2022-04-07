@@ -1018,6 +1018,408 @@ void mul_s1ml2n(PFrElement r,PFrElement a,PFrElement b)
     Fr_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
 
+// Implemented, not checked
+void Fr_toLongNormal(PFrElement r, PFrElement a)
+{
+    if (a->type != Fr_LONG)
+    {
+        // toLongNormal_fromShort
+        rawCopyS2L(r, a->shortVal);
+        r->type = Fr_LONG;
+    }
+    else if (a->type == Fr_LONGMONTGOMERY)
+    {
+        // toLongNormal_fromMontgomery:
+        r->type = Fr_LONG;
+        Fr_rawFromMontgomery(r->longVal, a->longVal);
+    }
+    else
+    {
+        Fr_copy(r, a);
+    }
+}
+
+//Not Implemented, not checked
+int Fr_isTrue(PFrElement pE)
+{
+   return true;
+}
+
+// Implemented, not checked
+void Fr_copyn(PFrElement r, PFrElement a, int n)
+{
+    r->shortVal = a->shortVal;
+    r->type = a->type;
+    std::memset(r, 0, sizeof(FrRawElement));
+    std::memcpy(r->longVal, a->longVal, n);
+}
+
+//Not Implemented, not checked
+void Fr_lt(PFrElement r, PFrElement a, PFrElement b)
+{
+   *r = *a;
+}
+
+//Not Implemented, not checked
+// Convert a 64 bit integer to a long format field element
+int Fr_toInt(PFrElement pE)
+{
+    if (pE->type == Fr_LONG)
+    {
+       //Fr_long
+       if (pE->type != Fr_LONGMONTGOMERY)
+       {
+           // Fr_longNormal
+       }
+       else
+       {
+           //Fr_longMontgomery
+       }
+    }
+
+   return 1;
+}
+
+//Not Implemented, not checked
+void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
+{
+//    mp_limb_t ma[Fr_N64] = {a->longVal[0], pRawA[1], pRawA[2], pRawA[3]};
+//    mp_limb_t mb[Fr_N64] = {pRawB[0], pRawB[1], pRawB[2], pRawB[3]};
+//    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
+//    mp_limb_t mr[Fr_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
+//    mp_limb_t carry;
+
+    if (b->type == Fr_SHORT)
+    {
+        if (b->type == Fr_LONGMONTGOMERY)
+        {
+
+        }
+        else
+        {
+            // jnc     tmp_113
+        }
+    }
+    else
+    {
+        // jnc     tmp_112
+
+    }
+
+}
+
+//Not Implemented, not checked
+void Fr_band(PFrElement r, PFrElement a, PFrElement b)
+{
+    if (a->type == Fr_SHORT)
+    {
+        // and_l1
+    }
+    else if (b->type == Fr_SHORT)
+    {
+        // and_s1l2
+
+    }
+}
+
+//Not Implemented, not checked
+void Fr_sub(PFrElement r, PFrElement a, PFrElement b)
+{
+   *r = *a;
+}
+
+//Not Implemented, not checked
+void Fr_eq(PFrElement r, PFrElement a, PFrElement b)
+{
+    *r= *a;
+}
+
+//Not Implemented, not checked
+void Fr_neq(PFrElement r, PFrElement a, PFrElement b)
+{
+    *r= *a;
+}
+// Implemented, Not checked
+void Fr_toMontgomery(PFrElement r, PFrElement a)
+{
+    if (a->type = Fr_LONGMONTGOMERY) // ; check if montgomery
+    {
+        // toMontgomery_doNothing
+        Fr_copy(r,a);
+    }
+    else if (a->type = Fr_LONG)
+    {
+        // toMontgomeryLong
+        r->type = Fr_LONGMONTGOMERY;
+        Fr_rawMMul(&r->longVal[0], &a->longVal[0], &Fr_rawR2[0]);
+    }
+    else
+    {
+        // toMontgomeryShort
+        if (a->shortVal < 0)
+        {
+           // negMontgomeryShort
+           r->type = Fr_SHORTMONTGOMERY;
+           mp_limb_t ma;
+           ma = a->shortVal;
+           // ; Do the multiplication positive and then negate the result.
+           mpn_neg (&ma, &ma, 1);
+           Fr_rawMMul1(&r->longVal[0], &Fr_rawR2[0], ma);
+           Fr_rawNeg(&r->longVal[0], &r->longVal[0]);
+           r->type = Fr_SHORTMONTGOMERY;
+        }
+        else
+        {
+           // posMontgomeryShort
+            r->type = Fr_SHORTMONTGOMERY;
+            Fr_rawMMul1(&r->longVal[0], &Fr_rawR2[0], a->shortVal);
+        }
+
+    }
+}
+
+// Implemented, Not checked
+//Adds two elements of type long
+void Fr_rawAddLS(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    mp_limb_t ma[Fr_N64] = {pRawA[0], pRawA[1], pRawA[2], pRawA[3]};
+    mp_limb_t mb[Fr_N64] = {pRawB[0], pRawB[1], pRawB[2], pRawB[3]};
+    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
+    mp_limb_t mr[Fr_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
+    mp_limb_t carry;
+
+    carry = mpn_add_n(&mr[0], &ma[0], &mb[0], 4);
+    if(carry || mpn_cmp(mr, mq, 4) >= 0)
+    {
+        mpn_sub_n(&mr[0], &mr[0], &mq[0], 4);
+    }
+    std::memcpy(pRawResult, mr, sizeof(FrRawElement));
+}
+
+// Implemented, Not checked 1
+void add_s1s2(PFrElement r, PFrElement a, PFrElement b)
+{
+    mpz_t rax;
+    mpz_init(rax);
+
+    int64_t temp = (int64_t)a->shortVal + (int64_t)b->shortVal;
+    r->longVal[0] = temp;
+    mpz_import(rax, 1, -1, 8, -1, 0, (const void *)r);
+    // mul_manageOverflow
+    if (!mpz_fits_sint_p(rax))
+    {
+        rawCopyS2L(r, temp);
+    }
+    else
+    {
+        r->type = Fr_LONG;
+    }
+    mpz_clear(rax);
+}
+// Implemented, Not checked 2
+void add_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    FrElement tmp1;
+    FrElement tmp2;
+
+    r->type = Fr_LONG;
+    Fr_rawAdd(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+// Implemented, Not checked 3
+void add_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    r->type = Fr_LONGMONTGOMERY;
+    Fr_toMontgomery(r, a);
+    Fr_rawAdd(&r->longVal[0], &r->longVal[0], &b->longVal[0]);
+}
+// Implemented, Not checked 4
+void add_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    r->type = Fr_LONGMONTGOMERY;
+    Fr_rawAdd(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+// Implemented, Not checked 5
+void add_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    r->type = Fr_LONGMONTGOMERY;
+    Fr_toMontgomery(r, b);
+    Fr_rawAdd(&r->longVal[0], &r->longVal[0], &a->longVal[0]);
+}
+
+// Implemented, Not checked 6
+void add_s1l2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    FrRawElement tmp1 = {0,0,0,0};
+
+    r->type = Fr_LONG;
+    if (a->shortVal >= 0)
+    {
+        tmp1[0] = a->shortVal;
+        Fr_rawAdd(&r->longVal[0], &b->longVal[0], &tmp1[0]);
+    }
+    else
+    {
+        tmp1[0] = a->shortVal * (-1);
+        Fr_rawSub(&r->longVal[0], &b->longVal[0], &tmp1[0]);
+    }
+}
+// Implemented, Not checked 7
+void add_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    r->type = Fr_LONGMONTGOMERY;
+    Fr_toMontgomery(r, b);
+    Fr_rawAdd(&r->longVal[0], &r->longVal[0], &a->longVal[0]);
+}
+
+// Implemented, Not checked 8
+void add_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    r->type = Fr_LONGMONTGOMERY;
+    Fr_toMontgomery(r, a);
+    Fr_rawAdd(&r->longVal[0], &r->longVal[0], &b->longVal[0]);
+}
+// Implemented, Not checked 9
+void add_l1ns2(PFrElement r,PFrElement a,PFrElement b)
+{
+    FrRawElement tmp1 = {0,0,0,0};
+
+    r->type = Fr_LONG;
+    if (b->shortVal >= 0)
+    {
+        tmp1[0] = b->shortVal;
+        Fr_rawAdd(&r->longVal[0], &a->longVal[0], &tmp1[0]);
+    }
+    else
+    {
+        tmp1[0] = b->shortVal * (-1);
+        Fr_rawSub(&r->longVal[0], &a->longVal[0], &tmp1[0]);
+    }
+}
+
+// Implemented, Not checked 10
+void add_l1ms2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    r->type = Fr_LONGMONTGOMERY;
+    Fr_rawAdd(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+// Implemented, Not checked 11
+void add_s1ml2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    r->type = Fr_LONGMONTGOMERY;
+    Fr_rawAdd(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+}
+
+
+
+void Fr_add(PFrElement r, PFrElement a, PFrElement b)
+{
+    if (a->type & Fr_LONG) // Check if is short first operand
+    {
+        // add_l1
+        if (b->type & Fr_LONG) //  Check if is short second operand
+        {
+            // add_l1l2
+            if (a->type == Fr_LONGMONTGOMERY) // check if montgomery first
+            {
+                // add_l1ml2
+                if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
+                {
+                    add_l1ml2m(r, a, b);
+                }
+                else
+                {
+                    add_l1ml2n(r, a, b);
+                }
+            }
+            else if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
+            {
+                add_l1nl2m(r, a, b);
+            }
+            else
+            {
+                add_l1nl2n(r, a, b);
+            }
+        }
+        //add_l1s2:
+        else if (a->type == Fr_LONGMONTGOMERY) // check if montgomery first
+        {
+            // add_l1ms2
+            if (b->type == Fr_SHORT) // check if montgomery second
+            {
+                add_l1ms2n(r, a, b);
+            }
+            else
+            {
+                add_l1ms2m(r, a, b);
+            }
+
+        }
+        // add_l1ns2
+        else
+        {
+            add_l1ns2(r, a, b);
+        }
+    }
+    else if (b->type & Fr_LONG)// Check if is short second operand
+    {
+        // add_s1l2
+        if (b->type == Fr_LONGMONTGOMERY)// check if montgomery second
+        {
+            // add_s1l2m
+            if (a->type == Fr_SHORTMONTGOMERY)// check if montgomery first
+            {
+               // add_s1ml2m
+               add_s1ml2m(r,a,b);
+            }
+            else
+            {
+               // add_s1nl2m
+               add_s1nl2m(r,a,b);
+            }
+        }
+        else
+        {
+            // add_s1l2n
+            add_s1l2n(r,a,b);
+        }
+    }
+    else // ; Both operands are short
+    {
+         add_s1s2(r, a, b);
+    }
+}
+
+//Not Implemented, not checked
+void Fr_gt(PFrElement r, PFrElement a, PFrElement b)
+{
+    *r= *a;
+}
+
+//Not Implemented, not checked
+void Fr_geq(PFrElement r, PFrElement a, PFrElement b)
+{
+   *r = *a;
+}
+
+//Not Implemented, not checked
+void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
+{
+    *r = *a;
+}
+
+//Not Implemented, not checked
+void Fr_land(PFrElement r, PFrElement a, PFrElement b)
+{
+    *r = *a;
+}
+
+//Not Implemented, not checked
+void Fr_neg(PFrElement r, PFrElement a)
+{
+   *r= *a;
+}
+
+
 /*****************************************************************************************
  * ASM Functions to C/C++ using GNU MP Lib End
 ******************************************************************************************/
