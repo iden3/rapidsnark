@@ -1728,10 +1728,32 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
     *r = *a;
 }
 
-//Not Implemented, not checked
+//Implemented, not checked
 void Fr_neg(PFrElement r, PFrElement a)
 {
-   *r= *a;
+    mp_limb_t tmp = 0;
+
+    r->type = a->type;
+    if (a->type & Fr_LONG)
+    {
+        // neg_l
+        Fr_rawNeg(&r->longVal[0], &a->longVal[0]);
+    }
+    else
+    {
+        // neg_s
+        tmp = a->shortVal;
+        mpn_neg(&tmp,&tmp,1);
+        if (tmp >= 0x80000000) // Check if overflow. (0x80000000 is the only case)
+        {
+            // neg_manageOverflow
+            rawCopyS2L(r, tmp);
+        }
+        else
+        {
+           r->shortVal = tmp;
+        }
+    }
 }
 
 
