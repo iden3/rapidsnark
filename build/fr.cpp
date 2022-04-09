@@ -23,7 +23,7 @@ static FrElement    Fr_R3    = {0, 0x80000000, {0x5e94d8e1b4bf0040,0x2a489cbe1cf
 static FrRawElement Fr_rawR3 =                 {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c};
 static FrRawElement Fr_rawR2 =                 {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
 static uint64_t     Fr_np    = {0xc2e1f593efffffff};
-
+static FrRawElement half     = {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
 
 #endif
 
@@ -1644,13 +1644,210 @@ int Fr_toInt(PFrElement pE)
    return retVal;
 }
 
-//Not Implemented, not checked
-void Fr_lt(PFrElement r, PFrElement a, PFrElement b)
+// Implemented, Not checked 1
+int rlt_s1s2(PFrElement r, PFrElement a, PFrElement b)
 {
-   *r = *a;
+    if (a->shortVal < b->shortVal)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int rltRawL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    int carry = 0;
+    carry = mpn_cmp(pRawA, pRawB, 4);
+    if (carry)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+int rltl1l2_n1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    int carry = 0;
+    carry = mpn_cmp(pRawB, half, 4);
+    if (carry)
+    {
+        return rltRawL1L2(pRawResult, pRawA, pRawB);
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+int rltl1l2_p1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    int carry = 0;
+    carry = mpn_cmp(pRawB, half, 4);
+    if (carry)
+    {
+        return 0;
+    }
+    else
+    {
+        return rltRawL1L2(pRawResult, pRawA, pRawB);
+    }
+}
+
+int rltL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    int carry = 0;
+    carry = mpn_cmp(pRawA, half, 4);
+    if (carry)
+    {
+        rltl1l2_n1(pRawResult, pRawA, pRawB);
+    }
+    else
+    {
+        rltl1l2_p1(pRawResult, pRawA, pRawB);
+    }
+}
+
+// Implemented, Not checked 2
+int rlt_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    // rltL1L2
+    return rltRawL1L2(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+
+}
+// Implemented, Not checked 3
+int rlt_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpb = b;
+    Fr_toNormal(tmpb,b);
+    rltL1L2(r->longVal, a->longVal, tmpb->longVal);
+}
+// Implemented, Not checked 4
+void rlt_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    PFrElement tmpb = b;
+    Fr_toNormal(tmpa,tmpa);
+    Fr_toNormal(tmpb,tmpb);
+    rltL1L2(r->longVal, tmpa->longVal, tmpb->longVal);
+}
+// Implemented, Not checked 5
+void rlt_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    Fr_toNormal(tmpa,a);
+    rltL1L2(r->longVal, tmpa->longVal, b->longVal);
+}
+
+// Implemented, Not checked 6
+void rlt_s1l2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    Fr_toLongNormal(tmpa,a);
+    rltL1L2(r->longVal, tmpa->longVal, b->longVal);
+}
+// Implemented, Not checked 7
+void rlt_l1ms2(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    PFrElement tmpb = b;
+    Fr_toNormal(tmpa,a);
+    Fr_toLongNormal(tmpb,b);
+    rltL1L2(r->longVal, tmpa->longVal, tmpb->longVal);
+}
+
+// Implemented, Not checked 8
+void rlt_s1l2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    PFrElement tmpb = b;
+    Fr_toLongNormal(tmpa,a);
+    Fr_toNormal(tmpb,b);
+    rltL1L2(r->longVal, tmpa->longVal, tmpb->longVal);
+}
+// Implemented, Not checked 9
+void rlt_l1ns2(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpb = b;
+    Fr_toLongNormal(tmpb,b);
+    rltL1L2(r->longVal, a->longVal, tmpb->longVal);
 }
 
 //Not Implemented, not checked
+void Fr_lt(PFrElement r, PFrElement a, PFrElement b)
+{
+    PFrElement rcx,rax,r8,r9; // Modified Registers
+    *r8 = *a;
+    *r9 = *b;
+
+    if (a->type & Fr_LONG) // Check if is short first operand
+    {
+        // rlt_l1
+        if (b->type & Fr_LONG) //  Check if is short second operand
+        {
+            // rlt_l1l2
+            if (a->type == Fr_LONGMONTGOMERY) // check if montgomery first
+            {
+                // rlt_l1ml2
+                if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
+                {
+                    rlt_l1ml2m(r, a, b);
+                }
+                else
+                {
+                    rlt_l1ml2n(r, a, b);
+                }
+            }
+            else if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
+            {
+                rlt_l1nl2m(r, a, b);
+            }
+            else
+            {
+                rlt_l1nl2n(r, a, b);
+            }
+        }
+        //rlt_l1s2:
+        else if (a->type == Fr_LONGMONTGOMERY) // check if montgomery first
+        {
+            // rlt_l1ms2
+            rlt_l1ms2(r, a, b);
+        }
+        else
+        {
+            // rlt_l1ns2
+            rlt_l1ns2(r, a, b);
+        }
+    }
+    else if (b->type & Fr_LONG)// Check if is short second operand
+    {
+        // rlt_s1l2
+        if (b->type == Fr_LONGMONTGOMERY)// check if montgomery second
+        {
+            // rlt_s1l2m
+            rlt_s1l2m(r,a,b);
+        }
+        else
+        {
+            // add_s1l2n
+            rlt_s1l2n(r,a,b);
+        }
+    }
+    else // ; Both operands are short
+    {
+         rlt_s1s2(r, a, b);
+    }
+
+}
+
+
+//Not Implemented, not checked
+// Adds two elements of any kind
 void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
 {
 //    mp_limb_t ma[Fr_N64] = {a->longVal[0], pRawA[1], pRawA[2], pRawA[3]};
@@ -1658,11 +1855,65 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
 //    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
 //    mp_limb_t mr[Fr_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
 //    mp_limb_t carry;
+      PFrElement rtmp;
+      mp_limb_t rcx[Fr_N64] = {0,0,0,0};
+      mp_limb_t rax[Fr_N64] = {0,0,0,0};
+      mp_limb_t rdx[Fr_N64] = {0,0,0,0};
+      uint64_t cmpVal = 254;
+      mp_limb_t carry = 0;
 
-    if (b->type == Fr_SHORT)
+
+    if (b->type & Fr_LONG)
     {
         if (b->type == Fr_LONGMONTGOMERY)
         {
+            Fr_toNormal(rtmp, b);
+            // tmp_113
+            rcx[0] = rtmp->longVal[0];
+            if (mpn_cmp(&rcx[0], &cmpVal, 1) >= 0)
+            {
+                // tmp_114
+                rcx[0] = Fr_rawq[0];
+                mpn_sub_n(&rcx[0], &rcx[0], &rtmp->longVal[0], 1);
+                if (mpn_cmp(&rcx[0], &cmpVal, 1) >= 0)
+                {
+                   // jae  setzero
+                   r->shortVal = 0;
+                   return;
+                }
+                std::memcpy(rax, Fr_rawq, sizeof(FrRawElement));
+                std::memcpy(rdx, &rtmp->longVal[0], sizeof(FrRawElement));
+                carry = mpn_sub_n(&rax[0], &rax[0], &rdx[0], 4);
+                if (carry >= 0)
+                {
+                    // jae  setzero
+                    r->shortVal = 0;
+                    return;
+                }
+                std::memcpy(&rdx, &rcx, Fr_N64);
+                // jmp do_shl
+                if(b->type & Fr_LONG)
+                {
+                    // do_shll
+                    if (b->type & Fr_LONGMONTGOMERY)
+                    {
+                        Fr_toNormal(rtmp, b);
+                    }
+                    else
+                    {
+                        // do_shlln
+                        r->type = Fr_LONG;
+                        // rawShl
+                    }
+
+
+                }
+
+            }
+            else
+            {
+
+            }
 
         }
         else
