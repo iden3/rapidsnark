@@ -1,4 +1,4 @@
-#include "fr.hpp"
+﻿#include "fr.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <gmp.h>
@@ -24,6 +24,8 @@ static FrRawElement Fr_rawR3 =                 {0x5e94d8e1b4bf0040,0x2a489cbe1cf
 static FrRawElement Fr_rawR2 =                 {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
 static uint64_t     Fr_np    = {0xc2e1f593efffffff};
 static FrRawElement half     = {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
+static uint64_t     lboMask  =  0x3fffffffffffffff;
+
 
 #endif
 
@@ -2042,103 +2044,6 @@ void Fr_neq(PFrElement r, PFrElement a, PFrElement b)
     Fr_req(r, a, b);
 }
 
-//Not Implemented, not checked
-// Adds two elements of any kind
-void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
-{
-//    mp_limb_t ma[Fr_N64] = {a->longVal[0], pRawA[1], pRawA[2], pRawA[3]};
-//    mp_limb_t mb[Fr_N64] = {pRawB[0], pRawB[1], pRawB[2], pRawB[3]};
-//    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
-//    mp_limb_t mr[Fr_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
-//    mp_limb_t carry;
-      PFrElement rtmp;
-      mp_limb_t rcx[Fr_N64] = {0,0,0,0};
-      mp_limb_t rax[Fr_N64] = {0,0,0,0};
-      mp_limb_t rdx[Fr_N64] = {0,0,0,0};
-      uint64_t cmpVal = 254;
-      mp_limb_t carry = 0;
-
-
-    if (b->type & Fr_LONG)
-    {
-        if (b->type == Fr_LONGMONTGOMERY)
-        {
-            Fr_toNormal(rtmp, b);
-            // tmp_113
-            rcx[0] = rtmp->longVal[0];
-            if (mpn_cmp(&rcx[0], &cmpVal, 1) >= 0)
-            {
-                // tmp_114
-                rcx[0] = Fr_rawq[0];
-                mpn_sub_n(&rcx[0], &rcx[0], &rtmp->longVal[0], 1);
-                if (mpn_cmp(&rcx[0], &cmpVal, 1) >= 0)
-                {
-                   // jae  setzero
-                   r->shortVal = 0;
-                   return;
-                }
-                std::memcpy(rax, Fr_rawq, sizeof(FrRawElement));
-                std::memcpy(rdx, &rtmp->longVal[0], sizeof(FrRawElement));
-                carry = mpn_sub_n(&rax[0], &rax[0], &rdx[0], 4);
-                if (carry >= 0)
-                {
-                    // jae  setzero
-                    r->shortVal = 0;
-                    return;
-                }
-                std::memcpy(&rdx, &rcx, Fr_N64);
-                // jmp do_shl
-                if(b->type & Fr_LONG)
-                {
-                    // do_shll
-                    if (b->type & Fr_LONGMONTGOMERY)
-                    {
-                        Fr_toNormal(rtmp, b);
-                    }
-                    else
-                    {
-                        // do_shlln
-                        r->type = Fr_LONG;
-                        // rawShl
-                    }
-
-
-                }
-
-            }
-            else
-            {
-
-            }
-
-        }
-        else
-        {
-            // jnc     tmp_113
-        }
-    }
-    else
-    {
-        // jnc     tmp_112
-
-    }
-
-}
-
-//Not Implemented, not checked
-void Fr_band(PFrElement r, PFrElement a, PFrElement b)
-{
-    if (a->type == Fr_SHORT)
-    {
-        // and_l1
-    }
-    else if (b->type == Fr_SHORT)
-    {
-        // and_s1l2
-
-    }
-}
-
 // Implemented, not checked
 // Logical or between two elements
 void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
@@ -2907,6 +2812,463 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                 }
             }
         }
+    }
+}
+
+//Not Implemented, not checked
+// Adds two elements of any kind
+void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
+{
+//    mp_limb_t ma[Fr_N64] = {a->longVal[0], pRawA[1], pRawA[2], pRawA[3]};
+//    mp_limb_t mb[Fr_N64] = {pRawB[0], pRawB[1], pRawB[2], pRawB[3]};
+//    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
+//    mp_limb_t mr[Fr_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
+//    mp_limb_t carry;
+      PFrElement rtmp;
+      mp_limb_t rcx[Fr_N64] = {0,0,0,0};
+      mp_limb_t rax[Fr_N64] = {0,0,0,0};
+      mp_limb_t rdx[Fr_N64] = {0,0,0,0};
+      uint64_t cmpVal = 254;
+      mp_limb_t carry = 0;
+
+
+    if (b->type & Fr_LONG)
+    {
+        if (b->type == Fr_LONGMONTGOMERY)
+        {
+            Fr_toNormal(rtmp, b);
+            // tmp_113
+            rcx[0] = rtmp->longVal[0];
+            if (mpn_cmp(&rcx[0], &cmpVal, 1) >= 0)
+            {
+                // tmp_114
+                rcx[0] = Fr_rawq[0];
+                mpn_sub_n(&rcx[0], &rcx[0], &rtmp->longVal[0], 1);
+                if (mpn_cmp(&rcx[0], &cmpVal, 1) >= 0)
+                {
+                   // jae  setzero
+                   r->shortVal = 0;
+                   return;
+                }
+                std::memcpy(rax, Fr_rawq, sizeof(FrRawElement));
+                std::memcpy(rdx, &rtmp->longVal[0], sizeof(FrRawElement));
+                carry = mpn_sub_n(&rax[0], &rax[0], &rdx[0], 4);
+                if (carry >= 0)
+                {
+                    // jae  setzero
+                    r->shortVal = 0;
+                    return;
+                }
+                std::memcpy(&rdx, &rcx, Fr_N64);
+                // jmp do_shl
+                if(b->type & Fr_LONG)
+                {
+                    // do_shll
+                    if (b->type & Fr_LONGMONTGOMERY)
+                    {
+                        Fr_toNormal(rtmp, b);
+                    }
+                    else
+                    {
+                        // do_shlln
+                        r->type = Fr_LONG;
+                        // rawShl
+                    }
+
+
+                }
+
+            }
+            else
+            {
+
+            }
+
+        }
+        else
+        {
+            // jnc     tmp_113
+        }
+    }
+    else
+    {
+        // jnc     tmp_112
+
+    }
+
+}
+
+// Implemented, Not checked 1
+int and_s1s2(PFrElement r, PFrElement a, PFrElement b)
+{
+    mp_limb_t cmpVal = 0;
+    mp_limb_t eax = a->shortVal;
+    mp_limb_t ecx = b->shortVal;
+    PFrElement rax;
+
+    if(mpn_cmp(&eax, &cmpVal, 1) != 0)
+    {
+        // tmp_13
+        r->type = Fr_LONG;
+        Fr_toLongNormal(a,a);
+        Fr_toLongNormal(b,b);
+        std::memcpy(&rax, &a, sizeof (FrElement));
+        mpn_and_n(rax->longVal,rax->longVal, b->longVal, Fr_N64);
+        mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+
+        // Compare with q
+        if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+        {
+            // tmp_15
+            // @IS todo fix it
+            return 0;
+        }
+        else
+        {
+            // tmp_14
+            // @IS todo fix it
+            mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+            return 0;
+        }
+
+    }
+}
+
+// Implemented, Not checked 2
+int and_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement rax;
+    r->type = Fr_LONG;
+    std::memcpy(&rax, &a, sizeof (FrElement));
+    mpn_and_n(rax->longVal,rax->longVal, b->longVal, Fr_N64);
+    mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+
+    // Compare with q
+    if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+    {
+        // tmp_36
+        // @IS todo fix it
+        return 0;
+    }
+    else
+    {
+        // tmp_37
+        // @IS todo fix it
+        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+        return 0;
+    }
+
+}
+// Implemented, Not checked 3
+int and_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement rax;
+    PFrElement rdx = b;
+    r->type = Fr_LONG;
+    Fr_toNormal(rdx,rdx);
+    std::memcpy(&rax, &a, sizeof (FrElement));
+    mpn_and_n(rax->longVal,rax->longVal, rdx->longVal, Fr_N64);
+    mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+
+    // Compare with q
+    if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+    {
+        // tmp_36
+        // @IS todo fix it
+        return 0;
+    }
+    else
+    {
+        // tmp_37
+        // @IS todo fix it
+        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+        return 0;
+    }
+}
+// Implemented, Not checked 4
+int and_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement rax;
+    PFrElement rsi = a;
+    PFrElement rdx = b;
+    r->type = Fr_LONG;
+    Fr_toNormal(rdx,rdx);
+    Fr_toNormal(rsi,rsi);
+    std::memcpy(&rax, &rsi, sizeof (FrElement));
+    mpn_and_n(rax->longVal,rax->longVal, rdx->longVal, Fr_N64);
+    mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+
+    // Compare with q
+    if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+    {
+        // tmp_38
+        // @IS todo fix it
+        return 0;
+    }
+    else
+    {
+        // tmp_39
+        // @IS todo fix it
+        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+        return 0;
+    }
+}
+// Implemented, Not checked 5
+int and_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement rax;
+    PFrElement rsi = a;
+    r->type = Fr_LONG;
+    Fr_toNormal(rsi,rsi);
+    std::memcpy(&rax, &rsi, sizeof (FrElement));
+    mpn_and_n(rax->longVal,rax->longVal, b->longVal, Fr_N64);
+    mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+
+    // Compare with q
+    if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+    {
+        // tmp_38
+        // @IS todo fix it
+        return 0;
+    }
+    else
+    {
+        // tmp_39
+        // @IS todo fix it
+        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+        return 0;
+    }
+}
+
+// Implemented, Not checked 6
+int and_s1l2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement rax;
+    PFrElement rsi = a;
+    mp_limb_t cmpVal = 0;
+    mp_limb_t tmprax = 0;
+
+    r->type = Fr_LONG;
+    Fr_toNormal(rsi,rsi);
+    std::memcpy(&rax, &rsi, sizeof (FrElement));
+    tmprax = rax->shortVal;
+    if(mpn_cmp(&tmprax, &cmpVal, 1) != 0)
+    {
+        // tmp_26
+        Fr_toLongNormal(r,r);
+        r->type = Fr_LONG;
+        mpn_and_n(rax->longVal,rax->longVal, b->longVal, Fr_N64);
+        mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+        // Compare with q
+        if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+        {
+            // tmp_29
+            // @IS todo fix it
+            return 0;
+        }
+        else
+        {
+            // tmp_30
+            // @IS todo fix it
+            mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+            return 0;
+        }
+
+    }
+    mpn_and_n(rax->longVal,rax->longVal, b->longVal, Fr_N64);
+    mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+
+    // Compare with q
+    if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+    {
+        // tmp_27
+        // @IS todo fix it
+        return 0;
+    }
+    else
+    {
+        // tmp_28
+        // @IS todo fix it
+        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+        return 0;
+    }
+}
+// Implemented, Not checked 7
+void and_l1ms2(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    PFrElement tmpb = b;
+    Fr_toNormal(tmpa,a);
+    Fr_toLongNormal(tmpb,b);
+    rltL1L2(r->longVal, tmpa->longVal, tmpb->longVal);
+}
+
+// Implemented, Not checked 8
+int and_s1l2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement rax;
+    PFrElement rsi = b;
+    mp_limb_t cmpVal = 0;
+    mp_limb_t tmprax = 0;
+
+    r->type = Fr_LONG;
+    Fr_toNormal(rsi,rsi);
+    std::memcpy(&rax, &rsi, sizeof (FrElement));
+    tmprax = rax->shortVal;
+    if(mpn_cmp(&tmprax, &cmpVal, 1) != 0)
+    {
+        // tmp_31
+        Fr_toLongNormal(r,r);
+        r->type = Fr_LONG;
+        mpn_and_n(rax->longVal,rax->longVal, b->longVal, Fr_N64);
+        mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+        // Compare with q
+        if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+        {
+            // tmp_35
+            // @IS todo fix it
+            return 0;
+        }
+        else
+        {
+            // tmp_34
+            // @IS todo fix it
+            mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+            return 0;
+        }
+
+    }
+    mpn_and_n(rax->longVal,rax->longVal, b->longVal, Fr_N64);
+    mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+
+    // Compare with q
+    if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+    {
+        // tmp_33
+        // @IS todo fix it
+        return 0;
+    }
+    else
+    {
+        // tmp_32
+        // @IS todo fix it
+        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+        return 0;
+    }
+}
+// Implemented, Not checked 9
+int and_l1ns2(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement rax;
+    PFrElement rsi = b;
+    mp_limb_t cmpVal = 0;
+    mp_limb_t tmprax = 0;
+
+    r->type = Fr_LONG;
+    std::memcpy(&rax, &rsi, sizeof (FrElement));
+    tmprax = rax->shortVal;
+    if(mpn_cmp(&tmprax, &cmpVal, 1) != 0)
+    {
+        // tmp_16
+        Fr_toLongNormal(r,r);
+        r->type = Fr_LONG;
+        mpn_and_n(rax->longVal,rax->longVal, b->longVal, Fr_N64);
+        mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+        // Compare with q
+        if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+        {
+            // tmp_20
+            // @IS todo fix it
+            return 0;
+        }
+        else
+        {
+            // tmp_19
+            // @IS todo fix it
+            mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+            return 0;
+        }
+
+    }
+    mpn_and_n(rax->longVal,rax->longVal, b->longVal, Fr_N64);
+    mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
+
+    // Compare with q
+    if (mpn_cmp(&rax->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+    {
+        // tmp_18
+        // @IS todo fix it
+        return 0;
+    }
+    else
+    {
+        // tmp_17
+        // @IS todo fix it
+        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
+        return 0;
+    }
+}
+
+// Adds two elements of any kind
+// Implemented, not checked
+void Fr_band(PFrElement r, PFrElement a, PFrElement b)
+{
+    if (a->type & Fr_LONG) // Check if is short first operand
+    {
+        // and_l1
+        if (b->type & Fr_LONG) //  Check if is short second operand
+        {
+            // and_l1l2
+            if (a->type == Fr_LONGMONTGOMERY) // check if montgomery first
+            {
+                // and_l1ml2
+                if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
+                {
+                    and_l1ml2m(r, a, b);
+                }
+                else
+                {
+                    and_l1ml2n(r, a, b);
+                }
+            }
+            else if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
+            {
+                and_l1nl2m(r, a, b);
+            }
+            else
+            {
+                and_l1nl2n(r, a, b);
+            }
+        }
+        //and_l1s2:
+        else if (a->type == Fr_LONGMONTGOMERY) // check if montgomery first
+        {
+            // and_l1ms2
+            and_l1ms2(r, a, b);
+        }
+        else
+        {
+            // and_l1ns2
+           and_l1ns2(r, a, b);
+        }
+    }
+    else if (b->type & Fr_LONG)// Check if is short second operand
+    {
+        // and_s1l2
+        if (b->type == Fr_LONGMONTGOMERY)// check if montgomery second
+        {
+            // and_s1l2m
+            and_s1l2m(r,a,b);
+        }
+        else
+        {
+            // and_s1l2n
+            and_s1l2n(r,a,b);
+        }
+    }
+    else // ; Both operands are short
+    {
+         and_s1s2(r, a, b);
     }
 }
 
