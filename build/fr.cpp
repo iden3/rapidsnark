@@ -2620,17 +2620,294 @@ void Fr_rgt(PFrElement r, PFrElement a, PFrElement b)
 }
 
 
-//Not Implemented, not checked
+//Implemented, not checked
 void Fr_gt(PFrElement r, PFrElement a, PFrElement b)
 {
     Fr_rgt(r,a,b);
 }
 
-
-//Not Implemented, not checked
+// Logical and between two elements
+//Implemented, not checked
 void Fr_land(PFrElement r, PFrElement a, PFrElement b)
 {
-    *r = *a;
+    PFrElement rax = a;
+    uint64_t r8 = 0;
+    uint64_t rcx = 0;
+    mp_limb_t cmpVal[Fr_N64] = {0,0,0,0};
+
+    // l1
+    if(rax->type & Fr_LONG)
+    {
+        // tmp_120
+        mpn_and_n(rax->longVal,rax->longVal,rax->longVal, 4);
+        if ( mpn_cmp(rax->longVal, cmpVal, Fr_N64) !=0)
+        {
+            // retOne_121
+            r8 = 1;
+            // done_123
+            rax = b;
+            // l1l2
+            if(rax->type & Fr_LONG)
+            {
+                // tmp_124
+                mpn_and_n(rax->longVal,rax->longVal,rax->longVal, 4);
+                if ( mpn_cmp(rax->longVal, cmpVal, Fr_N64) !=0)
+                {
+                     // retOne_125
+                     rcx = 1;
+                     // done_127
+                     mpn_and_n(&rcx,&rcx,&r8, 1);
+                     r->shortVal = rcx;
+                     return;
+                }
+                else
+                {
+                    // retZero_126
+                    rcx = 0;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+                mp_limb_t raxTmp = rax->shortVal;
+                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
+                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
+                {
+                    // retZero_126
+                    rcx = 0;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+                else
+                {
+                    // retOne_125
+                    rcx = 1;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+            }
+            // l1s2
+            else
+            {
+                // test    eax, eax
+                mp_limb_t raxTmp = rax->shortVal;
+                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
+                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
+                {
+                    // retZero_126
+                    rcx = 0;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+                else
+                {
+                    // retOne_125
+                    rcx = 1;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+            }
+
+        }
+        else
+        {
+            // retZero_122:
+            r8 = 0;
+            // done_123
+            rax = b;
+            // l1l2
+            if(rax->type & Fr_LONG)
+            {
+                // tmp_124
+                mpn_and_n(rax->longVal,rax->longVal,rax->longVal, 4);
+                if ( mpn_cmp(rax->longVal, cmpVal, Fr_N64) !=0)
+                {
+                     // retOne_125
+                     rcx = 1;
+                     // done_127
+                     mpn_and_n(&rcx,&rcx,&r8, 1);
+                     r->shortVal = rcx;
+                     return;
+                }
+                else
+                {
+                    // retZero_126
+                    rcx = 0;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+            }
+            else // l1s2
+            {
+                mp_limb_t raxTmp = rax->shortVal;
+                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
+                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
+                {
+                    // retZero_126
+                    rcx = 0;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+                else
+                {
+                    // retOne_125
+                    rcx = 1;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+            }
+        }
+    }
+    //s1
+    else
+    {
+        mp_limb_t raxTmp = rax->shortVal;
+        mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
+        if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
+        {
+            // retZero_122:
+            r8 = 0;
+            // done_123
+            rax = b;
+            // l1l2
+            if(rax->type & Fr_LONG)
+            {
+                // tmp_124
+                mpn_and_n(rax->longVal,rax->longVal,rax->longVal, 4);
+                if ( mpn_cmp(rax->longVal, cmpVal, Fr_N64) !=0)
+                {
+                     // retOne_125
+                     rcx = 1;
+                     // done_127
+                     mpn_and_n(&rcx,&rcx,&r8, 1);
+                     r->shortVal = rcx;
+                     return;
+                }
+                else
+                {
+                    // retZero_126
+                    rcx = 0;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+            }
+            else // l1s2
+            {
+                mp_limb_t raxTmp = rax->shortVal;
+                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
+                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
+                {
+                    // retZero_126
+                    rcx = 0;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+                else
+                {
+                    // retOne_125
+                    rcx = 1;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+            }
+        }
+        else
+        {
+            // retOne_121
+            r8 = 1;
+            // done_123
+            rax = b;
+            // l1l2
+            if(rax->type & Fr_LONG)
+            {
+                // tmp_124
+                mpn_and_n(rax->longVal,rax->longVal,rax->longVal, 4);
+                if ( mpn_cmp(rax->longVal, cmpVal, Fr_N64) !=0)
+                {
+                     // retOne_125
+                     rcx = 1;
+                     // done_127
+                     mpn_and_n(&rcx,&rcx,&r8, 1);
+                     r->shortVal = rcx;
+                     return;
+                }
+                else
+                {
+                    // retZero_126
+                    rcx = 0;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+                mp_limb_t raxTmp = rax->shortVal;
+                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
+                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
+                {
+                    // retZero_126
+                    rcx = 0;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+                else
+                {
+                    // retOne_125
+                    rcx = 1;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+            }
+            // l1s2
+            else
+            {
+                // test    eax, eax
+                mp_limb_t raxTmp = rax->shortVal;
+                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
+                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
+                {
+                    // retZero_126
+                    rcx = 0;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+                else
+                {
+                    // retOne_125
+                    rcx = 1;
+                    // done_127
+                    mpn_and_n(&rcx,&rcx,&r8, 1);
+                    r->shortVal = rcx;
+                    return;
+                }
+            }
+        }
+    }
 }
 
 
