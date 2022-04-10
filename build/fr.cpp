@@ -2139,13 +2139,6 @@ void Fr_band(PFrElement r, PFrElement a, PFrElement b)
     }
 }
 
-//Not Implemented, not checked
-void Fr_gt(PFrElement r, PFrElement a, PFrElement b)
-{
-    *r= *a;
-}
-
-
 // Implemented, not checked
 // Logical or between two elements
 void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
@@ -2429,6 +2422,210 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
        }
    }
 }
+
+// Implemented, Not checked 1
+int rgt_s1s2(PFrElement r, PFrElement a, PFrElement b)
+{
+    if (a->shortVal > b->shortVal)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int rgtRawL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    int carry = 0;
+    carry = mpn_cmp(pRawA, pRawB, 4);
+    if (carry)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int rgtl1l2_n1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    int carry = 0;
+    carry = mpn_cmp(pRawB, half, 4);
+    if (carry)
+    {
+        return rltRawL1L2(pRawResult, pRawA, pRawB);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int rgtl1l2_p1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    int carry = 0;
+    carry = mpn_cmp(pRawB, half, 4);
+    if (carry)
+    {
+        return 1;
+    }
+    else
+    {
+        return rltRawL1L2(pRawResult, pRawA, pRawB);
+    }
+}
+
+int rgtL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    int carry = 0;
+    carry = mpn_cmp(pRawA, half, 4);
+    if (carry)
+    {
+        rltl1l2_n1(pRawResult, pRawA, pRawB);
+    }
+    else
+    {
+        rltl1l2_p1(pRawResult, pRawA, pRawB);
+    }
+}
+
+// Implemented, Not checked 2
+int rgt_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    // rltL1L2
+    return rltRawL1L2(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+
+}
+// Implemented, Not checked 3
+int rgt_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpb = b;
+    Fr_toNormal(tmpb,b);
+    rltL1L2(r->longVal, a->longVal, tmpb->longVal);
+}
+// Implemented, Not checked 4
+void rgt_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    PFrElement tmpb = b;
+    Fr_toNormal(tmpa,tmpa);
+    Fr_toNormal(tmpb,tmpb);
+    rltL1L2(r->longVal, tmpa->longVal, tmpb->longVal);
+}
+// Implemented, Not checked 5
+void rgt_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    Fr_toNormal(tmpa,a);
+    rltL1L2(r->longVal, tmpa->longVal, b->longVal);
+}
+
+// Implemented, Not checked 6
+void rgt_s1l2n(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    Fr_toLongNormal(tmpa,a);
+    rltL1L2(r->longVal, tmpa->longVal, b->longVal);
+}
+// Implemented, Not checked 7
+void rgt_l1ms2(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    PFrElement tmpb = b;
+    Fr_toNormal(tmpa,a);
+    Fr_toLongNormal(tmpb,b);
+    rltL1L2(r->longVal, tmpa->longVal, tmpb->longVal);
+}
+
+// Implemented, Not checked 8
+void rgt_s1l2m(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpa = a;
+    PFrElement tmpb = b;
+    Fr_toLongNormal(tmpa,a);
+    Fr_toNormal(tmpb,b);
+    rltL1L2(r->longVal, tmpa->longVal, tmpb->longVal);
+}
+// Implemented, Not checked 9
+void rgt_l1ns2(PFrElement r,PFrElement a,PFrElement b)
+{
+    PFrElement tmpb = b;
+    Fr_toLongNormal(tmpb,b);
+    rltL1L2(r->longVal, a->longVal, tmpb->longVal);
+}
+
+// Implemented, not checked
+void Fr_rgt(PFrElement r, PFrElement a, PFrElement b)
+{
+    if (a->type & Fr_LONG) // Check if is short first operand
+    {
+        // rgt_l1
+        if (b->type & Fr_LONG) //  Check if is short second operand
+        {
+            // rgt_l1l2
+            if (a->type == Fr_LONGMONTGOMERY) // check if montgomery first
+            {
+                // rgt_l1ml2
+                if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
+                {
+                    rgt_l1ml2m(r, a, b);
+                }
+                else
+                {
+                    rgt_l1ml2n(r, a, b);
+                }
+            }
+            else if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
+            {
+                rgt_l1nl2m(r, a, b);
+            }
+            else
+            {
+                rgt_l1nl2n(r, a, b);
+            }
+        }
+        //rgt_l1s2:
+        else if (a->type == Fr_LONGMONTGOMERY) // check if montgomery first
+        {
+            // rgt_l1ms2
+            rgt_l1ms2(r, a, b);
+        }
+        else
+        {
+            // rgt_l1ns2
+            rgt_l1ns2(r, a, b);
+        }
+    }
+    else if (b->type & Fr_LONG)// Check if is short second operand
+    {
+        // rgt_s1l2
+        if (b->type == Fr_LONGMONTGOMERY)// check if montgomery second
+        {
+            // rgt_s1l2m
+            rgt_s1l2m(r,a,b);
+        }
+        else
+        {
+            // rgt_s1l2n
+            rgt_s1l2n(r,a,b);
+        }
+    }
+    else // ; Both operands are short
+    {
+         rgt_s1s2(r, a, b);
+    }
+}
+
+
+//Not Implemented, not checked
+void Fr_gt(PFrElement r, PFrElement a, PFrElement b)
+{
+    Fr_rgt(r,a,b);
+}
+
 
 //Not Implemented, not checked
 void Fr_land(PFrElement r, PFrElement a, PFrElement b)
