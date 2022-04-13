@@ -807,26 +807,43 @@ void mul_s1s2(PFrElement r, PFrElement a, PFrElement b)
     mpz_clear(rax);
 }
 
+//void rawCopyS2L(PFrElement pResult, int64_t val)
+//{
+//    mpz_t result, mq;
+
+//    mpz_inits(result, mq);
+
+//    mpz_set_si(result, val);
+
+//    if (val < 0)
+//    {
+//        Fr_to_mpz(mq, Fr_rawq);
+
+//        mpz_add(result, result, mq);
+//    }
+
+//    pResult->type = Fr_LONG;
+//    pResult->shortVal = 0;
+//    Fr_to_rawElement(pResult->longVal, result);
+
+//    mpz_clears(result, mq);
+//}
+
 void rawCopyS2L(PFrElement pResult, int64_t val)
 {
-    mpz_t result, mq;
+    pResult->type = Fr_LONG;
+    pResult->shortVal = 0;
 
-    mpz_inits(result, mq);
+    uint64_t *result = pResult->longVal;
 
-    mpz_set_si(result, val);
+    mpn_zero(result, Fr_N64);
+    result[0] = val;
 
     if (val < 0)
     {
-        Fr_to_mpz(mq, Fr_rawq);
-
-        mpz_add(result, result, mq);
+        mpn_com(result+1, result+1, Fr_N64-1);
+        mpn_add_n(result, result, Fr_rawq, Fr_N64);
     }
-
-    pResult->type = Fr_LONG;
-    pResult->shortVal = 0;
-    Fr_to_rawElement(pResult->longVal, result);
-
-    mpz_clears(result, mq);
 }
 
 void mul_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
@@ -1310,6 +1327,27 @@ void Fr_toMontgomery(PFrElement r, PFrElement a)
     return;
 }
 
+//// Implemented, Not checked 1
+//void add_s1s2(PFrElement r, PFrElement a, PFrElement b)
+//{
+//    mpz_t rax;
+//    mpz_init(rax);
+
+//    int64_t temp = (int64_t)a->shortVal + (int64_t)b->shortVal;
+//    r->longVal[0] = temp;
+//    mpz_import(rax, 1, -1, 8, -1, 0, (const void *)r);
+//    // mul_manageOverflow
+//    if (!mpz_fits_sint_p(rax))
+//    {
+//        rawCopyS2L(r, temp);
+//    }
+//    else
+//    {
+//        r->type = Fr_LONG;
+//    }
+//    mpz_clear(rax);
+//}
+
 // Implemented, Not checked 1
 void add_s1s2(PFrElement r, PFrElement a, PFrElement b)
 {
@@ -1317,16 +1355,18 @@ void add_s1s2(PFrElement r, PFrElement a, PFrElement b)
     mpz_init(rax);
 
     int64_t temp = (int64_t)a->shortVal + (int64_t)b->shortVal;
-    r->longVal[0] = temp;
+    r->shortVal = (int32_t)temp;
     mpz_import(rax, 1, -1, 8, -1, 0, (const void *)r);
     // mul_manageOverflow
     if (!mpz_fits_sint_p(rax))
     {
         rawCopyS2L(r, temp);
+        //std::cout << "rawCopyS2L" << "\n";
     }
     else
     {
-        r->type = Fr_LONG;
+        //r->type = Fr_LONG;
+        //std::cout << "Not rawCopyS2L" << "\n";
     }
     mpz_clear(rax);
 }

@@ -5,7 +5,7 @@
 #include <limits.h>
 
 #define TEST_FR_C_FUNCTIONS
-#define TEST_FR_C_FUNCTIONS_WITH_RESULT
+//#define TEST_FR_C_FUNCTIONS_WITH_RESULT
 //#define TEST_FR_ASM_FUNCTIONS
 
 //#define TEST_FQ_C_FUNCTIONS
@@ -2376,6 +2376,507 @@ void Fr_sub_s1l2n_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx
 
 
 
+// 1
+void Fr_add_s1s2_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_s1s2_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_s1s2" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_s1s2" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_s1s2" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+void Fr_add_s1s2_unit_test()
+{
+    //Fr_add_s1s2_test 0:
+    FrElement pA_s1s20= {0x1,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_s1s20= {0x2,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_s1s20= {0x3,0x0,{0x0,0x0,0x0,0x0}};
+    //Fr_add_s1s2_test 1:
+    FrElement pA_s1s21= {0x0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_s1s21= {0x2,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_s1s21= {0x2,0x0,{0x0,0x0,0x0,0x0}};
+    //Fr_add_s1s2_test 2:
+    FrElement pA_s1s22= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_s1s22= {0x1bb8,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_s1s22= {0xbda8,0x0,{0x0,0x0,0x0,0x0}};
+    //Fr_add_s1s2_test 3:
+    FrElement pA_s1s23= {0x7fffffff,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_s1s23= {0x7fffffff,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_s1s23= {0x0,0x80000000,{0xfffffffe,0x0,0x0,0x0}};
+
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_s1s20, &pB_s1s20);
+    Fr_add(&Result1_c, &pA_s1s21, &pB_s1s21);
+    Fr_add(&Result2_c, &pA_s1s22, &pB_s1s22);
+    Fr_add(&Result3_c, &pA_s1s23, &pB_s1s23);
+
+    compare_Result(&pResult_s1s20, &Result0_c, 0, "Fr_add_s1s2_unit_test");
+    compare_Result(&pResult_s1s21, &Result1_c, 1, "Fr_add_s1s2_unit_test");
+    compare_Result(&pResult_s1s22, &Result2_c, 2, "Fr_add_s1s2_unit_test");
+    compare_Result(&pResult_s1s23, &Result3_c, 3, "Fr_add_s1s2_unit_test");
+}
+
+// 2
+void Fr_add_l1nl2n_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_l1nl2n_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_l1nl2n" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_l1nl2n" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_l1nl2n" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+void Fr_add_l1nl2n_unit_test()
+{
+    //Fr_add_l1nl2n_test 0:
+    FrElement pA_l1nl2n0= {0x1,0x80000000,{0x1,0x0,0x0,0x0}};
+    FrElement pB_l1nl2n0= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1nl2n0= {0x0,0x80000000,{0x3,0x0,0x0,0x0}};
+    //Fr_add_l1nl2n_test 1:
+    FrElement pA_l1nl2n1= {0x0,0x80000000,{0x0,0x0,0x0,0x0}};
+    FrElement pB_l1nl2n1= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1nl2n1= {0x0,0x80000000,{0x2,0x0,0x0,0x0}};
+    //Fr_add_l1nl2n_test 2:
+    FrElement pA_l1nl2n2= {0xa1f0,0x80000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_l1nl2n2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_l1nl2n2= {0x0,0x80000000,{0xbda9e10fa6216da7,0xe8182ed62039122b,0x6871a618947c2cb3,0x1a48f7eaefe714ba}};
+    //Fr_add_l1nl2n_test 3:
+    FrElement pA_l1nl2n3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_l1nl2n3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_l1nl2n3= {0x0,0x80000000,{0xbc1e0a6c0ffffffd,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0xcf9bb18d1ece5fd6}};
+
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_l1nl2n0, &pB_l1nl2n0);
+    Fr_add(&Result1_c, &pA_l1nl2n1, &pB_l1nl2n1);
+    Fr_add(&Result2_c, &pA_l1nl2n2, &pB_l1nl2n2);
+    Fr_add(&Result3_c, &pA_l1nl2n3, &pB_l1nl2n3);
+
+    compare_Result(&pResult_l1nl2n0, &Result0_c, 0, "Fr_add_l1nl2n_unit_test");
+    compare_Result(&pResult_l1nl2n1, &Result1_c, 1, "Fr_add_l1nl2n_unit_test");
+    compare_Result(&pResult_l1nl2n2, &Result2_c, 2, "Fr_add_l1nl2n_unit_test");
+    compare_Result(&pResult_l1nl2n3, &Result3_c, 3, "Fr_add_l1nl2n_unit_test");
+}
+
+// 3
+void Fr_add_l1ml2n_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_l1ml2n_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_l1ml2n" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_l1ml2n" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_l1ml2n" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+void Fr_add_l1ml2n_unit_test()
+{
+    //Fr_add_l1ml2n_test 0:
+    FrElement pA_l1ml2n0= {0x1,0xc0000000,{0x1,0x0,0x0,0x0}};
+    FrElement pB_l1ml2n0= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1ml2n0= {0x0,0xc0000000,{0x592c68389ffffff7,0x6df8ed2b3ec19a53,0xccdd46def0f28c5c,0x1c14ef83340fbe5e}};
+    //Fr_add_l1ml2n_test 1:
+    FrElement pA_l1ml2n1= {0x0,0xc0000000,{0x0,0x0,0x0,0x0}};
+    FrElement pB_l1ml2n1= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1ml2n1= {0x0,0xc0000000,{0x592c68389ffffff6,0x6df8ed2b3ec19a53,0xccdd46def0f28c5c,0x1c14ef83340fbe5e}};
+    //Fr_add_l1ml2n_test 2:
+    FrElement pA_l1ml2n2= {0xa1f0,0xc0000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_l1ml2n2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_l1ml2n2= {0x0,0xc0000000,{0x85d3abacbf0040,0xbe6290e259d86f01,0x6564e93fe2607c1b,0x252a8084f0653591}};
+    //Fr_add_l1ml2n_test 3:
+    FrElement pA_l1ml2n3= {0xffff,0xc0000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_l1ml2n3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_l1ml2n3= {0x0,0xc0000000,{0x6f22b2295e216dab,0x1d01c41c43fb8cb9,0x25dadfcddb423a57,0xf40c58efe5466576}};
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_l1ml2n0, &pB_l1ml2n0);
+    Fr_add(&Result1_c, &pA_l1ml2n1, &pB_l1ml2n1);
+    Fr_add(&Result2_c, &pA_l1ml2n2, &pB_l1ml2n2);
+    Fr_add(&Result3_c, &pA_l1ml2n3, &pB_l1ml2n3);
+
+    compare_Result(&pResult_l1ml2n0, &Result0_c, 0, "Fr_add_l1ml2n_unit_test");
+    compare_Result(&pResult_l1ml2n1, &Result1_c, 1, "Fr_add_l1ml2n_unit_test");
+    compare_Result(&pResult_l1ml2n2, &Result2_c, 2, "Fr_add_l1ml2n_unit_test");
+    compare_Result(&pResult_l1ml2n3, &Result3_c, 3, "Fr_add_l1ml2n_unit_test");
+}
+
+// 4
+void Fr_add_l1ml2m_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_l1ml2m_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_l1ml2m" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_l1ml2m" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_l1ml2m" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+void Fr_add_l1ml2m_unit_test()
+{
+    //Fr_add_l1ml2m_test 0:
+    FrElement pA_l1ml2m0= {0x1,0xc0000000,{0x1,0x0,0x0,0x0}};
+    FrElement pB_l1ml2m0= {0x2,0xc0000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1ml2m0= {0x0,0xc0000000,{0x3,0x0,0x0,0x0}};
+    //Fr_add_l1ml2m_test 1:
+    FrElement pA_l1ml2m1= {0x0,0xc0000000,{0x0,0x0,0x0,0x0}};
+    FrElement pB_l1ml2m1= {0x2,0xc0000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1ml2m1= {0x0,0xc0000000,{0x2,0x0,0x0,0x0}};
+    //Fr_add_l1ml2m_test 2:
+    FrElement pA_l1ml2m2= {0xa1f0,0xc0000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_l1ml2m2= {0x1bb8,0xc0000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_l1ml2m2= {0x0,0xc0000000,{0xbda9e10fa6216da7,0xe8182ed62039122b,0x6871a618947c2cb3,0x1a48f7eaefe714ba}};
+    //Fr_add_l1ml2m_test 3:
+    FrElement pA_l1ml2m3= {0xffff,0xc0000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_l1ml2m3= {0xffff,0xc0000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_l1ml2m3= {0x0,0xc0000000,{0xbc1e0a6c0ffffffd,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0xcf9bb18d1ece5fd6}};
+
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_l1ml2m0, &pB_l1ml2m0);
+    Fr_add(&Result1_c, &pA_l1ml2m1, &pB_l1ml2m1);
+    Fr_add(&Result2_c, &pA_l1ml2m2, &pB_l1ml2m2);
+    Fr_add(&Result3_c, &pA_l1ml2m3, &pB_l1ml2m3);
+
+    compare_Result(&pResult_l1ml2m0, &Result0_c, 0, "Fr_add_l1ml2m_unit_test");
+    compare_Result(&pResult_l1ml2m1, &Result1_c, 1, "Fr_add_l1ml2m_unit_test");
+    compare_Result(&pResult_l1ml2m2, &Result2_c, 2, "Fr_add_l1ml2m_unit_test");
+    compare_Result(&pResult_l1ml2m3, &Result3_c, 3, "Fr_add_l1ml2m_unit_test");
+}
+
+// 5
+void Fr_add_l1nl2m_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_l1nl2m_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_l1nl2m" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_l1nl2m" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_l1nl2m" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+void Fr_add_l1nl2m_unit_test()
+{
+    //Fr_add_l1nl2m_test 0:
+    FrElement pA_l1nl2m0= {0x1,0x80000000,{0x1,0x0,0x0,0x0}};
+    FrElement pB_l1nl2m0= {0x2,0xc0000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1nl2m0= {0x0,0xc0000000,{0xac96341c4ffffffd,0x36fc76959f60cd29,0x666ea36f7879462e,0xe0a77c19a07df2f}};
+    //Fr_add_l1nl2m_test 1:
+    FrElement pA_l1nl2m1= {0x0,0x80000000,{0x0,0x0,0x0,0x0}};
+    FrElement pB_l1nl2m1= {0x2,0xc0000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1nl2m1= {0x0,0xc0000000,{0x2,0x0,0x0,0x0}};
+    //Fr_add_l1nl2m_test 2:
+    FrElement pA_l1nl2m2= {0xa1f0,0x80000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_l1nl2m2= {0x1bb8,0xc0000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_l1nl2m2= {0x0,0xc0000000,{0xe75ec7017e216daa,0xcc99f38b5088ab96,0xb53a5460d83f899c,0x1343bc0a22e32522}};
+    //Fr_add_l1nl2m_test 3:
+    FrElement pA_l1nl2m3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_l1nl2m3= {0xffff,0xc0000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_l1nl2m3= {0x0,0xc0000000,{0x6f22b2295e216dab,0x1d01c41c43fb8cb9,0x25dadfcddb423a57,0xf40c58efe5466576}};
+
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_l1nl2m0, &pB_l1nl2m0);
+    Fr_add(&Result1_c, &pA_l1nl2m1, &pB_l1nl2m1);
+    Fr_add(&Result2_c, &pA_l1nl2m2, &pB_l1nl2m2);
+    Fr_add(&Result3_c, &pA_l1nl2m3, &pB_l1nl2m3);
+
+    compare_Result(&pResult_l1nl2m0, &Result0_c, 0, "Fr_add_l1nl2m_unit_test");
+    compare_Result(&pResult_l1nl2m1, &Result1_c, 1, "Fr_add_l1nl2m_unit_test");
+    compare_Result(&pResult_l1nl2m2, &Result2_c, 2, "Fr_add_l1nl2m_unit_test");
+    compare_Result(&pResult_l1nl2m3, &Result3_c, 3, "Fr_add_l1nl2m_unit_test");
+}
+
+// 6
+void Fr_add_s1nl2m_unit_test()
+{
+    //Fr_add_s1nl2m_test 0:
+    FrElement pA_s1nl2m0= {0x1,0x0,{0x1,0x0,0x0,0x0}};
+    FrElement pB_s1nl2m0= {0x2,0xc0000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_s1nl2m0= {0x0,0xc0000000,{0xac96341c4ffffffd,0x36fc76959f60cd29,0x666ea36f7879462e,0xe0a77c19a07df2f}};
+    //Fr_add_s1nl2m_test 1:
+    FrElement pA_s1nl2m1= {0x0,0x0,{0x0,0x0,0x0,0x0}};
+    FrElement pB_s1nl2m1= {0x2,0xc0000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_s1nl2m1= {0x0,0xc0000000,{0x2,0x0,0x0,0x0}};
+    //Fr_add_s1nl2m_test 2:
+    FrElement pA_s1nl2m2= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_s1nl2m2= {0x1bb8,0xc0000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_s1nl2m2= {0x0,0xc0000000,{0xf2c13c606e1e14fb,0xc06bd2fc0a5efd4d,0x4d406b95d15ca380,0x1861fa84426b2851}};
+    //Fr_add_s1nl2m_test 3:
+    FrElement pA_s1nl2m3= {-1,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_s1nl2m3= {0x7fffffff,0xc0000000,{0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff}};
+    FrElement pResult_s1nl2m3= {0x0,0xc0000000,{0xd369cbe3b0000004,0x4903896a609f32d5,0x19915c908786b9d1,0x71f5883e65f820d0}};
+
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_s1nl2m0, &pB_s1nl2m0);
+    Fr_add(&Result1_c, &pA_s1nl2m1, &pB_s1nl2m1);
+    Fr_add(&Result2_c, &pA_s1nl2m2, &pB_s1nl2m2);
+    Fr_add(&Result3_c, &pA_s1nl2m3, &pB_s1nl2m3);
+
+    compare_Result(&pResult_s1nl2m0, &Result0_c, 0, "Fr_add_s1nl2m_unit_test");
+    compare_Result(&pResult_s1nl2m1, &Result1_c, 1, "Fr_add_s1nl2m_unit_test");
+    compare_Result(&pResult_s1nl2m2, &Result2_c, 2, "Fr_add_s1nl2m_unit_test");
+    compare_Result(&pResult_s1nl2m3, &Result3_c, 3, "Fr_add_s1nl2m_unit_test");
+}
+
+void Fr_add_s1nl2m_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_s1nl2m_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_s1nl2m" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_s1nl2m" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_s1nl2m" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+// 7
+void Fr_add_l1ms2n_unit_test()
+{
+    //Fr_add_l1ms2n_test 0:
+    FrElement pA_l1ms2n0= {0x1,0xc0000000,{0x1,0x0,0x0,0x0}};
+    FrElement pB_l1ms2n0= {0x2,0x0,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1ms2n0= {0x0,0xc0000000,{0x592c68389ffffff7,0x6df8ed2b3ec19a53,0xccdd46def0f28c5c,0x1c14ef83340fbe5e}};
+    //Fr_add_l1ms2n_test 1:
+    FrElement pA_l1ms2n1= {0x0,0xc0000000,{0x0,0x0,0x0,0x0}};
+    FrElement pB_l1ms2n1= {0x2,0x0,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1ms2n1= {0x0,0xc0000000,{0x592c68389ffffff6,0x6df8ed2b3ec19a53,0xccdd46def0f28c5c,0x1c14ef83340fbe5e}};
+    //Fr_add_l1ms2n_test 2:
+    FrElement pA_l1ms2n2= {0xa1f0,0xc0000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_l1ms2n2= {0x1bb8,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_l1ms2n2= {0x0,0xc0000000,{0x8b033eb827ff6d5d,0x6093b892f9973313,0xb949a9cb070047f0,0x1396afa5c0a80a66}};
+    //Fr_add_l1ms2n_test 3:
+    FrElement pA_l1ms2n3= {0xffff,0xc0000000,{0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff}};
+    FrElement pB_l1ms2n3= {-1,0x0,{0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff,0x7fffffffffffffff}};
+    FrElement pResult_l1ms2n3= {0x0,0xc0000000,{0xd369cbe3b0000004,0x4903896a609f32d5,0x19915c908786b9d1,0x71f5883e65f820d0}};
+
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_l1ms2n0, &pB_l1ms2n0);
+    Fr_add(&Result1_c, &pA_l1ms2n1, &pB_l1ms2n1);
+    Fr_add(&Result2_c, &pA_l1ms2n2, &pB_l1ms2n2);
+    Fr_add(&Result3_c, &pA_l1ms2n3, &pB_l1ms2n3);
+
+    compare_Result(&pResult_l1ms2n0, &Result0_c, 0, "Fr_add_l1ms2n_unit_test");
+    compare_Result(&pResult_l1ms2n1, &Result1_c, 1, "Fr_add_l1ms2n_unit_test");
+    compare_Result(&pResult_l1ms2n2, &Result2_c, 2, "Fr_add_l1ms2n_unit_test");
+    compare_Result(&pResult_l1ms2n3, &Result3_c, 3, "Fr_add_l1ms2n_unit_test");
+}
+
+void Fr_add_l1ms2n_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_l1ms2n_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_l1ms2n" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_l1ms2n" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_l1ms2n" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+// 8
+void Fr_add_l1ms2m_unit_test()
+{
+    //Fr_add_l1ms2m_test 0:
+    FrElement pA_l1ms2m0= {0x1,0xc0000000,{0x1,0x0,0x0,0x0}};
+    FrElement pB_l1ms2m0= {0x2,0x40000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1ms2m0= {0x0,0xc0000000,{0x3,0x0,0x0,0x0}};
+    //Fr_add_l1ms2m_test 1:
+    FrElement pA_l1ms2m1= {0x0,0xc0000000,{0x0,0x0,0x0,0x0}};
+    FrElement pB_l1ms2m1= {0x2,0x40000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1ms2m1= {0x0,0xc0000000,{0x2,0x0,0x0,0x0}};
+    //Fr_add_l1ms2m_test 2:
+    FrElement pA_l1ms2m2= {0xa1f0,0xc0000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_l1ms2m2= {0x1bb8,0x40000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_l1ms2m2= {0x0,0xc0000000,{0xbda9e10fa6216da7,0xe8182ed62039122b,0x6871a618947c2cb3,0x1a48f7eaefe714ba}};
+    //Fr_add_l1ms2m_test 3:
+    FrElement pA_l1ms2m3= {0xffff,0xc0000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_l1ms2m3= {0xffff,0x40000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_l1ms2m3= {0x0,0xc0000000,{0xbc1e0a6c0ffffffd,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0xcf9bb18d1ece5fd6}};
+
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_l1ms2m0, &pB_l1ms2m0);
+    Fr_add(&Result1_c, &pA_l1ms2m1, &pB_l1ms2m1);
+    Fr_add(&Result2_c, &pA_l1ms2m2, &pB_l1ms2m2);
+    Fr_add(&Result3_c, &pA_l1ms2m3, &pB_l1ms2m3);
+
+    compare_Result(&pResult_l1ms2m0, &Result0_c, 0, "Fr_add_l1ms2m_unit_test");
+    compare_Result(&pResult_l1ms2m1, &Result1_c, 1, "Fr_add_l1ms2m_unit_test");
+    compare_Result(&pResult_l1ms2m2, &Result2_c, 2, "Fr_add_l1ms2m_unit_test");
+    compare_Result(&pResult_l1ms2m3, &Result3_c, 3, "Fr_add_l1ms2m_unit_test");
+}
+
+void Fr_add_l1ms2m_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_l1ms2m_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_l1ms2m" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_l1ms2m" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_l1ms2m" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+// 9
+void Fr_add_s1ml2m_unit_test()
+{
+    //Fr_add_s1ml2m_test 0:
+    FrElement pA_s1ml2m0= {0x1,0x40000000,{0x1,0x0,0x0,0x0}};
+    FrElement pB_s1ml2m0= {0x2,0xc0000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_s1ml2m0= {0x0,0xc0000000,{0x3,0x0,0x0,0x0}};
+    //Fr_add_s1ml2m_test 1:
+    FrElement pA_s1ml2m1= {0x0,0x40000000,{0x0,0x0,0x0,0x0}};
+    FrElement pB_s1ml2m1= {0x2,0xc0000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_s1ml2m1= {0x0,0xc0000000,{0x2,0x0,0x0,0x0}};
+    //Fr_add_s1ml2m_test 2:
+    FrElement pA_s1ml2m2= {0xa1f0,0x40000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_s1ml2m2= {0x1bb8,0xc0000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_s1ml2m2= {0x0,0xc0000000,{0xbda9e10fa6216da7,0xe8182ed62039122b,0x6871a618947c2cb3,0x1a48f7eaefe714ba}};
+    //Fr_add_s1ml2m_test 3:
+    FrElement pA_s1ml2m3= {0xffff,0x40000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_s1ml2m3= {0xffff,0xc0000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_s1ml2m3= {0x0,0xc0000000,{0xbc1e0a6c0ffffffd,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0xcf9bb18d1ece5fd6}};
+
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_s1ml2m0, &pB_s1ml2m0);
+    Fr_add(&Result1_c, &pA_s1ml2m1, &pB_s1ml2m1);
+    Fr_add(&Result2_c, &pA_s1ml2m2, &pB_s1ml2m2);
+    Fr_add(&Result3_c, &pA_s1ml2m3, &pB_s1ml2m3);
+
+    compare_Result(&pResult_s1ml2m0, &Result0_c, 0, "Fr_add_s1ml2m_unit_test");
+    compare_Result(&pResult_s1ml2m1, &Result1_c, 1, "Fr_add_s1ml2m_unit_test");
+    compare_Result(&pResult_s1ml2m2, &Result2_c, 2, "Fr_add_s1ml2m_unit_test");
+    compare_Result(&pResult_s1ml2m3, &Result3_c, 3, "Fr_add_s1ml2m_unit_test");
+}
+
+void Fr_add_s1ml2m_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_s1ml2m_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_s1ml2m" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_s1ml2m" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_s1ml2m" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+// 10
+void Fr_add_l1ns2_unit_test()
+{
+    //Fr_add_l1ns2_test 0:
+    FrElement pA_l1ns20= {0x1,0x80000000,{0x1,0x0,0x0,0x0}};
+    FrElement pB_l1ns20= {0x2,0x0,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1ns20= {0x0,0x80000000,{0x3,0x0,0x0,0x0}};
+    //Fr_add_l1ns2_test 1:
+    FrElement pA_l1ns21= {0x0,0x80000000,{0x0,0x0,0x0,0x0}};
+    FrElement pB_l1ns21= {0x2,0x0,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_l1ns21= {0x0,0x80000000,{0x2,0x0,0x0,0x0}};
+    //Fr_add_l1ns2_test 2:
+    FrElement pA_l1ns22= {0xa1f0,0x80000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_l1ns22= {0x1bb8,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_l1ns22= {0x0,0x80000000,{0xa1f0fac9f8001bb8,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    //Fr_add_l1ns2_test 3:
+    FrElement pA_l1ns23= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_l1ns23= {0xffff,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_l1ns23= {0x0,0x80000000,{0xbc1e0a6c1000fffd,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0xcf9bb18d1ece5fd6}};
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_l1ns20, &pB_l1ns20);
+    Fr_add(&Result1_c, &pA_l1ns21, &pB_l1ns21);
+    Fr_add(&Result2_c, &pA_l1ns22, &pB_l1ns22);
+    Fr_add(&Result3_c, &pA_l1ns23, &pB_l1ns23);
+
+    compare_Result(&pResult_l1ns20, &Result0_c, 0, "Fr_add_l1ns2_unit_test");
+    compare_Result(&pResult_l1ns21, &Result1_c, 1, "Fr_add_l1ns2_unit_test");
+    compare_Result(&pResult_l1ns22, &Result2_c, 2, "Fr_add_l1ns2_unit_test");
+    compare_Result(&pResult_l1ns23, &Result3_c, 3, "Fr_add_l1ns2_unit_test");
+}
+
+void Fr_add_l1ns2_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_l1ns2_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_l1ns2" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_l1ns2" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_l1ns2" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+ // 11
+void Fr_add_s1l2n_unit_test()
+{
+    //Fr_add_s1l2n_test 0:
+    FrElement pA_s1l2n0= {0x1,0x0,{0x1,0x0,0x0,0x0}};
+    FrElement pB_s1l2n0= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_s1l2n0= {0x0,0x80000000,{0x3,0x0,0x0,0x0}};
+    //Fr_add_s1l2n_test 1:
+    FrElement pA_s1l2n1= {0x0,0x0,{0x0,0x0,0x0,0x0}};
+    FrElement pB_s1l2n1= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_s1l2n1= {0x0,0x80000000,{0x2,0x0,0x0,0x0}};
+    //Fr_add_s1l2n_test 2:
+    FrElement pA_s1l2n2= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_s1l2n2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_s1l2n2= {0x0,0x80000000,{0x1bb8e645ae220f97,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    //Fr_add_s1l2n_test 3:
+    FrElement pA_s1l2n3= {0xffff,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_s1l2n3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_s1l2n3= {0x0,0x80000000,{0xbc1e0a6c1000fffd,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0xcf9bb18d1ece5fd6}};
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_add(&Result0_c, &pA_s1l2n0, &pB_s1l2n0);
+    Fr_add(&Result1_c, &pA_s1l2n1, &pB_s1l2n1);
+    Fr_add(&Result2_c, &pA_s1l2n2, &pB_s1l2n2);
+    Fr_add(&Result3_c, &pA_s1l2n3, &pB_s1l2n3);
+
+    compare_Result(&pResult_s1l2n0, &Result0_c, 0, "Fr_add_s1l2n_unit_test");
+    compare_Result(&pResult_s1l2n1, &Result1_c, 1, "Fr_add_s1l2n_unit_test");
+    compare_Result(&pResult_s1l2n2, &Result2_c, 2, "Fr_add_s1l2n_unit_test");
+    compare_Result(&pResult_s1l2n3, &Result3_c, 3, "Fr_add_s1l2n_unit_test");
+}
+
+void Fr_add_s1l2n_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_add_s1l2n_test " << idx << ": " <<  '\n';
+    Fr_add(pResult, pA, pB);
+    std::cout << "FrElement pA_s1l2n" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB_s1l2n" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult_s1l2n" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3939,9 +4440,6 @@ int main()
     Fr_mul_s1ml2n_test(&Result2_s1ml2n,  &A2_s1ml2n,  &B2_s1ml2n, 2);
     Fr_mul_s1ml2n_test(&Result3_s1ml2n,  &A3_s1ml2n,  &B3_s1ml2n, 3);
 #endif
-*/
-
-
 
 
 #ifdef TEST_FR_C_FUNCTIONS
@@ -4119,6 +4617,193 @@ int main()
     Fr_sub_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
     Fr_sub_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
+
+  */
+
+
+
+
+
+
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_add_s1s2_unit_test();
+#ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_s1s2_test(&Result_s1s2,  &A_s1s2,  &B_s1s2, 0);
+    Fr_add_s1s2_test(&Result1_s1s2, &A1_s1s2, &B1_s1s2, 1);
+    Fr_add_s1s2_test(&Result2_s1s2, &A2_s1s2, &B2_s1s2, 2);
+    Fr_add_s1s2_test(&Result3_s1s2, &A3_s1s2, &B3_s1s2, 3);
+#endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_s1s2_test(&Result_s1s2,  &A_s1s2,  &B_s1s2, 0);
+    Fr_add_s1s2_test(&Result1_s1s2, &A1_s1s2, &B1_s1s2, 1);
+    Fr_add_s1s2_test(&Result2_s1s2, &A2_s1s2, &B2_s1s2, 2);
+    Fr_add_s1s2_test(&Result3_s1s2, &A3_s1s2, &B3_s1s2, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_add_l1nl2n_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_l1nl2n_test(&Result_l1nl2n, &A_l1nl2n,  &B_l1nl2n, 0);
+    Fr_add_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
+    Fr_add_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
+    Fr_add_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_l1nl2n_test(&Result_l1nl2n,  &A_l1nl2n,  &B_l1nl2n, 0);
+    Fr_add_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
+    Fr_add_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
+    Fr_add_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+   Fr_add_l1ml2n_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
+    Fr_add_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
+    Fr_add_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
+    Fr_add_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
+    Fr_add_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
+    Fr_add_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
+    Fr_add_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_add_l1ml2m_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
+    Fr_add_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
+    Fr_add_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
+    Fr_add_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_l1ml2m_test(&Result_l1ml2m, &A_l1ml2m,  &B_l1ml2m, 0);
+    Fr_add_l1ml2m_test(&Result1_l1ml2m, &A1_l1ml2m, &B1_l1ml2m, 1);
+    Fr_add_l1ml2m_test(&Result2_l1ml2m, &A2_l1ml2m, &B2_l1ml2m, 2);
+    Fr_add_l1ml2m_test(&Result3_l1ml2m, &A3_l1ml2m, &B3_l1ml2m, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_add_l1nl2m_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_l1nl2n_test(&Result_l1nl2n, &A_l1ml2n,  &B_l1ml2n, 0);
+    Fr_add_l1nl2n_test(&Result1_l1nl2n, &A1_l1ml2n, &B1_l1ml2n, 1);
+    Fr_add_l1nl2n_test(&Result2_l1nl2n, &A2_l1ml2n, &B2_l1ml2n, 2);
+    Fr_add_l1nl2n_test(&Result3_l1nl2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_l1nl2m_test(&Result_l1nl2m, &A_l1nl2m,  &B_l1nl2m, 0);
+    Fr_add_l1nl2m_test(&Result1_l1nl2m, &A1_l1nl2m, &B1_l1nl2m, 1);
+    Fr_add_l1nl2m_test(&Result2_l1nl2m, &A2_l1nl2m, &B2_l1nl2m, 2);
+    Fr_add_l1nl2m_test(&Result3_l1nl2m, &A3_l1nl2m, &B3_l1nl2m, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_add_s1nl2m_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_s1nl2m_test(&Result_s1nl2m,   &A_s1nl2m,   &B_s1nl2m, 0);
+    Fr_add_s1nl2m_test(&Result1_s1nl2m,  &A1_s1nl2m,  &B1_s1nl2m, 1);
+    Fr_add_s1nl2m_test(&Result2_s1nl2m,  &A2_s1nl2m,  &B2_s1nl2m, 2);
+    Fr_add_s1nl2m_test(&Result3_s1nl2m,  &A3_s1nl2m,  &B3_s1nl2m, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_s1nl2m_test(&Result_s1nl2m,   &A_s1nl2m,   &B_s1nl2m, 0);
+    Fr_add_s1nl2m_test(&Result1_s1nl2m,  &A1_s1nl2m,  &B1_s1nl2m, 1);
+    Fr_add_s1nl2m_test(&Result2_s1nl2m,  &A2_s1nl2m,  &B2_s1nl2m, 2);
+    Fr_add_s1nl2m_test(&Result3_s1nl2m,  &A3_s1nl2m,  &B3_s1nl2m, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_add_l1ms2n_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_l1ms2n_test(&Result_l1ms2n,  &A_l1ms2n,  &B_l1ns2n, 0);
+    Fr_add_l1ms2n_test(&Result1_l1ms2n, &A1_l1ms2n, &B1_l1ns2n, 1);
+    Fr_add_l1ms2n_test(&Result2_l1ms2n, &A2_l1ms2n, &B2_l1ns2n, 2);
+    Fr_add_l1ms2n_test(&Result3_l1ms2n, &A3_l1ms2n, &B3_l1ns2n, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_l1ms2n_test(&Result_l1ms2n,  &A_l1ms2n,  &B_l1ms2n, 0);
+    Fr_add_l1ms2n_test(&Result1_l1ms2n, &A1_l1ms2n, &B1_l1ms2n, 1);
+    Fr_add_l1ms2n_test(&Result2_l1ms2n, &A2_l1ms2n, &B2_l1ms2n, 2);
+    Fr_add_l1ms2n_test(&Result3_l1ms2n, &A3_l1ms2n, &B3_l1ms2n, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_add_l1ms2m_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_l1ms2m_test(&Result_l1ms2m,  &A_l1ms2m,  &B_l1ms2m, 0);
+    Fr_add_l1ms2m_test(&Result1_l1ms2m, &A1_l1ms2m, &B1_l1ms2m, 1);
+    Fr_add_l1ms2m_test(&Result2_l1ms2m, &A2_l1ms2m, &B2_l1ms2m, 2);
+    Fr_add_l1ms2m_test(&Result3_l1ms2m, &A3_l1ms2m, &B3_l1ms2m, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_l1ms2m_test(&Result_l1ms2m,  &A_l1ms2m,  &B_l1ms2m, 0);
+    Fr_add_l1ms2m_test(&Result1_l1ms2m, &A1_l1ms2m, &B1_l1ms2m, 1);
+    Fr_add_l1ms2m_test(&Result2_l1ms2m, &A2_l1ms2m, &B2_l1ms2m, 2);
+    Fr_add_l1ms2m_test(&Result3_l1ms2m, &A3_l1ms2m, &B3_l1ms2m, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_add_s1ml2m_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_s1ml2m_test(&Result_s1ml2m,   &A_s1ml2m,   &B_s1ml2m, 0);
+    Fr_add_s1ml2m_test(&Result1_s1ml2m,  &A1_s1ml2m,  &B1_s1ml2m, 1);
+    Fr_add_s1ml2m_test(&Result2_s1ml2m,  &A2_s1ml2m,  &B2_s1ml2m, 2);
+    Fr_add_s1ml2m_test(&Result3_s1ml2m,  &A3_s1ml2m,  &B3_s1ml2m, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_s1ml2m_test(&Result_s1ml2m,   &A_s1ml2m,   &B_s1ml2m, 0);
+    Fr_add_s1ml2m_test(&Result1_s1ml2m,  &A1_s1ml2m,  &B1_s1ml2m, 1);
+    Fr_add_s1ml2m_test(&Result2_s1ml2m,  &A2_s1ml2m,  &B2_s1ml2m, 2);
+    Fr_add_s1ml2m_test(&Result3_s1ml2m,  &A3_s1ml2m,  &B3_s1ml2m, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_add_l1ns2_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_l1ns2_test(&Result_l1ns2,  &A_l1ns2,  &B_l1ns2, 0);
+    Fr_add_l1ns2_test(&Result1_l1ns2, &A1_l1ns2, &B1_l1ns2, 1);
+    Fr_add_l1ns2_test(&Result2_l1ns2, &A2_l1ns2, &B2_l1ns2, 2);
+    Fr_add_l1ns2_test(&Result3_l1ns2, &A3_l1ns2, &B3_l1ns2, 3);
+#endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_l1ns2_test(&Result_l1ns2,  &A_l1ns2,  &B_l1ns2, 0);
+    Fr_add_l1ns2_test(&Result1_l1ns2, &A1_l1ns2, &B1_l1ns2, 1);
+    Fr_add_l1ns2_test(&Result2_l1ns2, &A2_l1ns2, &B2_l1ns2, 2);
+    Fr_add_l1ns2_test(&Result3_l1ns2, &A3_l1ns2, &B3_l1ns2, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_add_s1l2n_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_add_s1l2n_test(&Result_s1l2n,   &A_s1l2n,   &B_s1l2n, 0);
+    Fr_add_s1l2n_test(&Result1_s1l2n,  &A1_s1l2n,  &B1_s1l2n, 1);
+    Fr_add_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
+    Fr_add_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
+#endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_add_s1l2n_test(&Result_s1l2n,   &A_s1l2n,   &B_s1l2n, 0);
+    Fr_add_s1l2n_test(&Result1_s1l2n,  &A1_s1l2n,  &B1_s1l2n, 1);
+    Fr_add_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
+    Fr_add_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
+#endif
+
+
+
 
 
 
