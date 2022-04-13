@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 include(cmake/platform.cmake)
 
-set(USE_ASM OFF)
+set(USE_ASM    ON CACHE BOOL "Use asm implementation for Fr and Fq")
+set(USE_OPENMP ON CACHE BOOL "Use OpenMP")
 
 project(rapidsnark LANGUAGES CXX)
 
@@ -17,6 +18,25 @@ message("GMP_LIB_DIR=" ${GMP_LIB_DIR})
 
 include_directories(${GMP_INCLUDE_DIR})
 link_directories(${GMP_LIB_DIR})
+
+if(USE_OPENMP)
+    find_package(OpenMP)
+
+    if(OpenMP_CXX_FOUND)
+        if(TARGET_PLATFORM MATCHES "android")
+            message("OpenMP is used")
+
+        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+            message("OpenMP is used")
+
+        else()
+            set(OpenMP_CXX_FOUND FALSE)
+            message("OpenMP is not used")
+
+        endif()
+    endif()
+endif()
+
 
 add_subdirectory(src)
 

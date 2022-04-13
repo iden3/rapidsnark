@@ -18,7 +18,7 @@ static bool initialized = false;
 #ifndef USE_ASM
 
 static FrElement    Fr_q     = {0, 0x80000000, {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029}};
-static FrRawElement Fr_rawq  =                 {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
+static uint64_t     Fr_rawq[]  =               {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029, 0};
 static FrElement    Fr_R3    = {0, 0x80000000, {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c}};
 static FrRawElement Fr_rawR3 =                 {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c};
 static FrRawElement Fr_rawR2 =                 {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
@@ -292,133 +292,43 @@ RawFr RawFr::field;
  * ASM Functions to C/C++ using GNU MP Lib Begin
 ******************************************************************************************/
 
-static inline void
-Fr_to_mpz(mpz_ptr dst, uint64_t src)
-{
-     mpz_import(dst, 1, -1, sizeof(src), -1, 0, &src);
-}
-
-static inline void
-Fr_to_mpz(mpz_ptr dst, FrRawElement src)
-{
-     mpz_import(dst, Fr_N64, -1, sizeof(*src), -1, 0, src);
-}
-
-static inline void
-Fr_to_rawElement(FrRawElement dst, mpz_ptr src)
-{
-    assert(mpz_size(src) <= Fr_N64);
-
-    std::memset(dst, 0, sizeof(FrRawElement));
-    mpz_export(dst, NULL, -1, 8, -1, 0, src);
-}
-
-void debug_val(uint64_t val)
-{
-    std::cout << std::hex << "{ " << val << " };" << std::endl;
-}
-
-void debug_val(FrRawElement val)
-{
-    std::cout << std::hex << "{ " << val[0] << ", " << val[1] << ", " << val[2] << ", " << val[3] << " };" << std::endl;
-}
-
-void debug_val(mpz_t val)
-{
-     std::cout << std::hex << "{ ";
-
-    int i = 0;
-    for(; i < val->_mp_size-1; i++) {
-         std::cout <<  val->_mp_d[i] << ", ";
-    }
-
-    std::cout <<  val->_mp_d[i];
-
-    std::cout << " };" << std::endl;
-}
-
-template <typename T>
-void debug(T val, const char *name = 0, const char *msg = 0)
-{
-    if (msg) {
-        std::cout << msg << std::endl;
-    }
-
-    if (name) {
-        std::cout << name << " = ";
-    }
-
-    debug_val(val);
-}
-
-void get_carry(mpz_ptr val, mpz_ptr carry)
-{
-    if (mpz_size(val) <= 4)
-    {
-        mpz_set_ui(carry, 0);
-    }
-    else
-    {
-        mpz_set_ui(carry, 1);
-        mpz_mul_2exp(carry, carry, 64);
-    }
-}
-
 void Fr_rawAdd(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 {
-    mp_limb_t ma[Fr_N64] = {pRawA[0], pRawA[1], pRawA[2], pRawA[3]};
-    mp_limb_t mb[Fr_N64] = {pRawB[0], pRawB[1], pRawB[2], pRawB[3]};
-    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
-    mp_limb_t mr[Fr_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
-    mp_limb_t carry;
+    uint64_t carry = mpn_add_n(pRawResult, pRawA, pRawB, Fr_N64);
 
-    carry = mpn_add_n(&mr[0], &ma[0], &mb[0], 4);
-    if(carry || mpn_cmp(mr, mq, 4) >= 0)
+    if(carry || mpn_cmp(pRawResult, Fr_rawq, Fr_N64) >= 0)
     {
-        mpn_sub_n(&mr[0], &mr[0], &mq[0], 4);
+        mpn_sub_n(pRawResult, pRawResult, Fr_rawq, Fr_N64);
     }
-    std::memcpy(pRawResult, mr, sizeof(FrRawElement));
 }
 
 void Fr_rawSub(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 {
-    mp_limb_t ma[Fr_N64] = {pRawA[0], pRawA[1], pRawA[2], pRawA[3]};
-    mp_limb_t mb[Fr_N64] = {pRawB[0], pRawB[1], pRawB[2], pRawB[3]};
-    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
-    mp_limb_t mr[Fr_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
-    mp_limb_t carry;
+    uint64_t carry = mpn_sub_n(pRawResult, pRawA, pRawB, Fr_N64);
 
-    carry = mpn_sub_n(&mr[0], &ma[0], &mb[0], 4);
     if(carry)
     {
-        mpn_add_n(&mr[0], &mr[0], &mq[0], 4);
+        mpn_add_n(pRawResult, pRawResult, Fr_rawq, Fr_N64);
     }
-
-    std::memcpy(pRawResult, mr, sizeof(FrRawElement));
 }
 
 void Fr_rawNeg(FrRawElement pRawResult, FrRawElement pRawA)
 {
-    mp_limb_t ma[Fr_N64] = {pRawA[0], pRawA[1], pRawA[2], pRawA[3]};
-    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
-    mp_limb_t mr[Fr_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
-    mp_limb_t mz[Fr_N64] = {0, 0, 0, 0};
+    const uint64_t zero[Fr_N64] = {0, 0, 0, 0};
 
-    if (mpn_cmp(&ma[0], &mz[0], 4) != 0)
+    if (mpn_cmp(pRawA, zero, Fr_N64) != 0)
     {
-        mpn_sub_n(&mr[0], &mq[0], &ma[0], 4);
+        mpn_sub_n(pRawResult, Fr_rawq, pRawA, Fr_N64);
     }
     else
     {
-        std::memcpy(mr, mz, sizeof(FrRawElement));
+        mpn_copyi(pRawResult, zero, Fr_N64);
     }
-
-    std::memcpy(pRawResult, mr, sizeof(FrRawElement));
 }
 
 void Fr_rawCopy(FrRawElement pRawResult, FrRawElement pRawA)
 {
-    std::memcpy(pRawResult, pRawA, sizeof(FrRawElement));
+    mpn_copyi(pRawResult, pRawA, Fr_N64);
 }
 
 void Fr_copy(PFrElement r, PFrElement a)
@@ -430,85 +340,58 @@ void Fr_copy(PFrElement r, PFrElement a)
 
 int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB)
 {
-    for (int i=0; i<Fr_N64; i++)
-    {
-        if (pRawA[i] != pRawB[i])
-            return 0;
-    }
-    return 1;
+    return mpn_cmp(pRawA, pRawB, Fr_N64) == 0;
 }
 
 void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 {
-    uint64_t np0;
-    mpz_t a, b, mq, product, np0q, result, md, fcarry;
+    const mp_size_t  N = Fr_N64+1;
+    const uint64_t  *mq = Fr_rawq;
 
-    mpz_inits(a, b, mq, product, np0q, result, md, fcarry, NULL);
+    uint64_t  np0;
 
-    mpz_init_set_ui(md, 1);
-    mpz_mul_2exp(md, md, 256);
-
-    Fr_to_mpz(a, pRawA);
-    Fr_to_mpz(b, pRawB);
-    Fr_to_mpz(mq, Fr_rawq);
+    uint64_t  product0[N] = {0};
+    uint64_t  product1[N] = {0};
+    uint64_t  product2[N] = {0};
+    uint64_t  product3[N] = {0};
 
     // FirstLoop 0
-    mpz_mul_ui(product, b, pRawA[0]);
+    product0[4] = mpn_mul_1(product0, pRawB, Fr_N64, pRawA[0]);
 
     // Second Loop 0
-    np0 = Fr_np * mpz_getlimbn(product, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, product);
-    mpz_tdiv_q_2exp(result, result, 64);
-    get_carry(result, fcarry);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product0[0];
+    product1[1] = mpn_addmul_1(product0, mq, N, np0);
 
     // FirstLoop 1
-    mpz_mul_ui(product, b, pRawA[1]);
-    mpz_add(product, result, product);
-    mpz_add(product, product, fcarry);
+    product1[4] = mpn_addmul_1(product1,  pRawB, Fr_N64, pRawA[1]);
+    mpn_add(product1, product1, N, product0+1, N-1);
 
     // Second Loop 1
-    np0 = Fr_np * mpz_getlimbn(product, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, product);
-    mpz_tdiv_q_2exp(result, result, 64);
-    get_carry(result, fcarry);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product1[0];
+    product2[1] = mpn_addmul_1(product1, mq, N, np0);
 
     // FirstLoop 2
-    mpz_mul_ui(product, b, pRawA[2]);
-    mpz_add(product, result, product);
-    mpz_add(product, product, fcarry);
+    product2[4] = mpn_addmul_1(product2,  pRawB, Fr_N64, pRawA[2]);
+    mpn_add(product2, product2, N, product1+1, N-1);
 
     // Second Loop 2
-    np0 = Fr_np * mpz_getlimbn(product, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, product);
-    mpz_tdiv_q_2exp(result, result, 64);
-    get_carry(result, fcarry);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product2[0];
+    product3[1] = mpn_addmul_1(product2, mq, N, np0);
 
     // FirstLoop 3
-    mpz_mul_ui(product, b, pRawA[3]);
-    mpz_add(product, result, product);
-    mpz_add(product, product, fcarry);
+    product3[4] = mpn_addmul_1(product3, pRawB, Fr_N64, pRawA[3]);
+    mpn_add(product3, product3, N, product2+1, N-1);
 
     // Second Loop 3
-    np0 = Fr_np * mpz_getlimbn(product, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, product);
-    mpz_tdiv_q_2exp(result, result, 64);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product3[0];
+    mpn_addmul_1(product3, mq, N, np0);
 
-    if (mpz_cmp(result, mq) >= 0)
+    mpn_copyi(pRawResult,  product3+1, Fr_N64);
+
+    if (mpn_cmp(pRawResult, mq, Fr_N64) >= 0)
     {
-        mpz_sub(result, result, mq);
+        mpn_sub_n(pRawResult, pRawResult, mq, Fr_N64);
     }
-
-    Fr_to_rawElement(pRawResult, result);
-
-    mpz_clears(a, b, mq, product, np0q, result, md, fcarry, NULL);
 }
 
 void Fr_rawMSquare(FrRawElement pRawResult, FrRawElement pRawA)
@@ -518,62 +401,44 @@ void Fr_rawMSquare(FrRawElement pRawResult, FrRawElement pRawA)
 
 void Fr_rawMMul1(FrRawElement pRawResult, FrRawElement pRawA, uint64_t pRawB)
 {
-    uint64_t np0;
-    mpz_t a, mq, product, np0q, result, md, fcarry;
+    const mp_size_t  N = Fr_N64+1;
+    const uint64_t  *mq = Fr_rawq;
 
-    mpz_inits(a, mq, product, np0q, result, md, fcarry, NULL);
+    uint64_t  np0;
 
-    mpz_init_set_ui(md, 1);
-    mpz_mul_2exp(md, md, 256);
-
-    Fr_to_mpz(a, pRawA);
-    Fr_to_mpz(mq, Fr_rawq);
+    uint64_t  product0[N] = {0};
+    uint64_t  product1[N] = {0};
+    uint64_t  product2[N] = {0};
+    uint64_t  product3[N] = {0};
 
     // FirstLoop 0
-    mpz_mul_ui(product, a, pRawB);
+    product0[4] = mpn_mul_1(product0, pRawA, Fr_N64, pRawB);
 
     // Second Loop 0
-    np0 = Fr_np * mpz_getlimbn(product, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, product);
-    mpz_tdiv_q_2exp(result, result, 64);
-    get_carry(result, fcarry);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product0[0];
+    product1[1] = mpn_addmul_1(product0, mq, N, np0);
+    mpn_add(product1, product1, N, product0+1, N-1);
 
     // Second Loop 1
-    np0 = Fr_np * mpz_getlimbn(result, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, result);
-    mpz_add(result, result, fcarry);
-    mpz_tdiv_q_2exp(result, result, 64);
-    get_carry(result, fcarry);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product1[0];
+    product2[1] = mpn_addmul_1(product1, mq, N, np0);
+    mpn_add(product2, product2, N, product1+1, N-1);
 
     // Second Loop 2
-    np0 = Fr_np * mpz_getlimbn(result, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, result);
-    mpz_add(result, result, fcarry);
-    mpz_tdiv_q_2exp(result, result, 64);
-    get_carry(result, fcarry);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product2[0];
+    product3[1] = mpn_addmul_1(product2, mq, N, np0);
+    mpn_add(product3, product3, N, product2+1, N-1);
 
     // Second Loop 3
-    np0 = Fr_np * mpz_getlimbn(result, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, result);
-    mpz_add(result, result, fcarry);
-    mpz_tdiv_q_2exp(result, result, 64);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product3[0];
+    mpn_addmul_1(product3, mq, N, np0);
 
-    if (mpz_cmp(result, mq) >= 0)
+    mpn_copyi(pRawResult,  product3+1, Fr_N64);
+
+    if (mpn_cmp(pRawResult, mq, Fr_N64) >= 0)
     {
-        mpz_sub(result, result, mq);
+        mpn_sub_n(pRawResult, pRawResult, mq, Fr_N64);
     }
-
-    Fr_to_rawElement(pRawResult, result);
-
-    mpz_clears(a, mq, product, np0q, result, md, fcarry, NULL);
 }
 
 void Fr_rawToMontgomery(FrRawElement pRawResult, FrRawElement pRawA)
@@ -583,62 +448,44 @@ void Fr_rawToMontgomery(FrRawElement pRawResult, FrRawElement pRawA)
 
 void Fr_rawFromMontgomery(FrRawElement pRawResult, FrRawElement pRawA)
 {
-    uint64_t np0;
-    mpz_t a, mq, product, np0q, result, md, fcarry;
+    const mp_size_t  N = Fr_N64+1;
+    const uint64_t  *mq = Fr_rawq;
 
-    mpz_inits(a, mq, product, np0q, result, md, fcarry, NULL);
+    uint64_t  np0;
 
-    mpz_init_set_ui(md, 1);
-    mpz_mul_2exp(md, md, 256);
-
-    Fr_to_mpz(a, pRawA);
-    Fr_to_mpz(mq, Fr_rawq);
+    uint64_t  product0[N];
+    uint64_t  product1[N] = {0};
+    uint64_t  product2[N] = {0};
+    uint64_t  product3[N] = {0};
 
     // FirstLoop 0
-    mpz_set(product, a);
+    mpn_copyi(product0, pRawA, Fr_N64); product0[4] = 0;
 
     // Second Loop 0
-    np0 = Fr_np * mpz_getlimbn(product, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, product);
-    mpz_tdiv_q_2exp(result, result, 64);
-    get_carry(result, fcarry);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product0[0];
+    product1[1] = mpn_addmul_1(product0, mq, N, np0);
+    mpn_add(product1, product1, N, product0+1, N-1);
 
     // Second Loop 1
-    np0 = Fr_np * mpz_getlimbn(result, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, result);
-    mpz_add(result, result, fcarry);
-    mpz_tdiv_q_2exp(result, result, 64);
-    get_carry(result, fcarry);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product1[0];
+    product2[1] = mpn_addmul_1(product1, mq, N, np0);
+    mpn_add(product2, product2, N, product1+1, N-1);
 
     // Second Loop 2
-    np0 = Fr_np * mpz_getlimbn(result, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, result);
-    mpz_add(result, result, fcarry);
-    mpz_tdiv_q_2exp(result, result, 64);
-    get_carry(result, fcarry);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product2[0];
+    product3[1] = mpn_addmul_1(product2, mq, N, np0);
+    mpn_add(product3, product3, N, product2+1, N-1);
 
     // Second Loop 3
-    np0 = Fr_np * mpz_getlimbn(result, 0);
-    mpz_mul_ui(np0q, mq, np0);
-    mpz_add(result, np0q, result);
-    mpz_add(result, result, fcarry);
-    mpz_tdiv_q_2exp(result, result, 64);
-    mpz_mod(result, result, md);
+    np0 = Fr_np * product3[0];
+    mpn_addmul_1(product3, mq, N, np0);
 
-    if (mpz_cmp(result, mq) >= 0)
+    mpn_copyi(pRawResult,  product3+1, Fr_N64);
+
+    if (mpn_cmp(pRawResult, mq, Fr_N64) >= 0)
     {
-        mpz_sub(result, result, mq);
+        mpn_sub_n(pRawResult, pRawResult, mq, Fr_N64);
     }
-
-    Fr_to_rawElement(pRawResult, result);
-
-    mpz_clears(a, mq, product, np0q, result, md, fcarry, NULL);
 }
 
 void Fr_toNormal(PFrElement r, PFrElement a)
@@ -809,24 +656,19 @@ void mul_s1s2(PFrElement r, PFrElement a, PFrElement b)
 
 void rawCopyS2L(PFrElement pResult, int64_t val)
 {
-    mpz_t result, mq;
+    pResult->type = Fr_LONG;
+    pResult->shortVal = 0;
 
-    mpz_inits(result, mq);
+    uint64_t *result = pResult->longVal;
 
-    mpz_set_si(result, val);
+    mpn_zero(result, Fr_N64);
+    result[0] = val;
 
     if (val < 0)
     {
-        Fr_to_mpz(mq, Fr_rawq);
-
-        mpz_add(result, result, mq);
+        mpn_com(result+1, result+1, Fr_N64-1);
+        mpn_add_n(result, result, Fr_rawq, Fr_N64);
     }
-
-    pResult->type = Fr_LONG;
-    pResult->shortVal = 0;
-    Fr_to_rawElement(pResult->longVal, result);
-
-    mpz_clears(result, mq);
 }
 
 void mul_l1nl2n(PFrElement r,PFrElement a,PFrElement b)

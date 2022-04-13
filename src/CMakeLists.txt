@@ -2,6 +2,11 @@ if(USE_ASM)
     add_definitions(-DUSE_ASM)
 endif()
 
+if(OpenMP_CXX_FOUND)
+    add_definitions(-DUSE_OPENMP)
+    add_compile_options(${OpenMP_CXX_FLAGS})
+endif()
+
 set(LIB_SOURCES
     binfile_utils.hpp
     binfile_utils.cpp
@@ -56,26 +61,15 @@ if(USE_SODIUM)
 endif()
 
 
-if(USE_OPENMP)
-    find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
 
-    if(OpenMP_CXX_FOUND)
+    if(TARGET_PLATFORM MATCHES "android")
+        target_link_libraries(prover -static-openmp -fopenmp)
 
-        if(TARGET_PLATFORM MATCHES "android")
-            target_link_libraries(prover -static-openmp -fopenmp)
-            add_definitions(-DUSE_OPENMP)
-            message("OpenMP is used")
-
-        elseif(TARGET_PLATFORM MATCHES "ios")
-            message("OpenMP is not used on iOS")
-
-        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-            target_link_libraries(prover OpenMP::OpenMP_CXX)
-            add_definitions(-DUSE_OPENMP)
-            message("OpenMP is used")
-        endif()
-
+    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+        target_link_libraries(prover OpenMP::OpenMP_CXX)
     endif()
+
 endif()
 
 
