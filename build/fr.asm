@@ -37,6 +37,7 @@
         global Fr_rawSub
         global Fr_rawNeg
         global Fr_rawMMul
+        global Fr_rawMMul1
         global Fr_rawMSquare
         global Fr_rawToMontgomery
         global Fr_rawFromMontgomery

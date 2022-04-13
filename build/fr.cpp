@@ -1061,13 +1061,17 @@ void rawNegLS(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     mp_limb_t carry = 0;
     mp_limb_t dl = 0, dh = 0;
 
-    carry = mpn_sub_n(&mr[0], &mq[0], &mb[0], 4);
-    dl = carry;
-    carry = mpn_sub_n(&mr[0], &mr[0], &ma[0], 4);
-    dh = carry;
-    mpn_ior_n(&carry,&dh,&dl,1);
-    if(carry != 0)
+    dl = mpn_sub_n(&mr[0], &mq[0], &mb[0], 4);
+    //dl = carry;
+    dh = mpn_sub_n(&mr[0], &mr[0], &ma[0], 4);
+    //dh = carry;
+    std::cout << "dl " << dl << "\n";
+    std::cout << "dh " << dh << "\n";
+
+    //mpn_ior_n(&carry,&dh,&dl,1);
+    if(dl || dh)
     {
+        std::cout << "carry != 0 " << "\n";
         mpn_add_n(&mr[0], &mr[0], &mq[0], 4);
     }
     std::memcpy(pRawResult, mr, sizeof(FrRawElement));
@@ -1080,16 +1084,18 @@ void sub_s1s2(PFrElement r, PFrElement a, PFrElement b)
     mpz_init(rax);
 
     int64_t temp = (int64_t)a->shortVal - (int64_t)b->shortVal;
-    r->longVal[0] = temp;
+    r->shortVal = (int32_t)temp;
     mpz_import(rax, 1, -1, 8, -1, 0, (const void *)r);
     // mul_manageOverflow
-    if (!mpz_fits_sint_p(rax))
+    if (!mpz_fits_uint_p(rax))
     {
         rawCopyS2L(r, temp);
+        //std::cout << "rawCopyS2L" << "\n";
     }
     else
     {
-        r->type = Fr_LONG;
+        //r->type = Fr_LONG;
+        //std::cout << "Not rawCopyS2L" << "\n";
     }
     mpz_clear(rax);
 }
@@ -1117,7 +1123,7 @@ void sub_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
     Fr_toMontgomery(r, b);
-    Fr_rawSub(&r->longVal[0], &r->longVal[0], &a->longVal[0]);
+    Fr_rawSub(&r->longVal[0], &a->longVal[0], &r->longVal[0]);
 }
 
 // Implemented, Not checked 6
@@ -1126,15 +1132,17 @@ void sub_s1l2n(PFrElement r,PFrElement a,PFrElement b)
     FrRawElement tmp1 = {0,0,0,0};
 
     r->type = Fr_LONG;
-    if (a->shortVal >= 0)
+    if (a->shortVal < 0)
     {
-        tmp1[0] = a->shortVal;
-        Fr_rawSub(&r->longVal[0], &b->longVal[0], &tmp1[0]);
+        tmp1[0] = a->shortVal * (-1);
+        Fr_rawSub(r->longVal, tmp1, b->longVal);
+        std::cout << "a->shortVal < 0" << "\n" ;
     }
     else
     {
-        tmp1[0] = a->shortVal * (-1);
-        rawNegLS(&r->longVal[0], &b->longVal[0], &tmp1[0]);
+        std::cout << "a->shortVal >= 0" << "\n" ;
+        tmp1[0] = a->shortVal;
+        rawNegLS(r->longVal, tmp1, b->longVal);
     }
 }
 // Implemented, Not checked 7
@@ -1142,7 +1150,7 @@ void sub_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
     Fr_toMontgomery(r, b);
-    Fr_rawSub(&r->longVal[0], &r->longVal[0], &a->longVal[0]);
+    Fr_rawSub(&r->longVal[0], &a->longVal[0], &r->longVal[0]);
 }
 
 // Implemented, Not checked 8
@@ -1152,21 +1160,24 @@ void sub_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
     Fr_toMontgomery(r, a);
     Fr_rawSub(&r->longVal[0], &r->longVal[0], &b->longVal[0]);
 }
+
 // Implemented, Not checked 9
 void sub_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrRawElement tmp1 = {0,0,0,0};
 
     r->type = Fr_LONG;
-    if (b->shortVal >= 0)
+    if (b->shortVal < 0)
     {
         tmp1[0] = b->shortVal * (-1);
         Fr_rawAdd(&r->longVal[0], &a->longVal[0], &tmp1[0]);
+        std::cout << "b->shortVal >= 0" << "\n" ;
     }
     else
     {
         tmp1[0] = b->shortVal;
         Fr_rawSub(&r->longVal[0], &a->longVal[0], &tmp1[0]);
+        std::cout << "b->shortVal < 0" << "\n" ;
     }
 }
 
@@ -1265,40 +1276,38 @@ void Fr_sub(PFrElement r, PFrElement a, PFrElement b)
 // Implemented, Not checked
 void Fr_toMontgomery(PFrElement r, PFrElement a)
 {
-    if (a->type = Fr_LONGMONTGOMERY) // ; check if montgomery
+    if (a->type == Fr_LONGMONTGOMERY) // ; check if montgomery
     {
         // toMontgomery_doNothing
         Fr_copy(r,a);
+        return;
     }
-    else if (a->type = Fr_LONG)
+
+    if (a->type == Fr_LONG)
     {
         // toMontgomeryLong
         r->type = Fr_LONGMONTGOMERY;
         Fr_rawMMul(&r->longVal[0], &a->longVal[0], &Fr_rawR2[0]);
+        return;
     }
-    else
-    {
-        // toMontgomeryShort
-        if (a->shortVal < 0)
-        {
-           // negMontgomeryShort
-           r->type = Fr_SHORTMONTGOMERY;
-           mp_limb_t ma;
-           ma = a->shortVal;
-           // ; Do the multiplication positive and then negate the result.
-           mpn_neg (&ma, &ma, 1);
-           Fr_rawMMul1(&r->longVal[0], &Fr_rawR2[0], ma);
-           Fr_rawNeg(&r->longVal[0], &r->longVal[0]);
-           r->type = Fr_SHORTMONTGOMERY;
-        }
-        else
-        {
-           // posMontgomeryShort
-            r->type = Fr_SHORTMONTGOMERY;
-            Fr_rawMMul1(&r->longVal[0], &Fr_rawR2[0], a->shortVal);
-        }
 
+    // toMontgomeryShort
+    if (a->shortVal < 0)
+    {
+       // negMontgomeryShort
+       r->type = Fr_SHORTMONTGOMERY;
+       int32_t tmp;
+       tmp = a->shortVal * (-1);
+       // ; Do the multiplication positive and then negate the result.
+       Fr_rawMMul1(&r->longVal[0], &Fr_rawR2[0], tmp);
+       Fr_rawNeg(&r->longVal[0], &r->longVal[0]);
+       return;
     }
+
+    // posMontgomeryShort
+    r->type = Fr_SHORTMONTGOMERY;
+    Fr_rawMMul1(&r->longVal[0], &Fr_rawR2[0], a->shortVal);
+    return;
 }
 
 // Implemented, Not checked 1
