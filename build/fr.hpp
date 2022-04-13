@@ -129,6 +129,7 @@ void Fr_rawToMontgomery(FrRawElement pRawResult, FrRawElement pRawA);
 void Fr_rawFromMontgomery(FrRawElement pRawResult, FrRawElement pRawA);
 int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB);
 int Fr_rawIsZero(FrRawElement pRawB);
+void Fr_rawZero(FrRawElement pRawResult);
 void rawNegLS(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB);
 
 void Fr_fail();
