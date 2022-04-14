@@ -1933,8 +1933,8 @@ void Fr_neg(PFrElement r, PFrElement a)
     else
     {
         // neg_s
-        tmp = a->shortVal;
-        mpn_neg(&tmp,&tmp,1);
+        tmp = a->shortVal * (-1);
+        //mpn_neg(&tmp,&tmp,1);
         if (tmp >= 0x80000000) // Check if overflow. (0x80000000 is the only case)
         {
             // neg_manageOverflow
@@ -1986,50 +1986,50 @@ int req_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
     PFrElement tmpa = a;
     Fr_toMontgomery(tmpa,a);
-    reqL1L2(r->longVal, tmpa->longVal, b->longVal);
+    return reqL1L2(r->longVal, tmpa->longVal, b->longVal);
 }
 // Implemented, Not checked 4
-void req_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
+int req_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
 {
     // rltL1L2
-    reqL1L2(r->longVal, a->longVal, b->longVal);
+    return reqL1L2(r->longVal, a->longVal, b->longVal);
 }
 // Implemented, Not checked 5
-void req_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
+int req_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
 {
     PFrElement tmpb = b;
     Fr_toMontgomery(tmpb,b);
-    reqL1L2(r->longVal, a->longVal, tmpb->longVal);
+    return reqL1L2(r->longVal, a->longVal, tmpb->longVal);
 }
 
 // Implemented, Not checked 6
-void req_s1l2n(PFrElement r,PFrElement a,PFrElement b)
+int req_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 {
     PFrElement tmpa = a;
     Fr_toLongNormal(tmpa,a);
-    reqL1L2(r->longVal, tmpa->longVal, b->longVal);
+    return reqL1L2(r->longVal, tmpa->longVal, b->longVal);
 }
 // Implemented, Not checked 7
-void req_l1ms2(PFrElement r,PFrElement a,PFrElement b)
+int req_l1ms2(PFrElement r,PFrElement a,PFrElement b)
 {
     PFrElement tmpb = b;
     Fr_toMontgomery(tmpb,b);
-    reqL1L2(r->longVal, a->longVal, tmpb->longVal);
+    return reqL1L2(r->longVal, a->longVal, tmpb->longVal);
 }
 
 // Implemented, Not checked 8
-void req_s1l2m(PFrElement r,PFrElement a,PFrElement b)
+int req_s1l2m(PFrElement r,PFrElement a,PFrElement b)
 {
     PFrElement tmpa = a;
     Fr_toMontgomery(tmpa,a);
-    rltL1L2(r->longVal, tmpa->longVal, b->longVal);
+    return reqL1L2(r->longVal, tmpa->longVal, b->longVal);
 }
 // Implemented, Not checked 9
-void req_l1ns2(PFrElement r,PFrElement a,PFrElement b)
+int req_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 {
     PFrElement tmpb = b;
     Fr_toLongNormal(tmpb,b);
-    rltL1L2(r->longVal, a->longVal, tmpb->longVal);
+    return reqL1L2(r->longVal, a->longVal, tmpb->longVal);
 }
 
 //Not Implemented, not checked
@@ -2037,6 +2037,7 @@ void req_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 // returns in ax 1 id *rsi == *rdx
 void Fr_req(PFrElement r, PFrElement a, PFrElement b)
 {
+    int rax = 0;
     if (a->type & Fr_LONG) // Check if is short first operand
     {
         // req_l1
@@ -2048,32 +2049,32 @@ void Fr_req(PFrElement r, PFrElement a, PFrElement b)
                 // req_l1ml2
                 if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
                 {
-                    req_l1ml2m(r, a, b);
+                    rax = req_l1ml2m(r, a, b);
                 }
                 else
                 {
-                    req_l1ml2n(r, a, b);
+                    rax = req_l1ml2n(r, a, b);
                 }
             }
             else if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
             {
-                req_l1nl2m(r, a, b);
+                rax = req_l1nl2m(r, a, b);
             }
             else
             {
-                req_l1nl2n(r, a, b);
+                rax = req_l1nl2n(r, a, b);
             }
         }
         //rlt_l1s2:
         else if (a->type == Fr_LONGMONTGOMERY) // check if montgomery first
         {
             // rlt_l1ms2
-            req_l1ms2(r, a, b);
+            rax = req_l1ms2(r, a, b);
         }
         else
         {
             // rlt_l1ns2
-            req_l1ns2(r, a, b);
+            rax = req_l1ns2(r, a, b);
         }
     }
     else if (b->type & Fr_LONG)// Check if is short second operand
@@ -2082,19 +2083,19 @@ void Fr_req(PFrElement r, PFrElement a, PFrElement b)
         if (b->type == Fr_LONGMONTGOMERY)// check if montgomery second
         {
             // rlt_s1l2m
-            req_s1l2m(r,a,b);
+            rax = req_s1l2m(r,a,b);
         }
         else
         {
             // add_s1l2n
-            req_s1l2n(r,a,b);
+            rax = req_s1l2n(r,a,b);
         }
     }
     else // ; Both operands are short
     {
-         req_s1s2(r, a, b);
+         rax = req_s1s2(r, a, b);
     }
-
+    r->shortVal = rax;
 }
 //Implemented, not checked
 void Fr_eq(PFrElement r, PFrElement a, PFrElement b)
@@ -2105,7 +2106,11 @@ void Fr_eq(PFrElement r, PFrElement a, PFrElement b)
 //Implemented, not checked
 void Fr_neq(PFrElement r, PFrElement a, PFrElement b)
 {
+    mp_limb_t rax = 0;
     Fr_req(r, a, b);
+    rax = r->shortVal;
+    mpn_xor_n(&rax, &rax, &rax, 1);
+    r->shortVal = rax;
 }
 
 // Implemented, not checked
