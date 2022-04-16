@@ -2117,28 +2117,29 @@ void Fr_neq(PFrElement r, PFrElement a, PFrElement b)
 // Logical or between two elements
 void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
 {
-   PFrElement rax = a;
+   FrElement rax = {0,0,{0,0,0,0}};
+   std::memcpy(&rax, &a, sizeof (FrElement));
    uint64_t r8 = 0;
    uint64_t rcx = 0;
    mp_limb_t cmpVal[Fr_N64] = {0,0,0,0};
 
    // l1
-   if(rax->type & Fr_LONG)
+   if(rax.type & Fr_LONG)
    {
        // tmp_128
-       mpn_and_n(rax->longVal,rax->longVal,rax->longVal, 4);
-       if ( mpn_cmp(rax->longVal, cmpVal, Fr_N64) !=0)
+       mpn_and_n(rax.longVal,rax.longVal,rax.longVal, 4);
+       if ( mpn_cmp(rax.longVal, cmpVal, Fr_N64) !=0)
        {
            // retOne_129
            r8 = 1;
            // done_131
-           rax = b;
+           std::memcpy(&rax, &b, sizeof (FrElement));
            // l1l2
-           if(rax->type & Fr_LONG)
+           if(rax.type & Fr_LONG)
            {
                // tmp_132
-               mpn_and_n(rax->longVal,rax->longVal,rax->longVal, 4);
-               if ( mpn_cmp(rax->longVal, cmpVal, Fr_N64) !=0)
+               mpn_and_n(rax.longVal,rax.longVal,rax.longVal, 4);
+               if ( mpn_cmp(rax.longVal, cmpVal, Fr_N64) !=0)
                {
                     // retOne_133
                     rcx = 1;
@@ -2156,7 +2157,7 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
                    r->shortVal = rcx;
                    return;
                }
-               mp_limb_t raxTmp = rax->shortVal;
+               mp_limb_t raxTmp = rax.shortVal;
                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
                {
@@ -2181,7 +2182,7 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
            else
            {
                // test    eax, eax
-               mp_limb_t raxTmp = rax->shortVal;
+               mp_limb_t raxTmp = rax.shortVal;
                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
                {
@@ -2209,13 +2210,13 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
            // retZero_130:
            r8 = 0;
            // done_131
-           rax = b;
+           std::memcpy(&rax, &b, sizeof (FrElement));
            // l1l2
-           if(rax->type & Fr_LONG)
+           if(rax.type & Fr_LONG)
            {
                // tmp_132
-               mpn_and_n(rax->longVal,rax->longVal,rax->longVal, 4);
-               if ( mpn_cmp(rax->longVal, cmpVal, Fr_N64) !=0)
+               mpn_and_n(rax.longVal,rax.longVal,rax.longVal, 4);
+               if ( mpn_cmp(rax.longVal, cmpVal, Fr_N64) !=0)
                {
                     // retOne_133
                     rcx = 1;
@@ -2236,7 +2237,7 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
            }
            else // l1s2
            {
-               mp_limb_t raxTmp = rax->shortVal;
+               mp_limb_t raxTmp = rax.shortVal;
                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
                {
@@ -2262,20 +2263,20 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
    //s1
    else
    {
-       mp_limb_t raxTmp = rax->shortVal;
+       mp_limb_t raxTmp = rax.shortVal;
        mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
        if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
        {
            // retZero_130:
            r8 = 0;
            // done_131
-           rax = b;
+           std::memcpy(&rax, &b, sizeof (FrElement));
            // l1l2
-           if(rax->type & Fr_LONG)
+           if(rax.type & Fr_LONG)
            {
                // tmp_132
-               mpn_and_n(rax->longVal,rax->longVal,rax->longVal, 4);
-               if ( mpn_cmp(rax->longVal, cmpVal, Fr_N64) !=0)
+               mpn_and_n(rax.longVal,rax.longVal,rax.longVal, 4);
+               if ( mpn_cmp(rax.longVal, cmpVal, Fr_N64) !=0)
                {
                     // retOne_133
                     rcx = 1;
@@ -2296,7 +2297,7 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
            }
            else // l1s2
            {
-               mp_limb_t raxTmp = rax->shortVal;
+               mp_limb_t raxTmp = rax.shortVal;
                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
                {
@@ -2323,13 +2324,13 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
            // retOne_129
            r8 = 1;
            // done_131
-           rax = b;
+           std::memcpy(&rax, &b, sizeof (FrElement));
            // l1l2
-           if(rax->type & Fr_LONG)
+           if(rax.type & Fr_LONG)
            {
                // tmp_132
-               mpn_and_n(rax->longVal,rax->longVal,rax->longVal, 4);
-               if ( mpn_cmp(rax->longVal, cmpVal, Fr_N64) !=0)
+               mpn_and_n(rax.longVal,rax.longVal,rax.longVal, 4);
+               if ( mpn_cmp(rax.longVal, cmpVal, Fr_N64) !=0)
                {
                     // retOne_133
                     rcx = 1;
@@ -2347,7 +2348,7 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
                    r->shortVal = rcx;
                    return;
                }
-               mp_limb_t raxTmp = rax->shortVal;
+               mp_limb_t raxTmp = rax.shortVal;
                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
                {
@@ -2372,7 +2373,7 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
            else
            {
                // test    eax, eax
-               mp_limb_t raxTmp = rax->shortVal;
+               mp_limb_t raxTmp = rax.shortVal;
                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
                {
