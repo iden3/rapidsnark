@@ -2608,11 +2608,12 @@ void Fr_gt(PFrElement r, PFrElement a, PFrElement b)
 void Fr_land(PFrElement r, PFrElement a, PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
-    std::memcpy(&rax, &a, sizeof (FrElement));
+    std::memcpy(&rax, a, sizeof (FrElement));
     uint64_t r8 = 0;
     uint64_t rcx = 0;
     mp_limb_t cmpVal[Fr_N64] = {0,0,0,0};
 
+    std::cout << "rax.type  "  << std::hex <<  rax.type << "\n";
     // l1
     if(rax.type & Fr_LONG)
     {
@@ -2631,6 +2632,7 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                 mpn_and_n(rax.longVal,rax.longVal,rax.longVal, 4);
                 if ( mpn_cmp(rax.longVal, cmpVal, Fr_N64) !=0)
                 {
+                     std::cout << "1 " << "\n";
                      // retOne_125
                      rcx = 1;
                      // done_127
@@ -2638,60 +2640,37 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                      r->shortVal = rcx;
                      return;
                 }
-                else
-                {
-                    // retZero_126
-                    rcx = 0;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
-                mp_limb_t raxTmp = rax.shortVal;
-                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
-                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
-                {
-                    // retZero_126
-                    rcx = 0;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
-                else
-                {
-                    // retOne_125
-                    rcx = 1;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
+                std::cout << "2 " << "\n";
+                // retZero_126
+                rcx = 0;
+                // done_127
+                mpn_and_n(&rcx,&rcx,&r8, 1);
+                r->shortVal = rcx;
+                return;
             }
             // l1s2
+            // test    eax, eax
+            mp_limb_t raxTmp = rax.shortVal;
+            mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
+            if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
+            {
+                std::cout << "3 " << "\n";
+                // retZero_126
+                rcx = 0;
+                // done_127
+                mpn_and_n(&rcx,&rcx,&r8, 1);
+                r->shortVal = rcx;
+                return;
+            }
             else
             {
-                // test    eax, eax
-                mp_limb_t raxTmp = rax.shortVal;
-                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
-                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
-                {
-                    // retZero_126
-                    rcx = 0;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
-                else
-                {
-                    // retOne_125
-                    rcx = 1;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
+                std::cout << "4 " << "\n";
+                // retOne_125
+                rcx = 1;
+                // done_127
+                mpn_and_n(&rcx,&rcx,&r8, 1);
+                r->shortVal = rcx;
+                return;
             }
 
         }
@@ -2708,6 +2687,7 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                 mpn_and_n(rax.longVal,rax.longVal,rax.longVal, 4);
                 if ( mpn_cmp(rax.longVal, cmpVal, Fr_N64) !=0)
                 {
+                    std::cout << "5 " << "\n";
                      // retOne_125
                      rcx = 1;
                      // done_127
@@ -2715,39 +2695,34 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                      r->shortVal = rcx;
                      return;
                 }
-                else
-                {
-                    // retZero_126
-                    rcx = 0;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
+                std::cout << "6 " << "\n";
+                // retZero_126
+                rcx = 0;
+                // done_127
+                mpn_and_n(&rcx,&rcx,&r8, 1);
+                r->shortVal = rcx;
+                return;
             }
-            else // l1s2
+            // l1s2
+            mp_limb_t raxTmp = rax.shortVal;
+            mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
+            if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
             {
-                mp_limb_t raxTmp = rax.shortVal;
-                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
-                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
-                {
-                    // retZero_126
-                    rcx = 0;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
-                else
-                {
-                    // retOne_125
-                    rcx = 1;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
+                std::cout << "7 " << "\n";
+                // retZero_126
+                rcx = 0;
+                // done_127
+                mpn_and_n(&rcx,&rcx,&r8, 1);
+                r->shortVal = rcx;
+                return;
             }
+            std::cout << "8 " << "\n";
+            // retOne_125
+            rcx = 1;
+            // done_127
+            mpn_and_n(&rcx,&rcx,&r8, 1);
+            r->shortVal = rcx;
+            return;
         }
     }
     //s1
@@ -2768,6 +2743,7 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                 mpn_and_n(rax.longVal,rax.longVal,rax.longVal, 4);
                 if ( mpn_cmp(rax.longVal, cmpVal, Fr_N64) !=0)
                 {
+                    std::cout << "9 " << "\n";
                      // retOne_125
                      rcx = 1;
                      // done_127
@@ -2775,39 +2751,34 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                      r->shortVal = rcx;
                      return;
                 }
-                else
-                {
-                    // retZero_126
-                    rcx = 0;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
+                std::cout << "10 " << "\n";
+                // retZero_126
+                rcx = 0;
+                // done_127
+                mpn_and_n(&rcx,&rcx,&r8, 1);
+                r->shortVal = rcx;
+                return;
             }
-            else // l1s2
+            // l1s2
+            mp_limb_t raxTmp = rax.shortVal;
+            mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
+            if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
             {
-                mp_limb_t raxTmp = rax.shortVal;
-                mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
-                if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
-                {
-                    // retZero_126
-                    rcx = 0;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
-                else
-                {
-                    // retOne_125
-                    rcx = 1;
-                    // done_127
-                    mpn_and_n(&rcx,&rcx,&r8, 1);
-                    r->shortVal = rcx;
-                    return;
-                }
+                std::cout << "11 " << "\n";
+                // retZero_126
+                rcx = 0;
+                // done_127
+                mpn_and_n(&rcx,&rcx,&r8, 1);
+                r->shortVal = rcx;
+                return;
             }
+            std::cout << "12 " << "\n";
+            // retOne_125
+            rcx = 1;
+            // done_127
+            mpn_and_n(&rcx,&rcx,&r8, 1);
+            r->shortVal = rcx;
+            return;
         }
         else
         {
@@ -2822,6 +2793,7 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                 mpn_and_n(rax.longVal,rax.longVal,rax.longVal, 4);
                 if ( mpn_cmp(rax.longVal, cmpVal, Fr_N64) !=0)
                 {
+                    std::cout << "13 " << "\n";
                      // retOne_125
                      rcx = 1;
                      // done_127
@@ -2831,6 +2803,7 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                 }
                 else
                 {
+                    std::cout << "14 " << "\n";
                     // retZero_126
                     rcx = 0;
                     // done_127
@@ -2842,6 +2815,7 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                 mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
                 if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
                 {
+                    std::cout << "15 " << "\n";
                     // retZero_126
                     rcx = 0;
                     // done_127
@@ -2851,6 +2825,7 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                 }
                 else
                 {
+                    std::cout << "16 " << "\n";
                     // retOne_125
                     rcx = 1;
                     // done_127
@@ -2867,6 +2842,7 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                 mpn_and_n(&raxTmp,&raxTmp,&raxTmp, 1);
                 if ( mpn_cmp(&raxTmp, &cmpVal[0], 1) == 0)
                 {
+                    std::cout << "17 " << "\n";
                     // retZero_126
                     rcx = 0;
                     // done_127
@@ -2876,6 +2852,7 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
                 }
                 else
                 {
+                    std::cout << "18 " << "\n";
                     // retOne_125
                     rcx = 1;
                     // done_127

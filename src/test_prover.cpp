@@ -9084,8 +9084,7 @@ int main()
     Fr_band_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
     Fr_band_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
-
-
+*/
 
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_land_s1s2_unit_test();
@@ -9230,8 +9229,8 @@ int main()
     Fr_land_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
     Fr_land_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
-*/
 
+/*
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_lor_s1s2_unit_test();
 #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
@@ -9375,7 +9374,7 @@ int main()
     Fr_lor_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
     Fr_lor_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
-
+*/
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_add_unit_test();
