@@ -5,7 +5,7 @@
 #include <limits.h>
 
 #define TEST_FR_C_FUNCTIONS
-#define TEST_FR_C_FUNCTIONS_WITH_RESULT
+//#define TEST_FR_C_FUNCTIONS_WITH_RESULT
 //#define TEST_FR_ASM_FUNCTIONS
 
 //#define TEST_FQ_C_FUNCTIONS
@@ -7464,7 +7464,7 @@ void Fq_mul_s1ml2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int id
 
 int main()
 {
-/*
+
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_Rw_add_unit_test();
 //    Fr_Rw_add_test(pRawResult,  pRawA,  pRawB, 0);
@@ -7827,8 +7827,7 @@ int main()
     Fr_mul_s1ml2n_test(&Result2_s1ml2n,  &A2_s1ml2n,  &B2_s1ml2n, 2);
     Fr_mul_s1ml2n_test(&Result3_s1ml2n,  &A3_s1ml2n,  &B3_s1ml2n, 3);
 #endif
-*/
-/*
+
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_sub_s1s2_unit_test();
 #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
@@ -8006,14 +8005,6 @@ int main()
     Fr_sub_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
     Fr_sub_s1l2n_test(&Result4_s1l2n,  &A4_s1l2n,  &B4_s1l2n, 4);
 #endif
-
-
-*/
-
-/*
-
-
-
 
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_add_s1s2_unit_test();
@@ -8207,8 +8198,7 @@ int main()
 //    Fr_toInt_test(uRawResult2, &RawA2, 2);
 //    Fr_toInt_test(uRawResult3, &RawA3, 3);
 //#endif
-*/
- /*
+
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_lt_s1s2_unit_test();
 #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
@@ -8352,8 +8342,7 @@ int main()
     Fr_lt_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
     Fr_lt_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
-*/
-/*
+
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_geq_s1s2_unit_test();
 #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
@@ -8515,10 +8504,6 @@ int main()
     Fr_neg_test(&RawResult3, &RawA3, &RawB3, 3);
 #endif
 
-
-
-*/
-/*
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_eq_s1s2_unit_test();
 #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
@@ -8808,8 +8793,6 @@ int main()
     Fr_neq_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
 
-*/
-
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_gt_s1s2_unit_test();
 #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
@@ -8953,8 +8936,6 @@ int main()
     Fr_gt_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
     Fr_gt_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
-
-/*
 
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_band_s1s2_unit_test();
@@ -9389,7 +9370,6 @@ int main()
     Fr_lor_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
     Fr_lor_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
-*/
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_add_unit_test();
