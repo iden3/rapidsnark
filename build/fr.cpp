@@ -1067,34 +1067,20 @@ void Fr_copyn(PFrElement r, PFrElement a, int n)
     std::memcpy(r->longVal, a->longVal, n);
 }
 
-// Implemented, Not checked
+// Implemented, checked
 //  Substracts a long element and a short element form 0
 void rawNegLS(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 {
-    mp_limb_t ma[Fr_N64] = {pRawA[0], pRawA[1], pRawA[2], pRawA[3]};
-    mp_limb_t mb[Fr_N64] = {pRawB[0], 0, 0, 0};
-    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
-    mp_limb_t mr[Fr_N64] = {0, 0, 0, 0};
-    mp_limb_t carry = 0;
     mp_limb_t dl = 0, dh = 0;
-
-    dl = mpn_sub_n(&mr[0], &mq[0], &mb[0], 4);
-    //dl = carry;
-    dh = mpn_sub_n(&mr[0], &mr[0], &ma[0], 4);
-    //dh = carry;
-    std::cout << "dl " << dl << "\n";
-    std::cout << "dh " << dh << "\n";
-
-    //mpn_ior_n(&carry,&dh,&dl,1);
+    dl = mpn_sub_n(pRawResult, Fr_rawq, pRawB, Fr_N64);
+    dh = mpn_sub_n(pRawResult, pRawResult, pRawA, Fr_N64);
     if(dl || dh)
     {
-        std::cout << "carry != 0 " << "\n";
-        mpn_add_n(&mr[0], &mr[0], &mq[0], 4);
+        mpn_add_n(pRawResult, pRawResult, Fr_rawq, Fr_N64);
     }
-    std::memcpy(pRawResult, mr, sizeof(FrRawElement));
 }
 
-// Implemented, Not checked 1
+// Implemented, checked 1
 void sub_s1s2(PFrElement r, PFrElement a, PFrElement b)
 {
     mpz_t rax;
@@ -1143,22 +1129,39 @@ void sub_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
     Fr_rawSub(&r->longVal[0], &a->longVal[0], &r->longVal[0]);
 }
 
+////Fr_sub_s1l2n_test 0:
+//FrElement pA_s1l2n0= {0x1,0x0,{0x1,0x0,0x0,0x0}};
+//FrElement pB_s1l2n0= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
+//FrElement pResult_s1l2n0= {0x0,0x80000000,{0x43e1f593f0000000,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029}};
+////Fr_sub_s1l2n_test 1:
+//FrElement pA_s1l2n1= {0x0,0x0,{0x0,0x0,0x0,0x0}};
+//FrElement pB_s1l2n1= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
+//FrElement pResult_s1l2n1= {0x0,0x80000000,{0x43e1f593efffffff,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029}};
+////Fr_sub_s1l2n_test 2:
+//FrElement pA_s1l2n2= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+//FrElement pB_s1l2n2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+//FrElement pResult_s1l2n2= {0x0,0x80000000,{0x28290f4e41df344a,0xd435ad96965d16ae,0x2c06c2792dc5d7d7,0x2e4d7dc161e35b84}};
+////Fr_sub_s1l2n_test 3:
+//FrElement pA_s1l2n3= {0xffff,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+//FrElement pB_s1l2n3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+//FrElement pResult_s1l2n3= {0x0,0x80000000,{0x43e1f593f0010001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029}};
+
+
 // Implemented, Not checked 6
 void sub_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrRawElement tmp1 = {0,0,0,0};
 
     r->type = Fr_LONG;
-    if (a->shortVal < 0)
+    if (a->shortVal >= 0)
     {
-        tmp1[0] = a->shortVal * (-1);
+        tmp1[0] = a->shortVal;
         Fr_rawSub(r->longVal, tmp1, b->longVal);
-        std::cout << "a->shortVal < 0" << "\n" ;
     }
     else
     {
-        std::cout << "a->shortVal >= 0" << "\n" ;
-        tmp1[0] = a->shortVal;
+        // tmp_4
+        tmp1[0] = a->shortVal * (-1);
         rawNegLS(r->longVal, tmp1, b->longVal);
     }
 }
@@ -1188,13 +1191,11 @@ void sub_l1ns2(PFrElement r,PFrElement a,PFrElement b)
     {
         tmp1[0] = b->shortVal * (-1);
         Fr_rawAdd(&r->longVal[0], &a->longVal[0], &tmp1[0]);
-        std::cout << "b->shortVal >= 0" << "\n" ;
     }
     else
     {
         tmp1[0] = b->shortVal;
         Fr_rawSub(&r->longVal[0], &a->longVal[0], &tmp1[0]);
-        std::cout << "b->shortVal < 0" << "\n" ;
     }
 }
 
@@ -2113,7 +2114,7 @@ void Fr_neq(PFrElement r, PFrElement a, PFrElement b)
     r->shortVal = rax;
 }
 
-// Implemented, not checked
+// Implemented, checked
 // Logical or between two elements
 void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
 {
@@ -2532,7 +2533,7 @@ void Fr_gt(PFrElement r, PFrElement a, PFrElement b)
 }
 
 // Logical and between two elements
-//Implemented, not checked
+//Implemented, checked
 void Fr_land(PFrElement r, PFrElement a, PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2745,7 +2746,7 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
     }
 }
 
-// Implemented, Not checked 1
+// Implemented, checked 1
 void and_s1s2(PFrElement r, PFrElement a, PFrElement b)
 {
     mp_limb_t cmpVal = 0;
@@ -2817,7 +2818,7 @@ void and_s1s2(PFrElement r, PFrElement a, PFrElement b)
     r->shortVal = edx;
 }
 
-// Implemented, Not checked 2
+// Implemented, checked 2
 void and_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrRawElement rax = {0,0,0,0};
@@ -2836,7 +2837,7 @@ void and_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
 
 }
 
-// Implemented, Not checked 3
+// Implemented, checked 3
 void and_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2857,7 +2858,7 @@ void and_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
         mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
-// Implemented, Not checked 4
+// Implemented, checked 4
 void and_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2881,7 +2882,7 @@ void and_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
         mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
-// Implemented, Not checked 5
+// Implemented, checked 5
 void and_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2904,7 +2905,7 @@ void and_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
 }
 
 
-// Implemented, Not checked 6
+// Implemented, checked 6
 void and_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2945,7 +2946,7 @@ void and_s1l2n(PFrElement r,PFrElement a,PFrElement b)
         mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
-// Implemented, Not checked 7
+// Implemented, checked 7
 void and_l1ms2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2988,7 +2989,7 @@ void and_l1ms2(PFrElement r,PFrElement a,PFrElement b)
     }
 }
 
-// Implemented, Not checked 8
+// Implemented, checked 8
 void and_s1l2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -3030,7 +3031,7 @@ void and_s1l2m(PFrElement r,PFrElement a,PFrElement b)
         mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
-// Implemented, Not checked 9
+// Implemented, checked 9
 void and_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -3074,7 +3075,7 @@ void and_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 }
 
 // Adds two elements of any kind
-// Implemented, not checked
+// Implemented, checked
 void Fr_band(PFrElement r, PFrElement a, PFrElement b)
 {
     if (a->type & Fr_LONG) // Check if is short first operand
