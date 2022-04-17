@@ -2399,58 +2399,119 @@ int rgt_s1s2(PFrElement r, PFrElement a, PFrElement b)
 
 int rgtRawL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 {
-    int carry = 0;
-    carry = mpn_cmp(pRawA, pRawB, 4);
-    if (carry)
+//    int carry = 0;
+//    carry = mpn_cmp(pRawB, pRawA, 4);
+//    if (carry)
+//    {
+//        return 1;
+//    }
+//    else
+//    {
+//        return 0;
+//    }
+
+//    int carry = 0;
+//    carry = mpn_cmp(pRawB, pRawA, 4);
+    if (pRawB[0] >= pRawA[0] ||
+        pRawB[1] >= pRawA[1] ||
+        pRawB[2] >= pRawA[2] ||
+        pRawB[3] >= pRawA[3])
     {
-        return 1;
+        std::cout << "rgtRawL1L2 0 " << "\n";
+        return 0;
     }
     else
     {
-        return 0;
+        std::cout << "rgtRawL1L2 1 " << "\n";
+        return 1;
     }
 }
 
 int rgtl1l2_n1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 {
-    int carry = 0;
-    carry = mpn_cmp(pRawB, half, 4);
-    if (carry)
+//    int carry = 0;
+//    carry = mpn_cmp(half, pRawB, 4);
+//    if (carry)
+//    {
+//        return rgtRawL1L2(pRawResult, pRawA, pRawB);
+//    }
+//    else
+//    {
+//        return 0;
+//    }
+
+
+//    int carry = 0;
+//    carry = mpn_cmp(half, pRawB, 4);
+    if (half[0] >= pRawB[0] ||
+        half[1] >= pRawB[1] ||
+        half[2] >= pRawB[2] ||
+        half[3] >= pRawB[3])
     {
+        std::cout << "rgtl1l2_n1 rgtRawL1L2 " << "\n";
         return rgtRawL1L2(pRawResult, pRawA, pRawB);
     }
     else
     {
+        std::cout << "rgtl1l2_n1 0 " << "\n";
         return 0;
     }
 }
 
 int rgtl1l2_p1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 {
-    int carry = 0;
-    carry = mpn_cmp(pRawB, half, 4);
-    if (carry)
+//    int carry = 0;
+//    carry = mpn_cmp(half, pRawB, 4);
+//    if (carry)
+//    {
+//        return 1;
+//    }
+//    else
+//    {
+//        return rgtRawL1L2(pRawResult, pRawA, pRawB);
+//    }
+
+//    int carry = 0;
+//    carry = mpn_cmp(half, pRawB, 4);
+    if (half[0] >= pRawB[0] ||
+        half[1] >= pRawB[1] ||
+        half[2] >= pRawB[2] ||
+        half[3] >= pRawB[3])
     {
+        std::cout << "rgtl1l2_n1 1 " << "\n";
         return 1;
     }
     else
     {
+        std::cout << "rgtl1l2_n1 rgtRawL1L2 " << "\n";
         return rgtRawL1L2(pRawResult, pRawA, pRawB);
     }
 }
 
 int rgtL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 {
-    int carry = 0;
-    carry = mpn_cmp(pRawA, half, 4);
-    if (carry)
-    {
-        rgtl1l2_n1(pRawResult, pRawA, pRawB);
-    }
-    else
-    {
-        rgtl1l2_p1(pRawResult, pRawA, pRawB);
-    }
+//    int carry = 0;
+//    carry = mpn_cmp(half, pRawA, 4);
+//    if (carry)
+//    {
+//        rgtl1l2_n1(pRawResult, pRawA, pRawB);
+//    }
+//    else
+//    {
+//        rgtl1l2_p1(pRawResult, pRawA, pRawB);
+//    }
+
+    if (half[0] >= pRawA[0] ||
+        half[1] >= pRawA[1] ||
+        half[2] >= pRawA[2] ||
+        half[3] >= pRawA[3])
+        {
+            rgtl1l2_n1(pRawResult, pRawA, pRawB);
+        }
+        else
+        {
+            rgtl1l2_p1(pRawResult, pRawA, pRawB);
+        }
 }
 
 // Implemented, Not checked 2
@@ -2463,59 +2524,59 @@ int rgt_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
 // Implemented, Not checked 3
 int rgt_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
-    PFrElement tmpb = b;
-    Fr_toNormal(tmpb,b);
-    return rgtL1L2(r->longVal, a->longVal, tmpb->longVal);
+    FrElement tmpb = {0,0,{0,0,0,0}};
+    Fr_toNormal(&tmpb,b);
+    return rgtL1L2(r->longVal, a->longVal, tmpb.longVal);
 }
 // Implemented, Not checked 4
 int rgt_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
 {
-    PFrElement tmpa = a;
-    PFrElement tmpb = b;
-    Fr_toNormal(tmpa,tmpa);
-    Fr_toNormal(tmpb,tmpb);
-    return rgtL1L2(r->longVal, tmpa->longVal, tmpb->longVal);
+    FrElement tmpa = {0,0,{0,0,0,0}};
+    FrElement tmpb = {0,0,{0,0,0,0}};
+    Fr_toNormal(&tmpa,a);
+    Fr_toNormal(&tmpb,b);
+    return rgtL1L2(r->longVal, tmpa.longVal, tmpb.longVal);
 }
 // Implemented, Not checked 5
 int rgt_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
 {
-    PFrElement tmpa = a;
-    Fr_toNormal(tmpa,a);
-    return rgtL1L2(r->longVal, tmpa->longVal, b->longVal);
+    FrElement tmpa = {0,0,{0,0,0,0}};
+    Fr_toNormal(&tmpa,a);
+    return rgtL1L2(r->longVal, tmpa.longVal, b->longVal);
 }
 
 // Implemented, Not checked 6
 int rgt_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 {
-    PFrElement tmpa = a;
-    Fr_toLongNormal(tmpa,a);
-    return rgtL1L2(r->longVal, tmpa->longVal, b->longVal);
+    FrElement tmpa = {0,0,{0,0,0,0}};
+    Fr_toLongNormal(&tmpa,a);
+    return rgtL1L2(r->longVal, tmpa.longVal, b->longVal);
 }
 // Implemented, Not checked 7
 int rgt_l1ms2(PFrElement r,PFrElement a,PFrElement b)
 {
-    PFrElement tmpa = a;
-    PFrElement tmpb = b;
-    Fr_toNormal(tmpa,a);
-    Fr_toLongNormal(tmpb,b);
-    return rgtL1L2(r->longVal, tmpa->longVal, tmpb->longVal);
+    FrElement tmpa = {0,0,{0,0,0,0}};
+    FrElement tmpb = {0,0,{0,0,0,0}};
+    Fr_toNormal(&tmpa,a);
+    Fr_toLongNormal(&tmpb,b);
+    return rgtL1L2(r->longVal, tmpa.longVal, tmpb.longVal);
 }
 
 // Implemented, Not checked 8
 int rgt_s1l2m(PFrElement r,PFrElement a,PFrElement b)
 {
-    PFrElement tmpa = a;
-    PFrElement tmpb = b;
-    Fr_toLongNormal(tmpa,a);
-    Fr_toNormal(tmpb,b);
-    return rgtL1L2(r->longVal, tmpa->longVal, tmpb->longVal);
+    FrElement tmpa = {0,0,{0,0,0,0}};
+    FrElement tmpb = {0,0,{0,0,0,0}};
+    Fr_toLongNormal(&tmpa,a);
+    Fr_toNormal(&tmpb,b);
+    return rgtL1L2(r->longVal, tmpa.longVal, tmpb.longVal);
 }
 // Implemented, Not checked 9
 int rgt_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 {
-    PFrElement tmpb = b;
-    Fr_toLongNormal(tmpb,b);
-    return rgtL1L2(r->longVal, a->longVal, tmpb->longVal);
+    FrElement tmpb = {0,0,{0,0,0,0}};
+    Fr_toLongNormal(&tmpb,b);
+    return rgtL1L2(r->longVal, a->longVal, tmpb.longVal);
 }
 
 // Implemented, not checked
