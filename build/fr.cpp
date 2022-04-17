@@ -2754,10 +2754,10 @@ void and_s1s2(PFrElement r, PFrElement a, PFrElement b)
     mp_limb_t edx = b->shortVal;
     FrElement tmpa = {0,0,{0,0,0,0}};
     FrElement tmpb = {0,0,{0,0,0,0}};
-    std::memcpy(&tmpa, &a, sizeof (FrElement));
-    std::memcpy(&tmpb, &b, sizeof (FrElement));
-    PFrElement rax;
-    std::memcpy(&rax, &a, sizeof (FrElement));
+    std::memcpy(&tmpa, a, sizeof (FrElement));
+    std::memcpy(&tmpb, b, sizeof (FrElement));
+    FrElement rax = {0,0,{0,0,0,0}};
+    std::memcpy(&rax, a, sizeof (FrElement));
 
     if(mpn_cmp(&eax, &cmpVal, 1) < 0)
     {
@@ -2766,12 +2766,12 @@ void and_s1s2(PFrElement r, PFrElement a, PFrElement b)
         Fr_toLongNormal(&tmpa,a);
         Fr_toLongNormal(&tmpb,b);
         std::memcpy(&rax, &tmpa, sizeof (FrElement));
-        mpn_and_n(rax->longVal,rax->longVal, tmpb.longVal, Fr_N64);
-        mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
-        std::memcpy(&r, &rax, sizeof (FrElement));
+        mpn_and_n(rax.longVal,rax.longVal, tmpb.longVal, Fr_N64);
+        mpn_and_n(&rax.longVal[3],&rax.longVal[3], &lboMask, 1);
+        std::memcpy(r, &rax, sizeof (FrElement));
 
         // Compare with q
-        if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) > 0)
+        if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
         {
             // tmp_15
             // q is bigget so done
@@ -2793,9 +2793,9 @@ void and_s1s2(PFrElement r, PFrElement a, PFrElement b)
         Fr_toLongNormal(&tmpa,a);
         Fr_toLongNormal(&tmpb,b);
         std::memcpy(&rax, &tmpa, sizeof (FrElement));
-        mpn_and_n(rax->longVal,rax->longVal, tmpb.longVal, Fr_N64);
-        mpn_and_n(&rax->longVal[3],&rax->longVal[3], &lboMask, 1);
-        std::memcpy(&r, &rax, sizeof (FrElement));
+        mpn_and_n(rax.longVal,rax.longVal, tmpb.longVal, Fr_N64);
+        mpn_and_n(&rax.longVal[3],&rax.longVal[3], &lboMask, 1);
+        std::memcpy(r, &rax, sizeof (FrElement));
 
         // Compare with q
         if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) > 0)
@@ -2820,50 +2820,41 @@ void and_s1s2(PFrElement r, PFrElement a, PFrElement b)
 // Implemented, Not checked 2
 void and_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
 {
-    FrElement rax = {0,0,{0,0,0,0}};
+    FrRawElement rax = {0,0,0,0};
     r->type = Fr_LONG;
-    std::memcpy(&rax, &a, sizeof (FrElement));
-    mpn_and_n(rax.longVal,rax.longVal, b->longVal, Fr_N64);
-    mpn_and_n(&rax.longVal[3],&rax.longVal[3], &lboMask, 1);
-    std::memcpy(&r, &rax, sizeof (FrElement));
+    std::memcpy(rax, a->longVal, sizeof (FrRawElement));
+    mpn_and_n(&rax[0],&rax[0], &b->longVal[0], Fr_N64);
+    mpn_and_n(&rax[3],&rax[3], &lboMask, 1);
+    std::memcpy(r->longVal, rax, sizeof (FrRawElement));
 
     // Compare with q
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) > 0)
-    {
-        // tmp_36
-        return;
-    }
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) != 0)
+    if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
     {
         // tmp_37
-        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
-        return ;
+        mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 
 }
+
 // Implemented, Not checked 3
 void and_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
     FrElement rdx = {0,0,{0,0,0,0}};
-    std::memcpy(&rdx, &b, sizeof (FrElement));
+    std::memcpy(&rax.longVal[0], a->longVal, sizeof (FrRawElement));
+    std::memcpy(&rdx, b, sizeof (FrElement));
     r->type = Fr_LONG;
     Fr_toNormal(&rdx,&rdx);
-    std::memcpy(&rax, &a, sizeof (FrElement));
+
     mpn_and_n(rax.longVal,rax.longVal, rdx.longVal, Fr_N64);
     mpn_and_n(&rax.longVal[3],&rax.longVal[3], &lboMask, 1);
-    std::memcpy(&r, &rax, sizeof (FrElement));
+    std::memcpy(r->longVal, rax.longVal, sizeof (FrRawElement));
+
     // Compare with q
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) > 0)
-    {
-        // tmp_39
-        return;
-    }
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) != 0)
+    if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
     {
         // tmp_38
-        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
-        return;
+        mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
 // Implemented, Not checked 4
@@ -2872,26 +2863,22 @@ void and_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
     FrElement rax = {0,0,{0,0,0,0}};
     FrElement rsi = {0,0,{0,0,0,0}};
     FrElement rdx = {0,0,{0,0,0,0}};
-    std::memcpy(&rsi, &a, sizeof (FrElement));
-    std::memcpy(&rdx, &b, sizeof (FrElement));
+    std::memcpy(&rsi, a, sizeof (FrElement));
+    std::memcpy(&rdx, b, sizeof (FrElement));
     r->type = Fr_LONG;
-    Fr_toNormal(&rdx,&rdx);
     Fr_toNormal(&rsi,&rsi);
-    std::memcpy(&rax, &rsi, sizeof (FrElement));
+    Fr_toNormal(&rdx,&rdx);
+    std::memcpy(&rax.longVal[0], &rsi.longVal[0], sizeof (FrRawElement));
+
     mpn_and_n(rax.longVal,rax.longVal, rdx.longVal, Fr_N64);
     mpn_and_n(&rax.longVal[3],&rax.longVal[3], &lboMask, 1);
-    std::memcpy(&r, &rax, sizeof (FrElement));
+    std::memcpy(r->longVal, rax.longVal, sizeof (FrRawElement));
+
     // Compare with q
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
-    {
-        // tmp_43
-        return;
-    }
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) != 0)
+    if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
     {
         // tmp_42
-        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
-        return;
+        mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
 // Implemented, Not checked 5
@@ -2899,132 +2886,105 @@ void and_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
     FrElement rsi = {0,0,{0,0,0,0}};
-    std::memcpy(&rsi, &a, sizeof (FrElement));
+    std::memcpy(&rsi, a, sizeof (FrElement));
     r->type = Fr_LONG;
     Fr_toNormal(&rsi,&rsi);
-    std::memcpy(&rax, &rsi, sizeof (FrElement));
+    std::memcpy(&rax.longVal[0], &rsi.longVal[0], sizeof (FrRawElement));
+
     mpn_and_n(rax.longVal,rax.longVal, b->longVal, Fr_N64);
     mpn_and_n(&rax.longVal[3],&rax.longVal[3], &lboMask, 1);
-    std::memcpy(&r, &rax, sizeof (FrElement));
+    std::memcpy(r->longVal, rax.longVal, sizeof (FrRawElement));
+
     // Compare with q
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) > 0)
-    {
-        // tmp_41
-        return;
-    }
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) != 0)
+    if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
     {
         // tmp_40
-        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
-        return;
+        mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
+
 
 // Implemented, Not checked 6
 void and_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
-    FrElement rdx = {0,0,{0,0,0,0}};
-    FrElement rcx;
     mp_limb_t cmpVal = 0;
     mp_limb_t tmprax = 0;
-    mp_limb_t ecx = 0;
 
     r->type = Fr_LONG;
-    std::memcpy(&rcx, &b, sizeof (FrElement));
-    std::memcpy(&rax, &a, sizeof (FrElement));
-    tmprax = rax.shortVal;
-    ecx = rcx.shortVal;
-    if(mpn_cmp(&ecx, &cmpVal, 1) < 0)
+    //std::memcpy(&rax, a, sizeof (FrElement));
+    tmprax = a->shortVal;
+    if(tmprax < 0)
     {
-        // tmp_16
-        Fr_toLongNormal(&rdx,b);
-        r->type = Fr_LONG;
-        mpn_and_n(r->longVal,rax.longVal, rdx.longVal, Fr_N64);
+        // tmp_26
+        Fr_toLongNormal(&rax,a);
+        mpn_and_n(r->longVal,rax.longVal, b->longVal, Fr_N64);
         mpn_and_n(&r->longVal[3],&r->longVal[3], &lboMask, 1);
         // Compare with q
-        if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+        if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
         {
-            // tmp_20
+            // tmp_27
+            mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
             return;
         }
         else
         {
-            // tmp_19
-            mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
             return;
         }
 
     }
 
-    rax.longVal[0] = ecx;
+    rax.longVal[0] = a->shortVal;
 
     mpn_and_n(r->longVal,rax.longVal, b->longVal, Fr_N64);
     mpn_and_n(&r->longVal[3],&r->longVal[3], &lboMask, 1);
-
     // Compare with q
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+    if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
     {
-        // tmp_18
-        return;
-    }
-    else
-    {
-        // tmp_17
-        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
-        return;
+        // tmp_27
+        mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
 // Implemented, Not checked 7
 void and_l1ms2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
+    FrElement rsi = {0,0,{0,0,0,0}};
     mp_limb_t cmpVal = 0;
     mp_limb_t tmprax = 0;
-    mp_limb_t tmprcx = 0;
-    rax.shortVal = a->shortVal;
-    tmprcx = b->shortVal;
+
     r->type = Fr_LONG;
-    tmprax = rax.shortVal;
-
-    Fr_toNormal(r,r);
-
-    if(mpn_cmp(&tmprcx, &cmpVal, 1) < 0)
+    Fr_toNormal(&rsi,a);
+    tmprax = b->shortVal;
+    if(tmprax < 0)
     {
-        // tmp_21
-        Fr_toLongNormal(r,r);
-        r->type = Fr_LONG;
-        mpn_and_n(&rax.longVal[0],a->longVal, b->longVal, Fr_N64);
-        mpn_and_n(&rax.longVal[3],&rax.longVal[3], &lboMask, 1);
-        std::memcpy(&r, &rax, sizeof (FrElement));
+        // tmp_31
+        Fr_toLongNormal(&rax,a);
+        mpn_and_n(r->longVal,rax.longVal, rsi.longVal, Fr_N64);
+        mpn_and_n(&r->longVal[3],&r->longVal[3], &lboMask, 1);
         // Compare with q
-        if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) > 0)
+        if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
         {
-            // tmp_30
+            // tmp_27
+            mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
             return;
         }
-        if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) != 0)
+        else
         {
-            // tmp_29
-            mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
             return;
         }
 
     }
-    mpn_and_n(r->longVal,&tmprcx, a->longVal, Fr_N64);
-    mpn_and_n(&r->longVal[3],&tmprax, &lboMask, 1);
 
+    rax.longVal[0] = b->shortVal;
+
+    mpn_and_n(r->longVal,rax.longVal, rsi.longVal, Fr_N64);
+    mpn_and_n(&r->longVal[3],&r->longVal[3], &lboMask, 1);
     // Compare with q
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) > 0)
+    if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
     {
-        // tmp_22
-        return;
-    }
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) < 0)
-    {
-        // tmp_23
-        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
-        return;
+        // tmp_32
+        mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
 
@@ -3032,108 +2992,84 @@ void and_l1ms2(PFrElement r,PFrElement a,PFrElement b)
 void and_s1l2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
-    FrElement rsi;
+    FrElement rdx = {0,0,{0,0,0,0}};
     mp_limb_t cmpVal = 0;
     mp_limb_t tmprax = 0;
 
     r->type = Fr_LONG;
-    std::memcpy(&rsi, &b, sizeof (FrElement));
-    Fr_toNormal(&rsi,&rsi);
-    std::memcpy(&rax, &rsi, sizeof (FrElement));
-    tmprax = rsi.shortVal;
-
-    if(mpn_cmp(&tmprax, &cmpVal, 1) < 0)
+    Fr_toNormal(&rdx,b);
+    tmprax = a->shortVal;
+    if(tmprax < 0)
     {
         // tmp_31
-        Fr_toLongNormal(r,r);
-        r->type = Fr_LONG;
-        mpn_and_n(r->longVal,rax.longVal, b->longVal, Fr_N64);
+        Fr_toLongNormal(&rax,a);
+        mpn_and_n(r->longVal,rax.longVal, rdx.longVal, Fr_N64);
         mpn_and_n(&r->longVal[3],&r->longVal[3], &lboMask, 1);
         // Compare with q
-        if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+        if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
         {
-            // tmp_33
+            // tmp_27
+            mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
             return;
         }
         else
         {
-            // tmp_32
-            mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
             return;
         }
 
     }
-    rax.longVal[0] = tmprax;
 
-    mpn_and_n(r->longVal,rax.longVal, b->longVal, Fr_N64);
+    rax.longVal[0] = a->shortVal;
+
+    mpn_and_n(r->longVal,rax.longVal, rdx.longVal, Fr_N64);
     mpn_and_n(&r->longVal[3],&r->longVal[3], &lboMask, 1);
-
     // Compare with q
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
-    {
-        // tmp_33
-        return;
-    }
-    else
+    if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
     {
         // tmp_32
-        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
-        return;
+        mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
 // Implemented, Not checked 9
 void and_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
-    FrElement rdx = {0,0,{0,0,0,0}};
-    FrElement rcx;
     mp_limb_t cmpVal = 0;
     mp_limb_t tmprax = 0;
-    mp_limb_t ecx = 0;
+    mp_limb_t edx = 0;
 
     r->type = Fr_LONG;
-    std::memcpy(&rcx, &b, sizeof (FrElement));
-    std::memcpy(&rax, &a, sizeof (FrElement));
-    tmprax = rax.shortVal;
-    ecx = rcx.shortVal;
-    if(mpn_cmp(&ecx, &cmpVal, 1) < 0)
+    //std::memcpy(&rax, a, sizeof (FrElement));
+    tmprax = b->shortVal;
+    if(tmprax < 0)
     {
         // tmp_16
-        Fr_toLongNormal(&rdx,b);
-        r->type = Fr_LONG;
-        mpn_and_n(r->longVal,rax.longVal, rdx.longVal, Fr_N64);
+        Fr_toLongNormal(&rax,b);
+        mpn_and_n(r->longVal,rax.longVal, a->longVal, Fr_N64);
         mpn_and_n(&r->longVal[3],&r->longVal[3], &lboMask, 1);
         // Compare with q
-        if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
+        if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
         {
-            // tmp_20
+            // tmp_17
+            mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
             return;
         }
         else
         {
-            // tmp_19
-            mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
             return;
         }
 
     }
 
-    rax.longVal[0] = ecx;
+    rax.longVal[0] = b->shortVal;
 
-    mpn_and_n(r->longVal,rax.longVal, b->longVal, Fr_N64);
+    mpn_and_n(r->longVal,rax.longVal, a->longVal, Fr_N64);
     mpn_and_n(&r->longVal[3],&r->longVal[3], &lboMask, 1);
-
     // Compare with q
-    if (mpn_cmp(&r->longVal[0], &Fr_rawq[0], Fr_N64) >= 0)
-    {
-        // tmp_18
-        return;
-    }
-    else
+    if (mpn_cmp(r->longVal, Fr_rawq, Fr_N64) > 0)
     {
         // tmp_17
-        mpn_sub_n(r->longVal,r->longVal, &Fr_rawq[0], Fr_N64);
-        return;
+        mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
 

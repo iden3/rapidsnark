@@ -5418,10 +5418,10 @@ void Fr_band_s1l2n_unit_test()
     FrElement pA_s1l2n2= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
     FrElement pB_s1l2n2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
     FrElement pResult_s1l2n2= {0x0,0x80000000,{0x21a0,0x0,0x0,0x0}};
-    //Fr_gt_s1l2n_test 3:
+    //Fr_band_s1l2n_test 3:
     FrElement pA_s1l2n3= {0xffff,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
     FrElement pB_s1l2n3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-    FrElement pResult_s1l2n3= {0x1,0x0,{0x0,0x0,0x0,0x0}};
+    FrElement pResult_s1l2n3= {0x0,0x80000000,{0xffff,0x0,0x0,0x0}};
 
     FrElement Result0_c = {0,0,{0,0,0,0}};
     FrElement Result1_c = {0,0,{0,0,0,0}};
@@ -8939,7 +8939,7 @@ int main()
     Fr_gt_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
 
-
+*/
 
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_band_s1s2_unit_test();
@@ -9008,10 +9008,10 @@ int main()
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_band_l1nl2m_unit_test();
     #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_band_l1nl2n_test(&Result_l1nl2n, &A_l1ml2n,  &B_l1ml2n, 0);
-    Fr_band_l1nl2n_test(&Result1_l1nl2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-    Fr_band_l1nl2n_test(&Result2_l1nl2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-    Fr_band_l1nl2n_test(&Result3_l1nl2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+    Fr_band_l1nl2m_test(&Result_l1nl2m, &A_l1nl2m,  &B_l1nl2m, 0);
+    Fr_band_l1nl2m_test(&Result1_l1nl2m, &A1_l1nl2m, &B1_l1nl2m, 1);
+    Fr_band_l1nl2m_test(&Result2_l1nl2m, &A2_l1nl2m, &B2_l1nl2m, 2);
+    Fr_band_l1nl2m_test(&Result3_l1nl2m, &A3_l1nl2m, &B3_l1nl2m, 3);
     #endif
 #endif
 #ifdef TEST_FR_ASM_FUNCTIONS
@@ -9084,7 +9084,7 @@ int main()
     Fr_band_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
     Fr_band_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
-*/
+/*
 
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_land_s1s2_unit_test();
@@ -9374,7 +9374,7 @@ int main()
     Fr_lor_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
     Fr_lor_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
-
+*/
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_add_unit_test();
