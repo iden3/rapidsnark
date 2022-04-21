@@ -976,23 +976,6 @@ void sub_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
     Fr_rawSub(&r->longVal[0], &a->longVal[0], &r->longVal[0]);
 }
 
-////Fr_sub_s1l2n_test 0:
-//FrElement pA_s1l2n0= {0x1,0x0,{0x1,0x0,0x0,0x0}};
-//FrElement pB_s1l2n0= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
-//FrElement pResult_s1l2n0= {0x0,0x80000000,{0x43e1f593f0000000,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029}};
-////Fr_sub_s1l2n_test 1:
-//FrElement pA_s1l2n1= {0x0,0x0,{0x0,0x0,0x0,0x0}};
-//FrElement pB_s1l2n1= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
-//FrElement pResult_s1l2n1= {0x0,0x80000000,{0x43e1f593efffffff,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029}};
-////Fr_sub_s1l2n_test 2:
-//FrElement pA_s1l2n2= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-//FrElement pB_s1l2n2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
-//FrElement pResult_s1l2n2= {0x0,0x80000000,{0x28290f4e41df344a,0xd435ad96965d16ae,0x2c06c2792dc5d7d7,0x2e4d7dc161e35b84}};
-////Fr_sub_s1l2n_test 3:
-//FrElement pA_s1l2n3= {0xffff,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-//FrElement pB_s1l2n3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-//FrElement pResult_s1l2n3= {0x0,0x80000000,{0x43e1f593f0010001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029}};
-
 
 // Implemented, Not checked 6
 void sub_s1l2n(PFrElement r,PFrElement a,PFrElement b)
@@ -1544,7 +1527,7 @@ int Fr_toInt(PFrElement pE)
 }
 
 // Implemented, Not checked 1
-int rlt_s1s2(PFrElement r, PFrElement a, PFrElement b)
+int rlt_s1s2(PFrElement a, PFrElement b)
 {
     if (a->shortVal < b->shortVal)
     {
@@ -1556,7 +1539,7 @@ int rlt_s1s2(PFrElement r, PFrElement a, PFrElement b)
     }
 }
 
-int rltRawL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+int rltRawL1L2(FrRawElement pRawA, FrRawElement pRawB)
 {
 //    int carry = 0;
 //    carry = mpn_cmp(pRawB, pRawA, 4);
@@ -1586,7 +1569,7 @@ int rltRawL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     }
 }
 
-int rltl1l2_n1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+int rltl1l2_n1(FrRawElement pRawA, FrRawElement pRawB)
 {
 //    int carry = 0;
 //    carry = mpn_cmp(half, pRawB, 4);
@@ -1607,7 +1590,7 @@ int rltl1l2_n1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
         half[2] > pRawB[2] ||
         half[3] > pRawB[3] )
     {
-        return rltRawL1L2(pRawResult, pRawA, pRawB);
+        return rltRawL1L2(pRawA, pRawB);
     }
     else
     {
@@ -1615,7 +1598,7 @@ int rltl1l2_n1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     }
 }
 
-int rltl1l2_p1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+int rltl1l2_p1(FrRawElement pRawA, FrRawElement pRawB)
 {
 //    int carry = 0;
 //    carry = mpn_cmp(pRawB, half, 4);
@@ -1641,11 +1624,11 @@ int rltl1l2_p1(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     }
     else
     {
-        return rltRawL1L2(pRawResult, pRawA, pRawB);
+        return rltRawL1L2(pRawA, pRawB);
     }
 }
 
-int rltL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+int rltL1L2(FrRawElement pRawA, FrRawElement pRawB)
 {
 //    int carry = 0;
 //    carry = mpn_cmp(half, pRawA, 4);
@@ -1665,31 +1648,31 @@ int rltL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
         half[2] > pRawA[2] ||
         half[3] > pRawA[3] )
     {
-        return rltl1l2_n1(pRawResult, pRawA, pRawB);
+        return rltl1l2_n1(pRawA, pRawB);
     }
     else
     {
-        return rltl1l2_p1(pRawResult, pRawA, pRawB);
+        return rltl1l2_p1(pRawA, pRawB);
     }
 }
 
 // Implemented, Not checked 2
-int rlt_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
+int rlt_l1nl2n(PFrElement a,PFrElement b)
 {
     std::cout << "rlt_l1nl2n " << "\n";
     // rltL1L2
-    return rltL1L2(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
+    return rltL1L2(&a->longVal[0], &b->longVal[0]);
 
 }
 // Implemented, Not checked 3
-int rlt_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
+int rlt_l1nl2m(PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
     Fr_toNormal(&tmpb, b);
-    rltL1L2(r->longVal, a->longVal, tmpb.longVal);
+    rltL1L2(a->longVal, tmpb.longVal);
 }
 // Implemented, Not checked 4
-int rlt_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
+int rlt_l1ml2m(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
     FrElement tmpb = {0,0,{0,0,0,0}};
@@ -1697,50 +1680,50 @@ int rlt_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
 //    std::memcpy(&tmpb, &b, sizeof (FrElement));
     Fr_toNormal(&tmpa,a);
     Fr_toNormal(&tmpb,b);
-    return rltL1L2(r->longVal, tmpa.longVal, tmpb.longVal);
+    return rltL1L2(tmpa.longVal, tmpb.longVal);
 }
 // Implemented, Not checked 5
-int rlt_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
+int rlt_l1ml2n(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
 
     //std::memcpy(&tmpa, a, sizeof (FrElement));
     Fr_toNormal(&tmpa, a);
-    return rltL1L2(r->longVal, tmpa.longVal, b->longVal);
+    return rltL1L2(tmpa.longVal, b->longVal);
 }
 
 // Implemented, Not checked 6
-int rlt_s1l2n(PFrElement r,PFrElement a,PFrElement b)
+int rlt_s1l2n(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
     Fr_toLongNormal(&tmpa,a);
-    return rltL1L2(r->longVal, tmpa.longVal, b->longVal);
+    return rltL1L2(tmpa.longVal, b->longVal);
 }
 // Implemented, Not checked 7
-int rlt_l1ms2(PFrElement r,PFrElement a,PFrElement b)
+int rlt_l1ms2(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
     FrElement tmpb = {0,0,{0,0,0,0}};
     Fr_toNormal(&tmpa,a);
     Fr_toLongNormal(&tmpb,b);
-    return rltL1L2(r->longVal, tmpa.longVal, tmpb.longVal);
+    return rltL1L2(tmpa.longVal, tmpb.longVal);
 }
 
 // Implemented, Not checked 8
-int rlt_s1l2m(PFrElement r,PFrElement a,PFrElement b)
+int rlt_s1l2m(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
     FrElement tmpb = {0,0,{0,0,0,0}};
     Fr_toLongNormal(&tmpa,a);
     Fr_toNormal(&tmpb,b);
-    return rltL1L2(r->longVal, tmpa.longVal, tmpb.longVal);
+    return rltL1L2(tmpa.longVal, tmpb.longVal);
 }
 // Implemented, Not checked 9
-int rlt_l1ns2(PFrElement r,PFrElement a,PFrElement b)
+int rlt_l1ns2(PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
     Fr_toLongNormal(&tmpb,b);
-    return rltL1L2(r->longVal, a->longVal, tmpb.longVal);
+    return rltL1L2(a->longVal, tmpb.longVal);
 }
 
 // Implemented, not checked
@@ -1758,32 +1741,32 @@ void Fr_rlt(PFrElement r, PFrElement a, PFrElement b)
                 // rlt_l1ml2
                 if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
                 {
-                    rax = rlt_l1ml2m(r, a, b);
+                    rax = rlt_l1ml2m(a, b);
                 }
                 else
                 {
-                    rax = rlt_l1ml2n(r, a, b);
+                    rax = rlt_l1ml2n(a, b);
                 }
             }
             else if (b->type == Fr_LONGMONTGOMERY) // check if montgomery second
             {
-                rax = rlt_l1nl2m(r, a, b);
+                rax = rlt_l1nl2m(a, b);
             }
             else
             {
-                rax = rlt_l1nl2n(r, a, b);
+                rax = rlt_l1nl2n(a, b);
             }
         }
         //rlt_l1s2:
         else if (a->type == Fr_LONGMONTGOMERY) // check if montgomery first
         {
             // rlt_l1ms2
-            rax = rlt_l1ms2(r, a, b);
+            rax = rlt_l1ms2(a, b);
         }
         else
         {
             // rlt_l1ns2
-            rax = rlt_l1ns2(r, a, b);
+            rax = rlt_l1ns2(a, b);
         }
     }
     else if (b->type & Fr_LONG)// Check if is short second operand
@@ -1792,19 +1775,21 @@ void Fr_rlt(PFrElement r, PFrElement a, PFrElement b)
         if (b->type == Fr_LONGMONTGOMERY)// check if montgomery second
         {
             // rlt_s1l2m
-            rax = rlt_s1l2m(r,a,b);
+            rax = rlt_s1l2m(a,b);
         }
         else
         {
             // add_s1l2n
-            rax = rlt_s1l2n(r,a,b);
+            rax = rlt_s1l2n(a,b);
         }
     }
     else // ; Both operands are short
     {
-         rax = rlt_s1s2(r, a, b);
+         rax = rlt_s1s2(a, b);
     }
     r->shortVal = rax;
+    std::cout << "rax = " << rax << "\n";
+    std::cout <<"r= " << r->shortVal << ", "<< r->type <<", " << r->longVal[0] << ", " << r->longVal[1] << ", " << r->longVal[2] << ", " << r->longVal[3] << "\n";
 }
 
 // Implemented, not checked
@@ -1832,20 +1817,22 @@ void Fr_neg(PFrElement r, PFrElement a)
     if (a->type & Fr_LONG)
     {
         // neg_l
+        r->shortVal = a->shortVal;
         Fr_rawNeg(&r->longVal[0], &a->longVal[0]);
     }
     else
     {
         // neg_s
         tmp = a->shortVal * (-1);
-        //mpn_neg(&tmp,&tmp,1);
-        if (tmp >= 0x80000000) // Check if overflow. (0x80000000 is the only case)
+        //if (tmp >= 0x80000000)
+        if (tmp <= INT_MIN) // Check if overflow. (0x80000000 is the only case)
         {
             // neg_manageOverflow
             rawCopyS2L(r, tmp);
         }
         else
         {
+           r->type = Fr_SHORT;
            r->shortVal = tmp;
         }
     }
@@ -3107,6 +3094,207 @@ void Fr_rawZero(FrRawElement pRawResult)
     std::memset(pRawResult, 0, sizeof(FrRawElement));
 }
 
+#define INT_BITS 16
+
+int leftRotate(int16_t n, unsigned int d)
+{
+
+    /* In n<<d, last d bits are 0. To
+     put first 3 bits of n at
+    last, do bitwise or of n<<d
+    with n >>(INT_BITS - d) */
+    return (n << d)|(n >> (INT_BITS - d));
+}
+
+/*Function to right rotate n by d bits*/
+int rightRotate(int16_t n, unsigned int d)
+{
+    /* In n>>d, first d bits are 0.
+    To put last 3 bits of at
+    first, do bitwise or of n>>d
+    with n <<(INT_BITS - d) */
+    return (n >> d)|(n << (INT_BITS - d));
+}
+
+union qword
+{
+    int8_t  lb;
+    int8_t  hb;
+    int16_t  w;
+    int32_t dw;
+    int64_t qw;
+};
+
+// Adds two elements of any kind
+void rawShr(FrRawElement r, FrRawElement a, FrRawElement b)
+{
+    mp_limb_t cmpVal = 0;
+    mp_limb_t cmpVal2 = 254;
+    mp_limb_t cmpVal3[Fr_N64] = {0,0,0,0};
+    mp_limb_t cmpVal4 = 3;
+    mp_limb_t cmpVal5 = 2;
+    mp_limb_t cmpVal6 = 1;
+    mp_limb_t cmpVal7 = 0;
+    mp_limb_t andVal = 0x3F;
+    mp_limb_t r8[Fr_N64] = {0,0,0,0};
+    mp_limb_t rcx[Fr_N64] = {0,0,0,0};
+    mp_limb_t rdx[Fr_N64] = {0,0,0,0};
+    mp_limb_t rax[Fr_N64] = {0,0,0,0};
+    mp_limb_t rdi[Fr_N64] = {0,0,0,0};
+    //mp_limb_t ch, cl, cx = 0;
+    mp_limb_t r9,r10,r11 = 0;
+
+
+
+    if (mpn_cmp(&b[0], &cmpVal, 1) == 0)
+    {
+        Fr_rawCopy(r,a);
+    }
+
+    if (mpn_cmp(&b[0], &cmpVal2, 1) >= 0)
+    {
+        Fr_rawZero(r);
+    }
+    std::memcpy(&r8, b, sizeof(FrRawElement));
+    std::memcpy(&rcx, b, sizeof(FrRawElement));
+    mpn_rshift(r8, r8, 4, 6);
+    mpn_and_n (rcx, rcx, &andVal, 4);
+    // rawShr_aligned
+    if ( mpn_cmp(rcx, cmpVal3, Fr_N64) ==0)
+    {
+        // rawShl_aligned
+        std::memcpy(&rdx, a, sizeof(FrRawElement));
+        std::memcpy(&rax, r8, sizeof(FrRawElement));
+        mpn_rshift(rax, rax, 4, 3);
+        mpn_sub_n(rdx, rdx, rax, 4);
+        if (mpn_cmp(r8, &cmpVal4, Fr_N64) > 0)
+        {
+            // rawShl_if3_3
+            mpn_xor_n(rax, rax, rax, 4);
+            rdi[3] = rax[0];
+            // rawShl_endif3_3
+            if ( mpn_cmp(r8, &cmpVal5, 1) > 0)
+            {
+                // ja rawShl_if3_2
+                mpn_xor_n(rax, rax, rax, 4);
+                rdi[2] = rax[0];
+            }
+            rax[0] = rdx[2];
+            rdi[2] = rax[0];
+            // rawShl_endif3_2
+            if (mpn_cmp(r8, &cmpVal6, 1) > 0)
+            {
+                // rawShl_if3_1
+                mpn_xor_n(rax, rax, rax, 4);
+                rdi[1] = rax[0];
+            }
+            rax[0] = rdx[1];
+            rdi[1] = rax[0];
+            // rawShl_endif3_1
+            if (mpn_cmp(r8, &cmpVal7, 1) > 0)
+            {
+                // rawShl_if3_0
+                mpn_xor_n(rax, rax, rax, 4);
+                rdi[0] = rax[0];
+            }
+            rax[0] = rdx[0];
+            rdi[0] = rax[0];
+            // rawShl_endif3_0
+            // Compare with q
+            std::memcpy(&rax, &rdi, sizeof(FrRawElement));
+            if (mpn_cmp(rax, Fr_rawq, Fr_N64) >= 0)
+            {
+                // tmp_111
+                std::memcpy(&rax, &Fr_rawq, sizeof(FrRawElement));
+                mpn_sub_n(rdi,rdi,rax,4);
+                std::memcpy(r, &rdi, sizeof(FrRawElement));
+                return;
+            }
+
+            if (mpn_cmp(rax, Fr_rawq, Fr_N64) < 0)
+            {
+                // tmp_110
+                std::memcpy(r, &rdi, sizeof(FrRawElement));
+                return;
+            }
+        }
+    }
+
+    qword urcx;
+    urcx.qw = rcx[0];
+    urcx.hb = 64;
+    urcx.hb = urcx.hb - urcx.lb;
+    r9 = 1;
+    urcx.w = leftRotate(urcx.w, 8);
+    mpn_lshift(&r9, &r9, 1, urcx.lb);
+    urcx.w = leftRotate(urcx.w, 8);
+    r9 = r9 - 1;
+    r10 = r9;
+    // @IS TODO Check
+    mpn_com (&r10, &r10, 1);
+    if (mpn_cmp(r8, &cmpVal4, 1) >= 0)
+    {
+        // rawShr_if2_0
+    }
+    rax[0] = a[0 + r8[0]];
+    mpn_rshift(rax, rax, 1, urcx.lb);
+    mpn_and_n (rax, rax, &r9, 1);
+    r11 = a[1 + r8[0]];
+    urcx.w = leftRotate(urcx.w, 8);
+    mpn_lshift(&r11, &r11, 1, urcx.lb);
+    urcx.w = leftRotate(urcx.w, 8);
+    mpn_and_n (&r11, &r11, &r10, 1);
+    mpn_ior_n (rax, rax, &r11, 1);
+    r[0] = rax[0];
+    // rawShr_endif_0
+    if (mpn_cmp(r8, &cmpVal5, 1) >= 0)
+    {
+        // rawShr_if2_1
+    }
+    rax[0] = a[1 + r8[0]];
+    mpn_rshift(rax, rax, 1, urcx.lb);
+    mpn_and_n (rax, rax, &r9, 1);
+    r11 = a[2 + r8[0]];
+    urcx.w = leftRotate(urcx.w, 8);
+    mpn_lshift(&r11, &r11, 1, urcx.lb);
+    urcx.w = leftRotate(urcx.w, 8);
+    mpn_and_n (&r11, &r11, &r10, 1);
+    mpn_ior_n (rax, rax, &r11, 1);
+    r[1] = rax[0];
+    // rawShr_endif_1
+    if (mpn_cmp(r8, &cmpVal6, 1) >= 0)
+    {
+        // rawShr_if2_2
+    }
+    rax[0] = a[2 + r8[0]];
+    mpn_rshift(rax, rax, 1, urcx.lb);
+    mpn_and_n (rax, rax, &r9, 1);
+    r11 = a[3 + r8[0]];
+    urcx.w = leftRotate(urcx.w, 8);
+    mpn_lshift(&r11, &r11, 1, urcx.lb);
+    urcx.w = leftRotate(urcx.w, 8);
+    mpn_and_n (&r11, &r11, &r10, 1);
+    mpn_ior_n (rax, rax, &r11, 1);
+    r[2] = rax[0];
+    // rawShr_endif_2
+    if (mpn_cmp(r8, &cmpVal7, 1) >= 0)
+    {
+        // rawShr_if2_3
+    }
+    rax[0] = a[3 + r8[0]];
+    mpn_rshift(rax, rax, 1, urcx.lb);
+    mpn_and_n (rax, rax, &r9, 1);
+    r11 = a[4 + r8[0]];
+    urcx.w = leftRotate(urcx.w, 8);
+    mpn_lshift(&r11, &r11, 1, urcx.lb);
+    urcx.w = leftRotate(urcx.w, 8);
+    mpn_and_n (&r11, &r11, &r10, 1);
+    mpn_ior_n (rax, rax, &r11, 1);
+    r[3] = rax[0];
+    // rawShr_endif_3
+    return;
+}
+
 
 // Adds two elements of any kind
 void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
@@ -3134,15 +3322,15 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
     {
         Fr_rawZero(r);
     }
-    std::memcpy(r8, b, sizeof(FrRawElement));
-    std::memcpy(rcx, b, sizeof(FrRawElement));
+    std::memcpy(&r8, b, sizeof(FrRawElement));
+    std::memcpy(&rcx, b, sizeof(FrRawElement));
     mpn_rshift(r8, r8, 4, 6);
     mpn_and_n (rcx, rcx, &andVal, 4);
     if ( mpn_cmp(rcx, cmpVal3, Fr_N64) ==0)
     {
         // rawShl_aligned
-        std::memcpy(rdx, a, sizeof(FrRawElement));
-        std::memcpy(rax, r8, sizeof(FrRawElement));
+        std::memcpy(&rdx, a, sizeof(FrRawElement));
+        std::memcpy(&rax, r8, sizeof(FrRawElement));
         mpn_lshift(rax, rax, 4, 3);
         mpn_sub_n(rdx, rdx, rax, 4);
         if (mpn_cmp(r8, &cmpVal4, Fr_N64) > 0)
@@ -3179,48 +3367,176 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
             rdi[0] = rax[0];
             // rawShl_endif3_0
             // Compare with q
-            std::memcpy(rax, rdi, sizeof(FrRawElement));
+            std::memcpy(&rax, &rdi, sizeof(FrRawElement));
             if (mpn_cmp(rax, Fr_rawq, Fr_N64) >= 0)
             {
                 // tmp_111
-                std::memcpy(rax, Fr_rawq, sizeof(FrRawElement));
+                std::memcpy(&rax, &Fr_rawq, sizeof(FrRawElement));
                 mpn_sub_n(rdi,rdi,rax,4);
-                std::memcpy(r, rdi, sizeof(FrRawElement));
+                std::memcpy(r, &rdi, sizeof(FrRawElement));
                 return;
             }
 
             if (mpn_cmp(rax, Fr_rawq, Fr_N64) < 0)
             {
                 // tmp_110
-                std::memcpy(r, rdi, sizeof(FrRawElement));
+                std::memcpy(r, &rdi, sizeof(FrRawElement));
                 return;
             }
         }
     }
-
-
-
 }
 
 
 
 void do_shl(PFrElement r, PFrElement a, PFrElement b)
 {
-    PFrElement rcx;
-    std::memcpy(rcx, a, sizeof(FrElement));
-    if (rcx->type & Fr_LONG)
+    FrElement rcx = {0,0,{0,0,0,0}};
+    FrElement rdx = {0,0,{0,0,0,0}};
+    mp_limb_t zero = 0;
+    mp_limb_t rax = 0;
+    mp_limb_t cl, dl = 0;
+
+    std::memcpy(&rcx, a, sizeof(FrElement));
+    std::memcpy(&rdx, b, sizeof(FrElement));
+
+    cl = rcx.shortVal & 0x00001111;
+    dl = rdx.shortVal & 0x00001111;
+    if (rcx.type & Fr_LONG)
     {
         // do_shll
-        if (rcx->type == Fr_LONGMONTGOMERY)
+        if (rcx.type == Fr_LONGMONTGOMERY)
         {
-            Fr_toNormal(b,b);
+            Fr_toNormal(r,a);
         }
         else
         {
             // do_shlln
             r->type = Fr_LONG;
-            //rawShl
+            rawShl(r->longVal, a->longVal, b->longVal);
         }
+    }
+    else
+    {
+        //do_shls
+        rax = rcx.shortVal;
+        if (rax == 0)
+        {
+            r->shortVal = 0;
+            return;
+        }
+        if (rax < 0)
+        {
+            // do_shlcl
+            Fr_toLongNormal(&rdx, &rdx);
+            // do_shlln
+            r->type = Fr_LONG;
+            rawShl(r->longVal, a->longVal, rdx.longVal);
+            return;
+
+        }
+        if(b->shortVal >= 31)
+        {
+            // do_shlcl
+            Fr_toLongNormal(&rdx, &rdx);
+            // do_shlln
+            r->type = Fr_LONG;
+            rawShl(r->longVal, a->longVal, rdx.longVal);
+            return;
+        }
+        cl = dl;
+        mpn_lshift(&rax, &rax, 1, cl);
+        rcx.shortVal = rax;
+        mp_limb_t prcx = rcx.shortVal;
+        mpn_lshift(&prcx , &prcx , 1, 31);
+        rcx.shortVal = prcx;
+        if(rcx.shortVal != 0)
+        {
+            // do_shlcl
+            Fr_toLongNormal(&rdx, &rdx);
+            // do_shlln
+            r->type = Fr_LONG;
+            rawShl(r->longVal, a->longVal, rdx.longVal);
+            return;
+        }
+        r->shortVal = rax;
+        return;
+    }
+
+}
+
+void do_shr(PFrElement r, PFrElement a, PFrElement b)
+{
+    FrElement rcx = {0,0,{0,0,0,0}};
+    FrElement rdx = {0,0,{0,0,0,0}};
+    mp_limb_t zero = 0;
+    mp_limb_t rax = 0;
+    mp_limb_t cl, dl = 0;
+
+    std::memcpy(&rcx, a, sizeof(FrElement));
+    std::memcpy(&rdx, b, sizeof(FrElement));
+
+    cl = rcx.shortVal & 0x00001111;
+    dl = rdx.shortVal & 0x00001111;
+    if (rcx.type & Fr_LONG)
+    {
+        // do_shrl
+        if (rcx.type == Fr_LONGMONTGOMERY)
+        {
+            Fr_toNormal(r,a);
+        }
+        else
+        {
+            // do_shrln
+            r->type = Fr_LONG;
+            rawShr(r->longVal, a->longVal, b->longVal);
+        }
+    }
+    else
+    {
+        //do_shls
+        rax = rcx.shortVal;
+        if (rax == 0)
+        {
+            r->shortVal = 0;
+            return;
+        }
+        if (rax < 0)
+        {
+            // do_shlcl
+            Fr_toLongNormal(&rdx, &rdx);
+            // do_shlln
+            r->type = Fr_LONG;
+            rawShl(r->longVal, a->longVal, rdx.longVal);
+            return;
+
+        }
+        if(b->shortVal >= 31)
+        {
+            // do_shlcl
+            Fr_toLongNormal(&rdx, &rdx);
+            // do_shlln
+            r->type = Fr_LONG;
+            rawShl(r->longVal, a->longVal, rdx.longVal);
+            return;
+        }
+        cl = dl;
+        mpn_lshift(&rax, &rax, 1, cl);
+        rcx.shortVal = rax;
+        mp_limb_t prcx = rcx.shortVal;
+        mpn_lshift(&prcx , &prcx , 1, 31);
+        rcx.shortVal = prcx;
+        if(rcx.shortVal != 0)
+        {
+            // do_shlcl
+            Fr_toLongNormal(&rdx, &rdx);
+            // do_shlln
+            r->type = Fr_LONG;
+            rawShl(r->longVal, a->longVal, rdx.longVal);
+            return;
+        }
+        r->shortVal = rax;
+        return;
     }
 
 }
@@ -3234,7 +3550,7 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
 //    mp_limb_t mq[Fr_N64] = {Fr_rawq[0], Fr_rawq[1], Fr_rawq[2], Fr_rawq[3]};
 //    mp_limb_t mr[Fr_N64] = {pRawResult[0], pRawResult[1], pRawResult[2], pRawResult[3]};
 //    mp_limb_t carry;
-      PFrElement rtmp;
+      FrElement rtmp = {0,0,{0,0,0,0}};
       mp_limb_t rcx[Fr_N64] = {0,0,0,0};
       mp_limb_t rax[Fr_N64] = {0,0,0,0};
       mp_limb_t rdx[Fr_N64] = {0,0,0,0};
@@ -3246,22 +3562,22 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
     {
         if (b->type == Fr_LONGMONTGOMERY)
         {
-            Fr_toNormal(rtmp, b);
+            Fr_toNormal(&rtmp, b);
             // tmp_113
-            rcx[0] = rtmp->longVal[0];
+            rcx[0] = rtmp.longVal[0];
             if (mpn_cmp(&rcx[0], &cmpVal, 1) >= 0)
             {
                 // tmp_114
                 rcx[0] = Fr_rawq[0];
-                mpn_sub_n(&rcx[0], &rcx[0], &rtmp->longVal[0], 1);
+                mpn_sub_n(&rcx[0], &rcx[0], &rtmp.longVal[0], 1);
                 if (mpn_cmp(&rcx[0], &cmpVal, 1) >= 0)
                 {
                    // jae  setzero
                    r->shortVal = 0;
                    return;
                 }
-                std::memcpy(rax, Fr_rawq, sizeof(FrRawElement));
-                std::memcpy(rdx, &rtmp->longVal[0], sizeof(FrRawElement));
+                std::memcpy(&rax, &Fr_rawq, sizeof(FrRawElement));
+                std::memcpy(&rdx, &rtmp.longVal[0], sizeof(FrRawElement));
                 carry = mpn_sub_n(&rax[0], &rax[0], &rdx[0], 4);
                 if (carry >= 0)
                 {
@@ -3276,7 +3592,7 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                     // do_shll
                     if (b->type & Fr_LONGMONTGOMERY)
                     {
-                        Fr_toNormal(rtmp, b);
+                        Fr_toNormal(&rtmp, b);
                     }
                     else
                     {

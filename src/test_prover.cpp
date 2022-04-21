@@ -115,6 +115,11 @@ FrElement RawA3 = {0xa1f0, Fr_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb
 FrElement RawB3 = {0x1bb8, Fr_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
 
 
+FrElement RawResult4 = {0,0,{0,0,0,0}};
+FrElement RawA4 = {INT_MIN, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FrElement RawB4 = {0x1bb8, Fr_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+
 
 // mul_s1s2
 // sub_s1s2 1
@@ -3795,20 +3800,27 @@ void Fr_neg_unit_test()
     FrElement pA3= {0xa1f0,0xc0000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
     FrElement pResult3= {0xa1f0,0xc0000000,{0xa1f0fac9f8000001,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
 
+    //Fr_neg_test 4:
+    FrElement pA4= {INT_MIN,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pResult4= {0x0,0x80000000,{0x80000000,0x0,0x0,0x0}};
+
     FrElement Result0_c = {0,0,{0,0,0,0}};
     FrElement Result1_c = {0,0,{0,0,0,0}};
     FrElement Result2_c= {0,0,{0,0,0,0}};
     FrElement Result3_c= {0,0,{0,0,0,0}};
+    FrElement Result4_c= {0,0,{0,0,0,0}};
 
     Fr_neg(&Result0_c, &pA0);
     Fr_neg(&Result1_c, &pA1);
     Fr_neg(&Result2_c, &pA2);
     Fr_neg(&Result3_c, &pA3);
+    //Fr_neg(&Result4_c, &pA4);
 
     compare_Result(&pResult0, &Result0_c, 0, "Fr_neg_unit_test");
     compare_Result(&pResult1, &Result1_c, 1, "Fr_neg_unit_test");
     compare_Result(&pResult2, &Result2_c, 2, "Fr_neg_unit_test");
     compare_Result(&pResult3, &Result3_c, 3, "Fr_neg_unit_test");
+    //compare_Result(&pResult4, &Result4_c, 4, "Fr_neg_unit_test");
 }
 
 void Fr_neg_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
@@ -7464,7 +7476,7 @@ void Fq_mul_s1ml2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int id
 
 int main()
 {
-
+/*
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_Rw_add_unit_test();
 //    Fr_Rw_add_test(pRawResult,  pRawA,  pRawB, 0);
@@ -8183,166 +8195,6 @@ int main()
 #endif
 
 
-//#ifdef TEST_FR_C_FUNCTIONS
-//    Fr_toInt_unit_test();
-//    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-//    Fr_toInt_test(uRawResult,  &RawA, 0);
-//    Fr_toInt_test(uRawResult1, &RawA1, 1);
-//    Fr_toInt_test(uRawResult2, &RawA2, 2);
-//    Fr_toInt_test(uRawResult3, &RawA3, 3);
-//#endif
-//#endif
-//#ifdef TEST_FR_ASM_FUNCTIONS
-//    Fr_toInt_test(uRawResult,  &RawA, 0);
-//    Fr_toInt_test(uRawResult1, &RawA1, 1);
-//    Fr_toInt_test(uRawResult2, &RawA2, 2);
-//    Fr_toInt_test(uRawResult3, &RawA3, 3);
-//#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-    Fr_lt_s1s2_unit_test();
-#ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_lt_s1s2_test(&Result_s1s2,  &A_s1s2,  &B_s1s2, 0);
-    Fr_lt_s1s2_test(&Result1_s1s2, &A1_s1s2, &B1_s1s2, 1);
-    Fr_lt_s1s2_test(&Result2_s1s2, &A2_s1s2, &B2_s1s2, 2);
-    Fr_lt_s1s2_test(&Result3_s1s2, &A3_s1s2, &B3_s1s2, 3);
-#endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_lt_s1s2_test(&Result_s1s2,  &A_s1s2,  &B_s1s2, 0);
-    Fr_lt_s1s2_test(&Result1_s1s2, &A1_s1s2, &B1_s1s2, 1);
-    Fr_lt_s1s2_test(&Result2_s1s2, &A2_s1s2, &B2_s1s2, 2);
-    Fr_lt_s1s2_test(&Result3_s1s2, &A3_s1s2, &B3_s1s2, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-    Fr_lt_l1nl2n_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_lt_l1nl2n_test(&Result_l1nl2n, &A_l1nl2n,  &B_l1nl2n, 0);
-    Fr_lt_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
-    Fr_lt_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
-    Fr_lt_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_lt_l1nl2n_test(&Result_l1nl2n,  &A_l1nl2n,  &B_l1nl2n, 0);
-    Fr_lt_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
-    Fr_lt_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
-    Fr_lt_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-   Fr_lt_l1ml2n_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_lt_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
-    Fr_lt_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-    Fr_lt_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-    Fr_lt_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_lt_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
-    Fr_lt_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-    Fr_lt_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-    Fr_lt_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-    Fr_lt_l1ml2m_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_lt_l1ml2m_test(&Result_l1ml2m, &A_l1ml2m,  &B_l1ml2m, 0);
-    Fr_lt_l1ml2m_test(&Result1_l1ml2m, &A1_l1ml2m, &B1_l1ml2m, 1);
-    Fr_lt_l1ml2m_test(&Result2_l1ml2m, &A2_l1ml2m, &B2_l1ml2m, 2);
-    Fr_lt_l1ml2m_test(&Result3_l1ml2m, &A3_l1ml2m, &B3_l1ml2m, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_lt_l1ml2m_test(&Result_l1ml2m, &A_l1ml2m,  &B_l1ml2m, 0);
-    Fr_lt_l1ml2m_test(&Result1_l1ml2m, &A1_l1ml2m, &B1_l1ml2m, 1);
-    Fr_lt_l1ml2m_test(&Result2_l1ml2m, &A2_l1ml2m, &B2_l1ml2m, 2);
-    Fr_lt_l1ml2m_test(&Result3_l1ml2m, &A3_l1ml2m, &B3_l1ml2m, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-    Fr_lt_l1nl2m_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_lt_l1nl2m_test(&Result_l1nl2m, &A_l1nl2m,  &B_l1nl2m, 0);
-    Fr_lt_l1nl2m_test(&Result1_l1nl2m, &A1_l1nl2m, &B1_l1nl2m, 1);
-    Fr_lt_l1nl2m_test(&Result2_l1nl2m, &A2_l1nl2m, &B2_l1nl2m, 2);
-    Fr_lt_l1nl2m_test(&Result3_l1nl2m, &A3_l1nl2m, &B3_l1nl2m, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_lt_l1nl2m_test(&Result_l1nl2m, &A_l1nl2m,  &B_l1nl2m, 0);
-    Fr_lt_l1nl2m_test(&Result1_l1nl2m, &A1_l1nl2m, &B1_l1nl2m, 1);
-    Fr_lt_l1nl2m_test(&Result2_l1nl2m, &A2_l1nl2m, &B2_l1nl2m, 2);
-    Fr_lt_l1nl2m_test(&Result3_l1nl2m, &A3_l1nl2m, &B3_l1nl2m, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-    Fr_lt_s1l2m_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_lt_s1l2m_test(&Result_s1l2m,   &A_s1l2m,   &B_s1l2m, 0);
-    Fr_lt_s1l2m_test(&Result1_s1l2m,  &A1_s1l2m,  &B1_s1l2m, 1);
-    Fr_lt_s1l2m_test(&Result2_s1l2m,  &A2_s1l2m,  &B2_s1l2m, 2);
-    Fr_lt_s1l2m_test(&Result3_s1l2m,  &A3_s1l2m,  &B3_s1l2m, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_lt_s1l2m_test(&Result_s1l2m,   &A_s1l2m,   &B_s1l2m, 0);
-    Fr_lt_s1l2m_test(&Result1_s1l2m,  &A1_s1l2m,  &B1_s1l2m, 1);
-    Fr_lt_s1l2m_test(&Result2_s1l2m,  &A2_s1l2m,  &B2_s1l2m, 2);
-    Fr_lt_s1l2m_test(&Result3_s1l2m,  &A3_s1l2m,  &B3_s1l2m, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-    Fr_lt_l1ms2_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_lt_l1ms2_test(&Result_l1ms2,  &A_l1ms2,  &B_l1ms2, 0);
-    Fr_lt_l1ms2_test(&Result1_l1ms2, &A1_l1ms2, &B1_l1ms2, 1);
-    Fr_lt_l1ms2_test(&Result2_l1ms2, &A2_l1ms2, &B2_l1ms2, 2);
-    Fr_lt_l1ms2_test(&Result3_l1ms2, &A3_l1ms2, &B3_l1ms2, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_lt_l1ms2_test(&Result_l1ms2,  &A_l1ms2,  &B_l1ms2, 0);
-    Fr_lt_l1ms2_test(&Result1_l1ms2, &A1_l1ms2, &B1_l1ms2, 1);
-    Fr_lt_l1ms2_test(&Result2_l1ms2, &A2_l1ms2, &B2_l1ms2, 2);
-    Fr_lt_l1ms2_test(&Result3_l1ms2, &A3_l1ms2, &B3_l1ms2, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-    Fr_lt_l1ns2_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_lt_l1ns2_test(&Result_l1ns2,  &A_l1ns2,  &B_l1ns2, 0);
-    Fr_lt_l1ns2_test(&Result1_l1ns2, &A1_l1ns2, &B1_l1ns2, 1);
-    Fr_lt_l1ns2_test(&Result2_l1ns2, &A2_l1ns2, &B2_l1ns2, 2);
-    Fr_lt_l1ns2_test(&Result3_l1ns2, &A3_l1ns2, &B3_l1ns2, 3);
-#endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_lt_l1ns2_test(&Result_l1ns2,  &A_l1ns2,  &B_l1ns2, 0);
-    Fr_lt_l1ns2_test(&Result1_l1ns2, &A1_l1ns2, &B1_l1ns2, 1);
-    Fr_lt_l1ns2_test(&Result2_l1ns2, &A2_l1ns2, &B2_l1ns2, 2);
-    Fr_lt_l1ns2_test(&Result3_l1ns2, &A3_l1ns2, &B3_l1ns2, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-    Fr_lt_s1l2n_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_lt_s1l2n_test(&Result_s1l2n,   &A_s1l2n,   &B_s1l2n, 0);
-    Fr_lt_s1l2n_test(&Result1_s1l2n,  &A1_s1l2n,  &B1_s1l2n, 1);
-    Fr_lt_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
-    Fr_lt_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
-#endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_lt_s1l2n_test(&Result_s1l2n,   &A_s1l2n,   &B_s1l2n, 0);
-    Fr_lt_s1l2n_test(&Result1_s1l2n,  &A1_s1l2n,  &B1_s1l2n, 1);
-    Fr_lt_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
-    Fr_lt_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
-#endif
-
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_geq_s1s2_unit_test();
 #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
@@ -8488,21 +8340,7 @@ int main()
 #endif
 
 
-#ifdef TEST_FR_C_FUNCTIONS
-    Fr_neg_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_neg_test(&RawResult,  &RawA,  &RawB, 0);
-    Fr_neg_test(&RawResult1, &RawA1, &RawB1, 1);
-    Fr_neg_test(&RawResult2, &RawA2, &RawB2, 2);
-    Fr_neg_test(&RawResult3, &RawA3, &RawB3, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_neg_test(&RawResult,  &RawA,  &RawB, 0);
-    Fr_neg_test(&RawResult1, &RawA1, &RawB1, 1);
-    Fr_neg_test(&RawResult2, &RawA2, &RawB2, 2);
-    Fr_neg_test(&RawResult3, &RawA3, &RawB3, 3);
-#endif
+
 
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_eq_s1s2_unit_test();
@@ -9370,6 +9208,194 @@ int main()
     Fr_lor_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
     Fr_lor_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
+
+*/
+
+
+
+
+
+
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_lt_s1s2_unit_test();
+#ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_lt_s1s2_test(&Result_s1s2,  &A_s1s2,  &B_s1s2, 0);
+    Fr_lt_s1s2_test(&Result1_s1s2, &A1_s1s2, &B1_s1s2, 1);
+    Fr_lt_s1s2_test(&Result2_s1s2, &A2_s1s2, &B2_s1s2, 2);
+    Fr_lt_s1s2_test(&Result3_s1s2, &A3_s1s2, &B3_s1s2, 3);
+#endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_lt_s1s2_test(&Result_s1s2,  &A_s1s2,  &B_s1s2, 0);
+    Fr_lt_s1s2_test(&Result1_s1s2, &A1_s1s2, &B1_s1s2, 1);
+    Fr_lt_s1s2_test(&Result2_s1s2, &A2_s1s2, &B2_s1s2, 2);
+    Fr_lt_s1s2_test(&Result3_s1s2, &A3_s1s2, &B3_s1s2, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_lt_l1nl2n_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_lt_l1nl2n_test(&Result_l1nl2n, &A_l1nl2n,  &B_l1nl2n, 0);
+    Fr_lt_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
+    Fr_lt_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
+    Fr_lt_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_lt_l1nl2n_test(&Result_l1nl2n,  &A_l1nl2n,  &B_l1nl2n, 0);
+    Fr_lt_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
+    Fr_lt_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
+    Fr_lt_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+   Fr_lt_l1ml2n_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_lt_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
+    Fr_lt_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
+    Fr_lt_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
+    Fr_lt_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_lt_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
+    Fr_lt_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
+    Fr_lt_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
+    Fr_lt_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_lt_l1ml2m_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_lt_l1ml2m_test(&Result_l1ml2m, &A_l1ml2m,  &B_l1ml2m, 0);
+    Fr_lt_l1ml2m_test(&Result1_l1ml2m, &A1_l1ml2m, &B1_l1ml2m, 1);
+    Fr_lt_l1ml2m_test(&Result2_l1ml2m, &A2_l1ml2m, &B2_l1ml2m, 2);
+    Fr_lt_l1ml2m_test(&Result3_l1ml2m, &A3_l1ml2m, &B3_l1ml2m, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_lt_l1ml2m_test(&Result_l1ml2m, &A_l1ml2m,  &B_l1ml2m, 0);
+    Fr_lt_l1ml2m_test(&Result1_l1ml2m, &A1_l1ml2m, &B1_l1ml2m, 1);
+    Fr_lt_l1ml2m_test(&Result2_l1ml2m, &A2_l1ml2m, &B2_l1ml2m, 2);
+    Fr_lt_l1ml2m_test(&Result3_l1ml2m, &A3_l1ml2m, &B3_l1ml2m, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_lt_l1nl2m_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_lt_l1nl2m_test(&Result_l1nl2m, &A_l1nl2m,  &B_l1nl2m, 0);
+    Fr_lt_l1nl2m_test(&Result1_l1nl2m, &A1_l1nl2m, &B1_l1nl2m, 1);
+    Fr_lt_l1nl2m_test(&Result2_l1nl2m, &A2_l1nl2m, &B2_l1nl2m, 2);
+    Fr_lt_l1nl2m_test(&Result3_l1nl2m, &A3_l1nl2m, &B3_l1nl2m, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_lt_l1nl2m_test(&Result_l1nl2m, &A_l1nl2m,  &B_l1nl2m, 0);
+    Fr_lt_l1nl2m_test(&Result1_l1nl2m, &A1_l1nl2m, &B1_l1nl2m, 1);
+    Fr_lt_l1nl2m_test(&Result2_l1nl2m, &A2_l1nl2m, &B2_l1nl2m, 2);
+    Fr_lt_l1nl2m_test(&Result3_l1nl2m, &A3_l1nl2m, &B3_l1nl2m, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_lt_s1l2m_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_lt_s1l2m_test(&Result_s1l2m,   &A_s1l2m,   &B_s1l2m, 0);
+    Fr_lt_s1l2m_test(&Result1_s1l2m,  &A1_s1l2m,  &B1_s1l2m, 1);
+    Fr_lt_s1l2m_test(&Result2_s1l2m,  &A2_s1l2m,  &B2_s1l2m, 2);
+    Fr_lt_s1l2m_test(&Result3_s1l2m,  &A3_s1l2m,  &B3_s1l2m, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_lt_s1l2m_test(&Result_s1l2m,   &A_s1l2m,   &B_s1l2m, 0);
+    Fr_lt_s1l2m_test(&Result1_s1l2m,  &A1_s1l2m,  &B1_s1l2m, 1);
+    Fr_lt_s1l2m_test(&Result2_s1l2m,  &A2_s1l2m,  &B2_s1l2m, 2);
+    Fr_lt_s1l2m_test(&Result3_s1l2m,  &A3_s1l2m,  &B3_s1l2m, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_lt_l1ms2_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_lt_l1ms2_test(&Result_l1ms2,  &A_l1ms2,  &B_l1ms2, 0);
+    Fr_lt_l1ms2_test(&Result1_l1ms2, &A1_l1ms2, &B1_l1ms2, 1);
+    Fr_lt_l1ms2_test(&Result2_l1ms2, &A2_l1ms2, &B2_l1ms2, 2);
+    Fr_lt_l1ms2_test(&Result3_l1ms2, &A3_l1ms2, &B3_l1ms2, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_lt_l1ms2_test(&Result_l1ms2,  &A_l1ms2,  &B_l1ms2, 0);
+    Fr_lt_l1ms2_test(&Result1_l1ms2, &A1_l1ms2, &B1_l1ms2, 1);
+    Fr_lt_l1ms2_test(&Result2_l1ms2, &A2_l1ms2, &B2_l1ms2, 2);
+    Fr_lt_l1ms2_test(&Result3_l1ms2, &A3_l1ms2, &B3_l1ms2, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_lt_l1ns2_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_lt_l1ns2_test(&Result_l1ns2,  &A_l1ns2,  &B_l1ns2, 0);
+    Fr_lt_l1ns2_test(&Result1_l1ns2, &A1_l1ns2, &B1_l1ns2, 1);
+    Fr_lt_l1ns2_test(&Result2_l1ns2, &A2_l1ns2, &B2_l1ns2, 2);
+    Fr_lt_l1ns2_test(&Result3_l1ns2, &A3_l1ns2, &B3_l1ns2, 3);
+#endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_lt_l1ns2_test(&Result_l1ns2,  &A_l1ns2,  &B_l1ns2, 0);
+    Fr_lt_l1ns2_test(&Result1_l1ns2, &A1_l1ns2, &B1_l1ns2, 1);
+    Fr_lt_l1ns2_test(&Result2_l1ns2, &A2_l1ns2, &B2_l1ns2, 2);
+    Fr_lt_l1ns2_test(&Result3_l1ns2, &A3_l1ns2, &B3_l1ns2, 3);
+#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_lt_s1l2n_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_lt_s1l2n_test(&Result_s1l2n,   &A_s1l2n,   &B_s1l2n, 0);
+    Fr_lt_s1l2n_test(&Result1_s1l2n,  &A1_s1l2n,  &B1_s1l2n, 1);
+    Fr_lt_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
+    Fr_lt_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
+#endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_lt_s1l2n_test(&Result_s1l2n,   &A_s1l2n,   &B_s1l2n, 0);
+    Fr_lt_s1l2n_test(&Result1_s1l2n,  &A1_s1l2n,  &B1_s1l2n, 1);
+    Fr_lt_s1l2n_test(&Result2_s1l2n,  &A2_s1l2n,  &B2_s1l2n, 2);
+    Fr_lt_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
+#endif
+
+
+//#ifdef TEST_FR_C_FUNCTIONS
+//    Fr_toInt_unit_test();
+//    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+//    Fr_toInt_test(uRawResult,  &RawA, 0);
+//    Fr_toInt_test(uRawResult1, &RawA1, 1);
+//    Fr_toInt_test(uRawResult2, &RawA2, 2);
+//    Fr_toInt_test(uRawResult3, &RawA3, 3);
+//#endif
+//#endif
+//#ifdef TEST_FR_ASM_FUNCTIONS
+//    Fr_toInt_test(uRawResult,  &RawA, 0);
+//    Fr_toInt_test(uRawResult1, &RawA1, 1);
+//    Fr_toInt_test(uRawResult2, &RawA2, 2);
+//    Fr_toInt_test(uRawResult3, &RawA3, 3);
+//#endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_neg_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_neg_test(&RawResult,  &RawA,  &RawB, 0);
+    Fr_neg_test(&RawResult1, &RawA1, &RawB1, 1);
+    Fr_neg_test(&RawResult2, &RawA2, &RawB2, 2);
+    Fr_neg_test(&RawResult3, &RawA3, &RawB3, 3);
+//    Fr_neg_test(&RawResult4, &RawA4, &RawB4, 4);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_neg_test(&RawResult,  &RawA,  &RawB, 0);
+    Fr_neg_test(&RawResult1, &RawA1, &RawB1, 1);
+    Fr_neg_test(&RawResult2, &RawA2, &RawB2, 2);
+    Fr_neg_test(&RawResult3, &RawA3, &RawB3, 3);
+    Fr_neg_test(&RawResult4, &RawA4, &RawB4, 4);
+#endif
+
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_add_unit_test();
