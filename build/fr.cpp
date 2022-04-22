@@ -3737,14 +3737,15 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
       mp_limb_t rax[Fr_N64] = {0,0,0,0};
       uint64_t cmpVal = 254;
       mp_limb_t carry = 0;
-     std::memcpy(&rcx, a, sizeof(FrElement));
+     std::memcpy(&rcx, b, sizeof(FrElement));
      std::memcpy(&rdx, b, sizeof(FrElement));
 
-    if (b->type & Fr_LONG)
+    if (rcx.type & Fr_LONG)
     {
-        if (b->type == Fr_LONGMONTGOMERY)
+        if (rcx.type == Fr_LONGMONTGOMERY)
         {
             Fr_toNormal(&rdx, b);
+            std::cout << "tmp_113 " << "\n";
             // tmp_113
             rcx.shortVal = rdx.type;
             if(rcx.shortVal >= 254)
@@ -3754,6 +3755,7 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                 if(rcx.shortVal >= 254)
                 {
                     // jae  setzero
+                    std::cout << "tmp_114 0 setzero" << "\n";
                     r->shortVal = 0;
                     return;
                 }
@@ -3764,11 +3766,42 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                 {
                     // jae  setzero
                     r->shortVal = 0;
+                    std::cout << "tmp_114 1 setzero" << "\n";
                     return;
                 }
                 std::memcpy(&rdx, &rcx, sizeof(FrElement));
+                std::cout << "tmp_114 2 do_shl" << "\n";
                 do_shl(r, a, &rdx);
             }
+            mpn_xor_n(&rax[0], &rax[0], &rax[0], 1);
+            if (mpn_cmp(&rdx.longVal[1],&rax[0], 3) != 0)
+            {
+                // tmp_114
+                rcx.shortVal = Fr_rawq[0] - rdx.type;
+                if(rcx.shortVal >= 254)
+                {
+                    // jae  setzero
+                    std::cout << "tmp_114 01 setzero" << "\n";
+                    r->type = 0;
+                    r->shortVal = 0;
+                    return;
+                }
+
+                std::memcpy(&rax, &Fr_rawq, sizeof(FrRawElement));
+                carry = mpn_sub_n(&rax[0], &rax[0], &rdx.longVal[0], 4);
+                if(carry != 0)
+                {
+                    // jae  setzero
+                    r->shortVal = 0;
+                    std::cout << "tmp_114 11 setzero" << "\n";
+                    return;
+                }
+                std::memcpy(&rdx, &rcx, sizeof(FrElement));
+                std::cout << "tmp_114 21 do_shl" << "\n";
+                do_shl(r, a, &rdx);
+            }
+            rdx.shortVal = rcx.shortVal;
+            do_shr(r, a, &rdx);
 
         }
         else
@@ -3782,6 +3815,34 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                 if(rcx.shortVal >= 254)
                 {
                     // jae  setzero
+                    std::cout << "tmp_114 3 setzero" << "\n";
+                    r->shortVal = 0;
+                    return;
+                }
+
+                std::memcpy(&rax, &Fr_rawq, sizeof(FrRawElement));
+                carry = mpn_sub_n(&rax[0], &rax[0], &rdx.longVal[0], 4);
+                if(carry != 0)
+                {
+                    // jae  setzero
+                    std::cout << "tmp_114 4 setzero" << "\n";
+                    r->shortVal = 0;
+                    return;
+                }
+                std::memcpy(&rdx, &rcx, sizeof(FrElement));
+                std::cout << "tmp_114 5 setzero" << "\n";
+                do_shl(r, a, &rdx);
+            }
+            mpn_xor_n(&rax[0], &rax[0], &rax[0], 1);
+            if (mpn_cmp(&rdx.longVal[1],&rax[0], 3) != 0)
+            {
+                // tmp_114
+                rcx.shortVal = Fr_rawq[0] - rdx.type;
+                if(rcx.shortVal >= 254)
+                {
+                    // jae  setzero
+                    std::cout << "tmp_114 02 setzero" << "\n";
+                    r->type = 0;
                     r->shortVal = 0;
                     return;
                 }
@@ -3792,11 +3853,15 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                 {
                     // jae  setzero
                     r->shortVal = 0;
+                    std::cout << "tmp_114 12 setzero" << "\n";
                     return;
                 }
                 std::memcpy(&rdx, &rcx, sizeof(FrElement));
+                std::cout << "tmp_114 22 do_shl" << "\n";
                 do_shl(r, a, &rdx);
             }
+            rdx.shortVal = rcx.shortVal;
+            do_shr(r, a, &rdx);
         }
     }
     else
@@ -3808,20 +3873,24 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
             rcx.shortVal = rcx.shortVal * (-1);
             if (rcx.shortVal >= 254)
             {
+                std::cout << "tmp_115 0 setzero" << "\n";
                 mpn_xor_n(rax, rax, rax, 1);
                 r->shortVal = rax[0];
                 return;
             }
             rdx.shortVal = rcx.shortVal;
+            std::cout << "tmp_115 do_shl 0" << "\n";
             do_shl(r, a, &rdx);
         }
         if (rcx.shortVal >= 254)
         {
+            std::cout << "tmp_115 1 " << "\n";
             mpn_xor_n(rax, rax, rax, 1);
             r->shortVal = rax[0];
             return;
         }
         rdx.shortVal = rcx.shortVal;
+        std::cout << "tmp_115 do_shr " << "\n";
         do_shr(r, a, &rdx);
     }
 

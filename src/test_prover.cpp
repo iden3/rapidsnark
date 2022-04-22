@@ -114,11 +114,26 @@ FrElement RawResult3 = {0,0,{0,0,0,0}};
 FrElement RawA3 = {0xa1f0, Fr_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
 FrElement RawB3 = {0x1bb8, Fr_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
 
-
 FrElement RawResult4 = {0,0,{0,0,0,0}};
 FrElement RawA4 = {INT_MIN, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
 FrElement RawB4 = {0x1bb8, Fr_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
 
+
+FrElement RawResult5 = {0,0,{0,0,0,0}};
+FrElement RawA5 = {0xa1f0, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FrElement RawB5 = {0x1, Fr_SHORT,{0,0,0,0}};
+
+FrElement RawResult6 = {0,0,{0,0,0,0}};
+FrElement RawA6 = {0xa1f0, Fr_SHORTMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FrElement RawB6 = {-1, Fr_SHORTMONTGOMERY,{0,0,0,0}};
+
+FrElement RawResult7 = {0,0,{0,0,0,0}};
+FrElement RawA7 = {0, Fr_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FrElement RawB7 = {0, Fr_LONG,{0x1,0,0,0}};
+
+FrElement RawResult8 = {0,0,{0,0,0,0}};
+FrElement RawA8 = {0xa1f0, Fr_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FrElement RawB8 = {-1, Fr_LONGMONTGOMERY,{0,0,0,0}};
 
 
 // mul_s1s2
@@ -6293,7 +6308,6 @@ void Fr_lor_s1l2n_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx
 
 void Fr_shr_unit_test()
 {
-
     //Fr_shr_test 0:
     FrElement pA0= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
     FrElement pB0= {0x1bb8,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
@@ -6311,20 +6325,52 @@ void Fr_shr_unit_test()
     FrElement pB3= {0x1bb8,0xc0000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
     FrElement pResult3= {0x0,0x0,{0xa1f0fac9f8000001,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
 
+    //Fr_shr_test 5:
+    FrElement pA5= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB5= {0x1,0x0,{0x0,0x0,0x0,0x0}};
+    FrElement pResult5= {0x50f8,0x0,{0x0,0x0,0x0,0x0}};
+    //Fr_shr_test 6:
+    FrElement pA6= {0xa1f0,0x40000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB6= {-1,0x40000000,{0x0,0x0,0x0,0x0}};
+    FrElement pResult6= {0x143e0,0x0,{0x0,0x0,0x0,0x0}};
+    //Fr_shr_test 7:
+    FrElement pA7= {0x0,0x80000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB7= {0x0,0x80000000,{0x1,0x0,0x0,0x0}};
+    FrElement pResult7= {0x0,0x80000000,{0x50f87d64fc000000,0x4a0cfa121e6e5c24,0x6e14116da0605617,0xc19139cb84c680a}};
+    //Fr_shr_test 8:
+    FrElement pA8= {0xa1f0,0xc0000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB8= {-1,0xc0000000,{0x0,0x0,0x0,0x0}};
+    FrElement pResult8= {0x0,0x80000000,{0x55b425913927735a,0xa3ac6d7389307a4d,0x543d3ec42a2529ae,0x256e51ca1fcef59b}};
+
     FrElement Result0_c = {0,0,{0,0,0,0}};
     FrElement Result1_c = {0,0,{0,0,0,0}};
     FrElement Result2_c= {0,0,{0,0,0,0}};
     FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    FrElement Result5_c = {0,0,{0,0,0,0}};
+    FrElement Result6_c = {0,0,{0,0,0,0}};
+    FrElement Result7_c= {0,0,{0,0,0,0}};
+    FrElement Result8_c= {0,0,{0,0,0,0}};
 
     Fr_shr(&Result0_c, &pA0, &pB0);
     Fr_shr(&Result1_c, &pA1, &pB1);
     Fr_shr(&Result2_c, &pA2, &pB2);
     Fr_shr(&Result3_c, &pA3, &pB3);
 
+    Fr_shr(&Result5_c, &pA5, &pB5);
+    Fr_shr(&Result6_c, &pA6, &pB6);
+    Fr_shr(&Result7_c, &pA7, &pB7);
+    Fr_shr(&Result8_c, &pA8, &pB8);
+
     compare_Result(&pResult0, &Result0_c, 0, "Fr_shr_unit_test");
     compare_Result(&pResult1, &Result1_c, 1, "Fr_shr_unit_test");
     compare_Result(&pResult2, &Result2_c, 2, "Fr_shr_unit_test");
     compare_Result(&pResult3, &Result3_c, 3, "Fr_shr_unit_test");
+
+    compare_Result(&pResult5, &Result5_c, 5, "Fr_shr_unit_test");
+    compare_Result(&pResult6, &Result6_c, 6, "Fr_shr_unit_test");
+    compare_Result(&pResult7, &Result7_c, 7, "Fr_shr_unit_test");
+    compare_Result(&pResult8, &Result8_c, 8, "Fr_shr_unit_test");
 }
 
 void Fr_shr_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
@@ -9451,6 +9497,10 @@ int main()
     Fr_shr_test(&RawResult1, &RawA1, &RawB1, 1);
     Fr_shr_test(&RawResult2, &RawA2, &RawB2, 2);
     Fr_shr_test(&RawResult3, &RawA3, &RawB3, 3);
+    Fr_shr_test(&RawResult5, &RawA5, &RawB5, 5);
+    Fr_shr_test(&RawResult6, &RawA6, &RawB6, 6);
+    Fr_shr_test(&RawResult7, &RawA7, &RawB7, 7);
+    Fr_shr_test(&RawResult8, &RawA8, &RawB8, 8);
     #endif
 #endif
 #ifdef TEST_FR_ASM_FUNCTIONS
@@ -9458,6 +9508,10 @@ int main()
     Fr_shr_test(&RawResult1, &RawA1, &RawB1, 1);
     Fr_shr_test(&RawResult2, &RawA2, &RawB2, 2);
     Fr_shr_test(&RawResult3, &RawA3, &RawB3, 3);
+    Fr_shr_test(&RawResult5, &RawA5, &RawB5, 5);
+    Fr_shr_test(&RawResult6, &RawA6, &RawB6, 6);
+    Fr_shr_test(&RawResult7, &RawA7, &RawB7, 7);
+    Fr_shr_test(&RawResult8, &RawA8, &RawB8, 8);
 #endif
 
 
