@@ -5,7 +5,7 @@
 #include <limits.h>
 
 #define TEST_FR_C_FUNCTIONS
-//#define TEST_FR_C_FUNCTIONS_WITH_RESULT
+#define TEST_FR_C_FUNCTIONS_WITH_RESULT
 //#define TEST_FR_ASM_FUNCTIONS
 
 //#define TEST_FQ_C_FUNCTIONS
@@ -6291,6 +6291,54 @@ void Fr_lor_s1l2n_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx
 
 
 
+void Fr_shr_unit_test()
+{
+
+    //Fr_shr_test 0:
+    FrElement pA0= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB0= {0x1bb8,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult0= {0x0,0x0,{0x0,0x0,0x0,0x0}};
+    //Fr_shr_test 1:
+    FrElement pA1= {0xa1f0,0x40000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB1= {0x1bb8,0x40000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult1= {0x0,0x0,{0x0,0x0,0x0,0x0}};
+    //Fr_shr_test 2:
+    FrElement pA2= {0xa1f0,0x80000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult2= {0x0,0x0,{0xa1f0fac9f8000001,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    //Fr_shr_test 3:
+    FrElement pA3= {0xa1f0,0xc0000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB3= {0x1bb8,0xc0000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult3= {0x0,0x0,{0xa1f0fac9f8000001,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_shr(&Result0_c, &pA0, &pB0);
+    Fr_shr(&Result1_c, &pA1, &pB1);
+    Fr_shr(&Result2_c, &pA2, &pB2);
+    Fr_shr(&Result3_c, &pA3, &pB3);
+
+    compare_Result(&pResult0, &Result0_c, 0, "Fr_shr_unit_test");
+    compare_Result(&pResult1, &Result1_c, 1, "Fr_shr_unit_test");
+    compare_Result(&pResult2, &Result2_c, 2, "Fr_shr_unit_test");
+    compare_Result(&pResult3, &Result3_c, 3, "Fr_shr_unit_test");
+}
+
+void Fr_shr_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
+{
+    std::cout << "//Fr_shr_test " << idx << ": " <<  '\n';
+    Fr_shr(pResult, pA, pB);
+    std::cout << "FrElement pA" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pB" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
+    std::cout << "FrElement pResult" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+}
+
+
+
+
 
 
 #endif
@@ -9395,6 +9443,23 @@ int main()
     Fr_neg_test(&RawResult3, &RawA3, &RawB3, 3);
     Fr_neg_test(&RawResult4, &RawA4, &RawB4, 4);
 #endif
+
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_shr_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_shr_test(&RawResult,  &RawA,  &RawB, 0);
+    Fr_shr_test(&RawResult1, &RawA1, &RawB1, 1);
+    Fr_shr_test(&RawResult2, &RawA2, &RawB2, 2);
+    Fr_shr_test(&RawResult3, &RawA3, &RawB3, 3);
+    #endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_shr_test(&RawResult,  &RawA,  &RawB, 0);
+    Fr_shr_test(&RawResult1, &RawA1, &RawB1, 1);
+    Fr_shr_test(&RawResult2, &RawA2, &RawB2, 2);
+    Fr_shr_test(&RawResult3, &RawA3, &RawB3, 3);
+#endif
+
 
 
 #ifdef TEST_FQ_C_FUNCTIONS
