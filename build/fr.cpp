@@ -2183,7 +2183,12 @@ int rgtRawL1L2(FrRawElement pRawA, FrRawElement pRawB)
 //    }
     int result = mpn_cmp(pRawA, pRawB, Fr_N64);
 
-    return result > 0;
+    if (result < 0)
+    {
+        return 0;
+    }
+
+    return 1;
 }
 
 int rgtl1l2_n1(FrRawElement pRawA, FrRawElement pRawB)
@@ -2219,9 +2224,9 @@ int rgtl1l2_n1(FrRawElement pRawA, FrRawElement pRawB)
     if (result < 0)
     {
 
-        return 1;
+        return 0;
     }
-    return rltRawL1L2(pRawA, pRawB);
+    return rgtRawL1L2(pRawA, pRawB);
 }
 
 int rgtl1l2_p1(FrRawElement pRawA, FrRawElement pRawB)
@@ -2255,9 +2260,9 @@ int rgtl1l2_p1(FrRawElement pRawA, FrRawElement pRawB)
 
     if (result < 0)
     {
-        return rltRawL1L2(pRawA, pRawB);
+        return rgtRawL1L2(pRawA, pRawB);
     }
-    return 0;
+    return 1;
 
 }
 
@@ -2290,17 +2295,17 @@ int rgtL1L2(FrRawElement pRawA, FrRawElement pRawB)
 
     if (result < 0)
     {
-        return rltl1l2_p1(pRawA, pRawB);
+        return rgtl1l2_p1(pRawA, pRawB);
     }
 
-    return rltl1l2_n1(pRawA, pRawB);
+    return rgtl1l2_n1(pRawA, pRawB);
 }
 
 // Implemented, Not checked 2
 int rgt_l1nl2n(PFrElement a,PFrElement b)
 {
     // rltL1L2
-    return rgtRawL1L2(&a->longVal[0], &b->longVal[0]);
+    return rgtL1L2(&a->longVal[0], &b->longVal[0]);
 
 }
 // Implemented, Not checked 3
