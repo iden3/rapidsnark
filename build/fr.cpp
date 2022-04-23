@@ -1399,57 +1399,40 @@ int Fr_isTrue(PFrElement pE)
     }
 }
 
-int Fr_longNeg(FrRawElement tmp, uint64_t * rax)
+int Fr_longNeg(PFrElement pE)
 {
     uint64_t   rcx = 0;
+    mp_limb_t rax[Fr_N64] ={0,0,0,0};
     uint64_t   carry = 0;
-    // Fr_longNeg
-    *rax = tmp[0];
-    carry = mpn_sub_n (rax, rax, &Fr_rawq[0], 1);
-    if(!carry)
+
+    carry = mpn_sub_n (&rax[0], &pE->longVal[0], &Fr_rawq[0], 4);
+    if(carry != 0)
+    {
+       // Fr_longErr
+       Fr_fail();
+       return 0;
+    }
+    rcx = rax[0];
+    // @IS todo sar
+    mpn_rshift(&rcx, &rcx, 1, 31);
+    rcx +=1;
+    if(rcx !=0)
     {
        // Fr_longErr
        Fr_fail();
        return 0;
     }
 
-    rcx = tmp[1];
-    carry = mpn_sub_n (&rcx, &rcx, &Fr_rawq[1], 1);
-    if(!carry)
-    {
-       // Fr_longErr
-       Fr_fail();
-       return 0;
-    }
-
-    rcx = tmp[2];
-    carry = mpn_sub_n (&rcx, &rcx, &Fr_rawq[2], 1);
-    if(!carry)
-    {
-       // Fr_longErr
-       Fr_fail();
-       return 0;
-    }
-
-    rcx = tmp[3];
-    carry = mpn_sub_n (&rcx, &rcx, &Fr_rawq[3], 1);
-    if(!carry)
-    {
-       // Fr_longErr
-       Fr_fail();
-       return 0;
-    }
+    return rax[0];
 }
 
 // Implemented, not checked
 // Convert a 64 bit integer to a long format field element
 int Fr_toInt(PFrElement pE)
 {
-    PFrElement ptmp = pE;
-    FrRawElement tmp = {0,0,0,0};
+    FrElement tmp = {0,0,{0,0,0,0}};
     uint64_t   rcx = 0;
     uint64_t   rax = 0;
-    int retVal = 0;
 
     rax = pE->shortVal;
 
@@ -1459,71 +1442,70 @@ int Fr_toInt(PFrElement pE)
        if (pE->type != Fr_LONGMONTGOMERY)
        {
            // Fr_longNormal
-           rax = ptmp->longVal[0];
+           rax = pE->longVal[0];
            rcx = rax;
            mpn_rshift(&rcx, &rcx, 1, 31);
-           std::memcpy(tmp, &ptmp->longVal[0], sizeof(FrRawElement));
 
            if (rcx != 0)
            {
-               Fr_longNeg(tmp, &rax);
+                rax = Fr_longNeg(pE);
            }
 
-           rcx = ptmp->longVal[1];
+           rcx = pE->longVal[1];
            if (rcx & rcx)
            {
-                Fr_longNeg(tmp, &rax);
+                rax = Fr_longNeg(pE);
            }
 
-           rcx = ptmp->longVal[2];
+           rcx = pE->longVal[2];
            if (rcx & rcx)
            {
-                Fr_longNeg(tmp, &rax);
+                rax = Fr_longNeg(pE);
            }
 
-           rcx = ptmp->longVal[3];
+           rcx = pE->longVal[3];
            if (rcx & rcx)
            {
-                Fr_longNeg(tmp, &rax);
+                rax =Fr_longNeg(pE);
            }
+
+
        }
        else
        {
            // Fr_longMontgomery
-           Fr_toNormal(ptmp,pE);
+           Fr_toNormal(&tmp,pE);
            // Fr_longNormal
-           rax = ptmp->longVal[0];
+           rax = pE->longVal[0];
            rcx = rax;
            mpn_rshift(&rcx, &rcx, 1, 31);
-           std::memcpy(tmp, &ptmp->longVal[0], sizeof(FrRawElement));
 
            if (rcx != 0)
            {
-               Fr_longNeg(tmp, &rax);
+                rax = Fr_longNeg(&tmp);
            }
 
-           rcx = ptmp->longVal[1];
+           rcx = pE->longVal[1];
            if (rcx & rcx)
            {
-                Fr_longNeg(tmp, &rax);
+                rax = Fr_longNeg(&tmp);
            }
 
-           rcx = ptmp->longVal[2];
+           rcx = pE->longVal[2];
            if (rcx & rcx)
            {
-                Fr_longNeg(tmp, &rax);
+                rax = Fr_longNeg(&tmp);
            }
 
-           rcx = ptmp->longVal[3];
+           rcx = pE->longVal[3];
            if (rcx & rcx)
            {
-                Fr_longNeg(tmp, &rax);
+                rax =Fr_longNeg(&tmp);
            }
        }
     }
 
-   retVal = rax;
-   return retVal;
+   return rax;
 }
 
 // Implemented, Not checked 1

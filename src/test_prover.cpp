@@ -95,6 +95,18 @@ FrElement RawResult4 = {0,0,{0,0,0,0}};
 FrElement RawA4 = {INT_MIN, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
 FrElement RawB4 = {0x1bb8, Fr_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
 
+FrElement Fr_to_IntRawA  = {0xa1f0, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FrElement Fr_to_IntRawB  = {0x1bb8, Fr_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FrElement Fr_to_IntRawA1 = {0xa1f0, Fr_SHORTMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FrElement Fr_to_IntRawB1 = {0x1bb8, Fr_SHORTMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FrElement Fr_to_IntRawA2 = {0, Fr_LONG,{0xa1f0,0,0,0}};
+FrElement Fr_to_IntRawB2 = {0x1bb8, Fr_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FrElement Fr_to_IntRawA3 = {0, Fr_LONGMONTGOMERY,{0xa1f0,0,0,0}};
+FrElement Fr_to_IntRawB3 = {0x1bb8, Fr_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
 
 FrElement RawResult5 = {0,0,{0,0,0,0}};
 FrElement RawA5 = {0xa1f0, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
@@ -2944,33 +2956,28 @@ void Fr_toInt_test(uint64_t uRawResult, PFrElement pA, int idx)
 
 void Fr_toInt_unit_test()
 {
-    FrRawElement pRawResult0 = {0,0,0,0};
-    FrElement RawA = {0xa1f0, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement RawB = {0x1bb8, Fr_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-    FrRawElement pRawResult1 = {0,0,0,0};
-    FrElement RawA1 = {0xa1f0, Fr_SHORTMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement RawB1 = {0x1bb8, Fr_SHORTMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-    FrRawElement pRawResult2 = {0,0,0,0};
-    FrElement RawA2 = {0xa1f0, Fr_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement RawB2 = {0x1bb8, Fr_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-    FrRawElement pRawResult3 = {0,0,0,0};
-    FrElement RawA3 = {0xa1f0, Fr_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement RawB3 = {0x1bb8, Fr_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-
+    //Fr_toInt_test 0:
+    FrElement pA0= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrRawElement pRawResult0= {0xa1f0};
+    //Fr_toInt_test 1:
+    FrElement pA1= {0xa1f0,0x40000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrRawElement pRawResult1= {0xa1f0};
+    //Fr_toInt_test 2:
+    FrElement pA2= {0x0,0x80000000,{0xa1f0,0x0,0x0,0x0}};
+    FrRawElement pRawResult2= {0xa1f0};
+    //Fr_toInt_test 3:
+    FrElement pA3= {0x0,0xc0000000,{0xa1f0,0x0,0x0,0x0}};
+    FrRawElement pRawResult3= {0xa1f0};
 
     FrRawElement pRawResult0_c = {0};
     FrRawElement pRawResult1_c = {0};
     FrRawElement pRawResult2_c = {0};
     FrRawElement pRawResult3_c = {0};
 
-    pRawResult0_c[0] = Fr_toInt(&RawA);
-    pRawResult1_c[0] = Fr_toInt(&RawA1);
-    pRawResult2_c[0] = Fr_toInt(&RawA2);
-    pRawResult3_c[0] = Fr_toInt(&RawA3);
+    pRawResult0_c[0] = Fr_toInt(&pA0);
+    pRawResult1_c[0] = Fr_toInt(&pA1);
+    pRawResult2_c[0] = Fr_toInt(&pA2);
+    pRawResult3_c[0] = Fr_toInt(&pA3);
 
     compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fr_toInt_unit_test");
     compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fr_toInt_unit_test");
@@ -9478,17 +9485,17 @@ int main()
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_toInt_unit_test();
     #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_toInt_test(uRawResult,  &RawA, 0);
-    Fr_toInt_test(uRawResult1, &RawA1, 1);
-    Fr_toInt_test(uRawResult2, &RawA2, 2);
-    Fr_toInt_test(uRawResult3, &RawA3, 3);
+    Fr_toInt_test(uRawResult,  &Fr_to_IntRawA, 0);
+    Fr_toInt_test(uRawResult1, &Fr_to_IntRawA1, 1);
+    Fr_toInt_test(uRawResult2, &Fr_to_IntRawA2, 2);
+    Fr_toInt_test(uRawResult3, &Fr_to_IntRawA3, 3);
 #endif
 #endif
 #ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_toInt_test(uRawResult,  &RawA, 0);
-    Fr_toInt_test(uRawResult1, &RawA1, 1);
-    Fr_toInt_test(uRawResult2, &RawA2, 2);
-    Fr_toInt_test(uRawResult3, &RawA3, 3);
+    Fr_toInt_test(uRawResult,  &Fr_to_IntRawA, 0);
+    Fr_toInt_test(uRawResult1, &Fr_to_IntRawA1, 1);
+    Fr_toInt_test(uRawResult2, &Fr_to_IntRawA2, 2);
+    Fr_toInt_test(uRawResult3, &Fr_to_IntRawA3, 3);
 #endif
 
 #ifdef TEST_FR_C_FUNCTIONS
