@@ -4,42 +4,21 @@
 #include <stdint.h>
 #include <limits.h>
 
+#ifdef USE_ASM
+#define TEST_FR_ASM_FUNCTIONS
+#define TEST_FQ_ASM_FUNCTIONS
+#else
 #define TEST_FR_C_FUNCTIONS
-#define TEST_FR_C_FUNCTIONS_WITH_RESULT
-//#define TEST_FR_ASM_FUNCTIONS
+//#define TEST_FR_C_FUNCTIONS_WITH_RESULT
+#define TEST_FQ_C_FUNCTIONS
+#endif
 
-//#define TEST_FQ_C_FUNCTIONS
-//#define TEST_FQ_ASM_FUNCTIONS
-
-#ifdef TEST_FR_C_FUNCTIONS`
 #include "fr.hpp"
-#endif
-
-#ifdef TEST_FR_ASM_FUNCTIONS
-#include "fr.hpp"
-#endif
-
-#ifdef TEST_FQ_C_FUNCTIONS
 #include "fq.hpp"
-#endif
 
-#ifdef TEST_FQ_ASM_FUNCTIONS
-#include "fq.hpp"
-#endif
 #include <assert.h>
 using namespace std;
 
-//#define Fr_N64 4
-//typedef uint64_t FrRawElement[Fr_N64];
-
-#ifdef TEST_C_FUNCTIONS
-//void Fr_fail() {
-//    assert(false);
-//}
-#endif
-
-
-#if defined(TEST_FR_C_FUNCTIONS) || defined(TEST_FR_ASM_FUNCTIONS)
 uint64_t uRawResult = 0;
 uint64_t uRawResult1 = 0;
 uint64_t uRawResult2 = 0;
@@ -91,12 +70,6 @@ FrRawElement pRawB8      = {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181
 FrRawElement pRawResult9 = {0,0,0,0};
 FrRawElement pRawA9      = {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029};
 FrRawElement pRawB9      = {1,0,0,0};
-
-
-//#define Fr_SHORT 0x00000000
-//#define Fr_SHORTMONTGOMERY 0x40000000
-//#define Fr_LONG 0x80000000
-//#define Fr_LONGMONTGOMERY 0xC0000000
 
 FrElement RawResult = {0,0,{0,0,0,0}};
 FrElement RawA = {0xa1f0, Fr_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
@@ -444,303 +417,7 @@ FrElement A3_l1ms2 = {0xffff, Fr_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffff
 FrElement B3_l1ms2 = {0xffff, Fr_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
 
 
-#endif
 
-
-#if defined(TEST_FQ_C_FUNCTIONS) || defined(TEST_FQ_ASM_FUNCTIONS)
-uint64_t uRawResult  = 0;
-uint64_t uRawResult1 = 0;
-uint64_t uRawResult2 = 0;
-uint64_t uRawResult3 = 0;
-uint64_t uRawResult4 = 0;
-uint64_t uRawResult5 = 0;
-uint64_t uRawResult6 = 0;
-uint64_t uRawResult7 = 0;
-uint64_t uRawResult8 = 0;
-uint64_t uRawResult9 = 0;
-FqRawElement pRawResult = {0,0,0,0};
-FqRawElement pRawA = {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
-FqRawElement pRawB = {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
-
-FqRawElement pRawResult1 = {0,0,0,0};
-FqRawElement pRawA1      = {0x1,0,0,0};
-FqRawElement pRawB1      = {0x2,0,0,0};
-
-FqRawElement pRawResult2 = {0,0,0,0};
-FqRawElement pRawA2      = {0xfffffffffffffffe,0,0,0};
-FqRawElement pRawB2      = {0xffffffffffffffff,0,0,0};
-
-FqRawElement pRawResult3 = {0,0,0,0};
-FqRawElement pRawA3      = {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-FqRawElement pRawB3      = {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
-
-FqRawElement pRawResult4 = {0,0,0,0};
-FqRawElement pRawA4      = {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
-FqRawElement pRawB4      = {0xffffffffffffffff,0,0,0};
-
-FqRawElement pRawResult5 = {0,0,0,0};
-FqRawElement pRawA5      = {0x0,0,0,0};
-FqRawElement pRawB5      = {0x2,0,0,0};
-
-FqRawElement pRawResult6 = {0,0,0,0};
-FqRawElement pRawA6      = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
-FqRawElement pRawB6      = {0,0,0,0};
-
-FqRawElement pRawResult7 = {0,0,0,0};
-FqRawElement pRawA7      = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
-FqRawElement pRawB7      = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
-
-FqRawElement pRawResult8 = {0,0,0,0};
-FqRawElement pRawA8      = {1,0,0,0};
-FqRawElement pRawB8      = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
-
-
-FqRawElement pRawResult9 = {0,0,0,0};
-FqRawElement pRawA9      = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
-FqRawElement pRawB9      = {1,0,0,0};
-
-
-FqElement RawResult = {0,0,{0,0,0,0}};
-FqElement RawA = {0xa1f0, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement RawB = {0x1bb8, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement RawResult1 = {0,0,{0,0,0,0}};
-FqElement RawA1 = {0xa1f0, Fq_SHORTMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement RawB1 = {0x1bb8, Fq_SHORTMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement RawResult2 = {0,0,{0,0,0,0}};
-FqElement RawA2 = {0xa1f0, Fq_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement RawB2 = {0x1bb8, Fq_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement RawResult3 = {0,0,{0,0,0,0}};
-FqElement RawA3 = {0xa1f0, Fq_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement RawB3 = {0x1bb8, Fq_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-
-
-// mul_s1s2
-FqElement Result_s1s2 = {0,0,{0,0,0,0}};
-FqElement A_s1s2 = {0x1, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B_s1s2 = {0x2, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result1_s1s2 = {0,0,{0,0,0,0}};
-FqElement A1_s1s2 = {0x0, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B1_s1s2 = {0x2, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result2_s1s2 = {0,0,{0,0,0,0}};
-FqElement A2_s1s2 = {0xa1f0, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_s1s2 = {0x1bb8, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_s1s2 = {0,0,{0,0,0,0}};
-FqElement A3_s1s2 = {INT_MAX, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B3_s1s2 = {INT_MAX, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-// mul_l1nl2n
-FqElement Result_l1nl2n = {0,0,{0,0,0,0}};
-FqElement A_l1nl2n = {0x1, Fq_LONG,{0x01,0,0,0}};
-FqElement B_l1nl2n = {0x2, Fq_LONG,{0x02,0,0,0}};
-
-FqElement Result1_l1nl2n = {0,0,{0,0,0,0}};
-FqElement A1_l1nl2n = {0x0, Fq_LONG,{0x0,0,0,0}};
-FqElement B1_l1nl2n = {0x2, Fq_LONG,{0x2,0,0,0}};
-
-FqElement Result2_l1nl2n = {0,0,{0,0,0,0}};
-FqElement A2_l1nl2n = {0xa1f0, Fq_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_l1nl2n= {0x1bb8, Fq_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_l1nl2n = {0,0,{0,0,0,0}};
-FqElement A3_l1nl2n = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_l1nl2n = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-
-// mul_l1ml2n
-FqElement Result_l1ml2n = {0,0,{0,0,0,0}};
-FqElement A_l1ml2n = {0x1, Fq_LONGMONTGOMERY,{0x01,0,0,0}};
-FqElement B_l1ml2n = {0x2, Fq_LONG,{0x02,0,0,0}};
-
-FqElement Result1_l1ml2n = {0,0,{0,0,0,0}};
-FqElement A1_l1ml2n = {0x0, Fq_LONGMONTGOMERY,{0x0,0,0,0}};
-FqElement B1_l1ml2n = {0x2, Fq_LONG,{0x2,0,0,0}};
-
-FqElement Result2_l1ml2n = {0,0,{0,0,0,0}};
-FqElement A2_l1ml2n = {0xa1f0, Fq_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_l1ml2n= {0x1bb8, Fq_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_l1ml2n = {0,0,{0,0,0,0}};
-FqElement A3_l1ml2n = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_l1ml2n = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-
-// mul_l1nl2m
-FqElement Result_l1nl2m = {0,0,{0,0,0,0}};
-FqElement A_l1nl2m = {0x1, Fq_LONG,{0x01,0,0,0}};
-FqElement B_l1nl2m = {0x2, Fq_LONGMONTGOMERY,{0x02,0,0,0}};
-
-FqElement Result1_l1nl2m = {0,0,{0,0,0,0}};
-FqElement A1_l1nl2m = {0x0, Fq_LONG,{0x0,0,0,0}};
-FqElement B1_l1nl2m = {0x2, Fq_LONGMONTGOMERY,{0x2,0,0,0}};
-
-FqElement Result2_l1nl2m = {0,0,{0,0,0,0}};
-FqElement A2_l1nl2m = {0xa1f0, Fq_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_l1nl2m= {0x1bb8, Fq_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_l1nl2m = {0,0,{0,0,0,0}};
-FqElement A3_l1nl2m = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_l1nl2m = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-
-// mul_l1ml2m
-FqElement Result_l1ml2m = {0,0,{0,0,0,0}};
-FqElement A_l1ml2m = {0x1, Fq_LONGMONTGOMERY,{0x01,0,0,0}};
-FqElement B_l1ml2m = {0x2, Fq_LONGMONTGOMERY,{0x02,0,0,0}};
-
-FqElement Result1_l1ml2m = {0,0,{0,0,0,0}};
-FqElement A1_l1ml2m = {0x0, Fq_LONGMONTGOMERY,{0x0,0,0,0}};
-FqElement B1_l1ml2m = {0x2, Fq_LONGMONTGOMERY,{0x2,0,0,0}};
-
-FqElement Result2_l1ml2m = {0,0,{0,0,0,0}};
-FqElement A2_l1ml2m = {0xa1f0, Fq_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_l1ml2m= {0x1bb8, Fq_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_l1ml2m = {0,0,{0,0,0,0}};
-FqElement A3_l1ml2m = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_l1ml2m = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-
-// mul_l1ns2n
-FqElement Result_l1ns2n = {0,0,{0,0,0,0}};
-FqElement A_l1ns2n = {0x1, Fq_LONG,{0x01,0,0,0}};
-FqElement B_l1ns2n = {0x2, Fq_SHORT,{0x02,0,0,0}};
-
-FqElement Result1_l1ns2n = {0,0,{0,0,0,0}};
-FqElement A1_l1ns2n = {0x0, Fq_LONG,{0x0,0,0,0}};
-FqElement B1_l1ns2n = {0x2, Fq_SHORT,{0x2,0,0,0}};
-
-FqElement Result2_l1ns2n = {0,0,{0,0,0,0}};
-FqElement A2_l1ns2n = {0xa1f0, Fq_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_l1ns2n= {0x1bb8, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_l1ns2n = {0,0,{0,0,0,0}};
-FqElement A3_l1ns2n = {INT_MAX, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_l1ns2n = {-1, Fq_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-
-//mul_s1nl2n
-FqElement Result_s1nl2n = {0,0,{0,0,0,0}};
-FqElement A_s1nl2n = {0x1, Fq_SHORT,{0x01,0,0,0}};
-FqElement B_s1nl2n = {0x2, Fq_LONG,{0x02,0,0,0}};
-
-FqElement Result1_s1nl2n = {0,0,{0,0,0,0}};
-FqElement A1_s1nl2n = {0x0, Fq_SHORT,{0x0,0,0,0}};
-FqElement B1_s1nl2n = {0x2, Fq_LONG,{0x2,0,0,0}};
-
-FqElement Result2_s1nl2n = {0,0,{0,0,0,0}};
-FqElement A2_s1nl2n = {0xa1f0, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_s1nl2n= {0x1bb8, Fq_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_s1nl2n = {0,0,{0,0,0,0}};
-FqElement A3_s1nl2n = {-1, Fq_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_s1nl2n = {INT_MAX, Fq_LONG,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
-
-//mul_s1nl2m
-FqElement Result_s1nl2m = {0,0,{0,0,0,0}};
-FqElement A_s1nl2m = {0x1, Fq_SHORT,{0x01,0,0,0}};
-FqElement B_s1nl2m = {0x2, Fq_LONGMONTGOMERY,{0x02,0,0,0}};
-
-FqElement Result1_s1nl2m = {0,0,{0,0,0,0}};
-FqElement A1_s1nl2m = {0x0, Fq_SHORT,{0x0,0,0,0}};
-FqElement B1_s1nl2m = {0x2, Fq_LONGMONTGOMERY,{0x2,0,0,0}};
-
-FqElement Result2_s1nl2m = {0,0,{0,0,0,0}};
-FqElement A2_s1nl2m = {0xa1f0, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_s1nl2m = {0x1bb8, Fq_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_s1nl2m = {0,0,{0,0,0,0}};
-FqElement A3_s1nl2m = {-1, Fq_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_s1nl2m = {INT_MAX, Fq_LONGMONTGOMERY,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
-
-//mul_l1ms2n
-FqElement Result_l1ms2n = {0,0,{0,0,0,0}};
-FqElement A_l1ms2n = {0x1, Fq_LONGMONTGOMERY,{0x01,0,0,0}};
-FqElement B_l1ms2n = {0x2, Fq_SHORT,{0x02,0,0,0}};
-
-FqElement Result1_l1ms2n = {0,0,{0,0,0,0}};
-FqElement A1_l1ms2n = {0x0, Fq_LONGMONTGOMERY,{0x0,0,0,0}};
-FqElement B1_l1ms2n = {0x2, Fq_SHORT,{0x2,0,0,0}};
-
-FqElement Result2_l1ms2n = {0,0,{0,0,0,0}};
-FqElement A2_l1ms2n = {0xa1f0, Fq_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_l1ms2n= {0x1bb8, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_l1ms2n = {0,0,{0,0,0,0}};
-FqElement A3_l1ms2n = {0xffff, Fq_LONGMONTGOMERY,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
-FqElement B3_l1ms2n = {-1, Fq_SHORT,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
-
-//mul_l1ns2m
-FqElement Result_l1ns2m = {0,0,{0,0,0,0}};
-FqElement A_l1ns2m = {0x1, Fq_LONG,{0x01,0,0,0}};
-FqElement B_l1ns2m = {0x2, Fq_SHORTMONTGOMERY,{0x02,0,0,0}};
-
-FqElement Result1_l1ns2m = {0,0,{0,0,0,0}};
-FqElement A1_l1ns2m = {0x0, Fq_LONG,{0x0,0,0,0}};
-FqElement B1_l1ns2m = {0x2, Fq_SHORTMONTGOMERY,{0x2,0,0,0}};
-
-FqElement Result2_l1ns2m = {0,0,{0,0,0,0}};
-FqElement A2_l1ns2m = {0xa1f0, Fq_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_l1ns2m= {0x1bb8, Fq_SHORTMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_l1ns2m = {0,0,{0,0,0,0}};
-FqElement A3_l1ns2m = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_l1ns2m = {0xffff, Fq_SHORTMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-
-//mul_l1ms2m
-FqElement Result_l1ms2m = {0,0,{0,0,0,0}};
-FqElement A_l1ms2m = {0x1, Fq_LONGMONTGOMERY,{0x01,0,0,0}};
-FqElement B_l1ms2m = {0x2, Fq_SHORTMONTGOMERY,{0x02,0,0,0}};
-
-FqElement Result1_l1ms2m = {0,0,{0,0,0,0}};
-FqElement A1_l1ms2m = {0x0, Fq_LONGMONTGOMERY,{0x0,0,0,0}};
-FqElement B1_l1ms2m = {0x2, Fq_SHORTMONTGOMERY,{0x2,0,0,0}};
-
-FqElement Result2_l1ms2m = {0,0,{0,0,0,0}};
-FqElement A2_l1ms2m = {0xa1f0, Fq_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_l1ms2m= {0x1bb8, Fq_SHORTMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_l1ms2m = {0,0,{0,0,0,0}};
-FqElement A3_l1ms2m = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_l1ms2m = {0xffff, Fq_SHORTMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-
-//mul_s1ml2m
-FqElement Result_s1ml2m = {0,0,{0,0,0,0}};
-FqElement A_s1ml2m = {0x1, Fq_SHORTMONTGOMERY,{0x01,0,0,0}};
-FqElement B_s1ml2m = {0x2, Fq_LONGMONTGOMERY,{0x02,0,0,0}};
-
-FqElement Result1_s1ml2m = {0,0,{0,0,0,0}};
-FqElement A1_s1ml2m = {0x0, Fq_SHORTMONTGOMERY,{0x0,0,0,0}};
-FqElement B1_s1ml2m = {0x2, Fq_LONGMONTGOMERY,{0x2,0,0,0}};
-
-FqElement Result2_s1ml2m = {0,0,{0,0,0,0}};
-FqElement A2_s1ml2m = {0xa1f0, Fq_SHORTMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_s1ml2m = {0x1bb8, Fq_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_s1ml2m = {0,0,{0,0,0,0}};
-FqElement A3_s1ml2m = {0xffff, Fq_SHORTMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_s1ml2m = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-
-//mul_s1ml2n
-FqElement Result_s1ml2n = {0,0,{0,0,0,0}};
-FqElement A_s1ml2n = {0x1, Fq_SHORTMONTGOMERY,{0x01,0,0,0}};
-FqElement B_s1ml2n = {0x2, Fq_LONG,{0x02,0,0,0}};
-
-FqElement Result1_s1ml2n = {0,0,{0,0,0,0}};
-FqElement A1_s1ml2n = {0x0, Fq_SHORTMONTGOMERY,{0x0,0,0,0}};
-FqElement B1_s1ml2n = {0x2, Fq_LONG,{0x2,0,0,0}};
-
-FqElement Result2_s1ml2n = {0,0,{0,0,0,0}};
-FqElement A2_s1ml2n = {0xa1f0, Fq_SHORTMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-FqElement B2_s1ml2n = {0x1bb8, Fq_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
-
-FqElement Result3_s1ml2n = {0,0,{0,0,0,0}};
-FqElement A3_s1ml2n = {0xffff, Fq_SHORTMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-FqElement B3_s1ml2n = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
-#endif
-
-#if defined(TEST_FR_C_FUNCTIONS) || defined(TEST_FR_ASM_FUNCTIONS)
 void compare_rawResult(FrRawElement pRawResult_asm, FrRawElement pRawResult_c, int idx, std::string TestName)
 {
     if (pRawResult_asm[0] != pRawResult_c[0] ||
@@ -749,10 +426,12 @@ void compare_rawResult(FrRawElement pRawResult_asm, FrRawElement pRawResult_c, i
         pRawResult_asm[3] != pRawResult_c[3])
     {
         std::cout << TestName << idx << " failed!" << "\n";
+        std::cout << "FrRawElement pRawResult_asm" << idx << "= " << std::hex << "{0x"<< pRawResult_asm[0] << ",0x" << pRawResult_asm[1] << ",0x" << pRawResult_asm[2] << ",0x" << pRawResult_asm[3] << "};"<< '\n';
+        std::cout << "FrRawElement pRawResult_c" << idx << "= " << std::hex << "{0x"<< pRawResult_c[0] << ",0x" << pRawResult_c[1] << ",0x" << pRawResult_c[2] << ",0x" << pRawResult_c[3] << "};"<< '\n';
     }
     else
     {
-        std::cout << TestName << idx << " succeed!" << "\n";
+        //std::cout << TestName << idx << " succeed!" << "\n";
     }
 }
 
@@ -765,10 +444,12 @@ void compare_Result(PFrElement pResult_asm, PFrElement pResult_c, int idx, std::
         pResult_asm->longVal[3] != pResult_c->longVal[3])
     {
         std::cout << TestName << idx << " failed!" << "\n";
+        std::cout << "FrElement pResult_asm" << idx << "= " << std::hex << "{0x" << pResult_asm->shortVal << ",0x" << pResult_asm->type << ",{0x" << pResult_asm->longVal[0] << ",0x" << pResult_asm->longVal[1] << ",0x" << pResult_asm->longVal[2] << ",0x" << pResult_asm->longVal[3] << "}};"<< '\n';
+        std::cout << "FrElement pResult_c"   << idx << "= " << std::hex << "{0x" << pResult_c->shortVal << ",0x" << pResult_c->type << ",{0x" << pResult_c->longVal[0] << ",0x" << pResult_c->longVal[1] << ",0x" << pResult_c->longVal[2] << ",0x" << pResult_c->longVal[3] << "}};"<< '\n';
     }
     else
     {
-        std::cout << TestName << idx << " succeed!" << "\n";
+        //std::cout << TestName << idx << " succeed!" << "\n";
     }
 }
 
@@ -6382,15 +6063,7 @@ void Fr_shr_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
     std::cout << "FrElement pResult" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
 }
 
-
-
-
-
-
-#endif
-
-#if defined(TEST_FQ_C_FUNCTIONS) || defined(TEST_FQ_ASM_FUNCTIONS)
-void compare_rawResult(FqRawElement pRawResult_asm, FqRawElement pRawResult_c, int idx, std::string TestName)
+void compare_rawResult_Fq(FqRawElement pRawResult_asm, FqRawElement pRawResult_c, int idx, std::string TestName)
 {
     if (pRawResult_asm[0] != pRawResult_c[0] ||
         pRawResult_asm[1] != pRawResult_c[1] ||
@@ -6398,14 +6071,16 @@ void compare_rawResult(FqRawElement pRawResult_asm, FqRawElement pRawResult_c, i
         pRawResult_asm[3] != pRawResult_c[3])
     {
         std::cout << TestName << idx << " failed!" << "\n";
+        std::cout << "FqRawElement pRawResult_asm" << idx << "= " << std::hex << "{0x"<< pRawResult_asm[0] << ",0x" << pRawResult_asm[1] << ",0x" << pRawResult_asm[2] << ",0x" << pRawResult_asm[3] << "};"<< '\n';
+        std::cout << "FqRawElement pRawResult_c" << idx << "= " << std::hex << "{0x"<< pRawResult_c[0] << ",0x" << pRawResult_c[1] << ",0x" << pRawResult_c[2] << ",0x" << pRawResult_c[3] << "};"<< '\n';
     }
     else
     {
-        std::cout << TestName << idx << " succeed!" << "\n";
+        //std::cout << TestName << idx << " succeed!" << "\n";
     }
 }
 
-void compare_Result(PFqElement pResult_asm, PFqElement pResult_c, int idx, std::string TestName)
+void compare_Result_Fq(PFqElement pResult_asm, PFqElement pResult_c, int idx, std::string TestName)
 {
     if (pResult_asm->shortVal != pResult_c->shortVal     ||
         pResult_asm->longVal[0] != pResult_c->longVal[0] ||
@@ -6414,10 +6089,12 @@ void compare_Result(PFqElement pResult_asm, PFqElement pResult_c, int idx, std::
         pResult_asm->longVal[3] != pResult_c->longVal[3])
     {
         std::cout << TestName << idx << " failed!" << "\n";
+        std::cout << "FqElement pResult_asm" << idx << "= " << std::hex << "{0x" << pResult_asm->shortVal << ",0x" << pResult_asm->type << ",{0x" << pResult_asm->longVal[0] << ",0x" << pResult_asm->longVal[1] << ",0x" << pResult_asm->longVal[2] << ",0x" << pResult_asm->longVal[3] << "}};"<< '\n';
+        std::cout << "FqElement pResult_c"   << idx << "= " << std::hex << "{0x" << pResult_c->shortVal << ",0x" << pResult_c->type << ",{0x" << pResult_c->longVal[0] << ",0x" << pResult_c->longVal[1] << ",0x" << pResult_c->longVal[2] << ",0x" << pResult_c->longVal[3] << "}};"<< '\n';
     }
     else
     {
-        std::cout << TestName << idx << " succeed!" << "\n";
+        //std::cout << TestName << idx << " succeed!" << "\n";
     }
 }
 
@@ -6460,11 +6137,11 @@ void Fq_Rw_Neg_unit_test()
     Fq_rawNeg(pRawResult3_c, pRawA3);
     Fq_rawNeg(pRawResult5_c, pRawA5);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_Rw_Neg_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_Rw_Neg_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_Rw_Neg_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_Rw_Neg_unit_test");
-    compare_rawResult(pRawResult5, pRawResult5_c, 5, "Fq_Rw_Neg_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_Rw_Neg_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_Rw_Neg_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_Rw_Neg_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_Rw_Neg_unit_test");
+    compare_rawResult_Fq(pRawResult5, pRawResult5_c, 5, "Fq_Rw_Neg_unit_test");
 }
 
 
@@ -6502,10 +6179,10 @@ void Fq_Rw_copy_unit_test()
     Fq_rawCopy(pRawResult2_c, pRawA2);
     Fq_rawCopy(pRawResult3_c, pRawA3);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_Rw_copy_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_Rw_copy_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_Rw_copy_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_Rw_copy_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_Rw_copy_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_Rw_copy_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_Rw_copy_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_Rw_copy_unit_test");
 }
 
 
@@ -6544,11 +6221,11 @@ void Fq_Rw_add_unit_test()
     Fq_rawAdd(pRawResult3_c, pRawA3, pRawB3);
     Fq_rawAdd(pRawResult6_c, pRawA6, pRawB6);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_Rw_add_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_Rw_add_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_Rw_add_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_Rw_add_unit_test");
-    compare_rawResult(pRawResult6, pRawResult6_c, 6, "Fq_Rw_add_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_Rw_add_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_Rw_add_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_Rw_add_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_Rw_add_unit_test");
+    compare_rawResult_Fq(pRawResult6, pRawResult6_c, 6, "Fq_Rw_add_unit_test");
 }
 
 void Fq_Rw_sub_unit_test()
@@ -6580,10 +6257,10 @@ void Fq_Rw_sub_unit_test()
     Fq_rawSub(pRawResult2_c, pRawA2, pRawB2);
     Fq_rawSub(pRawResult3_c, pRawA3, pRawB3);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_Rw_sub_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_Rw_sub_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_Rw_sub_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_Rw_sub_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_Rw_sub_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_Rw_sub_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_Rw_sub_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_Rw_sub_unit_test");
 
 
 }
@@ -6607,7 +6284,7 @@ void Fq_Rw_sub_test(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pR
     std::cout << "FqRawElement pRawResult" << idx << "= " << std::hex << "{0x"<< pRawResult[0] << ",0x" << pRawResult[1] << ",0x" << pRawResult[2] << ",0x" << pRawResult[3] << "};"<< '\n';
 }
 
-void Fq_Rw_sub_unit_test()
+void Fq_Rw_mul_unit_test()
 {
     //Fq_Rw_mul_test 0:
     FqRawElement pRawA0= {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
@@ -6654,13 +6331,13 @@ void Fq_Rw_sub_unit_test()
     Fq_rawMMul(pRawResult5_c, pRawA5, pRawB5);
     Fq_rawMMul(pRawResult8_c, pRawA8, pRawB8);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_Rw_mul_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_Rw_mul_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_Rw_mul_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_Rw_mul_unit_test");
-    compare_rawResult(pRawResult4, pRawResult4_c, 4, "Fq_Rw_mul_unit_test");
-    compare_rawResult(pRawResult5, pRawResult5_c, 5, "Fq_Rw_mul_unit_test");
-    compare_rawResult(pRawResult8, pRawResult8_c, 8, "Fq_Rw_mul_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_Rw_mul_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_Rw_mul_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_Rw_mul_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_Rw_mul_unit_test");
+    compare_rawResult_Fq(pRawResult4, pRawResult4_c, 4, "Fq_Rw_mul_unit_test");
+    compare_rawResult_Fq(pRawResult5, pRawResult5_c, 5, "Fq_Rw_mul_unit_test");
+    compare_rawResult_Fq(pRawResult8, pRawResult8_c, 8, "Fq_Rw_mul_unit_test");
 }
 
 void Fq_Rw_mul_test(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB, int idx)
@@ -6698,10 +6375,10 @@ void Fq_Rw_Msquare_unit_test()
     Fq_rawMSquare(pRawResult2_c, pRawA2);
     Fq_rawMSquare(pRawResult3_c, pRawA3);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_Rw_Msquare_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_Rw_Msquare_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_Rw_Msquare_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_Rw_Msquare_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_Rw_Msquare_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_Rw_Msquare_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_Rw_Msquare_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_Rw_Msquare_unit_test");
 }
 
 void Fq_Rw_Msquare_test(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB, int idx)
@@ -6748,11 +6425,11 @@ void Fq_Rw_mul1_unit_test()
     Fq_rawMMul1(pRawResult3_c, pRawA3, pRawB3[0]);
     Fq_rawMMul1(pRawResult9_c, pRawA9, pRawB9[0]);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_Rw_mul1_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_Rw_mul1_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_Rw_mul1_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_Rw_mul1_unit_test");
-    compare_rawResult(pRawResult9, pRawResult9_c, 9, "Fq_Rw_mul1_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_Rw_mul1_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_Rw_mul1_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_Rw_mul1_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_Rw_mul1_unit_test");
+    compare_rawResult_Fq(pRawResult9, pRawResult9_c, 9, "Fq_Rw_mul1_unit_test");
 }
 
 void Fq_Rw_mul1_test(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB, int idx)
@@ -6789,10 +6466,10 @@ void Fq_Rw_ToMontgomery_unit_test()
     Fq_rawToMontgomery(pRawResult2_c, pRawA2);
     Fq_rawToMontgomery(pRawResult3_c, pRawA3);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_Rw_ToMontgomery_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_Rw_ToMontgomery_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_Rw_ToMontgomery_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_Rw_ToMontgomery_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_Rw_ToMontgomery_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_Rw_ToMontgomery_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_Rw_ToMontgomery_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_Rw_ToMontgomery_unit_test");
 }
 
 void Fq_Rw_ToMontgomery_test(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB, int idx)
@@ -6849,11 +6526,11 @@ void Fq_Rw_IsEq_unit_test()
     pRawResult3_c[0] = Fq_rawIsEq(pRawA3, pRawB3);
     pRawResult7_c[0] = Fq_rawIsEq(pRawA7, pRawB7);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_Rw_IsEq_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_Rw_IsEq_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_Rw_IsEq_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_Rw_IsEq_unit_test");
-    compare_rawResult(pRawResult7, pRawResult7_c, 7, "Fq_Rw_IsEq_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_Rw_IsEq_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_Rw_IsEq_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_Rw_IsEq_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_Rw_IsEq_unit_test");
+    compare_rawResult_Fq(pRawResult7, pRawResult7_c, 7, "Fq_Rw_IsEq_unit_test");
 }
 
 
@@ -6897,11 +6574,11 @@ void Fq_rawIsZero_unit_test()
     pRawResult3_c[0] = Fq_rawIsZero(pRawA3);
     pRawResult5_c[0] = Fq_rawIsZero(pRawA5);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_rawIsZero_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_rawIsZero_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_rawIsZero_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_rawIsZero_unit_test");
-    compare_rawResult(pRawResult5, pRawResult5_c, 5, "Fq_rawIsZero_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_rawIsZero_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_rawIsZero_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_rawIsZero_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_rawIsZero_unit_test");
+    compare_rawResult_Fq(pRawResult5, pRawResult5_c, 5, "Fq_rawIsZero_unit_test");
 }
 
 void Fq_Rw_FromMontgomery_unit_test()
@@ -6929,10 +6606,10 @@ void Fq_Rw_FromMontgomery_unit_test()
     Fq_rawFromMontgomery(pRawResult2_c, pRawA2);
     Fq_rawFromMontgomery(pRawResult3_c, pRawA3);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fq_Rw_FromMontgomery_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fq_Rw_FromMontgomery_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fq_Rw_FromMontgomery_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fq_Rw_FromMontgomery_unit_test");
+    compare_rawResult_Fq(pRawResult0, pRawResult0_c, 0, "Fq_Rw_FromMontgomery_unit_test");
+    compare_rawResult_Fq(pRawResult1, pRawResult1_c, 1, "Fq_Rw_FromMontgomery_unit_test");
+    compare_rawResult_Fq(pRawResult2, pRawResult2_c, 2, "Fq_Rw_FromMontgomery_unit_test");
+    compare_rawResult_Fq(pRawResult3, pRawResult3_c, 3, "Fq_Rw_FromMontgomery_unit_test");
 }
 
 void Fq_Rw_FromMontgomery_test(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB, int idx)
@@ -6969,10 +6646,10 @@ void Fq_toNormal_unit_test()
     Fq_toNormal(&Result2_c, &pA2);
     Fq_toNormal(&Result3_c, &pA3);
 
-    compare_Result(&pResult0, &Result0_c, 0, "Fq_toNormal_unit_test");
-    compare_Result(&pResult1, &Result1_c, 1, "Fq_toNormal_unit_test");
-    compare_Result(&pResult2, &Result2_c, 2, "Fq_toNormal_unit_test");
-    compare_Result(&pResult3, &Result3_c, 3, "Fq_toNormal_unit_test");
+    compare_Result_Fq(&pResult0, &Result0_c, 0, "Fq_toNormal_unit_test");
+    compare_Result_Fq(&pResult1, &Result1_c, 1, "Fq_toNormal_unit_test");
+    compare_Result_Fq(&pResult2, &Result2_c, 2, "Fq_toNormal_unit_test");
+    compare_Result_Fq(&pResult3, &Result3_c, 3, "Fq_toNormal_unit_test");
 }
 
 void Fq_toNormal_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7026,10 +6703,10 @@ void Fq_mul_s1s2_unit_test()
     Fq_mul(&Result2_c, &pA_s1s22, &pB_s1s22);
     Fq_mul(&Result3_c, &pA_s1s23, &pB_s1s23);
 
-    compare_Result(&pResult_s1s20, &Result0_c, 0, "Fq_mul_s1s2_unit_test");
-    compare_Result(&pResult_s1s21, &Result1_c, 1, "Fq_mul_s1s2_unit_test");
-    compare_Result(&pResult_s1s22, &Result2_c, 2, "Fq_mul_s1s2_unit_test");
-    compare_Result(&pResult_s1s23, &Result3_c, 3, "Fq_mul_s1s2_unit_test");
+    compare_Result_Fq(&pResult_s1s20, &Result0_c, 0, "Fq_mul_s1s2_unit_test");
+    compare_Result_Fq(&pResult_s1s21, &Result1_c, 1, "Fq_mul_s1s2_unit_test");
+    compare_Result_Fq(&pResult_s1s22, &Result2_c, 2, "Fq_mul_s1s2_unit_test");
+    compare_Result_Fq(&pResult_s1s23, &Result3_c, 3, "Fq_mul_s1s2_unit_test");
 }
 
 void Fq_mul_l1nl2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7070,10 +6747,10 @@ void Fq_mul_l1nl2n_unit_test()
     Fq_mul(&Result2_c, &pA_l1nl2n2, &pB_l1nl2n2);
     Fq_mul(&Result3_c, &pA_l1nl2n3, &pB_l1nl2n3);
 
-    compare_Result(&pResult_l1nl2n0, &Result0_c, 0, "Fq_mul_l1nl2n_unit_test");
-    compare_Result(&pResult_l1nl2n1, &Result1_c, 1, "Fq_mul_l1nl2n_unit_test");
-    compare_Result(&pResult_l1nl2n2, &Result2_c, 2, "Fq_mul_l1nl2n_unit_test");
-    compare_Result(&pResult_l1nl2n3, &Result3_c, 3, "Fq_mul_l1nl2n_unit_test");
+    compare_Result_Fq(&pResult_l1nl2n0, &Result0_c, 0, "Fq_mul_l1nl2n_unit_test");
+    compare_Result_Fq(&pResult_l1nl2n1, &Result1_c, 1, "Fq_mul_l1nl2n_unit_test");
+    compare_Result_Fq(&pResult_l1nl2n2, &Result2_c, 2, "Fq_mul_l1nl2n_unit_test");
+    compare_Result_Fq(&pResult_l1nl2n3, &Result3_c, 3, "Fq_mul_l1nl2n_unit_test");
 }
 
 void Fq_mul_l1ml2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7114,10 +6791,10 @@ void Fq_mul_l1ml2n_unit_test()
     Fq_mul(&Result2_c, &pA_l1ml2n2, &pB_l1ml2n2);
     Fq_mul(&Result3_c, &pA_l1ml2n3, &pB_l1ml2n3);
 
-    compare_Result(&pResult_l1ml2n0, &Result0_c, 0, "Fq_mul_l1ml2n_unit_test");
-    compare_Result(&pResult_l1ml2n1, &Result1_c, 1, "Fq_mul_l1ml2n_unit_test");
-    compare_Result(&pResult_l1ml2n2, &Result2_c, 2, "Fq_mul_l1ml2n_unit_test");
-    compare_Result(&pResult_l1ml2n3, &Result3_c, 3, "Fq_mul_l1ml2n_unit_test");
+    compare_Result_Fq(&pResult_l1ml2n0, &Result0_c, 0, "Fq_mul_l1ml2n_unit_test");
+    compare_Result_Fq(&pResult_l1ml2n1, &Result1_c, 1, "Fq_mul_l1ml2n_unit_test");
+    compare_Result_Fq(&pResult_l1ml2n2, &Result2_c, 2, "Fq_mul_l1ml2n_unit_test");
+    compare_Result_Fq(&pResult_l1ml2n3, &Result3_c, 3, "Fq_mul_l1ml2n_unit_test");
 }
 
 
@@ -7159,10 +6836,10 @@ void Fq_mul_l1ml2m_unit_test()
     Fq_mul(&Result2_c, &pA_l1ml2m2, &pB_l1ml2m2);
     Fq_mul(&Result3_c, &pA_l1ml2m3, &pB_l1ml2m3);
 
-    compare_Result(&pResult_l1ml2m0, &Result0_c, 0, "Fq_mul_l1ml2m_unit_test");
-    compare_Result(&pResult_l1ml2m1, &Result1_c, 1, "Fq_mul_l1ml2m_unit_test");
-    compare_Result(&pResult_l1ml2m2, &Result2_c, 2, "Fq_mul_l1ml2m_unit_test");
-    compare_Result(&pResult_l1ml2m3, &Result3_c, 3, "Fq_mul_l1ml2m_unit_test");
+    compare_Result_Fq(&pResult_l1ml2m0, &Result0_c, 0, "Fq_mul_l1ml2m_unit_test");
+    compare_Result_Fq(&pResult_l1ml2m1, &Result1_c, 1, "Fq_mul_l1ml2m_unit_test");
+    compare_Result_Fq(&pResult_l1ml2m2, &Result2_c, 2, "Fq_mul_l1ml2m_unit_test");
+    compare_Result_Fq(&pResult_l1ml2m3, &Result3_c, 3, "Fq_mul_l1ml2m_unit_test");
 }
 
 void Fq_mul_l1nl2m_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7204,10 +6881,10 @@ void Fq_mul_l1nl2m_unit_test()
     Fq_mul(&Result2_c, &pA_l1nl2m2, &pB_l1nl2m2);
     Fq_mul(&Result3_c, &pA_l1nl2m3, &pB_l1nl2m3);
 
-    compare_Result(&pResult_l1nl2m0, &Result0_c, 0, "Fq_mul_l1nl2m_unit_test");
-    compare_Result(&pResult_l1nl2m1, &Result1_c, 1, "Fq_mul_l1nl2m_unit_test");
-    compare_Result(&pResult_l1nl2m2, &Result2_c, 2, "Fq_mul_l1nl2m_unit_test");
-    compare_Result(&pResult_l1nl2m3, &Result3_c, 3, "Fq_mul_l1nl2m_unit_test");
+    compare_Result_Fq(&pResult_l1nl2m0, &Result0_c, 0, "Fq_mul_l1nl2m_unit_test");
+    compare_Result_Fq(&pResult_l1nl2m1, &Result1_c, 1, "Fq_mul_l1nl2m_unit_test");
+    compare_Result_Fq(&pResult_l1nl2m2, &Result2_c, 2, "Fq_mul_l1nl2m_unit_test");
+    compare_Result_Fq(&pResult_l1nl2m3, &Result3_c, 3, "Fq_mul_l1nl2m_unit_test");
 }
 
 void Fq_mul_l1ns2n_unit_test()
@@ -7239,10 +6916,10 @@ void Fq_mul_l1ns2n_unit_test()
     Fq_mul(&Result2_c, &pA_l1ns2n2, &pB_l1ns2n2);
     Fq_mul(&Result3_c, &pA_l1ns2n3, &pB_l1ns2n3);
 
-    compare_Result(&pResult_l1ns2n0, &Result0_c, 0, "Fq_mul_l1ns2n_unit_test");
-    compare_Result(&pResult_l1ns2n1, &Result1_c, 1, "Fq_mul_l1ns2n_unit_test");
-    compare_Result(&pResult_l1ns2n2, &Result2_c, 2, "Fq_mul_l1ns2n_unit_test");
-    compare_Result(&pResult_l1ns2n3, &Result3_c, 3, "Fq_mul_l1ns2n_unit_test");
+    compare_Result_Fq(&pResult_l1ns2n0, &Result0_c, 0, "Fq_mul_l1ns2n_unit_test");
+    compare_Result_Fq(&pResult_l1ns2n1, &Result1_c, 1, "Fq_mul_l1ns2n_unit_test");
+    compare_Result_Fq(&pResult_l1ns2n2, &Result2_c, 2, "Fq_mul_l1ns2n_unit_test");
+    compare_Result_Fq(&pResult_l1ns2n3, &Result3_c, 3, "Fq_mul_l1ns2n_unit_test");
 }
 
 void Fq_mul_l1ns2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7283,10 +6960,10 @@ void Fq_mul_s1nl2n_unit_test()
     Fq_mul(&Result2_c, &pA_s1nl2n2, &pB_s1nl2n2);
     Fq_mul(&Result3_c, &pA_s1nl2n3, &pB_s1nl2n3);
 
-    compare_Result(&pResult_s1nl2n0, &Result0_c, 0, "Fq_mul_s1nl2n_unit_test");
-    compare_Result(&pResult_s1nl2n1, &Result1_c, 1, "Fq_mul_s1nl2n_unit_test");
-    compare_Result(&pResult_s1nl2n2, &Result2_c, 2, "Fq_mul_s1nl2n_unit_test");
-    compare_Result(&pResult_s1nl2n3, &Result3_c, 3, "Fq_mul_s1nl2n_unit_test");
+    compare_Result_Fq(&pResult_s1nl2n0, &Result0_c, 0, "Fq_mul_s1nl2n_unit_test");
+    compare_Result_Fq(&pResult_s1nl2n1, &Result1_c, 1, "Fq_mul_s1nl2n_unit_test");
+    compare_Result_Fq(&pResult_s1nl2n2, &Result2_c, 2, "Fq_mul_s1nl2n_unit_test");
+    compare_Result_Fq(&pResult_s1nl2n3, &Result3_c, 3, "Fq_mul_s1nl2n_unit_test");
 }
 
 void Fq_mul_s1nl2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7327,10 +7004,10 @@ void Fq_mul_s1nl2m_unit_test()
     Fq_mul(&Result2_c, &pA_s1nl2m2, &pB_s1nl2m2);
     Fq_mul(&Result3_c, &pA_s1nl2m3, &pB_s1nl2m3);
 
-    compare_Result(&pResult_s1nl2m0, &Result0_c, 0, "Fq_mul_s1nl2m_unit_test");
-    compare_Result(&pResult_s1nl2m1, &Result1_c, 1, "Fq_mul_s1nl2m_unit_test");
-    compare_Result(&pResult_s1nl2m2, &Result2_c, 2, "Fq_mul_s1nl2m_unit_test");
-    compare_Result(&pResult_s1nl2m3, &Result3_c, 3, "Fq_mul_s1nl2m_unit_test");
+    compare_Result_Fq(&pResult_s1nl2m0, &Result0_c, 0, "Fq_mul_s1nl2m_unit_test");
+    compare_Result_Fq(&pResult_s1nl2m1, &Result1_c, 1, "Fq_mul_s1nl2m_unit_test");
+    compare_Result_Fq(&pResult_s1nl2m2, &Result2_c, 2, "Fq_mul_s1nl2m_unit_test");
+    compare_Result_Fq(&pResult_s1nl2m3, &Result3_c, 3, "Fq_mul_s1nl2m_unit_test");
 }
 
 void Fq_mul_s1nl2m_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7372,10 +7049,10 @@ void Fq_mul_l1ms2n_unit_test()
     Fq_mul(&Result2_c, &pA_l1ms2n2, &pB_l1ms2n2);
     Fq_mul(&Result3_c, &pA_l1ms2n3, &pB_l1ms2n3);
 
-    compare_Result(&pResult_l1ms2n0, &Result0_c, 0, "Fq_mul_l1ms2n_unit_test");
-    compare_Result(&pResult_l1ms2n1, &Result1_c, 1, "Fq_mul_l1ms2n_unit_test");
-    compare_Result(&pResult_l1ms2n2, &Result2_c, 2, "Fq_mul_l1ms2n_unit_test");
-    compare_Result(&pResult_l1ms2n3, &Result3_c, 3, "Fq_mul_l1ms2n_unit_test");
+    compare_Result_Fq(&pResult_l1ms2n0, &Result0_c, 0, "Fq_mul_l1ms2n_unit_test");
+    compare_Result_Fq(&pResult_l1ms2n1, &Result1_c, 1, "Fq_mul_l1ms2n_unit_test");
+    compare_Result_Fq(&pResult_l1ms2n2, &Result2_c, 2, "Fq_mul_l1ms2n_unit_test");
+    compare_Result_Fq(&pResult_l1ms2n3, &Result3_c, 3, "Fq_mul_l1ms2n_unit_test");
 }
 
 void Fq_mul_l1ms2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7417,10 +7094,10 @@ void Fq_mul_l1ns2m_unit_test()
     Fq_mul(&Result2_c, &pA_l1ns2m2, &pB_l1ns2m2);
     Fq_mul(&Result3_c, &pA_l1ns2m3, &pB_l1ns2m3);
 
-    compare_Result(&pResult_l1ns2m0, &Result0_c, 0, "Fq_mul_l1ns2m_unit_test");
-    compare_Result(&pResult_l1ns2m1, &Result1_c, 1, "Fq_mul_l1ns2m_unit_test");
-    compare_Result(&pResult_l1ns2m2, &Result2_c, 2, "Fq_mul_l1ns2m_unit_test");
-    compare_Result(&pResult_l1ns2m3, &Result3_c, 3, "Fq_mul_l1ns2m_unit_test");
+    compare_Result_Fq(&pResult_l1ns2m0, &Result0_c, 0, "Fq_mul_l1ns2m_unit_test");
+    compare_Result_Fq(&pResult_l1ns2m1, &Result1_c, 1, "Fq_mul_l1ns2m_unit_test");
+    compare_Result_Fq(&pResult_l1ns2m2, &Result2_c, 2, "Fq_mul_l1ns2m_unit_test");
+    compare_Result_Fq(&pResult_l1ns2m3, &Result3_c, 3, "Fq_mul_l1ns2m_unit_test");
 }
 
 void Fq_mul_l1ns2m_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7461,10 +7138,10 @@ void Fq_mul_l1ms2m_unit_test()
     Fq_mul(&Result2_c, &pA_l1ms2m2, &pB_l1ms2m2);
     Fq_mul(&Result3_c, &pA_l1ms2m3, &pB_l1ms2m3);
 
-    compare_Result(&pResult_l1ms2m0, &Result0_c, 0, "Fq_mul_l1ms2m_unit_test");
-    compare_Result(&pResult_l1ms2m1, &Result1_c, 1, "Fq_mul_l1ms2m_unit_test");
-    compare_Result(&pResult_l1ms2m2, &Result2_c, 2, "Fq_mul_l1ms2m_unit_test");
-    compare_Result(&pResult_l1ms2m3, &Result3_c, 3, "Fq_mul_l1ms2m_unit_test");
+    compare_Result_Fq(&pResult_l1ms2m0, &Result0_c, 0, "Fq_mul_l1ms2m_unit_test");
+    compare_Result_Fq(&pResult_l1ms2m1, &Result1_c, 1, "Fq_mul_l1ms2m_unit_test");
+    compare_Result_Fq(&pResult_l1ms2m2, &Result2_c, 2, "Fq_mul_l1ms2m_unit_test");
+    compare_Result_Fq(&pResult_l1ms2m3, &Result3_c, 3, "Fq_mul_l1ms2m_unit_test");
 }
 
 void Fq_mul_l1ms2m_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7506,10 +7183,10 @@ void Fq_mul_s1ml2m_unit_test()
     Fq_mul(&Result2_c, &pA_s1ml2m2, &pB_s1ml2m2);
     Fq_mul(&Result3_c, &pA_s1ml2m3, &pB_s1ml2m3);
 
-    compare_Result(&pResult_s1ml2m0, &Result0_c, 0, "Fq_mul_s1ml2m_unit_test");
-    compare_Result(&pResult_s1ml2m1, &Result1_c, 1, "Fq_mul_s1ml2m_unit_test");
-    compare_Result(&pResult_s1ml2m2, &Result2_c, 2, "Fq_mul_s1ml2m_unit_test");
-    compare_Result(&pResult_s1ml2m3, &Result3_c, 3, "Fq_mul_s1ml2m_unit_test");
+    compare_Result_Fq(&pResult_s1ml2m0, &Result0_c, 0, "Fq_mul_s1ml2m_unit_test");
+    compare_Result_Fq(&pResult_s1ml2m1, &Result1_c, 1, "Fq_mul_s1ml2m_unit_test");
+    compare_Result_Fq(&pResult_s1ml2m2, &Result2_c, 2, "Fq_mul_s1ml2m_unit_test");
+    compare_Result_Fq(&pResult_s1ml2m3, &Result3_c, 3, "Fq_mul_s1ml2m_unit_test");
 }
 
 void Fq_mul_s1ml2m_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7550,10 +7227,10 @@ void Fq_mul_s1ml2n_unit_test()
     Fq_mul(&Result2_c, &pA_s1ml2n2, &pB_s1ml2n2);
     Fq_mul(&Result3_c, &pA_s1ml2n3, &pB_s1ml2n3);
 
-    compare_Result(&pResult_s1ml2n0, &Result0_c, 0, "Fq_mul_s1ml2n_unit_test");
-    compare_Result(&pResult_s1ml2n1, &Result1_c, 1, "Fq_mul_s1ml2n_unit_test");
-    compare_Result(&pResult_s1ml2n2, &Result2_c, 2, "Fq_mul_s1ml2n_unit_test");
-    compare_Result(&pResult_s1ml2n3, &Result3_c, 3, "Fq_mul_s1ml2n_unit_test");
+    compare_Result_Fq(&pResult_s1ml2n0, &Result0_c, 0, "Fq_mul_s1ml2n_unit_test");
+    compare_Result_Fq(&pResult_s1ml2n1, &Result1_c, 1, "Fq_mul_s1ml2n_unit_test");
+    compare_Result_Fq(&pResult_s1ml2n2, &Result2_c, 2, "Fq_mul_s1ml2n_unit_test");
+    compare_Result_Fq(&pResult_s1ml2n3, &Result3_c, 3, "Fq_mul_s1ml2n_unit_test");
 }
 
 void Fq_mul_s1ml2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int idx)
@@ -7565,12 +7242,12 @@ void Fq_mul_s1ml2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int id
     std::cout << "FqElement pResult_s1ml2n" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
 }
 
-#endif
+//#endif
 
 
 int main()
 {
-/*
+
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_Rw_add_unit_test();
 //    Fr_Rw_add_test(pRawResult,  pRawA,  pRawB, 0);
@@ -9303,7 +8980,6 @@ int main()
     Fr_lor_s1l2n_test(&Result3_s1l2n,  &A3_s1l2n,  &B3_s1l2n, 3);
 #endif
 
-*/
 
 
 
@@ -9529,20 +9205,6 @@ int main()
     Fq_Rw_add_test(pRawResult2, pRawA2, pRawB2, 2);
     Fq_Rw_add_test(pRawResult3, pRawA3, pRawB3, 3);
     Fq_Rw_add_test(pRawResult6, pRawA6, pRawB6, 6);
-#endif
-
-#ifdef TEST_FQ_C_FUNCTIONS
-    Fq_Rw_sub_unit_test();
-//    Fq_Rw_sub_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fq_Rw_sub_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fq_Rw_sub_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fq_Rw_sub_test(pRawResult3, pRawA3, pRawB3, 3);
-#endif
-#ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_Rw_sub_test(pRawResult,  pRawA,  pRawB, 0);
-    Fq_Rw_sub_test(pRawResult1, pRawA1, pRawB1, 1);
-    Fq_Rw_sub_test(pRawResult2, pRawA2, pRawB2, 2);
-    Fq_Rw_sub_test(pRawResult3, pRawA3, pRawB3, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
