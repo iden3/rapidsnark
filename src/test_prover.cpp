@@ -417,6 +417,296 @@ FrElement A3_l1ms2 = {0xffff, Fr_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffff
 FrElement B3_l1ms2 = {0xffff, Fr_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
 
 
+//uint64_t uRawResult  = 0;
+//uint64_t uRawResult1 = 0;
+//uint64_t uRawResult2 = 0;
+//uint64_t uRawResult3 = 0;
+//uint64_t uRawResult4 = 0;
+//uint64_t uRawResult5 = 0;
+//uint64_t uRawResult6 = 0;
+//uint64_t uRawResult7 = 0;
+//uint64_t uRawResult8 = 0;
+//uint64_t uRawResult9 = 0;
+FqRawElement FqRawResult = {0,0,0,0};
+FqRawElement FqRawA = {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
+FqRawElement FqRawB = {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
+
+FqRawElement FqRawResult1 = {0,0,0,0};
+FqRawElement FqRawA1      = {0x1,0,0,0};
+FqRawElement FqRawB1      = {0x2,0,0,0};
+
+FqRawElement FqRawResult2 = {0,0,0,0};
+FqRawElement FqRawA2      = {0xfffffffffffffffe,0,0,0};
+FqRawElement FqRawB2      = {0xffffffffffffffff,0,0,0};
+
+FqRawElement FqRawResult3 = {0,0,0,0};
+FqRawElement FqRawA3      = {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
+FqRawElement FqRawB3      = {0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff};
+
+FqRawElement FqRawResult4 = {0,0,0,0};
+FqRawElement FqRawA4      = {0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe,0xfffffffffffffffe};
+FqRawElement FqRawB4      = {0xffffffffffffffff,0,0,0};
+
+FqRawElement FqRawResult5 = {0,0,0,0};
+FqRawElement FqRawA5      = {0x0,0,0,0};
+FqRawElement FqRawB5      = {0x2,0,0,0};
+
+FqRawElement FqRawResult6 = {0,0,0,0};
+FqRawElement FqRawA6      = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
+FqRawElement FqRawB6      = {0,0,0,0};
+
+FqRawElement FqRawResult7 = {0,0,0,0};
+FqRawElement FqRawA7      = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
+FqRawElement FqRawB7      = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
+
+FqRawElement FqRawResult8 = {0,0,0,0};
+FqRawElement FqRawA8      = {1,0,0,0};
+FqRawElement FqRawB8      = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
+
+
+FqRawElement FqRawResult9 = {0,0,0,0};
+FqRawElement FqRawA9      = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029};
+FqRawElement FqRawB9      = {1,0,0,0};
+
+
+FqElement FqResult = {0,0,{0,0,0,0}};
+FqElement FqA = {0xa1f0, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB = {0x1bb8, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult1 = {0,0,{0,0,0,0}};
+FqElement FqA1 = {0xa1f0, Fq_SHORTMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB1 = {0x1bb8, Fq_SHORTMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult2 = {0,0,{0,0,0,0}};
+FqElement FqA2 = {0xa1f0, Fq_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2 = {0x1bb8, Fq_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3 = {0,0,{0,0,0,0}};
+FqElement FqA3 = {0xa1f0, Fq_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB3 = {0x1bb8, Fq_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+
+
+// mul_s1s2
+FqElement FqResult_s1s2 = {0,0,{0,0,0,0}};
+FqElement FqA_s1s2 = {0x1, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB_s1s2 = {0x2, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult1_s1s2 = {0,0,{0,0,0,0}};
+FqElement FqA1_s1s2 = {0x0, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB1_s1s2 = {0x2, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult2_s1s2 = {0,0,{0,0,0,0}};
+FqElement FqA2_s1s2 = {0xa1f0, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_s1s2 = {0x1bb8, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_s1s2 = {0,0,{0,0,0,0}};
+FqElement FqA3_s1s2 = {INT_MAX, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB3_s1s2 = {INT_MAX, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+// mul_l1nl2n
+FqElement FqResult_l1nl2n = {0,0,{0,0,0,0}};
+FqElement FqA_l1nl2n = {0x1, Fq_LONG,{0x01,0,0,0}};
+FqElement FqB_l1nl2n = {0x2, Fq_LONG,{0x02,0,0,0}};
+
+FqElement FqResult1_l1nl2n = {0,0,{0,0,0,0}};
+FqElement FqA1_l1nl2n = {0x0, Fq_LONG,{0x0,0,0,0}};
+FqElement FqB1_l1nl2n = {0x2, Fq_LONG,{0x2,0,0,0}};
+
+FqElement FqResult2_l1nl2n = {0,0,{0,0,0,0}};
+FqElement FqA2_l1nl2n = {0xa1f0, Fq_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_l1nl2n= {0x1bb8, Fq_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_l1nl2n = {0,0,{0,0,0,0}};
+FqElement FqA3_l1nl2n = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_l1nl2n = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+
+// mul_l1ml2n
+FqElement FqResult_l1ml2n = {0,0,{0,0,0,0}};
+FqElement FqA_l1ml2n = {0x1, Fq_LONGMONTGOMERY,{0x01,0,0,0}};
+FqElement FqB_l1ml2n = {0x2, Fq_LONG,{0x02,0,0,0}};
+
+FqElement FqResult1_l1ml2n = {0,0,{0,0,0,0}};
+FqElement FqA1_l1ml2n = {0x0, Fq_LONGMONTGOMERY,{0x0,0,0,0}};
+FqElement FqB1_l1ml2n = {0x2, Fq_LONG,{0x2,0,0,0}};
+
+FqElement FqResult2_l1ml2n = {0,0,{0,0,0,0}};
+FqElement FqA2_l1ml2n = {0xa1f0, Fq_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_l1ml2n= {0x1bb8, Fq_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_l1ml2n = {0,0,{0,0,0,0}};
+FqElement FqA3_l1ml2n = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_l1ml2n = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+
+// mul_l1nl2m
+FqElement FqResult_l1nl2m = {0,0,{0,0,0,0}};
+FqElement FqA_l1nl2m = {0x1, Fq_LONG,{0x01,0,0,0}};
+FqElement FqB_l1nl2m = {0x2, Fq_LONGMONTGOMERY,{0x02,0,0,0}};
+
+FqElement FqResult1_l1nl2m = {0,0,{0,0,0,0}};
+FqElement FqA1_l1nl2m = {0x0, Fq_LONG,{0x0,0,0,0}};
+FqElement FqB1_l1nl2m = {0x2, Fq_LONGMONTGOMERY,{0x2,0,0,0}};
+
+FqElement FqResult2_l1nl2m = {0,0,{0,0,0,0}};
+FqElement FqA2_l1nl2m = {0xa1f0, Fq_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_l1nl2m= {0x1bb8, Fq_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_l1nl2m = {0,0,{0,0,0,0}};
+FqElement FqA3_l1nl2m = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_l1nl2m = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+
+// mul_l1ml2m
+FqElement FqResult_l1ml2m = {0,0,{0,0,0,0}};
+FqElement FqA_l1ml2m = {0x1, Fq_LONGMONTGOMERY,{0x01,0,0,0}};
+FqElement FqB_l1ml2m = {0x2, Fq_LONGMONTGOMERY,{0x02,0,0,0}};
+
+FqElement FqResult1_l1ml2m = {0,0,{0,0,0,0}};
+FqElement FqA1_l1ml2m = {0x0, Fq_LONGMONTGOMERY,{0x0,0,0,0}};
+FqElement FqB1_l1ml2m = {0x2, Fq_LONGMONTGOMERY,{0x2,0,0,0}};
+
+FqElement FqResult2_l1ml2m = {0,0,{0,0,0,0}};
+FqElement FqA2_l1ml2m = {0xa1f0, Fq_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_l1ml2m= {0x1bb8, Fq_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_l1ml2m = {0,0,{0,0,0,0}};
+FqElement FqA3_l1ml2m = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_l1ml2m = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+
+// mul_l1ns2n
+FqElement FqResult_l1ns2n = {0,0,{0,0,0,0}};
+FqElement FqA_l1ns2n = {0x1, Fq_LONG,{0x01,0,0,0}};
+FqElement FqB_l1ns2n = {0x2, Fq_SHORT,{0x02,0,0,0}};
+
+FqElement FqResult1_l1ns2n = {0,0,{0,0,0,0}};
+FqElement FqA1_l1ns2n = {0x0, Fq_LONG,{0x0,0,0,0}};
+FqElement FqB1_l1ns2n = {0x2, Fq_SHORT,{0x2,0,0,0}};
+
+FqElement FqResult2_l1ns2n = {0,0,{0,0,0,0}};
+FqElement FqA2_l1ns2n = {0xa1f0, Fq_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_l1ns2n= {0x1bb8, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_l1ns2n = {0,0,{0,0,0,0}};
+FqElement FqA3_l1ns2n = {INT_MAX, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_l1ns2n = {-1, Fq_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+
+//mul_s1nl2n
+FqElement FqResult_s1nl2n = {0,0,{0,0,0,0}};
+FqElement FqA_s1nl2n = {0x1, Fq_SHORT,{0x01,0,0,0}};
+FqElement FqB_s1nl2n = {0x2, Fq_LONG,{0x02,0,0,0}};
+
+FqElement FqResult1_s1nl2n = {0,0,{0,0,0,0}};
+FqElement FqA1_s1nl2n = {0x0, Fq_SHORT,{0x0,0,0,0}};
+FqElement FqB1_s1nl2n = {0x2, Fq_LONG,{0x2,0,0,0}};
+
+FqElement FqResult2_s1nl2n = {0,0,{0,0,0,0}};
+FqElement FqA2_s1nl2n = {0xa1f0, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_s1nl2n= {0x1bb8, Fq_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_s1nl2n = {0,0,{0,0,0,0}};
+FqElement FqA3_s1nl2n = {-1, Fq_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_s1nl2n = {INT_MAX, Fq_LONG,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
+
+//mul_s1nl2m
+FqElement FqResult_s1nl2m = {0,0,{0,0,0,0}};
+FqElement FqA_s1nl2m = {0x1, Fq_SHORT,{0x01,0,0,0}};
+FqElement FqB_s1nl2m = {0x2, Fq_LONGMONTGOMERY,{0x02,0,0,0}};
+
+FqElement FqResult1_s1nl2m = {0,0,{0,0,0,0}};
+FqElement FqA1_s1nl2m = {0x0, Fq_SHORT,{0x0,0,0,0}};
+FqElement FqB1_s1nl2m = {0x2, Fq_LONGMONTGOMERY,{0x2,0,0,0}};
+
+FqElement FqResult2_s1nl2m = {0,0,{0,0,0,0}};
+FqElement FqA2_s1nl2m = {0xa1f0, Fq_SHORT,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_s1nl2m = {0x1bb8, Fq_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_s1nl2m = {0,0,{0,0,0,0}};
+FqElement FqA3_s1nl2m = {-1, Fq_SHORT,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_s1nl2m = {INT_MAX, Fq_LONGMONTGOMERY,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
+
+//mul_l1ms2n
+FqElement FqResult_l1ms2n = {0,0,{0,0,0,0}};
+FqElement FqA_l1ms2n = {0x1, Fq_LONGMONTGOMERY,{0x01,0,0,0}};
+FqElement FqB_l1ms2n = {0x2, Fq_SHORT,{0x02,0,0,0}};
+
+FqElement FqResult1_l1ms2n = {0,0,{0,0,0,0}};
+FqElement FqA1_l1ms2n = {0x0, Fq_LONGMONTGOMERY,{0x0,0,0,0}};
+FqElement FqB1_l1ms2n = {0x2, Fq_SHORT,{0x2,0,0,0}};
+
+FqElement FqResult2_l1ms2n = {0,0,{0,0,0,0}};
+FqElement FqA2_l1ms2n = {0xa1f0, Fq_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_l1ms2n= {0x1bb8, Fq_SHORT,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_l1ms2n = {0,0,{0,0,0,0}};
+FqElement FqA3_l1ms2n = {0xffff, Fq_LONGMONTGOMERY,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
+FqElement FqB3_l1ms2n = {-1, Fq_SHORT,{LONG_MAX,LONG_MAX,LONG_MAX,LONG_MAX}};
+
+//mul_l1ns2m
+FqElement FqResult_l1ns2m = {0,0,{0,0,0,0}};
+FqElement FqA_l1ns2m = {0x1, Fq_LONG,{0x01,0,0,0}};
+FqElement FqB_l1ns2m = {0x2, Fq_SHORTMONTGOMERY,{0x02,0,0,0}};
+
+FqElement FqResult1_l1ns2m = {0,0,{0,0,0,0}};
+FqElement FqA1_l1ns2m = {0x0, Fq_LONG,{0x0,0,0,0}};
+FqElement FqB1_l1ns2m = {0x2, Fq_SHORTMONTGOMERY,{0x2,0,0,0}};
+
+FqElement FqResult2_l1ns2m = {0,0,{0,0,0,0}};
+FqElement FqA2_l1ns2m = {0xa1f0, Fq_LONG,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_l1ns2m= {0x1bb8, Fq_SHORTMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_l1ns2m = {0,0,{0,0,0,0}};
+FqElement FqA3_l1ns2m = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_l1ns2m = {0xffff, Fq_SHORTMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+
+//mul_l1ms2m
+FqElement FqResult_l1ms2m = {0,0,{0,0,0,0}};
+FqElement FqA_l1ms2m = {0x1, Fq_LONGMONTGOMERY,{0x01,0,0,0}};
+FqElement FqB_l1ms2m = {0x2, Fq_SHORTMONTGOMERY,{0x02,0,0,0}};
+
+FqElement FqResult1_l1ms2m = {0,0,{0,0,0,0}};
+FqElement FqA1_l1ms2m = {0x0, Fq_LONGMONTGOMERY,{0x0,0,0,0}};
+FqElement FqB1_l1ms2m = {0x2, Fq_SHORTMONTGOMERY,{0x2,0,0,0}};
+
+FqElement FqResult2_l1ms2m = {0,0,{0,0,0,0}};
+FqElement FqA2_l1ms2m = {0xa1f0, Fq_LONGMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_l1ms2m= {0x1bb8, Fq_SHORTMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_l1ms2m = {0,0,{0,0,0,0}};
+FqElement FqA3_l1ms2m = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_l1ms2m = {0xffff, Fq_SHORTMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+
+//mul_s1ml2m
+FqElement FqResult_s1ml2m = {0,0,{0,0,0,0}};
+FqElement FqA_s1ml2m = {0x1, Fq_SHORTMONTGOMERY,{0x01,0,0,0}};
+FqElement FqB_s1ml2m = {0x2, Fq_LONGMONTGOMERY,{0x02,0,0,0}};
+
+FqElement FqResult1_s1ml2m = {0,0,{0,0,0,0}};
+FqElement FqA1_s1ml2m = {0x0, Fq_SHORTMONTGOMERY,{0x0,0,0,0}};
+FqElement FqB1_s1ml2m = {0x2, Fq_LONGMONTGOMERY,{0x2,0,0,0}};
+
+FqElement FqResult2_s1ml2m = {0,0,{0,0,0,0}};
+FqElement FqA2_s1ml2m = {0xa1f0, Fq_SHORTMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_s1ml2m = {0x1bb8, Fq_LONGMONTGOMERY,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_s1ml2m = {0,0,{0,0,0,0}};
+FqElement FqA3_s1ml2m = {0xffff, Fq_SHORTMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_s1ml2m = {0xffff, Fq_LONGMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+
+//mul_s1ml2n
+FqElement FqResult_s1ml2n = {0,0,{0,0,0,0}};
+FqElement FqA_s1ml2n = {0x1, Fq_SHORTMONTGOMERY,{0x01,0,0,0}};
+FqElement FqB_s1ml2n = {0x2, Fq_LONG,{0x02,0,0,0}};
+
+FqElement FqResult1_s1ml2n = {0,0,{0,0,0,0}};
+FqElement FqA1_s1ml2n = {0x0, Fq_SHORTMONTGOMERY,{0x0,0,0,0}};
+FqElement FqB1_s1ml2n = {0x2, Fq_LONG,{0x2,0,0,0}};
+
+FqElement FqResult2_s1ml2n = {0,0,{0,0,0,0}};
+FqElement FqA2_s1ml2n = {0xa1f0, Fq_SHORTMONTGOMERY,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+FqElement FqB2_s1ml2n = {0x1bb8, Fq_LONG,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5}};
+
+FqElement FqResult3_s1ml2n = {0,0,{0,0,0,0}};
+FqElement FqA3_s1ml2n = {0xffff, Fq_SHORTMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+FqElement FqB3_s1ml2n = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
 
 void compare_rawResult(FrRawElement pRawResult_asm, FrRawElement pRawResult_c, int idx, std::string TestName)
 {
@@ -8347,7 +8637,7 @@ int main()
     Fr_neq_s1l2m_test(&Result3_s1l2m,  &A3_s1l2m,  &B3_s1l2m, 3);
     #endif
 #endif
-#ifdef TESxorValT_FR_ASM_FUNCTIONS
+#ifdef TEST_FR_ASM_FUNCTIONS
     Fr_neq_s1l2m_test(&Result_s1l2m,   &A_s1l2m,   &B_s1l2m, 0);
     Fr_neq_s1l2m_test(&Result1_s1l2m,  &A1_s1l2m,  &B1_s1l2m, 1);
     Fr_neq_s1l2m_test(&Result2_s1l2m,  &A2_s1l2m,  &B2_s1l2m, 2);
@@ -9192,353 +9482,362 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_add_unit_test();
-//    Fq_Rw_add_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fq_Rw_add_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fq_Rw_add_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fq_Rw_add_test(pRawResult3, pRawA3, pRawB3, 3);
+//    Fq_Rw_add_test(FqRawResult,  FqRawA,  FqRawB, 0);
+//    Fq_Rw_add_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+//    Fq_Rw_add_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+//    Fq_Rw_add_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_Rw_add_test(pRawResult,  pRawA,  pRawB, 0);
-    Fq_Rw_add_test(pRawResult1, pRawA1, pRawB1, 1);
-    Fq_Rw_add_test(pRawResult2, pRawA2, pRawB2, 2);
-    Fq_Rw_add_test(pRawResult3, pRawA3, pRawB3, 3);
-    Fq_Rw_add_test(pRawResult6, pRawA6, pRawB6, 6);
+    Fq_Rw_add_test(FqRawResult,  FqRawA,  FqRawB, 0);
+    Fq_Rw_add_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+    Fq_Rw_add_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+    Fq_Rw_add_test(FqRawResult3, FqRawA3, FqRawB3, 3);
+    Fq_Rw_add_test(FqRawResult6, FqRawA6, FqRawB6, 6);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_copy_unit_test();
-//    Fq_Rw_copy_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fq_Rw_copy_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fq_Rw_copy_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fq_Rw_copy_test(pRawResult3, pRawA3, pRawB3, 3);
+//    Fq_Rw_copy_test(FqRawResult,  FqRawA,  FqRawB, 0);
+//    Fq_Rw_copy_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+//    Fq_Rw_copy_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+//    Fq_Rw_copy_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_Rw_copy_test(pRawResult,  pRawA,  pRawB, 0);
-    Fq_Rw_copy_test(pRawResult1, pRawA1, pRawB1, 1);
-    Fq_Rw_copy_test(pRawResult2, pRawA2, pRawB2, 2);
-    Fq_Rw_copy_test(pRawResult3, pRawA3, pRawB3, 3);
+    Fq_Rw_copy_test(FqRawResult,  FqRawA,  FqRawB, 0);
+    Fq_Rw_copy_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+    Fq_Rw_copy_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+    Fq_Rw_copy_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_Neg_unit_test();
-//    Fq_Rw_Neg_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fq_Rw_Neg_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fq_Rw_Neg_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fq_Rw_Neg_test(pRawResult3, pRawA3, pRawB3, 3);
-//    Fq_Rw_Neg_test(pRawResult5, pRawA5, pRawB5, 3);
+//    Fq_Rw_Neg_test(FqRawResult,  FqRawA,  FqRawB, 0);
+//    Fq_Rw_Neg_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+//    Fq_Rw_Neg_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+//    Fq_Rw_Neg_test(FqRawResult3, FqRawA3, FqRawB3, 3);
+//    Fq_Rw_Neg_test(FqRawResult5, FqRawA5, FqRawB5, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_Rw_Neg_test(pRawResult,  pRawA,  pRawB, 0);
-    Fq_Rw_Neg_test(pRawResult1, pRawA1, pRawB1, 1);
-    Fq_Rw_Neg_test(pRawResult2, pRawA2, pRawB2, 2);
-    Fq_Rw_Neg_test(pRawResult3, pRawA3, pRawB3, 3);
-    Fq_Rw_Neg_test(pRawResult5, pRawA5, pRawB5, 5);
+    Fq_Rw_Neg_test(FqRawResult,  FqRawA,  FqRawB, 0);
+    Fq_Rw_Neg_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+    Fq_Rw_Neg_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+    Fq_Rw_Neg_test(FqRawResult3, FqRawA3, FqRawB3, 3);
+    Fq_Rw_Neg_test(FqRawResult5, FqRawA5, FqRawB5, 5);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
-    Fq_Rw_sub_unit_test();
-//    Fq_Rw_mul_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fq_Rw_mul_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fq_Rw_mul_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fq_Rw_mul_test(pRawResult3, pRawA3, pRawB3, 3);
-//    Fq_Rw_mul_test(pRawResult4, pRawA4, pRawB4, 4);
-//    Fq_Rw_mul_test(pRawResult5, pRawA5, pRawB5, 5);
+    Fq_Rw_mul_unit_test();
+//    Fq_Rw_mul_test(FqRawResult,  FqRawA,  FqRawB, 0);
+//    Fq_Rw_mul_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+//    Fq_Rw_mul_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+//    Fq_Rw_mul_test(FqRawResult3, FqRawA3, FqRawB3, 3);
+//    Fq_Rw_mul_test(FqRawResult4, FqRawA4, FqRawB4, 4);
+//    Fq_Rw_mul_test(FqRawResult5, FqRawA5, FqRawB5, 5);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_Rw_mul_test(pRawResult,  pRawA,  pRawB, 0);
-    Fq_Rw_mul_test(pRawResult1, pRawA1, pRawB1, 1);
-    Fq_Rw_mul_test(pRawResult2, pRawA2, pRawB2, 2);
-    Fq_Rw_mul_test(pRawResult3, pRawA3, pRawB3, 3);
-    Fq_Rw_mul_test(pRawResult4, pRawA4, pRawB4, 4);
-    Fq_Rw_mul_test(pRawResult5, pRawA5, pRawB5, 5);
-    Fq_Rw_mul_test(pRawResult8, pRawA8, pRawB8, 8);
+    Fq_Rw_mul_test(FqRawResult,  FqRawA,  FqRawB, 0);
+    Fq_Rw_mul_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+    Fq_Rw_mul_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+    Fq_Rw_mul_test(FqRawResult3, FqRawA3, FqRawB3, 3);
+    Fq_Rw_mul_test(FqRawResult4, FqRawA4, FqRawB4, 4);
+    Fq_Rw_mul_test(FqRawResult5, FqRawA5, FqRawB5, 5);
+    Fq_Rw_mul_test(FqRawResult8, FqRawA8, FqRawB8, 8);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_Msquare_unit_test();
-//    Fq_Rw_Msquare_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fq_Rw_Msquare_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fq_Rw_Msquare_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fq_Rw_Msquare_test(pRawResult3, pRawA3, pRawB3, 3);
+//    Fq_Rw_Msquare_test(FqRawResult,  FqRawA,  FqRawB, 0);
+//    Fq_Rw_Msquare_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+//    Fq_Rw_Msquare_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+//    Fq_Rw_Msquare_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_Rw_Msquare_test(pRawResult,  pRawA,  pRawB, 0);
-    Fq_Rw_Msquare_test(pRawResult1, pRawA1, pRawB1, 1);
-    Fq_Rw_Msquare_test(pRawResult2, pRawA2, pRawB2, 2);
-    Fq_Rw_Msquare_test(pRawResult3, pRawA3, pRawB3, 3);
+    Fq_Rw_Msquare_test(FqRawResult,  FqRawA,  FqRawB, 0);
+    Fq_Rw_Msquare_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+    Fq_Rw_Msquare_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+    Fq_Rw_Msquare_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_mul1_unit_test();
-//    Fq_Rw_mul1_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fq_Rw_mul1_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fq_Rw_mul1_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fq_Rw_mul1_test(pRawResult3, pRawA3, pRawB3, 3);
+//    Fq_Rw_mul1_test(FqRawResult,  FqRawA,  FqRawB, 0);
+//    Fq_Rw_mul1_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+//    Fq_Rw_mul1_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+//    Fq_Rw_mul1_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_Rw_mul1_test(pRawResult,  pRawA,  pRawB, 0);
-    Fq_Rw_mul1_test(pRawResult1, pRawA1, pRawB1, 1);
-    Fq_Rw_mul1_test(pRawResult2, pRawA2, pRawB2, 2);
-    Fq_Rw_mul1_test(pRawResult3, pRawA3, pRawB3, 3);
-    Fq_Rw_mul1_test(pRawResult9, pRawA9, pRawB9, 9);
+    Fq_Rw_mul1_test(FqRawResult,  FqRawA,  FqRawB, 0);
+    Fq_Rw_mul1_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+    Fq_Rw_mul1_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+    Fq_Rw_mul1_test(FqRawResult3, FqRawA3, FqRawB3, 3);
+    Fq_Rw_mul1_test(FqRawResult9, FqRawA9, FqRawB9, 9);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_ToMontgomery_unit_test();
-//    Fq_Rw_ToMontgomery_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fq_Rw_ToMontgomery_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fq_Rw_ToMontgomery_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fq_Rw_ToMontgomery_test(pRawResult3, pRawA3, pRawB3, 3);
+//    Fq_Rw_ToMontgomery_test(FqRawResult,  FqRawA,  FqRawB, 0);
+//    Fq_Rw_ToMontgomery_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+//    Fq_Rw_ToMontgomery_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+//    Fq_Rw_ToMontgomery_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_Rw_ToMontgomery_test(pRawResult,  pRawA,  pRawB, 0);
-    Fq_Rw_ToMontgomery_test(pRawResult1, pRawA1, pRawB1, 1);
-    Fq_Rw_ToMontgomery_test(pRawResult2, pRawA2, pRawB2, 2);
-    Fq_Rw_ToMontgomery_test(pRawResult3, pRawA3, pRawB3, 3);
+    Fq_Rw_ToMontgomery_test(FqRawResult,  FqRawA,  FqRawB, 0);
+    Fq_Rw_ToMontgomery_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+    Fq_Rw_ToMontgomery_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+    Fq_Rw_ToMontgomery_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_IsEq_unit_test();
-//    Fr_rawIsEq_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fr_rawIsEq_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fr_rawIsEq_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fr_rawIsEq_test(pRawResult3, pRawA3, pRawB3, 3);
+//    Fr_rawIsEq_test(FqRawResult,  FqRawA,  FqRawB, 0);
+//    Fr_rawIsEq_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+//    Fr_rawIsEq_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+//    Fr_rawIsEq_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_rawIsEq_test(uRawResult,  pRawA,  pRawB, 0);
-    Fq_rawIsEq_test(uRawResult1, pRawA1, pRawB1, 1);
-    Fq_rawIsEq_test(uRawResult2, pRawA2, pRawB2, 2);
-    Fq_rawIsEq_test(uRawResult3, pRawA3, pRawB3, 3);
-    Fq_rawIsEq_test(uRawResult7, pRawA7, pRawB7, 7);
+    Fq_rawIsEq_test(uRawResult,  FqRawA,  FqRawB, 0);
+    Fq_rawIsEq_test(uRawResult1, FqRawA1, FqRawB1, 1);
+    Fq_rawIsEq_test(uRawResult2, FqRawA2, FqRawB2, 2);
+    Fq_rawIsEq_test(uRawResult3, FqRawA3, FqRawB3, 3);
+    Fq_rawIsEq_test(uRawResult7, FqRawA7, FqRawB7, 7);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_rawIsZero_unit_test();
-//    Fq_rawIsZero_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fq_rawIsZero_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fq_rawIsZero_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fq_rawIsZero_test(pRawResult3, pRawA3, pRawB3, 3);
+//    Fq_rawIsZero_test(FqRawResult,  FqRawA,  FqRawB, 0);
+//    Fq_rawIsZero_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+//    Fq_rawIsZero_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+//    Fq_rawIsZero_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_rawIsZero_test(uRawResult,  pRawA,  pRawB, 0);
-    Fq_rawIsZero_test(uRawResult1, pRawA1, pRawB1, 1);
-    Fq_rawIsZero_test(uRawResult2, pRawA2, pRawB2, 2);
-    Fq_rawIsZero_test(uRawResult3, pRawA3, pRawB3, 3);
-    Fq_rawIsZero_test(uRawResult5, pRawA5, pRawB5, 5);
+    Fq_rawIsZero_test(uRawResult,  FqRawA,  FqRawB, 0);
+    Fq_rawIsZero_test(uRawResult1, FqRawA1, FqRawB1, 1);
+    Fq_rawIsZero_test(uRawResult2, FqRawA2, FqRawB2, 2);
+    Fq_rawIsZero_test(uRawResult3, FqRawA3, FqRawB3, 3);
+    Fq_rawIsZero_test(uRawResult5, FqRawA5, FqRawB5, 5);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_Rw_FromMontgomery_unit_test();
-//    Fq_Rw_FromMontgomery_test(pRawResult,  pRawA,  pRawB, 0);
-//    Fq_Rw_FromMontgomery_test(pRawResult1, pRawA1, pRawB1, 1);
-//    Fq_Rw_FromMontgomery_test(pRawResult2, pRawA2, pRawB2, 2);
-//    Fq_Rw_FromMontgomery_test(pRawResult3, pRawA3, pRawB3, 3);
+//    Fq_Rw_FromMontgomery_test(FqRawResult,  FqRawA,  FqRawB, 0);
+//    Fq_Rw_FromMontgomery_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+//    Fq_Rw_FromMontgomery_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+//    Fq_Rw_FromMontgomery_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_Rw_FromMontgomery_test(pRawResult,  pRawA,  pRawB, 0);
-    Fq_Rw_FromMontgomery_test(pRawResult1, pRawA1, pRawB1, 1);
-    Fq_Rw_FromMontgomery_test(pRawResult2, pRawA2, pRawB2, 2);
-    Fq_Rw_FromMontgomery_test(pRawResult3, pRawA3, pRawB3, 3);
+    Fq_Rw_FromMontgomery_test(FqRawResult,  FqRawA,  FqRawB, 0);
+    Fq_Rw_FromMontgomery_test(FqRawResult1, FqRawA1, FqRawB1, 1);
+    Fq_Rw_FromMontgomery_test(FqRawResult2, FqRawA2, FqRawB2, 2);
+    Fq_Rw_FromMontgomery_test(FqRawResult3, FqRawA3, FqRawB3, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_toNormal_unit_test();
-//    Fq_toNormal_test(&RawResult,  &RawA,  &RawB, 0);
-//    Fq_toNormal_test(&RawResult1, &RawA1, &RawB1, 1);
-//    Fq_toNormal_test(&RawResult2, &RawA2, &RawB2, 2);
-//    Fq_toNormal_test(&RawResult3, &RawA3, &RawB3, 3);
+//    Fq_toNormal_test(&FqResult,  &FqA,  &FqB, 0);
+//    Fq_toNormal_test(&FqResult1, &FqA1, &FqB1, 1);
+//    Fq_toNormal_test(&FqResult2, &FqA2, &FqB2, 2);
+//    Fq_toNormal_test(&FqResult3, &FqA3, &FqB3, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_toNormal_test(&RawResult,  &RawA,  &RawB, 0);
-    Fq_toNormal_test(&RawResult1, &RawA1, &RawB1, 1);
-    Fq_toNormal_test(&RawResult2, &RawA2, &RawB2, 2);
-    Fq_toNormal_test(&RawResult3, &RawA3, &RawB3, 3);
+    Fq_toNormal_test(&FqResult,  &FqA,  &FqB, 0);
+    Fq_toNormal_test(&FqResult1, &FqA1, &FqB1, 1);
+    Fq_toNormal_test(&FqResult2, &FqA2, &FqB2, 2);
+    Fq_toNormal_test(&FqResult3, &FqA3, &FqB3, 3);
 #endif
 
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_s1s2_unit_test();
-//    Fq_mul_s1s2_test(&Result_s1s2,  &A_s1s2,  &B_s1s2, 0);
-//    Fq_mul_s1s2_test(&Result1_s1s2, &A1_s1s2, &B1_s1s2, 1);
-//    Fq_mul_s1s2_test(&Result2_s1s2, &A2_s1s2, &B2_s1s2, 2);
-//    Fq_mul_s1s2_test(&Result3_s1s2, &A3_s1s2, &B3_s1s2, 3);
+//    Fq_mul_s1s2_test(&FqResult_s1s2,  &FqA_s1s2,  &FqB_s1s2, 0);
+//    Fq_mul_s1s2_test(&FqResult1_s1s2, &FqA1_s1s2, &FqB1_s1s2, 1);
+//    Fq_mul_s1s2_test(&FqResult2_s1s2, &FqA2_s1s2, &FqB2_s1s2, 2);
+//    Fq_mul_s1s2_test(&FqResult3_s1s2, &FqA3_s1s2, &FqB3_s1s2, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_s1s2_test(&Result_s1s2,  &A_s1s2,  &B_s1s2, 0);
-    Fq_mul_s1s2_test(&Result1_s1s2, &A1_s1s2, &B1_s1s2, 1);
-    Fq_mul_s1s2_test(&Result2_s1s2, &A2_s1s2, &B2_s1s2, 2);
-    Fq_mul_s1s2_test(&Result3_s1s2, &A3_s1s2, &B3_s1s2, 3);
+    Fq_mul_s1s2_test(&FqResult_s1s2,  &FqA_s1s2,  &FqB_s1s2, 0);
+    Fq_mul_s1s2_test(&FqResult1_s1s2, &FqA1_s1s2, &FqB1_s1s2, 1);
+    Fq_mul_s1s2_test(&FqResult2_s1s2, &FqA2_s1s2, &FqB2_s1s2, 2);
+    Fq_mul_s1s2_test(&FqResult3_s1s2, &FqA3_s1s2, &FqB3_s1s2, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_l1nl2n_unit_test();
-//    Fq_mul_l1nl2n_test(&Result_l1nl2n, &A_l1nl2n,  &B_l1nl2n, 0);
-//    Fq_mul_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
-//    Fq_mul_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
-//    Fq_mul_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
+//    Fq_mul_l1nl2n_test(&FqResult_l1nl2n, &FqA_l1nl2n,  &FqB_l1nl2n, 0);
+//    Fq_mul_l1nl2n_test(&FqResult1_l1nl2n, &FqA1_l1nl2n, &FqB1_l1nl2n, 1);
+//    Fq_mul_l1nl2n_test(&FqResult2_l1nl2n, &FqA2_l1nl2n, &FqB2_l1nl2n, 2);
+//    Fq_mul_l1nl2n_test(&FqResult3_l1nl2n, &FqA3_l1nl2n, &FqB3_l1nl2n, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_l1nl2n_test(&Result_l1nl2n,  &A_l1nl2n,  &B_l1nl2n, 0);
-    Fq_mul_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
-    Fq_mul_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
-    Fq_mul_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
+    Fq_mul_l1nl2n_test(&FqResult_l1nl2n,  &FqA_l1nl2n,  &FqB_l1nl2n, 0);
+    Fq_mul_l1nl2n_test(&FqResult1_l1nl2n, &FqA1_l1nl2n, &FqB1_l1nl2n, 1);
+    Fq_mul_l1nl2n_test(&FqResult2_l1nl2n, &FqA2_l1nl2n, &FqB2_l1nl2n, 2);
+    Fq_mul_l1nl2n_test(&FqResult3_l1nl2n, &FqA3_l1nl2n, &FqB3_l1nl2n, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
    Fq_mul_l1ml2n_unit_test();
-//    Fq_mul_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
-//    Fq_mul_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-//    Fq_mul_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-//    Fq_mul_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+//    Fq_mul_l1ml2n_test(&FqResult_l1ml2n, &FqA_l1ml2n,  &FqB_l1ml2n, 0);
+//    Fq_mul_l1ml2n_test(&FqResult1_l1ml2n, &FqA1_l1ml2n, &FqB1_l1ml2n, 1);
+//    Fq_mul_l1ml2n_test(&FqResult2_l1ml2n, &FqA2_l1ml2n, &FqB2_l1ml2n, 2);
+//    Fq_mul_l1ml2n_test(&FqResult3_l1ml2n, &FqA3_l1ml2n, &FqB3_l1ml2n, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
-    Fq_mul_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-    Fq_mul_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-    Fq_mul_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+    Fq_mul_l1ml2n_test(&FqResult_l1ml2n, &FqA_l1ml2n,  &FqB_l1ml2n, 0);
+    Fq_mul_l1ml2n_test(&FqResult1_l1ml2n, &FqA1_l1ml2n, &FqB1_l1ml2n, 1);
+    Fq_mul_l1ml2n_test(&FqResult2_l1ml2n, &FqA2_l1ml2n, &FqB2_l1ml2n, 2);
+    Fq_mul_l1ml2n_test(&FqResult3_l1ml2n, &FqA3_l1ml2n, &FqB3_l1ml2n, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_l1ml2m_unit_test();
-//    Fq_mul_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
-//    Fq_mul_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-//    Fq_mul_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-//    Fq_mul_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+//    Fq_mul_l1ml2n_test(&FqResult_l1ml2n, &FqA_l1ml2n,  &FqB_l1ml2n, 0);
+//    Fq_mul_l1ml2n_test(&FqResult1_l1ml2n, &FqA1_l1ml2n, &FqB1_l1ml2n, 1);
+//    Fq_mul_l1ml2n_test(&FqResult2_l1ml2n, &FqA2_l1ml2n, &FqB2_l1ml2n, 2);
+//    Fq_mul_l1ml2n_test(&FqResult3_l1ml2n, &FqA3_l1ml2n, &FqB3_l1ml2n, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_l1ml2m_test(&Result_l1ml2m, &A_l1ml2m,  &B_l1ml2m, 0);
-    Fq_mul_l1ml2m_test(&Result1_l1ml2m, &A1_l1ml2m, &B1_l1ml2m, 1);
-    Fq_mul_l1ml2m_test(&Result2_l1ml2m, &A2_l1ml2m, &B2_l1ml2m, 2);
-    Fq_mul_l1ml2m_test(&Result3_l1ml2m, &A3_l1ml2m, &B3_l1ml2m, 3);
+    Fq_mul_l1ml2m_test(&FqResult_l1ml2m, &FqA_l1ml2m,  &FqB_l1ml2m, 0);
+    Fq_mul_l1ml2m_test(&FqResult1_l1ml2m, &FqA1_l1ml2m, &FqB1_l1ml2m, 1);
+    Fq_mul_l1ml2m_test(&FqResult2_l1ml2m, &FqA2_l1ml2m, &FqB2_l1ml2m, 2);
+    Fq_mul_l1ml2m_test(&FqResult3_l1ml2m, &FqA3_l1ml2m, &FqB3_l1ml2m, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_l1nl2m_unit_test();
-//    Fq_mul_l1nl2n_test(&Result_l1nl2n, &A_l1ml2n,  &B_l1ml2n, 0);
-//    Fq_mul_l1nl2n_test(&Result1_l1nl2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-//    Fq_mul_l1nl2n_test(&Result2_l1nl2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-//    Fq_mul_l1nl2n_test(&Result3_l1nl2n, &A3_l1ml2n, &B3_l1ml2n, 3);
+//    Fq_mul_l1nl2n_test(&FqResult_l1nl2n, &FqA_l1ml2n,  &FqB_l1ml2n, 0);
+//    Fq_mul_l1nl2n_test(&FqResult1_l1nl2n, &FqA1_l1ml2n, &FqB1_l1ml2n, 1);
+//    Fq_mul_l1nl2n_test(&FqResult2_l1nl2n, &FqA2_l1ml2n, &FqB2_l1ml2n, 2);
+//    Fq_mul_l1nl2n_test(&FqResult3_l1nl2n, &FqA3_l1ml2n, &FqB3_l1ml2n, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_l1nl2m_test(&Result_l1nl2m, &A_l1nl2m,  &B_l1nl2m, 0);
-    Fq_mul_l1nl2m_test(&Result1_l1nl2m, &A1_l1nl2m, &B1_l1nl2m, 1);
-    Fq_mul_l1nl2m_test(&Result2_l1nl2m, &A2_l1nl2m, &B2_l1nl2m, 2);
-    Fq_mul_l1nl2m_test(&Result3_l1nl2m, &A3_l1nl2m, &B3_l1nl2m, 3);
+    Fq_mul_l1nl2m_test(&FqResult_l1nl2m, &FqA_l1nl2m,  &FqB_l1nl2m, 0);
+    Fq_mul_l1nl2m_test(&FqResult1_l1nl2m, &FqA1_l1nl2m, &FqB1_l1nl2m, 1);
+    Fq_mul_l1nl2m_test(&FqResult2_l1nl2m, &FqA2_l1nl2m, &FqB2_l1nl2m, 2);
+    Fq_mul_l1nl2m_test(&FqResult3_l1nl2m, &FqA3_l1nl2m, &FqB3_l1nl2m, 3);
 #endif
 
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_l1ns2n_unit_test();
-//    Fq_mul_l1ns2n_test(&Result_l1ns2n,  &A_l1ns2n,  &B_l1ns2n, 0);
-//    Fq_mul_l1ns2n_test(&Result1_l1ns2n, &A1_l1ns2n, &B1_l1ns2n, 1);
-//    Fq_mul_l1ns2n_test(&Result2_l1ns2n, &A2_l1ns2n, &B2_l1ns2n, 2);
-//    Fq_mul_l1ns2n_test(&Result3_l1ns2n, &A3_l1ns2n, &B3_l1ns2n, 3);
+//    Fq_mul_l1ns2n_test(&FqResult_l1ns2n,  &FqA_l1ns2n,  &FqB_l1ns2n, 0);
+//    Fq_mul_l1ns2n_test(&FqResult1_l1ns2n, &FqA1_l1ns2n, &FqB1_l1ns2n, 1);
+//    Fq_mul_l1ns2n_test(&FqResult2_l1ns2n, &FqA2_l1ns2n, &FqB2_l1ns2n, 2);
+//    Fq_mul_l1ns2n_test(&FqResult3_l1ns2n, &FqA3_l1ns2n, &FqB3_l1ns2n, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_l1ns2n_test(&Result_l1ns2n,  &A_l1ns2n,  &B_l1ns2n, 0);
-    Fq_mul_l1ns2n_test(&Result1_l1ns2n, &A1_l1ns2n, &B1_l1ns2n, 1);
-    Fq_mul_l1ns2n_test(&Result2_l1ns2n, &A2_l1ns2n, &B2_l1ns2n, 2);
-    Fq_mul_l1ns2n_test(&Result3_l1ns2n, &A3_l1ns2n, &B3_l1ns2n, 3);
+    Fq_mul_l1ns2n_test(&FqResult_l1ns2n,  &FqA_l1ns2n,  &FqB_l1ns2n, 0);
+    Fq_mul_l1ns2n_test(&FqResult1_l1ns2n, &FqA1_l1ns2n, &FqB1_l1ns2n, 1);
+    Fq_mul_l1ns2n_test(&FqResult2_l1ns2n, &FqA2_l1ns2n, &FqB2_l1ns2n, 2);
+    Fq_mul_l1ns2n_test(&FqResult3_l1ns2n, &FqA3_l1ns2n, &FqB3_l1ns2n, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_s1nl2n_unit_test();
-//    Fq_mul_s1nl2n_test(&Result_s1nl2n,   &A_s1nl2n,   &B_s1nl2n, 0);
-//    Fq_mul_s1nl2n_test(&Result1_s1nl2n,  &A1_s1nl2n,  &B1_s1nl2n, 1);
-//    Fq_mul_s1nl2n_test(&Result2_s1nl2n,  &A2_s1nl2n,  &B2_s1nl2n, 2);
-//    Fq_mul_s1nl2n_test(&Result3_s1nl2n,  &A3_s1nl2n,  &B3_s1nl2n, 3);
+//    Fq_mul_s1nl2n_test(&FqResult_s1nl2n,   &FqA_s1nl2n,   &FqB_s1nl2n, 0);
+//    Fq_mul_s1nl2n_test(&FqResult1_s1nl2n,  &FqA1_s1nl2n,  &FqB1_s1nl2n, 1);
+//    Fq_mul_s1nl2n_test(&FqResult2_s1nl2n,  &FqA2_s1nl2n,  &FqB2_s1nl2n, 2);
+//    Fq_mul_s1nl2n_test(&FqResult3_s1nl2n,  &FqA3_s1nl2n,  &FqB3_s1nl2n, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_s1nl2n_test(&Result_s1nl2n,   &A_s1nl2n,   &B_s1nl2n, 0);
-    Fq_mul_s1nl2n_test(&Result1_s1nl2n,  &A1_s1nl2n,  &B1_s1nl2n, 1);
-    Fq_mul_s1nl2n_test(&Result2_s1nl2n,  &A2_s1nl2n,  &B2_s1nl2n, 2);
-    Fq_mul_s1nl2n_test(&Result3_s1nl2n,  &A3_s1nl2n,  &B3_s1nl2n, 3);
+    Fq_mul_s1nl2n_test(&FqResult_s1nl2n,   &FqA_s1nl2n,   &FqB_s1nl2n, 0);
+    Fq_mul_s1nl2n_test(&FqResult1_s1nl2n,  &FqA1_s1nl2n,  &FqB1_s1nl2n, 1);
+    Fq_mul_s1nl2n_test(&FqResult2_s1nl2n,  &FqA2_s1nl2n,  &FqB2_s1nl2n, 2);
+    Fq_mul_s1nl2n_test(&FqResult3_s1nl2n,  &FqA3_s1nl2n,  &FqB3_s1nl2n, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_s1nl2m_unit_test();
-//    Fq_mul_s1nl2m_test(&Result_s1nl2m,   &A_s1nl2m,   &B_s1nl2m, 0);
-//    Fq_mul_s1nl2m_test(&Result1_s1nl2m,  &A1_s1nl2m,  &B1_s1nl2m, 1);
-//    Fq_mul_s1nl2m_test(&Result2_s1nl2m,  &A2_s1nl2m,  &B2_s1nl2m, 2);
-//    Fq_mul_s1nl2m_test(&Result3_s1nl2m,  &A3_s1nl2m,  &B3_s1nl2m, 3);
+//    Fq_mul_s1nl2m_test(&FqResult_s1nl2m,   &FqA_s1nl2m,   &FqB_s1nl2m, 0);
+//    Fq_mul_s1nl2m_test(&FqResult1_s1nl2m,  &FqA1_s1nl2m,  &FqB1_s1nl2m, 1);
+//    Fq_mul_s1nl2m_test(&FqResult2_s1nl2m,  &FqA2_s1nl2m,  &FqB2_s1nl2m, 2);
+//    Fq_mul_s1nl2m_test(&FqResult3_s1nl2m,  &FqA3_s1nl2m,  &FqB3_s1nl2m, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_s1nl2m_test(&Result_s1nl2m,   &A_s1nl2m,   &B_s1nl2m, 0);
-    Fq_mul_s1nl2m_test(&Result1_s1nl2m,  &A1_s1nl2m,  &B1_s1nl2m, 1);
-    Fq_mul_s1nl2m_test(&Result2_s1nl2m,  &A2_s1nl2m,  &B2_s1nl2m, 2);
-    Fq_mul_s1nl2m_test(&Result3_s1nl2m,  &A3_s1nl2m,  &B3_s1nl2m, 3);
+    Fq_mul_s1nl2m_test(&FqResult_s1nl2m,   &FqA_s1nl2m,   &FqB_s1nl2m, 0);
+    Fq_mul_s1nl2m_test(&FqResult1_s1nl2m,  &FqA1_s1nl2m,  &FqB1_s1nl2m, 1);
+    Fq_mul_s1nl2m_test(&FqResult2_s1nl2m,  &FqA2_s1nl2m,  &FqB2_s1nl2m, 2);
+    Fq_mul_s1nl2m_test(&FqResult3_s1nl2m,  &FqA3_s1nl2m,  &FqB3_s1nl2m, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_l1ms2n_unit_test();
-//    Fq_mul_l1ms2n_test(&Result_l1ms2n,  &A_l1ms2n,  &B_l1ns2n, 0);
-//    Fq_mul_l1ms2n_test(&Result1_l1ms2n, &A1_l1ms2n, &B1_l1ns2n, 1);
-//    Fq_mul_l1ms2n_test(&Result2_l1ms2n, &A2_l1ms2n, &B2_l1ns2n, 2);
-//    Fq_mul_l1ms2n_test(&Result3_l1ms2n, &A3_l1ms2n, &B3_l1ns2n, 3);
+//    Fq_mul_l1ms2n_test(&FqResult_l1ms2n,  &FqA_l1ms2n,  &FqB_l1ns2n, 0);
+//    Fq_mul_l1ms2n_test(&FqResult1_l1ms2n, &FqA1_l1ms2n, &FqB1_l1ns2n, 1);
+//    Fq_mul_l1ms2n_test(&FqResult2_l1ms2n, &FqA2_l1ms2n, &FqB2_l1ns2n, 2);
+//    Fq_mul_l1ms2n_test(&FqResult3_l1ms2n, &FqA3_l1ms2n, &FqB3_l1ns2n, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_l1ms2n_test(&Result_l1ms2n,  &A_l1ms2n,  &B_l1ms2n, 0);
-    Fq_mul_l1ms2n_test(&Result1_l1ms2n, &A1_l1ms2n, &B1_l1ms2n, 1);
-    Fq_mul_l1ms2n_test(&Result2_l1ms2n, &A2_l1ms2n, &B2_l1ms2n, 2);
-    Fq_mul_l1ms2n_test(&Result3_l1ms2n, &A3_l1ms2n, &B3_l1ms2n, 3);
+    Fq_mul_l1ms2n_test(&FqResult_l1ms2n,  &FqA_l1ms2n,  &FqB_l1ms2n, 0);
+    Fq_mul_l1ms2n_test(&FqResult1_l1ms2n, &FqA1_l1ms2n, &FqB1_l1ms2n, 1);
+    Fq_mul_l1ms2n_test(&FqResult2_l1ms2n, &FqA2_l1ms2n, &FqB2_l1ms2n, 2);
+    Fq_mul_l1ms2n_test(&FqResult3_l1ms2n, &FqA3_l1ms2n, &FqB3_l1ms2n, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_l1ns2m_unit_test();
-//    Fq_mul_l1ns2m_test(&Result_l1ns2m,  &A_l1ns2m,  &B_l1ns2m, 0);
-//    Fq_mul_l1ns2m_test(&Result1_l1ns2m, &A1_l1ns2m, &B1_l1ns2m, 1);
-//    Fq_mul_l1ns2m_test(&Result2_l1ns2m, &A2_l1ns2m, &B2_l1ns2m, 2);
-//    Fq_mul_l1ns2m_test(&Result3_l1ns2m, &A3_l1ns2m, &B3_l1ns2m, 3);
+//    Fq_mul_l1ns2m_test(&FqResult_l1ns2m,  &FqA_l1ns2m,  &FqB_l1ns2m, 0);
+//    Fq_mul_l1ns2m_test(&FqResult1_l1ns2m, &FqA1_l1ns2m, &FqB1_l1ns2m, 1);
+//    Fq_mul_l1ns2m_test(&FqResult2_l1ns2m, &FqA2_l1ns2m, &FqB2_l1ns2m, 2);
+//    Fq_mul_l1ns2m_test(&FqResult3_l1ns2m, &FqA3_l1ns2m, &FqB3_l1ns2m, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_l1ns2m_test(&Result_l1ns2m,  &A_l1ns2m,  &B_l1ns2m, 0);
-    Fq_mul_l1ns2m_test(&Result1_l1ns2m, &A1_l1ns2m, &B1_l1ns2m, 1);
-    Fq_mul_l1ns2m_test(&Result2_l1ns2m, &A2_l1ns2m, &B2_l1ns2m, 2);
-    Fq_mul_l1ns2m_test(&Result3_l1ns2m, &A3_l1ns2m, &B3_l1ns2m, 3);
+    Fq_mul_l1ns2m_test(&FqResult_l1ns2m,  &FqA_l1ns2m,  &FqB_l1ns2m, 0);
+    Fq_mul_l1ns2m_test(&FqResult1_l1ns2m, &FqA1_l1ns2m, &FqB1_l1ns2m, 1);
+    Fq_mul_l1ns2m_test(&FqResult2_l1ns2m, &FqA2_l1ns2m, &FqB2_l1ns2m, 2);
+    Fq_mul_l1ns2m_test(&FqResult3_l1ns2m, &FqA3_l1ns2m, &FqB3_l1ns2m, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_l1ms2m_unit_test();
-//    Fq_mul_l1ms2m_test(&Result_l1ms2m,  &A_l1ms2m,  &B_l1ms2m, 0);
-//    Fq_mul_l1ms2m_test(&Result1_l1ms2m, &A1_l1ms2m, &B1_l1ms2m, 1);
-//    Fq_mul_l1ms2m_test(&Result2_l1ms2m, &A2_l1ms2m, &B2_l1ms2m, 2);
-//    Fq_mul_l1ms2m_test(&Result3_l1ms2m, &A3_l1ms2m, &B3_l1ms2m, 3);
+//    Fq_mul_l1ms2m_test(&FqResult_l1ms2m,  &FqA_l1ms2m,  &FqB_l1ms2m, 0);
+//    Fq_mul_l1ms2m_test(&FqResult1_l1ms2m, &FqA1_l1ms2m, &FqB1_l1ms2m, 1);
+//    Fq_mul_l1ms2m_test(&FqResult2_l1ms2m, &FqA2_l1ms2m, &FqB2_l1ms2m, 2);
+//    Fq_mul_l1ms2m_test(&FqResult3_l1ms2m, &FqA3_l1ms2m, &FqB3_l1ms2m, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_l1ms2m_test(&Result_l1ms2m,  &A_l1ms2m,  &B_l1ms2m, 0);
-    Fq_mul_l1ms2m_test(&Result1_l1ms2m, &A1_l1ms2m, &B1_l1ms2m, 1);
-    Fq_mul_l1ms2m_test(&Result2_l1ms2m, &A2_l1ms2m, &B2_l1ms2m, 2);
-    Fq_mul_l1ms2m_test(&Result3_l1ms2m, &A3_l1ms2m, &B3_l1ms2m, 3);
+    Fq_mul_l1ms2m_test(&FqResult_l1ms2m,  &FqA_l1ms2m,  &FqB_l1ms2m, 0);
+    Fq_mul_l1ms2m_test(&FqResult1_l1ms2m, &FqA1_l1ms2m, &FqB1_l1ms2m, 1);
+    Fq_mul_l1ms2m_test(&FqResult2_l1ms2m, &FqA2_l1ms2m, &FqB2_l1ms2m, 2);
+    Fq_mul_l1ms2m_test(&FqResult3_l1ms2m, &FqA3_l1ms2m, &FqB3_l1ms2m, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_s1ml2m_unit_test();
-//    Fq_mul_s1ml2m_test(&Result_s1ml2m,   &A_s1ml2m,   &B_s1ml2m, 0);
-//    Fq_mul_s1ml2m_test(&Result1_s1ml2m,  &A1_s1ml2m,  &B1_s1ml2m, 1);
-//    Fq_mul_s1ml2m_test(&Result2_s1ml2m,  &A2_s1ml2m,  &B2_s1ml2m, 2);
-//    Fq_mul_s1ml2m_test(&Result3_s1ml2m,  &A3_s1ml2m,  &B3_s1ml2m, 3);
+//    Fq_mul_s1ml2m_test(&FqResult_s1ml2m,   &FqA_s1ml2m,   &FqB_s1ml2m, 0);
+//    Fq_mul_s1ml2m_test(&FqResult1_s1ml2m,  &FqA1_s1ml2m,  &FqB1_s1ml2m, 1);
+//    Fq_mul_s1ml2m_test(&FqResult2_s1ml2m,  &FqA2_s1ml2m,  &FqB2_s1ml2m, 2);
+//    Fq_mul_s1ml2m_test(&FqResult3_s1ml2m,  &FqA3_s1ml2m,  &FqB3_s1ml2m, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_s1ml2m_test(&Result_s1ml2m,   &A_s1ml2m,   &B_s1ml2m, 0);
-    Fq_mul_s1ml2m_test(&Result1_s1ml2m,  &A1_s1ml2m,  &B1_s1ml2m, 1);
-    Fq_mul_s1ml2m_test(&Result2_s1ml2m,  &A2_s1ml2m,  &B2_s1ml2m, 2);
-    Fq_mul_s1ml2m_test(&Result3_s1ml2m,  &A3_s1ml2m,  &B3_s1ml2m, 3);
+    Fq_mul_s1ml2m_test(&FqResult_s1ml2m,   &FqA_s1ml2m,   &FqB_s1ml2m, 0);
+    Fq_mul_s1ml2m_test(&FqResult1_s1ml2m,  &FqA1_s1ml2m,  &FqB1_s1ml2m, 1);
+    Fq_mul_s1ml2m_test(&FqResult2_s1ml2m,  &FqA2_s1ml2m,  &FqB2_s1ml2m, 2);
+    Fq_mul_s1ml2m_test(&FqResult3_s1ml2m,  &FqA3_s1ml2m,  &FqB3_s1ml2m, 3);
 #endif
 
 #ifdef TEST_FQ_C_FUNCTIONS
     Fq_mul_s1ml2n_unit_test();
-//    Fq_mul_s1ml2n_test(&Result_s1ml2n,   &A_s1ml2n,   &B_s1ml2n, 0);
-//    Fq_mul_s1ml2n_test(&Result1_s1ml2n,  &A1_s1ml2n,  &B1_s1ml2n, 1);
-//    Fq_mul_s1ml2n_test(&Result2_s1ml2n,  &A2_s1ml2n,  &B2_s1ml2n, 2);
-//    Fq_mul_s1ml2n_test(&Result3_s1ml2n,  &A3_s1ml2n,  &B3_s1ml2n, 3);
+//    Fq_mul_s1ml2n_test(&FqResult_s1ml2n,   &FqA_s1ml2n,   &FqB_s1ml2n, 0);
+//    Fq_mul_s1ml2n_test(&FqResult1_s1ml2n,  &FqA1_s1ml2n,  &FqB1_s1ml2n, 1);
+//    Fq_mul_s1ml2n_test(&FqResult2_s1ml2n,  &FqA2_s1ml2n,  &FqB2_s1ml2n, 2);
+//    Fq_mul_s1ml2n_test(&FqResult3_s1ml2n,  &FqA3_s1ml2n,  &FqB3_s1ml2n, 3);
 #endif
 #ifdef TEST_FQ_ASM_FUNCTIONS
-    Fq_mul_s1ml2n_test(&Result_s1ml2n,   &A_s1ml2n,   &B_s1ml2n, 0);
-    Fq_mul_s1ml2n_test(&Result1_s1ml2n,  &A1_s1ml2n,  &B1_s1ml2n, 1);
-    Fq_mul_s1ml2n_test(&Result2_s1ml2n,  &A2_s1ml2n,  &B2_s1ml2n, 2);
-    Fq_mul_s1ml2n_test(&Result3_s1ml2n,  &A3_s1ml2n,  &B3_s1ml2n, 3);
+    Fq_mul_s1ml2n_test(&FqResult_s1ml2n,   &FqA_s1ml2n,   &FqB_s1ml2n, 0);
+    Fq_mul_s1ml2n_test(&FqResult1_s1ml2n,  &FqA1_s1ml2n,  &FqB1_s1ml2n, 1);
+    Fq_mul_s1ml2n_test(&FqResult2_s1ml2n,  &FqA2_s1ml2n,  &FqB2_s1ml2n, 2);
+    Fq_mul_s1ml2n_test(&FqResult3_s1ml2n,  &FqA3_s1ml2n,  &FqB3_s1ml2n, 3);
 #endif
 
 return 0;
