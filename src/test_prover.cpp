@@ -3,6 +3,7 @@
 #include <string>
 #include <stdint.h>
 #include <limits.h>
+#include <sstream>
 
 #ifdef USE_ASM
 #define TEST_FR_ASM_FUNCTIONS
@@ -18,6 +19,9 @@
 
 #include <assert.h>
 using namespace std;
+
+int tests_run = 0;
+int tests_failed = 0;
 
 uint64_t uRawResult = 0;
 uint64_t uRawResult1 = 0;
@@ -708,39 +712,60 @@ FqElement FqResult3_s1ml2n = {0,0,{0,0,0,0}};
 FqElement FqA3_s1ml2n = {0xffff, Fq_SHORTMONTGOMERY,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
 FqElement FqB3_s1ml2n = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
 
-void compare_rawResult(FrRawElement pRawResult_asm, FrRawElement pRawResult_c, int idx, std::string TestName)
+
+string from_fr_raw_to_str(FrRawElement val)
 {
-    if (pRawResult_asm[0] != pRawResult_c[0] ||
-        pRawResult_asm[1] != pRawResult_c[1] ||
-        pRawResult_asm[2] != pRawResult_c[2] ||
-        pRawResult_asm[3] != pRawResult_c[3])
-    {
-        std::cout << TestName << idx << " failed!" << "\n";
-        std::cout << "FrRawElement pRawResult_asm" << idx << "= " << std::hex << "{0x"<< pRawResult_asm[0] << ",0x" << pRawResult_asm[1] << ",0x" << pRawResult_asm[2] << ",0x" << pRawResult_asm[3] << "};"<< '\n';
-        std::cout << "FrRawElement pRawResult_c" << idx << "= " << std::hex << "{0x"<< pRawResult_c[0] << ",0x" << pRawResult_c[1] << ",0x" << pRawResult_c[2] << ",0x" << pRawResult_c[3] << "};"<< '\n';
-    }
-    else
-    {
-        //std::cout << TestName << idx << " succeed!" << "\n";
-    }
+    string s ;
+    s = to_string(val[0]) + ", " + to_string(val[1]) + ", " + to_string(val[2]) + ", " + to_string(val[3]);
+    return s;
 }
 
-void compare_Result(PFrElement pResult_asm, PFrElement pResult_c, int idx, std::string TestName)
+string from_fr_to_str(PFrElement val)
 {
-    if (pResult_asm->shortVal != pResult_c->shortVal     ||
-        pResult_asm->longVal[0] != pResult_c->longVal[0] ||
-        pResult_asm->longVal[1] != pResult_c->longVal[1] ||
-        pResult_asm->longVal[2] != pResult_c->longVal[2] ||
-        pResult_asm->longVal[3] != pResult_c->longVal[3])
+    string s ;
+    s = to_string(val->shortVal)    + ", "
+       + to_string(val->type)       + ", "
+       + to_string(val->longVal[0]) + ", "
+       + to_string(val->longVal[1]) + ", "
+       + to_string(val->longVal[2]) + ", "
+       + to_string(val->longVal[3]);
+    return s;
+}
+
+
+void compare_rawResult(FrRawElement expected, FrRawElement computed, int idx, std::string TestName)
+{
+    if (expected[0] != computed[0] ||
+        expected[1] != computed[1] ||
+        expected[2] != computed[2] ||
+        expected[3] != computed[3])
     {
-        std::cout << TestName << idx << " failed!" << "\n";
-        std::cout << "FrElement pResult_asm" << idx << "= " << std::hex << "{0x" << pResult_asm->shortVal << ",0x" << pResult_asm->type << ",{0x" << pResult_asm->longVal[0] << ",0x" << pResult_asm->longVal[1] << ",0x" << pResult_asm->longVal[2] << ",0x" << pResult_asm->longVal[3] << "}};"<< '\n';
-        std::cout << "FrElement pResult_c"   << idx << "= " << std::hex << "{0x" << pResult_c->shortVal << ",0x" << pResult_c->type << ",{0x" << pResult_c->longVal[0] << ",0x" << pResult_c->longVal[1] << ",0x" << pResult_c->longVal[2] << ",0x" << pResult_c->longVal[3] << "}};"<< '\n';
+        std::cout << TestName << idx << " failed!" << std::endl;
+        std::cout << "Expected: " << from_fr_raw_to_str(expected) << std::endl;
+        std::cout << "Computed: " << from_fr_raw_to_str(computed) << std::endl;
+        tests_failed++;
     }
-    else
+
+    tests_run++;
+}
+
+void compare_Result(PFrElement expected, PFrElement computed, int idx, std::string TestName)
+{
+    if (expected->type != computed->type             ||
+        expected->shortVal != computed->shortVal     ||
+        expected->longVal[0] != computed->longVal[0] ||
+        expected->longVal[1] != computed->longVal[1] ||
+        expected->longVal[2] != computed->longVal[2] ||
+        expected->longVal[3] != computed->longVal[3])
     {
-        //std::cout << TestName << idx << " succeed!" << "\n";
+        std::cout << TestName << idx << " failed!" << std::endl;
+        std::cout << "Expected: " << from_fr_to_str(expected) << std::endl;
+        std::cout << "Computed: " << from_fr_to_str(computed) << std::endl;
+        tests_failed++;
     }
+
+    tests_run++;
+
 }
 
 void Fr_Rw_Neg_test(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB, int idx)
@@ -6351,41 +6376,62 @@ void Fr_shr_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
     std::cout << "FrElement pA" << idx << "= " << std::hex << "{0x" << pA->shortVal << ",0x" << pA->type << ",{0x" << pA->longVal[0] << ",0x" << pA->longVal[1] << ",0x" << pA->longVal[2] << ",0x" << pA->longVal[3] << "}};"<< '\n';
     std::cout << "FrElement pB" << idx << "= " << std::hex << "{0x" << pB->shortVal << ",0x" << pB->type << ",{0x" << pB->longVal[0] << ",0x" << pB->longVal[1] << ",0x" << pB->longVal[2] << ",0x" << pB->longVal[3] << "}};"<< '\n';
     std::cout << "FrElement pResult" << idx << "= " << std::hex << "{0x" << pResult->shortVal << ",0x" << pResult->type << ",{0x" << pResult->longVal[0] << ",0x" << pResult->longVal[1] << ",0x" << pResult->longVal[2] << ",0x" << pResult->longVal[3] << "}};"<< '\n';
+
 }
 
-void compare_rawResult_Fq(FqRawElement pRawResult_asm, FqRawElement pRawResult_c, int idx, std::string TestName)
+string from_fq_raw_to_str(FqRawElement val)
 {
-    if (pRawResult_asm[0] != pRawResult_c[0] ||
-        pRawResult_asm[1] != pRawResult_c[1] ||
-        pRawResult_asm[2] != pRawResult_c[2] ||
-        pRawResult_asm[3] != pRawResult_c[3])
-    {
-        std::cout << TestName << idx << " failed!" << "\n";
-        std::cout << "FqRawElement pRawResult_asm" << idx << "= " << std::hex << "{0x"<< pRawResult_asm[0] << ",0x" << pRawResult_asm[1] << ",0x" << pRawResult_asm[2] << ",0x" << pRawResult_asm[3] << "};"<< '\n';
-        std::cout << "FqRawElement pRawResult_c" << idx << "= " << std::hex << "{0x"<< pRawResult_c[0] << ",0x" << pRawResult_c[1] << ",0x" << pRawResult_c[2] << ",0x" << pRawResult_c[3] << "};"<< '\n';
-    }
-    else
-    {
-        //std::cout << TestName << idx << " succeed!" << "\n";
-    }
+    string s ;
+    s = to_string(val[0]) + ", " + to_string(val[1]) + ", " + to_string(val[2]) + ", " + to_string(val[3]);
+    return s;
 }
 
-void compare_Result_Fq(PFqElement pResult_asm, PFqElement pResult_c, int idx, std::string TestName)
+string from_fq_to_str(PFqElement val)
 {
-    if (pResult_asm->shortVal != pResult_c->shortVal     ||
-        pResult_asm->longVal[0] != pResult_c->longVal[0] ||
-        pResult_asm->longVal[1] != pResult_c->longVal[1] ||
-        pResult_asm->longVal[2] != pResult_c->longVal[2] ||
-        pResult_asm->longVal[3] != pResult_c->longVal[3])
+    string s ;
+    s = to_string(val->shortVal)    + ", "
+       + to_string(val->type)       + ", "
+       + to_string(val->longVal[0]) + ", "
+       + to_string(val->longVal[1]) + ", "
+       + to_string(val->longVal[2]) + ", "
+       + to_string(val->longVal[3]);
+    return s;
+}
+
+
+void compare_rawResult_Fq(FqRawElement expected, FqRawElement computed, int idx, std::string TestName)
+{
+    if (expected[0] != computed[0] ||
+        expected[1] != computed[1] ||
+        expected[2] != computed[2] ||
+        expected[3] != computed[3])
     {
-        std::cout << TestName << idx << " failed!" << "\n";
-        std::cout << "FqElement pResult_asm" << idx << "= " << std::hex << "{0x" << pResult_asm->shortVal << ",0x" << pResult_asm->type << ",{0x" << pResult_asm->longVal[0] << ",0x" << pResult_asm->longVal[1] << ",0x" << pResult_asm->longVal[2] << ",0x" << pResult_asm->longVal[3] << "}};"<< '\n';
-        std::cout << "FqElement pResult_c"   << idx << "= " << std::hex << "{0x" << pResult_c->shortVal << ",0x" << pResult_c->type << ",{0x" << pResult_c->longVal[0] << ",0x" << pResult_c->longVal[1] << ",0x" << pResult_c->longVal[2] << ",0x" << pResult_c->longVal[3] << "}};"<< '\n';
+        std::cout << TestName << idx << " failed!" << std::endl;
+        std::cout << "Expected: " << from_fq_raw_to_str(expected) << std::endl;
+        std::cout << "Computed: " << from_fq_raw_to_str(computed) << std::endl;
+        tests_failed++;
     }
-    else
+
+    tests_run++;
+}
+
+void compare_Result_Fq(PFqElement expected, PFqElement computed, int idx, std::string TestName)
+{
+    if (expected->type != computed->type             ||
+        expected->shortVal != computed->shortVal     ||
+        expected->longVal[0] != computed->longVal[0] ||
+        expected->longVal[1] != computed->longVal[1] ||
+        expected->longVal[2] != computed->longVal[2] ||
+        expected->longVal[3] != computed->longVal[3])
     {
-        //std::cout << TestName << idx << " succeed!" << "\n";
+        std::cout << TestName << idx << " failed!" << std::endl;
+        std::cout << "Expected: " << from_fq_to_str(expected) << std::endl;
+        std::cout << "Computed: " << from_fq_to_str(computed) << std::endl;
+        tests_failed++;
     }
+
+    tests_run++;
+
 }
 
 void Fq_Rw_Neg_test(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB, int idx)
@@ -7534,6 +7580,13 @@ void Fq_mul_s1ml2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int id
 
 //#endif
 
+
+
+
+void print_results()
+{
+    std::cout << "Results: " << tests_run << " tests were run, " << tests_failed << " failed." << std::endl;
+}
 
 int main()
 {
@@ -9840,5 +9893,7 @@ int main()
     Fq_mul_s1ml2n_test(&FqResult3_s1ml2n,  &FqA3_s1ml2n,  &FqB3_s1ml2n, 3);
 #endif
 
-return 0;
+    print_results();
+
+    return tests_failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
