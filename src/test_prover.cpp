@@ -9475,21 +9475,21 @@ int main()
 #endif
 
 
-//#ifdef TEST_FR_C_FUNCTIONS
-//    Fr_toInt_unit_test();
-//    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-//    Fr_toInt_test(uRawResult,  &RawA, 0);
-//    Fr_toInt_test(uRawResult1, &RawA1, 1);
-//    Fr_toInt_test(uRawResult2, &RawA2, 2);
-//    Fr_toInt_test(uRawResult3, &RawA3, 3);
-//#endif
-//#endif
-//#ifdef TEST_FR_ASM_FUNCTIONS
-//    Fr_toInt_test(uRawResult,  &RawA, 0);
-//    Fr_toInt_test(uRawResult1, &RawA1, 1);
-//    Fr_toInt_test(uRawResult2, &RawA2, 2);
-//    Fr_toInt_test(uRawResult3, &RawA3, 3);
-//#endif
+#ifdef TEST_FR_C_FUNCTIONS
+    Fr_toInt_unit_test();
+    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
+    Fr_toInt_test(uRawResult,  &RawA, 0);
+    Fr_toInt_test(uRawResult1, &RawA1, 1);
+    Fr_toInt_test(uRawResult2, &RawA2, 2);
+    Fr_toInt_test(uRawResult3, &RawA3, 3);
+#endif
+#endif
+#ifdef TEST_FR_ASM_FUNCTIONS
+    Fr_toInt_test(uRawResult,  &RawA, 0);
+    Fr_toInt_test(uRawResult1, &RawA1, 1);
+    Fr_toInt_test(uRawResult2, &RawA2, 2);
+    Fr_toInt_test(uRawResult3, &RawA3, 3);
+#endif
 
 #ifdef TEST_FR_C_FUNCTIONS
     Fr_neg_unit_test();
