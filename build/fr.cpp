@@ -996,17 +996,19 @@ void sub_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 // Implemented, Not checked 7
 void sub_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
 {
+    FrElement tmpb = {0,0,{0,0,0,0}};
     r->type = Fr_LONGMONTGOMERY;
-    Fr_toMontgomery(r, b);
-    Fr_rawSub(&r->longVal[0], &a->longVal[0], &r->longVal[0]);
+    Fr_toMontgomery(&tmpb, b);
+    Fr_rawSub(&r->longVal[0], &a->longVal[0], tmpb.longVal);
 }
 
 // Implemented, Not checked 8
 void sub_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
+    FrElement tmpa = {0,0,{0,0,0,0}};
     r->type = Fr_LONGMONTGOMERY;
-    Fr_toMontgomery(r, a);
-    Fr_rawSub(&r->longVal[0], &r->longVal[0], &b->longVal[0]);
+    Fr_toMontgomery(&tmpa, a);
+    Fr_rawSub(&r->longVal[0], tmpa.longVal, &b->longVal[0]);
 }
 
 // Implemented, Not checked 9
@@ -1247,17 +1249,19 @@ void add_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 // Implemented, Not checked 7
 void add_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
 {
+    FrElement tmpb = {0,0,{0,0,0,0}};
     r->type = Fr_LONGMONTGOMERY;
-    Fr_toMontgomery(r, b);
-    Fr_rawAdd(&r->longVal[0], &r->longVal[0], &a->longVal[0]);
+    Fr_toMontgomery(&tmpb, b);
+    Fr_rawAdd(&r->longVal[0], &a->longVal[0], tmpb.longVal);
 }
 
 // Implemented, Not checked 8
 void add_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
+    FrElement tmpa = {0,0,{0,0,0,0}};
     r->type = Fr_LONGMONTGOMERY;
-    Fr_toMontgomery(r, a);
-    Fr_rawAdd(&r->longVal[0], &r->longVal[0], &b->longVal[0]);
+    Fr_toMontgomery(&tmpa, a);
+    Fr_rawAdd(&r->longVal[0], tmpa.longVal, &b->longVal[0]);
 }
 // Implemented, Not checked 9
 void add_l1ns2(PFrElement r,PFrElement a,PFrElement b)
