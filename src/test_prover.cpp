@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <sstream>
+//#include <iomanip>
 
 #ifdef USE_ASM
 #define TEST_FR_ASM_FUNCTIONS
@@ -727,21 +728,48 @@ FqElement FqB3_s1ml2n = {0xffff, Fq_LONG,{0xffffffffffffffff,0xffffffffffffffff,
 
 string from_fr_raw_to_str(FrRawElement val)
 {
-    string s ;
-    s = to_string(val[0]) + ", " + to_string(val[1]) + ", " + to_string(val[2]) + ", " + to_string(val[3]);
-    return s;
+    ostringstream  oss;
+    string result;
+
+    oss << "0x" << std::hex << val[0] << ", "
+        << "0x" << std::hex << val[1] << ", "
+        << "0x" << std::hex << val[2] << ", "
+        << "0x" << std::hex << val[3];
+
+
+    result = oss.str();
+
+    return result;
+
+//    string s ;
+//    s = to_string(val[0]) + ", " + to_string(val[1]) + ", " + to_string(val[2]) + ", " + to_string(val[3]);
+//    return s;
 }
 
 string from_fr_to_str(PFrElement val)
 {
-    string s ;
-    s = to_string(val->shortVal)    + ", "
-       + to_string(val->type)       + ", "
-       + to_string(val->longVal[0]) + ", "
-       + to_string(val->longVal[1]) + ", "
-       + to_string(val->longVal[2]) + ", "
-       + to_string(val->longVal[3]);
-    return s;
+    ostringstream  oss;
+    string result;
+
+    oss << "0x" << std::hex << val->shortVal   << ", "
+        << "0x" << std::hex << val->type       << ", "
+        << "0x" << std::hex << val->longVal[0] << ", "
+        << "0x" << std::hex << val->longVal[1] << ", "
+        << "0x" << std::hex << val->longVal[2] << ", "
+        << "0x" << std::hex << val->longVal[3];
+
+
+    result = oss.str();
+
+    return result;
+//    string s ;
+//    s = to_string(val->shortVal)    + ", "
+//       + to_string(val->type)       + ", "
+//       + to_string(val->longVal[0]) + ", "
+//       + to_string(val->longVal[1]) + ", "
+//       + to_string(val->longVal[2]) + ", "
+//       + to_string(val->longVal[3]);
+//    return s;
 }
 
 
@@ -6388,22 +6416,56 @@ void Fr_shr_test(PFrElement pResult, PFrElement pA, PFrElement pB, int idx)
 
 string from_fq_raw_to_str(FqRawElement val)
 {
-    string s ;
-    s = to_string(val[0]) + ", " + to_string(val[1]) + ", " + to_string(val[2]) + ", " + to_string(val[3]);
-    return s;
+    ostringstream  oss;
+    string result;
+
+    oss << "0x" << std::hex << val[0] << ", "
+        << "0x" << std::hex << val[1] << ", "
+        << "0x" << std::hex << val[2] << ", "
+        << "0x" << std::hex << val[3];
+
+
+    result = oss.str();
+
+    return result;
 }
 
 string from_fq_to_str(PFqElement val)
 {
-    string s ;
-    s = to_string(val->shortVal)    + ", "
-       + to_string(val->type)       + ", "
-       + to_string(val->longVal[0]) + ", "
-       + to_string(val->longVal[1]) + ", "
-       + to_string(val->longVal[2]) + ", "
-       + to_string(val->longVal[3]);
-    return s;
+    ostringstream  oss;
+    string result;
+
+    oss << "0x" << std::hex << val->shortVal   << ", "
+        << "0x" << std::hex << val->type       << ", "
+        << "0x" << std::hex << val->longVal[0] << ", "
+        << "0x" << std::hex << val->longVal[1] << ", "
+        << "0x" << std::hex << val->longVal[2] << ", "
+        << "0x" << std::hex << val->longVal[3];
+
+
+    result = oss.str();
+
+    return result;
 }
+
+//string from_fq_raw_to_str(FqRawElement val)
+//{
+//    string s ;
+//    s = to_string(val[0]) + ", " + to_string(val[1]) + ", " + to_string(val[2]) + ", " + to_string(val[3]);
+//    return s;
+//}
+
+//string from_fq_to_str(PFqElement val)
+//{
+//    string s ;
+//    s = to_string(val->shortVal)    + ", "
+//       + to_string(val->type)       + ", "
+//       + to_string(val->longVal[0]) + ", "
+//       + to_string(val->longVal[1]) + ", "
+//       + to_string(val->longVal[2]) + ", "
+//       + to_string(val->longVal[3]);
+//    return s;
+//}
 
 
 void compare_rawResult_Fq(FqRawElement expected, FqRawElement computed, int idx, std::string TestName)
@@ -7592,7 +7654,7 @@ void Fq_mul_s1ml2n_test(PFqElement pResult, PFqElement pA, PFqElement pB, int id
 
 void print_results()
 {
-    std::cout << "Results: " << tests_run << " tests were run, " << tests_failed << " failed." << std::endl;
+    std::cout << "Results: " << std::dec << tests_run << " tests were run, " << tests_failed << " failed." << std::endl;
 }
 
 int main()
