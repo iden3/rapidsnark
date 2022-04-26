@@ -6388,8 +6388,8 @@ void Fr_shr_unit_test()
 //    Fr_shr(&Result2_c, &pA2, &pB2);
 //    Fr_shr(&Result3_c, &pA3, &pB3);
 
-//    Fr_shr(&Result5_c, &pA5, &pB5);
-    Fr_shr(&Result6_c, &pA6, &pB6);
+    Fr_shr(&Result5_c, &pA5, &pB5);
+//    Fr_shr(&Result6_c, &pA6, &pB6);
 //    Fr_shr(&Result7_c, &pA7, &pB7);
 //    Fr_shr(&Result8_c, &pA8, &pB8);
 
@@ -6398,8 +6398,8 @@ void Fr_shr_unit_test()
 //    compare_Result(&pResult2, &Result2_c, 2, "Fr_shr_unit_test");
 //    compare_Result(&pResult3, &Result3_c, 3, "Fr_shr_unit_test");
 
-//    compare_Result(&pResult5, &Result5_c, 5, "Fr_shr_unit_test");//
-    compare_Result(&pResult6, &Result6_c, 6, "Fr_shr_unit_test");
+    compare_Result(&pResult5, &Result5_c, 5, "Fr_shr_unit_test");//
+//    compare_Result(&pResult6, &Result6_c, 6, "Fr_shr_unit_test");
 //    compare_Result(&pResult7, &Result7_c, 7, "Fr_shr_unit_test");
 //    compare_Result(&pResult8, &Result8_c, 8, "Fr_shr_unit_test");
 }
