@@ -3570,7 +3570,7 @@ void do_shl(PFrElement r, PFrElement a, PFrElement b)
             return;
         }
         dword urcx;
-        urcx.dW = 0;
+        urcx.dW = rcx.shortVal;
         dword urdx;
         urdx.dW = rdx.shortVal;
 
@@ -3658,13 +3658,13 @@ void do_shr(PFrElement r, PFrElement a, PFrElement b)
         r->shortVal = 0;
         return;
     }
-    qword urcx;
-    urcx.dw = rcx.shortVal;
-    qword urdx;
-    urcx.dw = rdx.shortVal;
-    urcx.lb = urdx.lb;
-    std::cout << "do_shr last" << "\n";
-    mpn_rshift(&rax, &rax, 1, urcx.lb);
+
+    dword urcx;
+    urcx.dW = rcx.shortVal;
+    dword urdx;
+    urdx.dW = rdx.shortVal;
+    urcx.cC[0] = urdx.cC[0];
+    mpn_rshift(&rax, &rax, 1, urcx.cC[0]);
     r->shortVal = rax;
     return;
 
