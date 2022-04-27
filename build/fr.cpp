@@ -2117,148 +2117,49 @@ int rgt_s1s2(PFrElement a, PFrElement b)
 
 int rgtRawL1L2(FrRawElement pRawA, FrRawElement pRawB)
 {
-//    int carry = 0;
-//    carry = mpn_cmp(pRawB, pRawA, 4);
-//    if (carry)
-//    {
-//        return 1;
-//    }
-//    else
-//    {
-//        return 0;
-//    }
-
-//    int carry = 0;
-//    carry = mpn_cmp(pRawB, pRawA, 4);
-//    if (pRawB[0] >= pRawA[0] ||
-//        pRawB[1] >= pRawA[1] ||
-//        pRawB[2] >= pRawA[2] ||
-//        pRawB[3] >= pRawA[3])
-//    {
-//        return 0;
-//    }
-//    else
-//    {
-//        return 1;
-//    }
-    int result = mpn_cmp(pRawA, pRawB, Fr_N64);
+    int result = mpn_cmp(pRawB, pRawA, Fr_N64);
 
     if (result < 0)
     {
-        return 0;
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 int rgtl1l2_n1(FrRawElement pRawA, FrRawElement pRawB)
 {
-//    int carry = 0;
-//    carry = mpn_cmp(half, pRawB, 4);
-//    if (carry)
-//    {
-//        return rgtRawL1L2(pRawResult, pRawA, pRawB);
-//    }
-//    else
-//    {
-//        return 0;
-//    }
-
-
-//    int carry = 0;
-//    carry = mpn_cmp(half, pRawB, 4);
-//    if (half[0] >= pRawB[0] ||
-//        half[1] >= pRawB[1] ||
-//        half[2] >= pRawB[2] ||
-//        half[3] >= pRawB[3])
-//    {
-//        return rgtRawL1L2(pRawResult, pRawA, pRawB);
-//    }
-//    else
-//    {
-//        return 0;
-//    }
-
-    int result = mpn_cmp(half, pRawB, Fr_N64);
-
-    if (result < 0)
-    {
-
-        return 0;
-    }
-    return rgtRawL1L2(pRawA, pRawB);
-}
-
-int rgtl1l2_p1(FrRawElement pRawA, FrRawElement pRawB)
-{
-//    int carry = 0;
-//    carry = mpn_cmp(half, pRawB, 4);
-//    if (carry)
-//    {
-//        return 1;
-//    }
-//    else
-//    {
-//        return rgtRawL1L2(pRawResult, pRawA, pRawB);
-//    }
-
-//    int carry = 0;
-//    carry = mpn_cmp(half, pRawB, 4);
-//    if (half[0] >= pRawB[0] ||
-//        half[1] >= pRawB[1] ||
-//        half[2] >= pRawB[2] ||
-//        half[3] >= pRawB[3])
-//    {
-//        return 1;
-//    }
-//    else
-//    {
-//        return rgtRawL1L2(pRawResult, pRawA, pRawB);
-//    }
-
     int result = mpn_cmp(half, pRawB, Fr_N64);
 
     if (result < 0)
     {
         return rgtRawL1L2(pRawA, pRawB);
     }
-    return 1;
+    return 0;
+}
+
+int rgtl1l2_p1(FrRawElement pRawA, FrRawElement pRawB)
+{
+    int result = mpn_cmp(half, pRawB, Fr_N64);
+
+    if (result < 0)
+    {
+        return 1;
+    }
+    return rgtRawL1L2(pRawA, pRawB);
 
 }
 
 int rgtL1L2(FrRawElement pRawA, FrRawElement pRawB)
 {
-//    int carry = 0;
-//    carry = mpn_cmp(half, pRawA, 4);
-//    if (carry)
-//    {
-//        rgtl1l2_n1(pRawResult, pRawA, pRawB);
-//    }
-//    else
-//    {
-//        rgtl1l2_p1(pRawResult, pRawA, pRawB);
-//    }
-
-//    if (half[0] >= pRawA[0] ||
-//        half[1] >= pRawA[1] ||
-//        half[2] >= pRawA[2] ||
-//        half[3] >= pRawA[3])
-//        {
-//            rgtl1l2_n1(pRawResult, pRawA, pRawB);
-//        }
-//        else`
-//        {
-//            rgtl1l2_p1(pRawResult, pRawA, pRawB);
-//        }
-
     int result = mpn_cmp(half, pRawA, Fr_N64);
 
     if (result < 0)
     {
-        return rgtl1l2_p1(pRawA, pRawB);
+        return rgtl1l2_n1(pRawA, pRawB);
     }
 
-    return rgtl1l2_n1(pRawA, pRawB);
+    return rgtl1l2_p1(pRawA, pRawB);
 }
 
 // Implemented, Not checked 2
