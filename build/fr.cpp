@@ -3086,23 +3086,24 @@ void rawShr(FrRawElement r, FrRawElement a, FrRawElement b)
     //mp_limb_t ch, cl, cx = 0;
     mp_limb_t r9,r10,r11 = 0;
 
+    std::memcpy(&rdx, b, sizeof(FrRawElement));
 
-
-    if (mpn_cmp(&b[0], &cmpVal, 1) == 0)
+    if (rdx[0] == 0)
     {
         Fr_rawCopy(r,a);
     }
 
-    if (mpn_cmp(&b[0], &cmpVal2, 1) >= 0)
+    if (rdx[0] >= 254)
     {
         Fr_rawZero(r);
     }
-    std::memcpy(&r8, b, sizeof(FrRawElement));
-    std::memcpy(&rcx, b, sizeof(FrRawElement));
-    mpn_rshift(r8, r8, 4, 6);
-    mpn_and_n (rcx, rcx, &andVal, 4);
+
+    r8[0] = rdx[0];
+    mpn_rshift(r8, r8, 1, 6);
+    rcx[0] = rdx[0];
+    mpn_and_n (rcx, rcx, &andVal, 1);
     // rawShr_aligned
-    if ( mpn_cmp(rcx, cmpVal3, Fr_N64) ==0)
+    if ( mpn_cmp(rcx, cmpVal3, 1) ==0)
     {
         // rawShr_aligned
         if (mpn_cmp(r8, &cmpVal4, Fr_N64) > 0)
@@ -3145,14 +3146,14 @@ void rawShr(FrRawElement r, FrRawElement a, FrRawElement b)
         return;
     }
 
-    qword urcx;
-    urcx.dw = rcx[0];
-    urcx.hb = 64;
-    urcx.hb = urcx.hb - urcx.lb;
+    dword urcx;
+    urcx.dW = rcx[0];
+    urcx.cC[1] = 64;
+    urcx.cC[1] = urcx.cC[1] - urcx.cC[0];
     r9 = 1;
-    urcx.w = leftRotate(urcx.w, 8);
-    mpn_lshift(&r9, &r9, 1, urcx.lb);
-    urcx.w = leftRotate(urcx.w, 8);
+    urcx.wW[0] = leftRotate(urcx.wW[0], 8);
+    mpn_lshift(&r9, &r9, 1, urcx.cC[0]);
+    urcx.wW[0] = leftRotate(urcx.wW[0], 8);
     r9 = r9 - 1;
     r10 = r9;
     // @IS TODO Check
@@ -3167,19 +3168,19 @@ void rawShr(FrRawElement r, FrRawElement a, FrRawElement b)
             rdi[0] = rax[0];
         }
         rax[0] = a[0 + r8[0]];
-        mpn_rshift(&rax[0], &rax[0], 1, urcx.lb);
+        mpn_rshift(&rax[0], &rax[0], 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         rdi[0] = rax[0];
     }
     else
     {
         rax[0] = a[0 + r8[0]];
-        mpn_rshift(rax, rax, 1, urcx.lb);
+        mpn_rshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         r11 = a[1 + r8[0]];
-        urcx.w = leftRotate(urcx.w, 8);
-        mpn_lshift(&r11, &r11, 1, urcx.lb);
-        urcx.w = leftRotate(urcx.w, 8);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
+        mpn_lshift(&r11, &r11, 1, urcx.cC[0]);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
         mpn_and_n (&r11, &r11, &r10, 1);
         mpn_ior_n (rax, rax, &r11, 1);
         rdi[0] = rax[0];
@@ -3195,19 +3196,19 @@ void rawShr(FrRawElement r, FrRawElement a, FrRawElement b)
             rdi[1] = rax[0];
         }
         rax[0] = a[1 + r8[0]];
-        mpn_rshift(&rax[0], &rax[0], 1, urcx.lb);
+        mpn_rshift(&rax[0], &rax[0], 1, urcx.cC[0]);
         mpn_and_n(rax, rax, &r9, 1);
         rdi[1] = rax[0];
     }
     else
     {
         rax[0] = a[1 + r8[0]];
-        mpn_rshift(rax, rax, 1, urcx.lb);
+        mpn_rshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         r11 = a[2 + r8[0]];
-        urcx.w = leftRotate(urcx.w, 8);
-        mpn_lshift(&r11, &r11, 1, urcx.lb);
-        urcx.w = leftRotate(urcx.w, 8);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
+        mpn_lshift(&r11, &r11, 1, urcx.cC[0]);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
         mpn_and_n (&r11, &r11, &r10, 1);
         mpn_ior_n (rax, rax, &r11, 1);
         rdi[1] = rax[0];
@@ -3223,19 +3224,19 @@ void rawShr(FrRawElement r, FrRawElement a, FrRawElement b)
             rdi[2] = rax[0];
         }
         rax[0] = a[2 + r8[0]];
-        mpn_rshift(&rax[0], &rax[0], 1, urcx.lb);
+        mpn_rshift(&rax[0], &rax[0], 1, urcx.cC[0]);
         mpn_and_n(rax, rax, &r9, 1);
         rdi[2] = rax[0];
     }
     else
     {
         rax[0] = a[2 + r8[0]];
-        mpn_rshift(rax, rax, 1, urcx.lb);
+        mpn_rshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         r11 = a[3 + r8[0]];
-        urcx.w = leftRotate(urcx.w, 8);
-        mpn_lshift(&r11, &r11, 1, urcx.lb);
-        urcx.w = leftRotate(urcx.w, 8);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
+        mpn_lshift(&r11, &r11, 1, urcx.cC[0]);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
         mpn_and_n (&r11, &r11, &r10, 1);
         mpn_ior_n (rax, rax, &r11, 1);
         rdi[2] = rax[0];
@@ -3251,19 +3252,19 @@ void rawShr(FrRawElement r, FrRawElement a, FrRawElement b)
             rdi[3] = rax[0];
         }
         rax[0] = a[3 + r8[0]];
-        mpn_rshift(&rax[0], &rax[0], 1, urcx.lb);
+        mpn_rshift(&rax[0], &rax[0], 1, urcx.cC[0]);
         mpn_and_n(rax, rax, &r9, 1);
         rdi[3] = rax[0];
     }
     else
     {
         rax[0] = a[3 + r8[0]];
-        mpn_rshift(rax, rax, 1, urcx.lb);
+        mpn_rshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         r11 = a[4 + r8[0]];
-        urcx.w = leftRotate(urcx.w, 8);
-        mpn_lshift(&r11, &r11, 1, urcx.lb);
-        urcx.w = leftRotate(urcx.w, 8);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
+        mpn_lshift(&r11, &r11, 1, urcx.cC[0]);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
         mpn_and_n (&r11, &r11, &r10, 1);
         mpn_ior_n (rax, rax, &r11, 1);
         rdi[3] = rax[0];
@@ -3619,12 +3620,15 @@ void do_shr(PFrElement r, PFrElement a, PFrElement b)
             // do_shrln
             r->type = Fr_LONG;
             rawShr(r->longVal, rsi.longVal, b->longVal);
+            return;
         }
         else
         {
             // do_shrln
+            std::cout << "do_shr rawShr 1" << "\n";
             r->type = Fr_LONG;
             rawShr(r->longVal, a->longVal, b->longVal);
+            return;
         }
     }
     //do_shrs
@@ -3645,12 +3649,14 @@ void do_shr(PFrElement r, PFrElement a, PFrElement b)
             // do_shrln
             r->type = Fr_LONG;
             rawShr(r->longVal, rsi.longVal, rdx.longVal);
+            return;
         }
         else
         {
             // do_shrln
             r->type = Fr_LONG;
             rawShr(r->longVal, a->longVal, rdx.longVal);
+            return;
         }
     }
     if(rdx.shortVal >= 31)
@@ -3714,7 +3720,8 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                     std::cout << "jae  setzero 1" << "\n";
                     return;
                 }
-                std::memcpy(&rdx, &rcx, sizeof(FrElement));
+                rdx.shortVal = rcx.shortVal;
+                rdx.type = rcx.type;
                 std::cout << "do_shl 0" << "\n";
                 do_shl(r, a, &rdx);
                 return;
@@ -3748,7 +3755,8 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
             }
             // 7115
             std::cout << "do_shr 0" << "\n";
-            std::memcpy(&rdx, &rcx, sizeof(FrElement));
+            rdx.shortVal = rcx.shortVal;
+            rdx.type = rcx.type;
             do_shr(r, a, &rdx);
             return;
 
@@ -3778,14 +3786,15 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                     std::cout << "jae  setzero 1" << "\n";
                     return;
                 }
-                std::memcpy(&rdx, &rcx, sizeof(FrElement));
+                rdx.shortVal = rcx.shortVal;
+                rdx.type = rcx.type;
                 std::cout << "do_shl 0" << "\n";
                 do_shl(r, a, &rdx);
                 return;
             }
             // 7104
-            mpn_xor_n(&rax[0], &rax[0], &rax[0], 1);
-            if (mpn_cmp(&rdx.longVal[1],&rax[0], 3) < 0)
+            mpn_xor_n(&rax[0], &rax[0], &rax[0], 4);
+            if (mpn_cmp(&rdx.longVal[1],&rax[0], 3) != 0)
             {
                 // tmp_114
                 std::cout << "tmp_114  2 " << "\n";
@@ -3806,13 +3815,15 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                     return;
                 }
                 std::cout << "do_shl 1" << "\n";
-                std::memcpy(&rdx, &rcx, sizeof(FrElement));
+                rdx.shortVal = rcx.shortVal;
+                rdx.type = rcx.type;
                 do_shl(r, a, &rdx);
                 return;
             }
             // 7115
             std::cout << "do_shr 0" << "\n";
-            std::memcpy(&rdx, &rcx, sizeof(FrElement));
+            rdx.shortVal = rcx.shortVal;
+            rdx.type = rcx.type;
             do_shr(r, a, &rdx);
             return;
         }
