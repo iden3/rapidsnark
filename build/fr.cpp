@@ -3294,12 +3294,16 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
 
     if (mpn_cmp(&b[0], &cmpVal, 1) == 0)
     {
+        std::cout << "rawShl 0" <<"\n";
         Fr_rawCopy(r,a);
+        return;
     }
 
     if (mpn_cmp(&b[0], &cmpVal2, 1) >= 0)
     {
+        std::cout << "rawShl 1" <<"\n";
         Fr_rawZero(r);
+        return;
     }
     std::memcpy(&r8, b, sizeof(FrRawElement));
     std::memcpy(&rcx, b, sizeof(FrRawElement));
@@ -3702,7 +3706,7 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
             if(rcx.longVal[0] >= 254)
             {
                 // tmp_114
-                std::cout << "tmp_114  0 " << "\n";
+                std::cout << "tmp_114  00 " << "\n";
                 mpn_sub_n(&rcx.longVal[0], &Fr_rawq[0], &rdx.longVal[0], 1);
                 if(rcx.longVal[0] >= 254)
                 {
@@ -3713,7 +3717,7 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                 }
 
                 carry = mpn_sub_n(&rax[0], &Fr_rawq[0], &rdx.longVal[0], 4);
-                if(carry < 0)
+                if(carry != 0)
                 {
                     // jae  setzero
                     r->shortVal = 0;
@@ -3742,7 +3746,7 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                 }
 
                 carry = mpn_sub_n(&rax[0], &Fr_rawq[0], &rdx.longVal[0], 4);
-                if(carry < 0)
+                if(carry != 0)
                 {
                     // jae  setzero
                     r->shortVal = 0;
@@ -3768,18 +3772,18 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
             if(rcx.longVal[0] >= 254)
             {
                 // tmp_114
-                std::cout << "tmp_114  0 " << "\n";
+                std::cout << "tmp_114  01 " << "\n";
                 mpn_sub_n(&rcx.longVal[0], &Fr_rawq[0], &rdx.longVal[0], 1);
                 if(rcx.longVal[0] >= 254)
                 {
                     // jae  setzero
                     r->shortVal = 0;
-                    std::cout << "jae  setzero 0" << "\n";
+                    std::cout << "jae  setzero 01" << "\n";
                     return;
                 }
 
                 carry = mpn_sub_n(&rax[0], &Fr_rawq[0], &rdx.longVal[0], 4);
-                if(carry < 0)
+                if(carry != 0)
                 {
                     // jae  setzero
                     r->shortVal = 0;
@@ -3807,7 +3811,7 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                     return;
                 }
                 carry = mpn_sub_n(&rax[0], &Fr_rawq[0], &rdx.longVal[0], 4);
-                if(carry < 0)
+                if(carry != 0)
                 {
                     // jae  setzero
                     r->shortVal = 0;
