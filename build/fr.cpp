@@ -181,6 +181,10 @@ void Fr_fail() {
     assert(false);
 }
 
+void Fr_longErr()
+{
+    Fr_fail();
+}
 
 RawFr::RawFr() {
     Fr_init();
@@ -1401,111 +1405,85 @@ int Fr_isTrue(PFrElement pE)
 
 int Fr_longNeg(PFrElement pE)
 {
-    uint64_t   rcx = 0;
-    mp_limb_t rax[Fr_N64] ={0,0,0,0};
-    uint64_t   carry = 0;
+    uint64_t rcx = 0;
+    uint64_t rax[Fr_N64] ={0,0,0,0};
+    uint64_t carry = 0;
 
-    carry = mpn_sub_n (&rax[0], &pE->longVal[0], &Fr_rawq[0], 4);
-    if(carry != 0)
+    carry = mpn_sub_n(rax, pE->longVal, Fr_rawq, Fr_N64);
+    if(carry >= 0)
     {
-       // Fr_longErr
-       Fr_fail();
+       Fr_longErr();
        return 0;
     }
     rcx = rax[0];
-    // @IS todo sar
-    mpn_rshift(&rcx, &rcx, 1, 31);
+    rcx >>= 31;
     rcx +=1;
     if(rcx !=0)
     {
-       // Fr_longErr
-       Fr_fail();
+       Fr_longErr();
        return 0;
     }
 
     return rax[0];
 }
 
-// Implemented, not checked
+int Fr_longNormal(PFrElement pE)
+{
+    uint64_t   rcx = 0;
+    uint64_t   rax = 0;
+
+    rax = pE->longVal[0];
+    rcx = rax;
+    rcx >>= 31;
+
+    if (rcx != 0)
+    {
+         return Fr_longNeg(pE);
+    }
+
+    rcx = pE->longVal[1];
+    if (rcx != 0)
+    {
+         return Fr_longNeg(pE);
+    }
+
+    rcx = pE->longVal[2];
+    if (rcx != 0)
+    {
+         return Fr_longNeg(pE);
+    }
+
+    rcx = pE->longVal[3];
+    if (rcx != 0)
+    {
+         return Fr_longNeg(pE);
+    }
+
+    return rax;
+}
+
 // Convert a 64 bit integer to a long format field element
 int Fr_toInt(PFrElement pE)
 {
     FrElement tmp = {0,0,{0,0,0,0}};
-    uint64_t   rcx = 0;
-    uint64_t   rax = 0;
-
-    rax = pE->shortVal;
 
     if (pE->type & Fr_LONG)
     {
        //Fr_long
        if (pE->type != Fr_LONGMONTGOMERY)
        {
-           // Fr_longNormal
-           rax = pE->longVal[0];
-           rcx = rax;
-           mpn_rshift(&rcx, &rcx, 1, 31);
-
-           if (rcx != 0)
-           {
-                rax = Fr_longNeg(pE);
-           }
-
-           rcx = pE->longVal[1];
-           if (rcx & rcx)
-           {
-                rax = Fr_longNeg(pE);
-           }
-
-           rcx = pE->longVal[2];
-           if (rcx & rcx)
-           {
-                rax = Fr_longNeg(pE);
-           }
-
-           rcx = pE->longVal[3];
-           if (rcx & rcx)
-           {
-                rax =Fr_longNeg(pE);
-           }
-
-
+            return Fr_longNormal(pE);
        }
        else
-       {
-           // Fr_longMontgomery
-           Fr_toNormal(&tmp,pE);
-           // Fr_longNormal
-           rax = pE->longVal[0];
-           rcx = rax;
-           mpn_rshift(&rcx, &rcx, 1, 31);
+       { // Fr_longMontgomery
 
-           if (rcx != 0)
-           {
-                rax = Fr_longNeg(&tmp);
-           }
+            Fr_toNormal(&tmp, pE);
 
-           rcx = pE->longVal[1];
-           if (rcx & rcx)
-           {
-                rax = Fr_longNeg(&tmp);
-           }
-
-           rcx = pE->longVal[2];
-           if (rcx & rcx)
-           {
-                rax = Fr_longNeg(&tmp);
-           }
-
-           rcx = pE->longVal[3];
-           if (rcx & rcx)
-           {
-                rax =Fr_longNeg(&tmp);
-           }
+            return Fr_longNormal(&tmp);
        }
     }
 
-   return rax;
+    return pE->shortVal;
 }
 
 // Implemented, Not checked 1

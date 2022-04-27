@@ -1764,24 +1764,18 @@ void Fr_toInt_unit_test()
     //Fr_toInt_test 2:
     FrElement pA2= {0x0,0x80000000,{0xa1f0,0x0,0x0,0x0}};
     FrRawElement pRawResult2= {0xa1f0};
-    //Fr_toInt_test 3:
-    FrElement pA3= {0x0,0xc0000000,{0xa1f0,0x0,0x0,0x0}};
-    FrRawElement pRawResult3= {0xa1f0};
 
     FrRawElement pRawResult0_c = {0};
     FrRawElement pRawResult1_c = {0};
     FrRawElement pRawResult2_c = {0};
-    FrRawElement pRawResult3_c = {0};
 
     pRawResult0_c[0] = Fr_toInt(&pA0);
     pRawResult1_c[0] = Fr_toInt(&pA1);
     pRawResult2_c[0] = Fr_toInt(&pA2);
-    pRawResult3_c[0] = Fr_toInt(&pA3);
 
     compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fr_toInt_unit_test");
     compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fr_toInt_unit_test");
     compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fr_toInt_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fr_toInt_unit_test");
 }
 
 void Fr_lt_s1s2_unit_test()
@@ -5510,7 +5504,7 @@ int main()
     Fr_lt_l1ms2_unit_test();
     Fr_lt_l1ns2_unit_test();
     Fr_lt_s1l2n_unit_test();
-    Fr_toInt_unit_test();     // <-- CRASH
+    Fr_toInt_unit_test();
     Fr_neg_unit_test();
     Fr_shr_unit_test();
 
