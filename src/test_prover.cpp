@@ -1801,10 +1801,10 @@ void Fr_toInt_unit_test()
     pRawResult1_c[0] = Fr_toInt(&pA1);
     pRawResult2_c[0] = Fr_toInt(&pA2);
 
-    compare_rawResult(pRawResult0, pRawResult0_c, 0, "Fr_toInt_unit_test");
-    compare_rawResult(pRawResult1, pRawResult1_c, 1, "Fr_toInt_unit_test");
-    compare_rawResult(pRawResult2, pRawResult2_c, 2, "Fr_toInt_unit_test");
-    compare_rawResult(pRawResult3, pRawResult3_c, 3, "Fr_toInt_unit_test");
+    compare_rawResult2(pRawResult0, pRawResult0_c,&pA0,&pA0, 0, "Fr_toInt_unit_test");
+    compare_rawResult2(pRawResult1, pRawResult1_c,&pA1,&pA1, 1, "Fr_toInt_unit_test");
+    compare_rawResult2(pRawResult2, pRawResult2_c,&pA2,&pA2, 2, "Fr_toInt_unit_test");
+    //compare_rawResult(pRawResult3, pRawResult3_c,pA2,pA2, 3, "Fr_toInt_unit_test");
 }
 
 void Fr_lt_s1s2_unit_test()
@@ -4475,7 +4475,7 @@ string from_fq_to_str(PFqElement val)
     return result;
 }
 
-void compare_rawResult_Fq(FqRawElement expected, FqRawElement computed, int idx, std::string TestName)
+void compare_rawResult_Fq(FqRawElement expected, FqRawElement computed,FqRawElement A, FqRawElement B, int idx, std::string TestName)
 {
     if (std::memcmp(expected, computed, sizeof(FqRawElement)))
     {
@@ -5476,37 +5476,7 @@ int main()
     Fr_geq_s1l2n_unit_test();
     Fr_eq_s1s2_unit_test();
     Fr_eq_l1nl2n_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_eq_l1nl2n_test(&Result_l1nl2n, &A_l1nl2n,  &B_l1nl2n, 0);
-    Fr_eq_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
-    Fr_eq_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
-    Fr_eq_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_eq_l1nl2n_test(&Result_l1nl2n,  &A_l1nl2n,  &B_l1nl2n, 0);
-    Fr_eq_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
-    Fr_eq_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
-    Fr_eq_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-   Fr_eq_l1ml2n_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_eq_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
-    Fr_eq_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-    Fr_eq_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-    Fr_eq_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_eq_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
-    Fr_eq_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-    Fr_eq_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-    Fr_eq_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
+    Fr_eq_l1ml2n_unit_test();
     Fr_eq_l1ml2m_unit_test();
     Fr_eq_l1nl2m_unit_test();
     Fr_eq_s1l2m_unit_test();
@@ -5515,37 +5485,7 @@ int main()
     Fr_eq_s1l2n_unit_test();
     Fr_neq_s1s2_unit_test();
     Fr_neq_l1nl2n_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_neq_l1nl2n_test(&Result_l1nl2n, &A_l1nl2n,  &B_l1nl2n, 0);
-    Fr_neq_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
-    Fr_neq_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
-    Fr_neq_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_neq_l1nl2n_test(&Result_l1nl2n,  &A_l1nl2n,  &B_l1nl2n, 0);
-    Fr_neq_l1nl2n_test(&Result1_l1nl2n, &A1_l1nl2n, &B1_l1nl2n, 1);
-    Fr_neq_l1nl2n_test(&Result2_l1nl2n, &A2_l1nl2n, &B2_l1nl2n, 2);
-    Fr_neq_l1nl2n_test(&Result3_l1nl2n, &A3_l1nl2n, &B3_l1nl2n, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
-   Fr_neq_l1ml2n_unit_test();
-    #ifdef TEST_FR_C_FUNCTIONS_WITH_RESULT
-    Fr_neq_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
-    Fr_neq_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-    Fr_neq_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-    Fr_neq_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
-    #endif
-#endif
-#ifdef TEST_FR_ASM_FUNCTIONS
-    Fr_neq_l1ml2n_test(&Result_l1ml2n, &A_l1ml2n,  &B_l1ml2n, 0);
-    Fr_neq_l1ml2n_test(&Result1_l1ml2n, &A1_l1ml2n, &B1_l1ml2n, 1);
-    Fr_neq_l1ml2n_test(&Result2_l1ml2n, &A2_l1ml2n, &B2_l1ml2n, 2);
-    Fr_neq_l1ml2n_test(&Result3_l1ml2n, &A3_l1ml2n, &B3_l1ml2n, 3);
-#endif
-
-#ifdef TEST_FR_C_FUNCTIONS
+    Fr_neq_l1ml2n_unit_test();
     Fr_neq_l1ml2m_unit_test();
     Fr_neq_l1nl2m_unit_test();
     Fr_neq_s1l2m_unit_test();
