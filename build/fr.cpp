@@ -2930,15 +2930,6 @@ int rightRotate(int16_t n, unsigned int d)
     return (n >> d)|(n << (INT_BITS - d));
 }
 
-union qword
-{
-    int8_t  lb;
-    int8_t  hb;
-    int16_t  w;
-    int32_t dw;
-    //int64_t qw;
-};
-
 union dword
 {
    int8_t  cC[4];
@@ -3173,14 +3164,12 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
 
     if (mpn_cmp(&b[0], &cmpVal, 1) == 0)
     {
-        std::cout << "rawShl 0" <<"\n";
         Fr_rawCopy(r,a);
         return;
     }
 
     if (mpn_cmp(&b[0], &cmpVal2, 1) >= 0)
     {
-        std::cout << "rawShl 1" <<"\n";
         Fr_rawZero(r);
         return;
     }
@@ -3248,12 +3237,12 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
         }
     }
 
-    qword urcx;
-    urcx.dw = rcx[0];
-    urcx.hb = 64;
-    urcx.hb = urcx.hb - urcx.lb;
+    dword urcx;
+    urcx.dW = rcx[0];
+    urcx.cC[1] = 64;
+    urcx.cC[1] = urcx.cC[1] - urcx.cC[0];
     r10 = 1;
-    mpn_lshift(&r10, &r10, 1, urcx.lb);
+    mpn_lshift(&r10, &r10, 1, urcx.cC[0]);
     r10 = r10 - 1;
     r9 = r10;
     // @IS TODO Check
@@ -3272,7 +3261,7 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
             rdi[3] = rax[0];
         }
         rax[0] = rdi[3];
-        mpn_lshift(rax, rax, 1, urcx.lb);
+        mpn_lshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         mpn_and_n (rax, rax, &lboMask, 1);
         rdi[3] = rax[0];
@@ -3280,12 +3269,12 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
     else
     {
         rax[0] = rdx[3];
-        mpn_lshift(rax, rax, 1, urcx.lb);
+        mpn_lshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         r11= rdx[2];
-        urcx.w = leftRotate(urcx.w, 8);
-        mpn_rshift(&r11, &r11, 1, urcx.lb);
-        urcx.w = leftRotate(urcx.w, 8);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
+        mpn_rshift(&r11, &r11, 1, urcx.cC[0]);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
         mpn_and_n (&r11, &r11, &r10, 1);
         mpn_ior_n (rax, rax, &r11, 1);
         mpn_and_n (rax, rax, &lboMask, 1);
@@ -3302,7 +3291,7 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
             rdi[2] = rax[0];
         }
         rax[0] = rdi[2];
-        mpn_lshift(rax, rax, 1, urcx.lb);
+        mpn_lshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         mpn_and_n (rax, rax, &lboMask, 1);
         rdi[2] = rax[0];
@@ -3310,12 +3299,12 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
     else
     {
         rax[0] = rdx[2];
-        mpn_lshift(rax, rax, 1, urcx.lb);
+        mpn_lshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         r11= rdx[1];
-        urcx.w = leftRotate(urcx.w, 8);
-        mpn_rshift(&r11, &r11, 1, urcx.lb);
-        urcx.w = leftRotate(urcx.w, 8);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
+        mpn_rshift(&r11, &r11, 1, urcx.cC[0]);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
         mpn_and_n (&r11, &r11, &r10, 1);
         mpn_ior_n (rax, rax, &r11, 1);
         mpn_and_n (rax, rax, &lboMask, 1);
@@ -3332,19 +3321,19 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
             rdi[1] = rax[0];
         }
         rax[0] = rdi[1];
-        mpn_lshift(rax, rax, 1, urcx.lb);
+        mpn_lshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         rdi[1] = rax[0];
     }
     else
     {
         rax[0] = rdx[1];
-        mpn_lshift(rax, rax, 1, urcx.lb);
+        mpn_lshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         r11= rdx[0];
-        urcx.w = leftRotate(urcx.w, 8);
-        mpn_rshift(&r11, &r11, 1, urcx.lb);
-        urcx.w = leftRotate(urcx.w, 8);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
+        mpn_rshift(&r11, &r11, 1, urcx.cC[0]);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
         mpn_and_n (&r11, &r11, &r10, 1);
         mpn_ior_n (rax, rax, &r11, 1);
         mpn_and_n (rax, rax, &lboMask, 1);
@@ -3361,20 +3350,20 @@ void rawShl(FrRawElement r, FrRawElement a, FrRawElement b)
             rdi[0] = rax[0];
         }
         rax[0] = rdi[0];
-        mpn_lshift(rax, rax, 1, urcx.lb);
+        mpn_lshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         rdi[0] = rax[0];
     }
     else
     {
         rax[0] = rdx[0];
-        mpn_lshift(rax, rax, 1, urcx.lb);
+        mpn_lshift(rax, rax, 1, urcx.cC[0]);
         mpn_and_n (rax, rax, &r9, 1);
         // @IS todo mov r11, [rdx + -8 ]
         r11= rdx[0];
-        urcx.w = leftRotate(urcx.w, 8);
-        mpn_rshift(&r11, &r11, 1, urcx.lb);
-        urcx.w = leftRotate(urcx.w, 8);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
+        mpn_rshift(&r11, &r11, 1, urcx.cC[0]);
+        urcx.wW[0] = leftRotate(urcx.wW[0], 8);
         mpn_and_n (&r11, &r11, &r10, 1);
         mpn_ior_n (rax, rax, &r11, 1);
         rdi[0] = rax[0];
@@ -3411,14 +3400,12 @@ void do_shl(PFrElement r, PFrElement a, PFrElement b)
             Fr_toNormal(&rsi,a);
             // do_shlln
             r->type = Fr_LONG;
-            std::cout << "do_shl 0" << "\n";
             rawShl(r->longVal, rsi.longVal, b->longVal);
         }
         else
         {
             // do_shlln
             r->type = Fr_LONG;
-            std::cout << "do_shl 1" << "\n";
             rawShl(r->longVal, a->longVal, b->longVal);
         }
     }
@@ -3428,13 +3415,11 @@ void do_shl(PFrElement r, PFrElement a, PFrElement b)
         rax = rcx.shortVal;
         if (rax == 0)
         {
-            std::cout << "do_shl 2" << "\n";
             r->shortVal = 0;
             return;
         }
         if (rax < 0)
         {
-            std::cout << "do_shl 3" << "\n";
             // do_shlcl
             Fr_toLongNormal(&rdx, &rdx);
             // do_shlln
@@ -3445,7 +3430,6 @@ void do_shl(PFrElement r, PFrElement a, PFrElement b)
         }
         if(rdx.shortVal >= 31)
         {
-            std::cout << "do_shl 4" << "\n";
             // do_shlcl
             Fr_toLongNormal(&rdx, &rdx);
             // do_shlln
@@ -3467,8 +3451,6 @@ void do_shl(PFrElement r, PFrElement a, PFrElement b)
         // do_shlcl
         if(rcx.shortVal < 0)
         {
-            std::cout << "do_shl 5" << "\n";
-            std::cout << "rcx.shortVal != 0" << "\n";
             // do_shlcl
             Fr_toLongNormal(&rdx, &rdx);
             // do_shlln
@@ -3476,9 +3458,7 @@ void do_shl(PFrElement r, PFrElement a, PFrElement b)
             rawShl(r->longVal, a->longVal, rdx.longVal);
             return;
         }
-        std::cout << "do_shlcl 0" << "\n";
         r->shortVal = rax;
-        std::cout << "r->shortVal 0" << std::hex << r->shortVal << "\n";
     }
 
 }
@@ -3508,7 +3488,6 @@ void do_shr(PFrElement r, PFrElement a, PFrElement b)
         else
         {
             // do_shrln
-            std::cout << "do_shr rawShr 1" << "\n";
             r->type = Fr_LONG;
             rawShr(r->longVal, a->longVal, b->longVal);
             return;
@@ -3558,11 +3537,7 @@ void do_shr(PFrElement r, PFrElement a, PFrElement b)
     return;
 
 }
-////Fr_shr_test 2:
-//FrElement pA2= {0xa1f0,0x80000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-//FrElement pB2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
-//FrElement pResult2= {0x0,0x0,{0xa1f0fac9f8000001,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-// Implemented, not checked
+
 // Adds two elements of any kind
 void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
 {
@@ -3585,13 +3560,11 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
             if(rcx.longVal[0] >= 254)
             {
                 // tmp_114
-                std::cout << "tmp_114  00 " << "\n";
                 mpn_sub_n(&rcx.longVal[0], &Fr_rawq[0], &rdx.longVal[0], 1);
                 if(rcx.longVal[0] >= 254)
                 {
                     // jae  setzero
                     r->shortVal = 0;
-                    std::cout << "jae  setzero 0" << "\n";
                     return;
                 }
 
@@ -3600,12 +3573,10 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                 {
                     // jae  setzero
                     r->shortVal = 0;
-                    std::cout << "jae  setzero 1" << "\n";
                     return;
                 }
                 rdx.shortVal = rcx.shortVal;
                 rdx.type = rcx.type;
-                std::cout << "do_shl 0" << "\n";
                 do_shl(r, a, &rdx);
                 return;
             }
@@ -3614,13 +3585,11 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
             if (mpn_cmp(&rdx.longVal[1],&rax[0], 3) < 0)
             {
                 // tmp_114
-                std::cout << "tmp_114  2 " << "\n";
                 mpn_sub_n(&rcx.longVal[0], &Fr_rawq[0], &rdx.longVal[0], 1);
                 if(rcx.longVal[0] >= 254)
                 {
                     // jae  setzero
                     r->shortVal = 0;
-                    std::cout << "jae  setzero 2" << "\n";
                     return;
                 }
 
@@ -3629,15 +3598,12 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                 {
                     // jae  setzero
                     r->shortVal = 0;
-                    std::cout << "jae  setzero 3" << "\n";
                     return;
                 }
-                std::cout << "do_shl 1" << "\n";
                 std::memcpy(&rdx, &rcx, sizeof(FrElement));
                 do_shl(r, a, &rdx);
             }
             // 7115
-            std::cout << "do_shr 0" << "\n";
             rdx.shortVal = rcx.shortVal;
             rdx.type = rcx.type;
             do_shr(r, a, &rdx);
@@ -3651,13 +3617,11 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
             if(rcx.longVal[0] >= 254)
             {
                 // tmp_114
-                std::cout << "tmp_114  01 " << "\n";
                 mpn_sub_n(&rcx.longVal[0], &Fr_rawq[0], &rdx.longVal[0], 1);
                 if(rcx.longVal[0] >= 254)
                 {
                     // jae  setzero
                     r->shortVal = 0;
-                    std::cout << "jae  setzero 01" << "\n";
                     return;
                 }
 
@@ -3666,12 +3630,10 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                 {
                     // jae  setzero
                     r->shortVal = 0;
-                    std::cout << "jae  setzero 1" << "\n";
                     return;
                 }
                 rdx.shortVal = rcx.shortVal;
                 rdx.type = rcx.type;
-                std::cout << "do_shl 0" << "\n";
                 do_shl(r, a, &rdx);
                 return;
             }
@@ -3680,13 +3642,11 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
             if (mpn_cmp(&rdx.longVal[1],&rax[0], 3) != 0)
             {
                 // tmp_114
-                std::cout << "tmp_114  2 " << "\n";
                 mpn_sub_n(&rcx.longVal[0], &Fr_rawq[0], &rdx.longVal[0], 1);
                 if(rcx.longVal[0] >= 254)
                 {
                     // jae  setzero
                     r->shortVal = 0;
-                    std::cout << "jae  setzero 2" << "\n";
                     return;
                 }
                 carry = mpn_sub_n(&rax[0], &Fr_rawq[0], &rdx.longVal[0], 4);
@@ -3694,17 +3654,14 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
                 {
                     // jae  setzero
                     r->shortVal = 0;
-                    std::cout << "jae  setzero 3" << "\n";
                     return;
                 }
-                std::cout << "do_shl 1" << "\n";
                 rdx.shortVal = rcx.shortVal;
                 rdx.type = rcx.type;
                 do_shl(r, a, &rdx);
                 return;
             }
             // 7115
-            std::cout << "do_shr 0" << "\n";
             rdx.shortVal = rcx.shortVal;
             rdx.type = rcx.type;
             do_shr(r, a, &rdx);
@@ -3714,32 +3671,27 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
     else
     {
         // jnc     tmp_112
-        std::cout << "tmp_112 " << "\n";
         if (rcx.shortVal < 0)
         {
             // tmp_115
             rcx.shortVal = rcx.shortVal * (-1);
             if (rcx.shortVal >= 254)
             {
-                std::cout << "tmp_115 0 " << "\n";
                 mpn_xor_n(rax, rax, rax, 1);
                 r->shortVal = rax[0];
                 return;
             }
-            std::cout << "tmp_115 do_shl " << "\n";
             rdx.shortVal = rcx.shortVal;
             do_shl(r, a, &rdx);
             return;
         }
         if (rcx.shortVal >= 254)
         {
-            std::cout << "tmp_112 0" << "\n";
             mpn_xor_n(rax, rax, rax, 1);
             r->shortVal = rax[0];
             return;
         }
         rdx.shortVal = rcx.shortVal;
-        std::cout << "tmp_115 do_shr" << "\n";
         do_shr(r, a, &rdx);
         return;
     }
