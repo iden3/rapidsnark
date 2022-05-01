@@ -4387,11 +4387,11 @@ void Fr_shr_unit_test()
     //Fr_shr_test 2:
     FrElement pA2= {0xa1f0,0x80000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
     FrElement pB2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
-    FrElement pResult2= {0x0,0x0,{0xa1f0fac9f8000001,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pResult2= {0x0,0x0,{0x0,0x0,0x0,0x0}};
     //Fr_shr_test 3:
     FrElement pA3= {0xa1f0,0xc0000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
     FrElement pB3= {0x1bb8,0xc0000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
-    FrElement pResult3= {0x0,0x0,{0xa1f0fac9f8000001,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pResult3= {0x0,0x0,{0x0,0x0,0x0,0x0}};
 
     //Fr_shr_test 5:
     FrElement pA5= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
@@ -4432,7 +4432,7 @@ void Fr_shr_unit_test()
 
     compare_Result(&pResult0, &Result0_c,&pA0, &pB0, 0, "Fr_shr_unit_test");
     compare_Result(&pResult1, &Result1_c,&pA1, &pB1, 1, "Fr_shr_unit_test");
-    compare_Result(&pResult2, &Result2_c, &pA2, &pB2, 2, "Fr_shr_unit_test");
+    compare_Result(&pResult2, &Result2_c,&pA2, &pB2, 2, "Fr_shr_unit_test");
     compare_Result(&pResult3, &Result3_c,&pA3, &pB3, 3, "Fr_shr_unit_test");
 
     compare_Result(&pResult5, &Result5_c,&pA5, &pB5, 5, "Fr_shr_unit_test");
