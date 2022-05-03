@@ -913,10 +913,19 @@ void Fr_toLongNormal(PFrElement r, PFrElement a)
 // Implemented, not checked
 void Fr_copyn(PFrElement r, PFrElement a, int n)
 {
-    r->shortVal = a->shortVal;
-    r->type = a->type;
-    std::memset(r, 0, sizeof(FrRawElement));
-    std::memcpy(r->longVal, a->longVal, n);
+    if (n == 0)
+    {
+        r->shortVal = 0;
+        r->type = 0;
+        std::memset(r->longVal, 0, sizeof(FrRawElement));
+    }
+    else
+    {
+        r->shortVal = a->shortVal;
+        r->type = a->type;
+        std::memcpy(r->longVal, a->longVal, sizeof(FrRawElement));
+    }
+
 }
 
 // Implemented, checked
