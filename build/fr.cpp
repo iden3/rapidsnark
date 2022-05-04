@@ -659,28 +659,6 @@ void mul_s1s2(PFrElement r, PFrElement a, PFrElement b)
     mpz_clear(rax);
 }
 
-//void rawCopyS2L(PFrElement pResult, int64_t val)
-//{
-//    mpz_t result, mq;
-
-//    mpz_inits(result, mq);
-
-//    mpz_set_si(result, val);
-
-//    if (val < 0)
-//    {
-//        Fr_to_mpz(mq, Fr_rawq);
-
-//        mpz_add(result, result, mq);
-//    }
-
-//    pResult->type = Fr_LONG;
-//    pResult->shortVal = 0;
-//    Fr_to_rawElement(pResult->longVal, result);
-
-//    mpz_clears(result, mq);
-//}
-
 void rawCopyS2L(PFrElement pResult, int64_t val)
 {
     pResult->type = Fr_LONG;
@@ -889,7 +867,6 @@ void mul_s1ml2n(PFrElement r,PFrElement a,PFrElement b)
     Fr_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
 
-// Implemented, not checked
 void Fr_toLongNormal(PFrElement r, PFrElement a)
 {
     if (a->type != Fr_LONG)
@@ -910,7 +887,6 @@ void Fr_toLongNormal(PFrElement r, PFrElement a)
     }
 }
 
-// Implemented, not checked
 void Fr_copyn(PFrElement r, PFrElement a, int n)
 {
     if (n == 0)
@@ -928,7 +904,6 @@ void Fr_copyn(PFrElement r, PFrElement a, int n)
 
 }
 
-// Implemented, checked
 //  Substracts a long element and a short element form 0
 void rawNegLS(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 {
@@ -941,7 +916,6 @@ void rawNegLS(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     }
 }
 
-// Implemented, checked 1
 void sub_s1s2(PFrElement r, PFrElement a, PFrElement b)
 {
     mpz_t rax;
@@ -961,26 +935,26 @@ void sub_s1s2(PFrElement r, PFrElement a, PFrElement b)
     }
     mpz_clear(rax);
 }
-// Implemented, Not checked 2
+
 void sub_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONG;
     Fr_rawSub(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
-// Implemented, Not checked 3
+
 void sub_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
     Fr_toMontgomery(r, a);
     Fr_rawSub(&r->longVal[0], &r->longVal[0], &b->longVal[0]);
 }
-// Implemented, Not checked 4
+
 void sub_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
     Fr_rawSub(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
-// Implemented, Not checked 5
+
 void sub_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
@@ -988,8 +962,6 @@ void sub_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
     Fr_rawSub(&r->longVal[0], &a->longVal[0], &r->longVal[0]);
 }
 
-
-// Implemented, Not checked 6
 void sub_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrRawElement tmp1 = {0,0,0,0};
@@ -1007,7 +979,7 @@ void sub_s1l2n(PFrElement r,PFrElement a,PFrElement b)
         rawNegLS(r->longVal, tmp1, b->longVal);
     }
 }
-// Implemented, Not checked 7
+
 void sub_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
@@ -1016,7 +988,6 @@ void sub_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
     Fr_rawSub(&r->longVal[0], &a->longVal[0], tmpb.longVal);
 }
 
-// Implemented, Not checked 8
 void sub_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
@@ -1025,7 +996,6 @@ void sub_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
     Fr_rawSub(&r->longVal[0], tmpa.longVal, &b->longVal[0]);
 }
 
-// Implemented, Not checked 9
 void sub_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrRawElement tmp1 = {0,0,0,0};
@@ -1043,20 +1013,19 @@ void sub_l1ns2(PFrElement r,PFrElement a,PFrElement b)
     }
 }
 
-// Implemented, Not checked 10
 void sub_l1ms2m(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
     Fr_rawSub(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
-// Implemented, Not checked 11
+
 void sub_s1ml2m(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
     Fr_rawSub(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
 
-// Implemented, Not checked
+
 void Fr_sub(PFrElement r, PFrElement a, PFrElement b)
 {
     if (a->type & Fr_LONG) // Check if is short first operand
@@ -1135,7 +1104,7 @@ void Fr_sub(PFrElement r, PFrElement a, PFrElement b)
     }
 }
 
-// Implemented, Not checked
+
 void Fr_toMontgomery(PFrElement r, PFrElement a)
 {
     if (a->type == Fr_LONGMONTGOMERY) // ; check if montgomery
@@ -1172,28 +1141,6 @@ void Fr_toMontgomery(PFrElement r, PFrElement a)
     return;
 }
 
-//// Implemented, Not checked 1
-//void add_s1s2(PFrElement r, PFrElement a, PFrElement b)
-//{
-//    mpz_t rax;
-//    mpz_init(rax);
-
-//    int64_t temp = (int64_t)a->shortVal + (int64_t)b->shortVal;
-//    r->longVal[0] = temp;
-//    mpz_import(rax, 1, -1, 8, -1, 0, (const void *)r);
-//    // mul_manageOverflow
-//    if (!mpz_fits_sint_p(rax))
-//    {
-//        rawCopyS2L(r, temp);
-//    }
-//    else
-//    {
-//        r->type = Fr_LONG;
-//    }
-//    mpz_clear(rax);
-//}
-
-// Implemented, Not checked 1
 void add_s1s2(PFrElement r, PFrElement a, PFrElement b)
 {
     mpz_t rax;
@@ -1213,7 +1160,7 @@ void add_s1s2(PFrElement r, PFrElement a, PFrElement b)
     }
     mpz_clear(rax);
 }
-// Implemented, Not checked 2
+
 void add_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmp1;
@@ -1222,20 +1169,20 @@ void add_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
     r->type = Fr_LONG;
     Fr_rawAdd(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
-// Implemented, Not checked 3
+
 void add_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
     Fr_toMontgomery(r, a);
     Fr_rawAdd(&r->longVal[0], &r->longVal[0], &b->longVal[0]);
 }
-// Implemented, Not checked 4
+
 void add_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
     Fr_rawAdd(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
-// Implemented, Not checked 5
+
 void add_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
@@ -1243,7 +1190,6 @@ void add_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
     Fr_rawAdd(&r->longVal[0], &r->longVal[0], &a->longVal[0]);
 }
 
-// Implemented, Not checked 6
 void add_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrRawElement tmp1 = {0,0,0,0};
@@ -1260,7 +1206,7 @@ void add_s1l2n(PFrElement r,PFrElement a,PFrElement b)
         Fr_rawSub(&r->longVal[0], &b->longVal[0], &tmp1[0]);
     }
 }
-// Implemented, Not checked 7
+
 void add_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
@@ -1269,7 +1215,6 @@ void add_l1ms2n(PFrElement r,PFrElement a,PFrElement b)
     Fr_rawAdd(&r->longVal[0], &a->longVal[0], tmpb.longVal);
 }
 
-// Implemented, Not checked 8
 void add_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
@@ -1277,7 +1222,7 @@ void add_s1nl2m(PFrElement r,PFrElement a,PFrElement b)
     Fr_toMontgomery(&tmpa, a);
     Fr_rawAdd(&r->longVal[0], tmpa.longVal, &b->longVal[0]);
 }
-// Implemented, Not checked 9
+
 void add_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrRawElement tmp1 = {0,0,0,0};
@@ -1295,13 +1240,12 @@ void add_l1ns2(PFrElement r,PFrElement a,PFrElement b)
     }
 }
 
-// Implemented, Not checked 10
 void add_l1ms2m(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
     Fr_rawAdd(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
-// Implemented, Not checked 11
+
 void add_s1ml2m(PFrElement r,PFrElement a,PFrElement b)
 {
     r->type = Fr_LONGMONTGOMERY;
@@ -1386,7 +1330,6 @@ void Fr_add(PFrElement r, PFrElement a, PFrElement b)
     }
 }
 
-//Implemented, not checked
 int Fr_isTrue(PFrElement pE)
 {
     PFrElement tmp = pE;
@@ -1496,7 +1439,6 @@ int Fr_toInt(PFrElement pE)
     return pE->shortVal;
 }
 
-// Implemented, Not checked 1
 int rlt_s1s2(PFrElement a, PFrElement b)
 {
     if (a->shortVal < b->shortVal)
@@ -1552,49 +1494,43 @@ int rltL1L2(FrRawElement pRawA, FrRawElement pRawB)
     return rltl1l2_p1(pRawA, pRawB);
 }
 
-// Implemented, Not checked 2
 int rlt_l1nl2n(PFrElement a,PFrElement b)
 {
     // rltL1L2
     return rltL1L2(&a->longVal[0], &b->longVal[0]);
 
 }
-// Implemented, Not checked 3
+
 int rlt_l1nl2m(PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
     Fr_toNormal(&tmpb, b);
     rltL1L2(a->longVal, tmpb.longVal);
 }
-// Implemented, Not checked 4
+
 int rlt_l1ml2m(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
     FrElement tmpb = {0,0,{0,0,0,0}};
-//    std::memcpy(&tmpa, &a, sizeof (FrElement));
-//    std::memcpy(&tmpb, &b, sizeof (FrElement));
     Fr_toNormal(&tmpa,a);
     Fr_toNormal(&tmpb,b);
     return rltL1L2(tmpa.longVal, tmpb.longVal);
 }
-// Implemented, Not checked 5
+
 int rlt_l1ml2n(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
-
-    //std::memcpy(&tmpa, a, sizeof (FrElement));
     Fr_toNormal(&tmpa, a);
     return rltL1L2(tmpa.longVal, b->longVal);
 }
 
-// Implemented, Not checked 6
 int rlt_s1l2n(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
     Fr_toLongNormal(&tmpa,a);
     return rltL1L2(tmpa.longVal, b->longVal);
 }
-// Implemented, Not checked 7
+
 int rlt_l1ms2(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
@@ -1604,7 +1540,6 @@ int rlt_l1ms2(PFrElement a,PFrElement b)
     return rltL1L2(tmpa.longVal, tmpb.longVal);
 }
 
-// Implemented, Not checked 8
 int rlt_s1l2m(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
@@ -1613,7 +1548,7 @@ int rlt_s1l2m(PFrElement a,PFrElement b)
     Fr_toNormal(&tmpb,b);
     return rltL1L2(tmpa.longVal, tmpb.longVal);
 }
-// Implemented, Not checked 9
+
 int rlt_l1ns2(PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
@@ -1685,13 +1620,11 @@ void Fr_rlt(PFrElement r, PFrElement a, PFrElement b)
     r->shortVal = rax;
 }
 
-// Implemented, not checked
 void Fr_lt(PFrElement r, PFrElement a, PFrElement b)
 {
     Fr_rlt(r, a, b);
 }
 
-//Implemented, not checked
 void Fr_geq(PFrElement r, PFrElement a, PFrElement b)
 {
    mp_limb_t rax = 0;
@@ -1702,7 +1635,6 @@ void Fr_geq(PFrElement r, PFrElement a, PFrElement b)
    r->shortVal = rax;
 }
 
-//Implemented, not checked
 void Fr_neg(PFrElement r, PFrElement a)
 {
     mp_limb_t tmp = 0;
@@ -1746,7 +1678,6 @@ int reqL1L2(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     }
 }
 
-// Implemented, Not checked 1
 int req_s1s2(PFrElement r, PFrElement a, PFrElement b)
 {
     if (a->shortVal == b->shortVal)
@@ -1759,27 +1690,26 @@ int req_s1s2(PFrElement r, PFrElement a, PFrElement b)
     }
 }
 
-// Implemented, Not checked 2
 int req_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
 {
     // rltL1L2
     return reqL1L2(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 
 }
-// Implemented, Not checked 3
+
 int req_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
     Fr_toMontgomery(&tmpa,a);
     return reqL1L2(r->longVal, tmpa.longVal, b->longVal);
 }
-// Implemented, Not checked 4
+
 int req_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
 {
     // rltL1L2
     return reqL1L2(r->longVal, a->longVal, b->longVal);
 }
-// Implemented, Not checked 5
+
 int req_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
@@ -1787,14 +1717,13 @@ int req_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
     return reqL1L2(r->longVal, a->longVal, tmpb.longVal);
 }
 
-// Implemented, Not checked 6
 int req_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
     Fr_toLongNormal(&tmpa,a);
     return reqL1L2(r->longVal, tmpa.longVal, b->longVal);
 }
-// Implemented, Not checked 7
+
 int req_l1ms2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
@@ -1802,14 +1731,13 @@ int req_l1ms2(PFrElement r,PFrElement a,PFrElement b)
     return reqL1L2(r->longVal, a->longVal, tmpb.longVal);
 }
 
-// Implemented, Not checked 8
 int req_s1l2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
     Fr_toMontgomery(&tmpa,a);
     return reqL1L2(r->longVal, tmpa.longVal, b->longVal);
 }
-// Implemented, Not checked 9
+
 int req_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
@@ -1817,7 +1745,6 @@ int req_l1ns2(PFrElement r,PFrElement a,PFrElement b)
     return reqL1L2(r->longVal, a->longVal, tmpb.longVal);
 }
 
-//Not Implemented, not checked
 // Compares two elements of any kind
 // returns in ax 1 id *rsi == *rdx
 void Fr_req(PFrElement r, PFrElement a, PFrElement b)
@@ -1882,13 +1809,12 @@ void Fr_req(PFrElement r, PFrElement a, PFrElement b)
     }
     r->shortVal = rax;
 }
-//Implemented, not checked
+
 void Fr_eq(PFrElement r, PFrElement a, PFrElement b)
 {
     Fr_req(r, a, b);
 }
 
-//Implemented, not checked
 void Fr_neq(PFrElement r, PFrElement a, PFrElement b)
 {
     mp_limb_t xorVal = 1;
@@ -1899,7 +1825,6 @@ void Fr_neq(PFrElement r, PFrElement a, PFrElement b)
     r->shortVal = rax;
 }
 
-// Implemented, checked
 // Logical or between two elements
 void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
 {
@@ -2112,7 +2037,6 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
     }
 }
 
-// Implemented, Not checked 1
 int rgt_s1s2(PFrElement a, PFrElement b)
 {
     if (a->shortVal > b->shortVal)
@@ -2172,21 +2096,20 @@ int rgtL1L2(FrRawElement pRawA, FrRawElement pRawB)
     return rgtl1l2_p1(pRawA, pRawB);
 }
 
-// Implemented, Not checked 2
 int rgt_l1nl2n(PFrElement a,PFrElement b)
 {
     // rltL1L2
     return rgtL1L2(&a->longVal[0], &b->longVal[0]);
 
 }
-// Implemented, Not checked 3
+
 int rgt_l1nl2m(PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
     Fr_toNormal(&tmpb,b);
     return rgtL1L2(a->longVal, tmpb.longVal);
 }
-// Implemented, Not checked 4
+
 int rgt_l1ml2m(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
@@ -2195,7 +2118,7 @@ int rgt_l1ml2m(PFrElement a,PFrElement b)
     Fr_toNormal(&tmpb,b);
     return rgtL1L2(tmpa.longVal, tmpb.longVal);
 }
-// Implemented, Not checked 5
+
 int rgt_l1ml2n(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
@@ -2203,14 +2126,13 @@ int rgt_l1ml2n(PFrElement a,PFrElement b)
     return rgtL1L2(tmpa.longVal, b->longVal);
 }
 
-// Implemented, Not checked 6
 int rgt_s1l2n(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
     Fr_toLongNormal(&tmpa,a);
     return rgtL1L2(tmpa.longVal, b->longVal);
 }
-// Implemented, Not checked 7
+
 int rgt_l1ms2(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
@@ -2220,7 +2142,6 @@ int rgt_l1ms2(PFrElement a,PFrElement b)
     return rgtL1L2(tmpa.longVal, tmpb.longVal);
 }
 
-// Implemented, Not checked 8
 int rgt_s1l2m(PFrElement a,PFrElement b)
 {
     FrElement tmpa = {0,0,{0,0,0,0}};
@@ -2229,7 +2150,7 @@ int rgt_s1l2m(PFrElement a,PFrElement b)
     Fr_toNormal(&tmpb,b);
     return rgtL1L2(tmpa.longVal, tmpb.longVal);
 }
-// Implemented, Not checked 9
+
 int rgt_l1ns2(PFrElement a,PFrElement b)
 {
     FrElement tmpb = {0,0,{0,0,0,0}};
@@ -2237,7 +2158,7 @@ int rgt_l1ns2(PFrElement a,PFrElement b)
     return rgtL1L2(a->longVal, tmpb.longVal);
 }
 
-// Implemented, not checked
+
 void Fr_rgt(PFrElement r, PFrElement a, PFrElement b)
 {
     int rax = 0;
@@ -2301,15 +2222,12 @@ void Fr_rgt(PFrElement r, PFrElement a, PFrElement b)
     r->shortVal = rax;
 }
 
-
-//Implemented, not checked
 void Fr_gt(PFrElement r, PFrElement a, PFrElement b)
 {
     Fr_rgt(r,a,b);
 }
 
 // Logical and between two elements
-//Implemented, checked
 void Fr_land(PFrElement r, PFrElement a, PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2522,7 +2440,6 @@ void Fr_land(PFrElement r, PFrElement a, PFrElement b)
     }
 }
 
-// Implemented, checked 1
 void and_s1s2(PFrElement r, PFrElement a, PFrElement b)
 {
     mp_limb_t cmpVal = 0;
@@ -2594,7 +2511,6 @@ void and_s1s2(PFrElement r, PFrElement a, PFrElement b)
     r->shortVal = edx;
 }
 
-// Implemented, checked 2
 void and_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrRawElement rax = {0,0,0,0};
@@ -2613,7 +2529,6 @@ void and_l1nl2n(PFrElement r,PFrElement a,PFrElement b)
 
 }
 
-// Implemented, checked 3
 void and_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2634,7 +2549,7 @@ void and_l1nl2m(PFrElement r,PFrElement a,PFrElement b)
         mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
-// Implemented, checked 4
+
 void and_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2658,7 +2573,7 @@ void and_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
         mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
-// Implemented, checked 5
+
 void and_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2680,8 +2595,6 @@ void and_l1ml2n(PFrElement r,PFrElement a,PFrElement b)
     }
 }
 
-
-// Implemented, checked 6
 void and_s1l2n(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2722,7 +2635,7 @@ void and_s1l2n(PFrElement r,PFrElement a,PFrElement b)
         mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
-// Implemented, checked 7
+
 void and_l1ms2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2765,7 +2678,6 @@ void and_l1ms2(PFrElement r,PFrElement a,PFrElement b)
     }
 }
 
-// Implemented, checked 8
 void and_s1l2m(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2807,7 +2719,7 @@ void and_s1l2m(PFrElement r,PFrElement a,PFrElement b)
         mpn_sub_n(r->longVal,r->longVal, Fr_rawq, Fr_N64);
     }
 }
-// Implemented, checked 9
+
 void and_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 {
     FrElement rax = {0,0,{0,0,0,0}};
@@ -2851,7 +2763,6 @@ void and_l1ns2(PFrElement r,PFrElement a,PFrElement b)
 }
 
 // Adds two elements of any kind
-// Implemented, checked
 void Fr_band(PFrElement r, PFrElement a, PFrElement b)
 {
     if (a->type & Fr_LONG) // Check if is short first operand
