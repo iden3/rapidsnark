@@ -7,9 +7,10 @@
 
 #define Fr_N64 4
 #define Fr_SHORT 0x00000000
+#define Fr_LONG  0x80000000
+#define Fr_MONTGOMERY      0x40000000
 #define Fr_SHORTMONTGOMERY 0x40000000
-#define Fr_LONG 0x80000000
-#define Fr_LONGMONTGOMERY 0xC0000000
+#define Fr_LONGMONTGOMERY  0xC0000000
 typedef uint64_t FrRawElement[Fr_N64];
 typedef struct __attribute__((__packed__)) {
     int32_t shortVal;
@@ -95,6 +96,8 @@ extern "C" void Fr_fail();
 
 #else
 
+extern FrElement    Fr_q;
+
 void Fr_copy(PFrElement r, PFrElement a);
 void Fr_mul(PFrElement r, PFrElement a, PFrElement b);
 void Fr_toNormal(PFrElement r, PFrElement a);
@@ -130,7 +133,6 @@ void Fr_rawFromMontgomery(FrRawElement pRawResult, FrRawElement pRawA);
 int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB);
 int Fr_rawIsZero(FrRawElement pRawB);
 void Fr_rawZero(FrRawElement pRawResult);
-void rawNegLS(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB);
 
 void Fr_fail();
 

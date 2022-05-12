@@ -513,22 +513,22 @@ void Fq_rawSwap(FqRawElement pRawResult, FqRawElement pRawA)
     }
 }
 
-void rawCopyS2L(PFqElement r, int64_t temp);
-void mul_s1s2(PFqElement r, PFqElement a, PFqElement b);
-void mul_l1nl2n(PFqElement r, PFqElement a, PFqElement b);
-void mul_l1ml2n(PFqElement r,PFqElement a,PFqElement b);
-void mul_l1nl2m(PFqElement r, PFqElement a, PFqElement b);
-void mul_l1ml2m(PFqElement r,PFqElement a,PFqElement b);
+static inline void rawCopyS2L(PFqElement r, int64_t temp);
+static inline void mul_s1s2(PFqElement r, PFqElement a, PFqElement b);
+static inline void mul_l1nl2n(PFqElement r, PFqElement a, PFqElement b);
+static inline void mul_l1ml2n(PFqElement r,PFqElement a,PFqElement b);
+static inline void mul_l1nl2m(PFqElement r, PFqElement a, PFqElement b);
+static inline void mul_l1ml2m(PFqElement r,PFqElement a,PFqElement b);
 
-void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b);
-void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b);
-void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b);
-void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b);
+static inline void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b);
+static inline void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b);
+static inline void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b);
+static inline void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b);
 
-void mul_l1ns2m(PFqElement r,PFqElement a,PFqElement b);
-void mul_l1ms2m(PFqElement r,PFqElement a,PFqElement b);
-void mul_s1ml2n(PFqElement r,PFqElement a,PFqElement b);
-void mul_s1ml2m(PFqElement r,PFqElement a,PFqElement b);
+static inline void mul_l1ns2m(PFqElement r,PFqElement a,PFqElement b);
+static inline void mul_l1ms2m(PFqElement r,PFqElement a,PFqElement b);
+static inline void mul_s1ml2n(PFqElement r,PFqElement a,PFqElement b);
+static inline void mul_s1ml2m(PFqElement r,PFqElement a,PFqElement b);
 
 
 void Fq_mul(PFqElement r, PFqElement a, PFqElement b)
@@ -622,7 +622,7 @@ void Fq_mul(PFqElement r, PFqElement a, PFqElement b)
     }
 }
 
-void mul_s1s2(PFqElement r, PFqElement a, PFqElement b)
+static inline void mul_s1s2(PFqElement r, PFqElement a, PFqElement b)
 {
     mpz_t rax;
     mpz_init(rax);
@@ -642,7 +642,7 @@ void mul_s1s2(PFqElement r, PFqElement a, PFqElement b)
     mpz_clear(rax);
 }
 
-void rawCopyS2L(PFqElement pResult, int64_t val)
+static inline void rawCopyS2L(PFqElement pResult, int64_t val)
 {
     pResult->type = Fq_LONG;
     pResult->shortVal = 0;
@@ -659,7 +659,7 @@ void rawCopyS2L(PFqElement pResult, int64_t val)
     }
 }
 
-void mul_l1nl2n(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_l1nl2n(PFqElement r,PFqElement a,PFqElement b)
 {
     FqElement tmp1;
     FqElement tmp2;
@@ -679,25 +679,25 @@ void mul_l1nl2n(PFqElement r,PFqElement a,PFqElement b)
     Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
 }
 
-void mul_l1nl2m(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_l1nl2m(PFqElement r,PFqElement a,PFqElement b)
 {
     r->type = Fq_LONG;
     Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
 
-void mul_l1ml2m(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_l1ml2m(PFqElement r,PFqElement a,PFqElement b)
 {
     r->type = Fq_LONGMONTGOMERY;
     Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
 
-void mul_l1ml2n(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_l1ml2n(PFqElement r,PFqElement a,PFqElement b)
 {
     r->type = Fq_LONG;
     Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
 
-void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b)
 {
     FqElement tmp1;
     FqElement tmp2;
@@ -739,7 +739,7 @@ void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b)
     }
 }
 
-void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b)
 {
     FqElement tmp1;
     FqElement tmp2;
@@ -781,7 +781,7 @@ void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b)
     }
 }
 
-void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b)
 {
     FqElement tmp1;
     FqElement tmp2;
@@ -803,7 +803,7 @@ void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b)
     }
 }
 
-void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b)
 {
     FqElement tmp1;
     FqElement tmp2;
@@ -825,25 +825,25 @@ void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b)
     }
 }
 
-void mul_l1ns2m(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_l1ns2m(PFqElement r,PFqElement a,PFqElement b)
 {
     r->type = Fq_LONG;
     Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
 
-void mul_l1ms2m(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_l1ms2m(PFqElement r,PFqElement a,PFqElement b)
 {
     r->type = Fq_LONGMONTGOMERY;
     Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
 
-void mul_s1ml2m(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_s1ml2m(PFqElement r,PFqElement a,PFqElement b)
 {
     r->type = Fq_LONGMONTGOMERY;
     Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
 }
 
-void mul_s1ml2n(PFqElement r,PFqElement a,PFqElement b)
+static inline void mul_s1ml2n(PFqElement r,PFqElement a,PFqElement b)
 {
     r->type = Fq_LONG;
     Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);

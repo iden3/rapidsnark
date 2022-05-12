@@ -2525,23 +2525,30 @@ void Fr_neg_unit_test()
     FrElement pA4= {INT_MIN,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
     FrElement pResult4= {0x0,0x80000000,{0x80000000,0x0,0x0,0x0}};
 
+    //Fr_neg_test 5:
+    FrElement pA5= {INT_MAX,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pResult5= {INT_MIN+1, 0x0,{0x0,0x0,0x0,0x0}};
+
     FrElement Result0_c = {0,0,{0,0,0,0}};
     FrElement Result1_c = {0,0,{0,0,0,0}};
     FrElement Result2_c= {0,0,{0,0,0,0}};
     FrElement Result3_c= {0,0,{0,0,0,0}};
     FrElement Result4_c= {0,0,{0,0,0,0}};
+    FrElement Result5_c= {0,0,{0,0,0,0}};
 
     Fr_neg(&Result0_c, &pA0);
     Fr_neg(&Result1_c, &pA1);
     Fr_neg(&Result2_c, &pA2);
     Fr_neg(&Result3_c, &pA3);
-    //Fr_neg(&Result4_c, &pA4);
+    Fr_neg(&Result4_c, &pA4);
+    Fr_neg(&Result5_c, &pA5);
 
     compare_Result(&pResult0, &Result0_c,&pA0,&pA0, 0, "Fr_neg_unit_test");
     compare_Result(&pResult1, &Result1_c,&pA1,&pA1, 1, "Fr_neg_unit_test");
     compare_Result(&pResult2, &Result2_c,&pA2,&pA2, 2, "Fr_neg_unit_test");
     compare_Result(&pResult3, &Result3_c,&pA3,&pA3, 3, "Fr_neg_unit_test");
-    //compare_Result(&pResult4, &Result4_c, 4, "Fr_neg_unit_test");
+    compare_Result(&pResult4, &Result4_c,&pA4,&pA4, 4, "Fr_neg_unit_test");
+    compare_Result(&pResult5, &Result5_c,&pA5,&pA5, 5, "Fr_neg_unit_test");
 }
 
 void Fr_eq_s1s2_unit_test()
