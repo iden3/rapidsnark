@@ -329,9 +329,7 @@ void Fq_rawCopy(FqRawElement pRawResult, FqRawElement pRawA)
 
 void Fq_copy(PFqElement r, PFqElement a)
 {
-    r->shortVal = a->shortVal;
-    r->type = a->type;
-    std::memcpy(r->longVal, a->longVal, sizeof(FqRawElement));
+    std::memcpy(r, a, sizeof(FqElement));
 }
 
 int Fq_rawIsEq(FqRawElement pRawA, FqRawElement pRawB)
@@ -497,54 +495,184 @@ void Fq_toNormal(PFqElement r, PFqElement a)
     }
 }
 
-int Fq_rawIsZero(FqRawElement pRawB)
+int Fq_rawIsZero(FqRawElement rawA)
 {
-    return mpn_zero_p(pRawB, Fq_N64);
+    return mpn_zero_p(rawA, Fq_N64) ? 1 : 0;
 }
 
 void Fq_rawSwap(FqRawElement pRawResult, FqRawElement pRawA)
 {
-    FqRawElement tmp = {0};
-    for (int i=0; i<Fq_N64; i++)
+    mpn_cnd_swap(1, pRawResult, pRawA, Fq_N64);
+}
+
+static inline void rawCopyS2L(PFqElement pResult, int64_t val)
+{
+    pResult->type = Fq_LONG;
+    pResult->shortVal = 0;
+
+    uint64_t *result = pResult->longVal;
+
+    result[0] = val;
+    mpn_zero(result+1, Fq_N64-1);
+
+    if (val < 0)
     {
-        tmp[i] = pRawResult[i];
-        pRawResult[i] = pRawA[i];
-        pRawA[i] = tmp[i];
+        mpn_com(result+1, result+1, Fq_N64-1);
+        mpn_add_n(result, result, Fq_rawq, Fq_N64);
     }
 }
 
-static inline void rawCopyS2L(PFqElement r, int64_t temp);
-static inline void mul_s1s2(PFqElement r, PFqElement a, PFqElement b);
-static inline void mul_l1nl2n(PFqElement r, PFqElement a, PFqElement b);
-static inline void mul_l1ml2n(PFqElement r,PFqElement a,PFqElement b);
-static inline void mul_l1nl2m(PFqElement r, PFqElement a, PFqElement b);
-static inline void mul_l1ml2m(PFqElement r,PFqElement a,PFqElement b);
+static inline int has_mul32_overflow(int64_t val)
+{
+    int64_t sign = val >> 32;
 
-static inline void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b);
-static inline void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b);
-static inline void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b);
-static inline void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b);
+    if (sign)
+    {
+        sign = ~sign;
+    }
 
-static inline void mul_l1ns2m(PFqElement r,PFqElement a,PFqElement b);
-static inline void mul_l1ms2m(PFqElement r,PFqElement a,PFqElement b);
-static inline void mul_s1ml2n(PFqElement r,PFqElement a,PFqElement b);
-static inline void mul_s1ml2m(PFqElement r,PFqElement a,PFqElement b);
+    return sign ? 1 : 0;
+}
 
+static inline void mul_s1s2(PFqElement r, PFqElement a, PFqElement b)
+{
+    int64_t result = (int64_t)a->shortVal * b->shortVal;
+
+    if (has_mul32_overflow(result))
+    {
+        rawCopyS2L(r, result);
+    }
+    else
+    {
+        r->shortVal = (int32_t)result;
+        r->type = Fq_SHORT;
+        rawCopyS2L(r, result);
+    }
+}
+
+static inline void mul_l1nl2n(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONGMONTGOMERY;
+
+    Fq_rawMMul(r->longVal, a->longVal, b->longVal);
+    Fq_rawMMul(r->longVal, r->longVal, Fq_rawR3);
+}
+
+static inline void mul_l1nl2m(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONG;
+    Fq_rawMMul(r->longVal, a->longVal, b->longVal);
+}
+
+static inline void mul_l1ml2m(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONGMONTGOMERY;
+    Fq_rawMMul(r->longVal, a->longVal, b->longVal);
+}
+
+static inline void mul_l1ml2n(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONG;
+    Fq_rawMMul(r->longVal, a->longVal, b->longVal);
+}
+
+static inline void mul_l1ns2n(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONGMONTGOMERY;
+
+    if (b->shortVal < 0)
+    {
+        Fq_rawMMul1(r->longVal, a->longVal, -b->shortVal);
+        Fq_rawNeg(r->longVal, r->longVal);
+    }
+    else
+    {
+        Fq_rawMMul1(r->longVal, a->longVal, b->shortVal);
+    }
+
+    Fq_rawMMul(r->longVal, r->longVal, Fq_rawR3);
+}
+
+static inline void mul_s1nl2n(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONGMONTGOMERY;
+
+    if (a->shortVal < 0)
+    {
+        Fq_rawMMul1(r->longVal, b->longVal, -a->shortVal);
+        Fq_rawNeg(r->longVal, r->longVal);
+    }
+    else
+    {
+        Fq_rawMMul1(r->longVal, b->longVal, a->shortVal);
+    }
+
+    Fq_rawMMul(r->longVal, r->longVal, Fq_rawR3);
+}
+
+static inline void mul_l1ms2n(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONG;
+
+    if (b->shortVal < 0)
+    {
+        Fq_rawMMul1(r->longVal, a->longVal, -b->shortVal);
+        Fq_rawNeg(r->longVal, r->longVal);
+    }
+    else
+    {
+        Fq_rawMMul1(r->longVal, a->longVal, b->shortVal);
+    }
+}
+
+static inline void mul_s1nl2m(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONG;
+
+    if (a->shortVal < 0)
+    {
+        Fq_rawMMul1(r->longVal, b->longVal, -a->shortVal);
+        Fq_rawNeg(r->longVal, r->longVal);
+    }
+    else
+    {
+        Fq_rawMMul1(r->longVal, b->longVal, a->shortVal);
+    }
+}
+
+static inline void mul_l1ns2m(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONG;
+    Fq_rawMMul(r->longVal, a->longVal, b->longVal);
+}
+
+static inline void mul_l1ms2m(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONGMONTGOMERY;
+    Fq_rawMMul(r->longVal, a->longVal, b->longVal);
+}
+
+static inline void mul_s1ml2m(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONGMONTGOMERY;
+    Fq_rawMMul(r->longVal, a->longVal, b->longVal);
+}
+
+static inline void mul_s1ml2n(PFqElement r, PFqElement a, PFqElement b)
+{
+    r->type = Fq_LONG;
+    Fq_rawMMul(r->longVal, a->longVal, b->longVal);
+}
 
 void Fq_mul(PFqElement r, PFqElement a, PFqElement b)
 {
-    //mpz_import(mr3, Fr_N64, -1, 8, -1, 0, (const void *)Fr_rawR3);
-
-    if (a->type & Fq_LONG) // if (mpz_tstbit (ma, 63)) // 2267 ; Check if is short first operand
+    if (a->type & Fq_LONG)
     {
-        // jc     mul_l1
-        if (b->type & Fq_LONG) //if (mpz_tstbit (mb, 63)) // 2293 ; Check if is short second operand
+        if (b->type & Fq_LONG)
         {
-            // mul_l1l2
-            if (a->type == Fq_LONGMONTGOMERY) // if (mpz_tstbit (ma, 62)) // 2511 ; check if montgomery first
+            if (a->type & Fq_MONTGOMERY)
             {
-                // mul_l1ml2
-                if (b->type == Fq_LONGMONTGOMERY) //if (mpz_tstbit (mb, 62)) // 2554 ; check if montgomery second
+                if (b->type & Fq_MONTGOMERY)
                 {
                     mul_l1ml2m(r, a, b);
                 }
@@ -553,34 +681,32 @@ void Fq_mul(PFqElement r, PFqElement a, PFqElement b)
                     mul_l1ml2n(r, a, b);
                 }
             }
-            else if (b->type == Fq_LONGMONTGOMERY) //if (mpz_tstbit (mb, 62)) // 2514 ; check if montgomery second
-            {
-                mul_l1nl2m(r, a, b);
-            }
             else
             {
-                mul_l1nl2n(r, a, b);
+                if (b->type & Fq_MONTGOMERY)
+                {
+                    mul_l1nl2m(r, a, b);
+                }
+                else
+                {
+                    mul_l1nl2n(r, a, b);
+                }
             }
         }
-        //mul_l1s2:
-        else if (a->type == Fq_LONGMONTGOMERY) //if (mpz_tstbit (ma, 62)) // 2298 ; check if montgomery first
+        else if (a->type & Fq_MONTGOMERY)
         {
-            // mul_l1ms2
-            if (b->type == Fq_SHORT) //if (mpz_tstbit (mb, 62)) // 2358 ; check if montgomery second
-            {
-
-                mul_l1ms2n(r, a, b);
-            }
-            else
+            if (b->type & Fq_MONTGOMERY)
             {
                 mul_l1ms2m(r, a, b);
             }
-
+            else
+            {
+                mul_l1ms2n(r, a, b);
+            }
         }
-        // mul_l1ns2
         else
         {
-            if (b->type == Fq_SHORTMONTGOMERY) //if (mpz_tstbit (mb, 62)) // 2301 ; check if montgomery second
+            if (b->type & Fq_MONTGOMERY)
             {
                 mul_l1ns2m(r, a, b);
             }
@@ -590,13 +716,11 @@ void Fq_mul(PFqElement r, PFqElement a, PFqElement b)
             }
         }
     }
-    else if (b->type & Fq_LONG)//if (mpz_tstbit (mb, 63)) // 2269  ; Check if is short second operand
+    else if (b->type & Fq_LONG)
     {
-        // mul_s1l2
-        if (a->type == Fq_SHORTMONTGOMERY)//if (mpz_tstbit (ma, 62)) // 2406  ; check if montgomery first
+        if (a->type & Fq_MONTGOMERY)
         {
-            // mul_s1ml2
-            if (b->type == Fq_LONGMONTGOMERY)//if (mpz_tstbit (mb, 62)) // 2479  ; check if montgomery second
+            if (b->type & Fq_MONTGOMERY)
             {
                 mul_s1ml2m(r, a, b);
             }
@@ -605,12 +729,10 @@ void Fq_mul(PFqElement r, PFqElement a, PFqElement b)
                 mul_s1ml2n(r,a, b);
             }
         }
-        // mul_s1nl2
-        else if (b->type == Fq_LONGMONTGOMERY) //if (mpz_tstbit (mb, 62)) // 2409; check if montgomery second
+        else if (b->type & Fq_MONTGOMERY)
         {
             mul_s1nl2m(r, a, b);
         }
-        // mul_s1nl2n
         else
         {
             mul_s1nl2n(r, a, b);
@@ -621,234 +743,6 @@ void Fq_mul(PFqElement r, PFqElement a, PFqElement b)
          mul_s1s2(r, a, b);
     }
 }
-
-static inline void mul_s1s2(PFqElement r, PFqElement a, PFqElement b)
-{
-    mpz_t rax;
-    mpz_init(rax);
-
-    int64_t temp = (int64_t)a->shortVal * (int64_t)b->shortVal;
-    r->longVal[0] = temp;
-    mpz_import(rax, 1, -1, 8, -1, 0, (const void *)r);
-    // mul_manageOverflow
-    if (!mpz_fits_sint_p(rax))
-    {
-        rawCopyS2L(r, temp);
-    }
-    else
-    {
-        r->type = Fq_LONG;
-    }
-    mpz_clear(rax);
-}
-
-static inline void rawCopyS2L(PFqElement pResult, int64_t val)
-{
-    pResult->type = Fq_LONG;
-    pResult->shortVal = 0;
-
-    uint64_t *result = pResult->longVal;
-
-    mpn_zero(result, Fq_N64);
-    result[0] = val;
-
-    if (val < 0)
-    {
-        mpn_com(result+1, result+1, Fq_N64-1);
-        mpn_add_n(result, result, Fq_rawq, Fq_N64);
-    }
-}
-
-static inline void mul_l1nl2n(PFqElement r,PFqElement a,PFqElement b)
-{
-    FqElement tmp1;
-    FqElement tmp2;
-
-    r->type = Fq_LONGMONTGOMERY;
-    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
-
-    tmp1.type = Fq_LONG;
-    tmp2.type = Fq_LONG;
-    tmp1.shortVal = 0;
-    tmp2.shortVal = 0;
-    for (int i=0; i<Fq_N64; i++)
-    {
-        tmp1.longVal[i] = r->longVal[i];
-        tmp2.longVal[i] = Fq_R3.longVal[i];
-    }    
-    Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-}
-
-static inline void mul_l1nl2m(PFqElement r,PFqElement a,PFqElement b)
-{
-    r->type = Fq_LONG;
-    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
-}
-
-static inline void mul_l1ml2m(PFqElement r,PFqElement a,PFqElement b)
-{
-    r->type = Fq_LONGMONTGOMERY;
-    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
-}
-
-static inline void mul_l1ml2n(PFqElement r,PFqElement a,PFqElement b)
-{
-    r->type = Fq_LONG;
-    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
-}
-
-static inline void mul_l1ns2n(PFqElement r,PFqElement a,PFqElement b)
-{
-    FqElement tmp1;
-    FqElement tmp2;
-    int32_t   tmp3;
-
-    r->type = Fq_LONGMONTGOMERY;
-    if (b->shortVal >= 0)
-    {
-        // tmp_5:
-        Fq_rawMMul1(&r->longVal[0], &a->longVal[0], b->shortVal);
-        // tmp_6:
-        tmp1.type = Fq_LONG;
-        tmp2.type = Fq_LONG;
-        tmp1.shortVal = 0;
-        tmp2.shortVal = 0;
-        for (int i=0; i<Fq_N64; i++)
-        {
-            tmp1.longVal[i] = r->longVal[i];
-            tmp2.longVal[i] = Fq_R3.longVal[i];
-        }
-        Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-    }
-    else
-    {
-        tmp3 = b->shortVal * (-1);
-        Fq_rawMMul1(&r->longVal[0], &a->longVal[0], tmp3);
-        Fq_rawNeg(&r->longVal[0], &r->longVal[0]);
-        // tmp_6:
-        tmp1.type = Fq_LONG;
-        tmp2.type = Fq_LONG;
-        tmp1.shortVal = 0;
-        tmp2.shortVal = 0;
-        for (int i=0; i<Fq_N64; i++)
-        {
-            tmp1.longVal[i] = r->longVal[i];
-            tmp2.longVal[i] = Fq_R3.longVal[i];
-        }
-        Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-    }
-}
-
-static inline void mul_s1nl2n(PFqElement r,PFqElement a,PFqElement b)
-{
-    FqElement tmp1;
-    FqElement tmp2;
-    int32_t   tmp3;
-
-    r->type = Fq_LONGMONTGOMERY;
-    if (a->shortVal >= 0)
-    {
-        // tmp_9:
-        Fq_rawMMul1(&r->longVal[0], &b->longVal[0], a->shortVal);
-        // tmp_10:
-        tmp1.type = Fq_LONG;
-        tmp2.type = Fq_LONG;
-        tmp1.shortVal = 0;
-        tmp2.shortVal = 0;
-        for (int i=0; i<Fq_N64; i++)
-        {
-            tmp1.longVal[i] = r->longVal[i];
-            tmp2.longVal[i] = Fq_R3.longVal[i];
-        }
-        Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-    }
-    else
-    {
-        tmp3 = a->shortVal * (-1);
-        Fq_rawMMul1(&r->longVal[0], &b->longVal[0], tmp3);
-        Fq_rawNeg(&r->longVal[0], &r->longVal[0]);
-        // tmp_6:
-        tmp1.type = Fq_LONG;
-        tmp2.type = Fq_LONG;
-        tmp1.shortVal = 0;
-        tmp2.shortVal = 0;
-        for (int i=0; i<Fq_N64; i++)
-        {
-            tmp1.longVal[i] = r->longVal[i];
-            tmp2.longVal[i] = Fq_R3.longVal[i];
-        }
-        Fq_rawMMul(&r->longVal[0], &tmp1.longVal[0], &tmp2.longVal[0]);
-    }
-}
-
-static inline void mul_l1ms2n(PFqElement r,PFqElement a,PFqElement b)
-{
-    FqElement tmp1;
-    FqElement tmp2;
-    int32_t   tmp3;
-
-    r->type = Fq_LONG;
-    if (b->shortVal >= 0)
-    {
-        // tmp_7:
-        Fq_rawMMul1(&r->longVal[0], &a->longVal[0], b->shortVal);
-        // tmp_8:
-    }
-    else
-    {
-        tmp3 = b->shortVal * (-1);
-        Fq_rawMMul1(&r->longVal[0], &a->longVal[0], tmp3);
-        Fq_rawNeg(&r->longVal[0], &r->longVal[0]);
-        // tmp_8:
-    }
-}
-
-static inline void mul_s1nl2m(PFqElement r,PFqElement a,PFqElement b)
-{
-    FqElement tmp1;
-    FqElement tmp2;
-    int32_t   tmp3;
-
-    r->type = Fq_LONG;
-    if (a->shortVal >= 0)
-    {
-        // tmp_11:
-        Fq_rawMMul1(&r->longVal[0], &b->longVal[0], a->shortVal);
-        // tmp_12:
-    }
-    else
-    {
-        tmp3 = a->shortVal * (-1);
-        Fq_rawMMul1(&r->longVal[0], &b->longVal[0], tmp3);
-        Fq_rawNeg(&r->longVal[0], &r->longVal[0]);
-        // tmp_12:
-    }
-}
-
-static inline void mul_l1ns2m(PFqElement r,PFqElement a,PFqElement b)
-{
-    r->type = Fq_LONG;
-    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
-}
-
-static inline void mul_l1ms2m(PFqElement r,PFqElement a,PFqElement b)
-{
-    r->type = Fq_LONGMONTGOMERY;
-    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
-}
-
-static inline void mul_s1ml2m(PFqElement r,PFqElement a,PFqElement b)
-{
-    r->type = Fq_LONGMONTGOMERY;
-    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
-}
-
-static inline void mul_s1ml2n(PFqElement r,PFqElement a,PFqElement b)
-{
-    r->type = Fq_LONG;
-    Fq_rawMMul(&r->longVal[0], &a->longVal[0], &b->longVal[0]);
-}
-
 /*****************************************************************************************
  * ASM Functions to C/C++ using GNU MP Lib End
 ******************************************************************************************/

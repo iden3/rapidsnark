@@ -10,7 +10,6 @@
 #include "fr.hpp"
 #include "fq.hpp"
 
-#include <assert.h>
 using namespace std;
 
 int tests_run = 0;

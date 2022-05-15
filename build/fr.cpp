@@ -1,11 +1,8 @@
-﻿#include "fr.hpp"
-#include <stdio.h>
-#include <stdlib.h>
+#include "fr.hpp"
 #include <gmp.h>
-#include <assert.h>
+#include <cassert>
 #include <string>
 #include <cstring>
-#include <iostream>
 
 
 static mpz_t q;
@@ -19,7 +16,6 @@ static bool initialized = false;
 
        FrElement    Fr_q     = {0, 0x80000000, {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029}};
 static uint64_t     Fr_rawq[]=                 {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029, 0};
-static FrElement    Fr_R3    = {0, 0x80000000, {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c}};
 static FrRawElement Fr_rawR3 =                 {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c};
 static FrRawElement Fr_rawR2 =                 {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
 static uint64_t     Fr_np    = {0xc2e1f593efffffff};
@@ -306,7 +302,6 @@ void Fr_rawAddLS(FrRawElement pRawResult, FrRawElement pRawA, uint64_t rawB)
     }
 }
 
-
 void Fr_rawAdd(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement rawB)
 {
     uint64_t carry = mpn_add_n(pRawResult, pRawA, rawB, Fr_N64);
@@ -584,7 +579,7 @@ static inline void rawCopyS2L(PFrElement pResult, int64_t val)
 
 static inline void mul_s1s2(PFrElement r, PFrElement a, PFrElement b)
 {
-    int64_t result = (int64_t)a->shortVal * (int64_t)b->shortVal;
+    int64_t result = (int64_t)a->shortVal * b->shortVal;
 
     if (has_mul32_overflow(result))
     {
@@ -603,7 +598,7 @@ static inline void mul_l1nl2n(PFrElement r, PFrElement a, PFrElement b)
     r->type = Fr_LONGMONTGOMERY;
 
     Fr_rawMMul(r->longVal, a->longVal, b->longVal);
-    Fr_rawMMul(r->longVal, r->longVal, Fr_R3.longVal);
+    Fr_rawMMul(r->longVal, r->longVal, Fr_rawR3);
 }
 
 static inline void mul_l1nl2m(PFrElement r, PFrElement a, PFrElement b)
@@ -638,7 +633,7 @@ static inline void mul_l1ns2n(PFrElement r, PFrElement a, PFrElement b)
         Fr_rawMMul1(r->longVal, a->longVal, b->shortVal);
     }
 
-    Fr_rawMMul(r->longVal, r->longVal, Fr_R3.longVal);
+    Fr_rawMMul(r->longVal, r->longVal, Fr_rawR3);
 }
 
 static inline void mul_s1nl2n(PFrElement r, PFrElement a, PFrElement b)
@@ -655,7 +650,7 @@ static inline void mul_s1nl2n(PFrElement r, PFrElement a, PFrElement b)
         Fr_rawMMul1(r->longVal, b->longVal, a->shortVal);
     }
 
-    Fr_rawMMul(r->longVal, r->longVal, Fr_R3.longVal);
+    Fr_rawMMul(r->longVal, r->longVal, Fr_rawR3);
 }
 
 static inline void mul_l1ms2n(PFrElement r, PFrElement a, PFrElement b)
@@ -1543,7 +1538,7 @@ static inline int req_l1nl2m(PFrElement r, PFrElement a, PFrElement b)
     return reqL1L2(a_m.longVal, b->longVal);
 }
 
-static inline int req_l1ml2m(PFrElement r,PFrElement a,PFrElement b)
+static inline int req_l1ml2m(PFrElement r, PFrElement a, PFrElement b)
 {
     return reqL1L2(a->longVal, b->longVal);
 }
@@ -1994,7 +1989,7 @@ static inline void and_s1l2n(PFrElement r, PFrElement a, PFrElement b)
 
     if (a->shortVal >= 0)
     {
-        a_n = {0, 0, {(int64_t)(a->shortVal), 0, 0, 0}};
+        a_n = {0, 0, {a->shortVal, 0, 0, 0}};
     }
     else
     {
@@ -2021,7 +2016,7 @@ static inline void and_l1ms2(PFrElement r, PFrElement a, PFrElement b)
 
     if (b->shortVal >= 0)
     {
-        b_n = {0, 0, {(int64_t)b->shortVal, 0, 0, 0}};
+        b_n = {0, 0, {b->shortVal, 0, 0, 0}};
     }
     else
     {
@@ -2048,7 +2043,7 @@ static inline void and_s1l2m(PFrElement r, PFrElement a, PFrElement b)
 
     if (a->shortVal >= 0)
     {
-        a_n = {0, 0, {(int64_t)a->shortVal, 0, 0, 0}};
+        a_n = {0, 0, {a->shortVal, 0, 0, 0}};
     }
     else
     {
@@ -2072,7 +2067,7 @@ static inline void and_l1ns2(PFrElement r, PFrElement a, PFrElement b)
 
     if (b->shortVal >= 0)
     {
-        b_n = {0, 0, {(int64_t)b->shortVal, 0, 0, 0}};
+        b_n = {0, 0, {b->shortVal, 0, 0, 0}};
     }
     else
     {

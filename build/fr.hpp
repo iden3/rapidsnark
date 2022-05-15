@@ -1,7 +1,7 @@
 #ifndef __FR_H
 #define __FR_H
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <gmp.h>
 
@@ -22,62 +22,39 @@ typedef FrElement *PFrElement;
 
 #ifdef USE_ASM
 
-extern "C"
-{
-    extern FrElement Fr_q;
-    extern FrElement Fr_R3;
-    extern FrRawElement Fr_rawq;
-    extern FrRawElement Fr_rawR3;
-}
-
-//extern "C" void Fr_copyn(PFrElement r, PFrElement a, int n);
-//extern "C" void Fr_add(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_sub(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_neg(PFrElement r, PFrElement a);
-
-//extern "C" void Fr_square(PFrElement r, PFrElement a);
-//extern "C" void Fr_band(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_bor(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_bxor(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_bnot(PFrElement r, PFrElement a);
-//extern "C" void Fr_shl(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_shr(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_eq(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_neq(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_lt(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_gt(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_leq(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_geq(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_land(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_lor(PFrElement r, PFrElement a, PFrElement b);
-//extern "C" void Fr_lnot(PFrElement r, PFrElement a);
-
-//extern "C" void Fr_toLongNormal(PFrElement r, PFrElement a);
-//extern "C" void Fr_toMontgomery(PFrElement r, PFrElement a);
-
-//extern "C" int Fr_isTrue(PFrElement pE);
-//extern "C" int Fr_toInt(PFrElement pE);
-
-extern "C" void Fr_toLongNormal(PFrElement r, PFrElement a);
-extern "C" int Fr_isTrue(PFrElement pE);
-extern "C" void Fr_copyn(PFrElement r, PFrElement a, int n);
-extern "C" void Fr_lt(PFrElement r, PFrElement a, PFrElement b);
-extern "C" int Fr_toInt(PFrElement pE);
-extern "C" void Fr_shr(PFrElement r, PFrElement a, PFrElement b);
-extern "C" void Fr_band(PFrElement r, PFrElement a, PFrElement b);
-extern "C" void Fr_sub(PFrElement r, PFrElement a, PFrElement b);
-extern "C" void Fr_eq(PFrElement r, PFrElement a, PFrElement b);
-extern "C" void Fr_neq(PFrElement r, PFrElement a, PFrElement b);
-extern "C" void Fr_add(PFrElement r, PFrElement a, PFrElement b);
-extern "C" void Fr_gt(PFrElement r, PFrElement a, PFrElement b);
-extern "C" void Fr_geq(PFrElement r, PFrElement a, PFrElement b);
-extern "C" void Fr_lor(PFrElement r, PFrElement a, PFrElement b);
-extern "C" void Fr_land(PFrElement r, PFrElement a, PFrElement b);
-extern "C" void Fr_neg(PFrElement r, PFrElement a);
+extern FrElement Fr_q;
+extern FrElement Fr_R3;
+extern FrRawElement Fr_rawq;
+extern FrRawElement Fr_rawR3;
 
 extern "C" void Fr_copy(PFrElement r, PFrElement a);
+extern "C" void Fr_copyn(PFrElement r, PFrElement a, int n);
+extern "C" void Fr_add(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_sub(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_neg(PFrElement r, PFrElement a);
 extern "C" void Fr_mul(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_square(PFrElement r, PFrElement a);
+extern "C" void Fr_band(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_bor(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_bxor(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_bnot(PFrElement r, PFrElement a);
+extern "C" void Fr_shl(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_shr(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_eq(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_neq(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_lt(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_gt(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_leq(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_geq(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_land(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_lor(PFrElement r, PFrElement a, PFrElement b);
+extern "C" void Fr_lnot(PFrElement r, PFrElement a);
 extern "C" void Fr_toNormal(PFrElement r, PFrElement a);
+extern "C" void Fr_toLongNormal(PFrElement r, PFrElement a);
+extern "C" void Fr_toMontgomery(PFrElement r, PFrElement a);
+
+extern "C" int Fr_isTrue(PFrElement pE);
+extern "C" int Fr_toInt(PFrElement pE);
 
 extern "C" void Fr_rawCopy(FrRawElement pRawResult, FrRawElement pRawA);
 extern "C" void Fr_rawSwap(FrRawElement pRawResult, FrRawElement pRawA);
@@ -170,29 +147,29 @@ public:
     RawFr();
     ~RawFr();
 
-    Element &zero() { return fZero; };
-    Element &one() { return fOne; };
-    Element &negOne() { return fNegOne; };
+    Element &zero() { return fZero; }
+    Element &one() { return fOne; }
+    Element &negOne() { return fNegOne; }
 
     void fromString(Element &r, std::string n);
     std::string toString(Element &a, uint32_t radix = 10);
 
-    void inline copy(Element &r, Element &a) { Fr_rawCopy(r.v, a.v); };
-    void inline swap(Element &a, Element &b) { Fr_rawSwap(a.v, b.v); };
-    void inline add(Element &r, Element &a, Element &b) { Fr_rawAdd(r.v, a.v, b.v); };
-    void inline sub(Element &r, Element &a, Element &b) { Fr_rawSub(r.v, a.v, b.v); };
-    void inline mul(Element &r, Element &a, Element &b) { Fr_rawMMul(r.v, a.v, b.v); };
-    void inline mul1(Element &r, Element &a, uint64_t b) { Fr_rawMMul1(r.v, a.v, b); };
-    void inline neg(Element &r, Element &a) { Fr_rawNeg(r.v, a.v); };
-    void inline square(Element &r, Element &a) { Fr_rawMSquare(r.v, a.v); };
+    void inline copy(Element &r, Element &a) { Fr_rawCopy(r.v, a.v); }
+    void inline swap(Element &a, Element &b) { Fr_rawSwap(a.v, b.v); }
+    void inline add(Element &r, Element &a, Element &b) { Fr_rawAdd(r.v, a.v, b.v); }
+    void inline sub(Element &r, Element &a, Element &b) { Fr_rawSub(r.v, a.v, b.v); }
+    void inline mul(Element &r, Element &a, Element &b) { Fr_rawMMul(r.v, a.v, b.v); }
+    void inline mul1(Element &r, Element &a, uint64_t b) { Fr_rawMMul1(r.v, a.v, b); }
+    void inline neg(Element &r, Element &a) { Fr_rawNeg(r.v, a.v); }
+    void inline square(Element &r, Element &a) { Fr_rawMSquare(r.v, a.v); }
     void inv(Element &r, Element &a);
     void div(Element &r, Element &a, Element &b);
     void exp(Element &r, Element &base, uint8_t* scalar, unsigned int scalarSize);
 
-    void inline toMontgomery(Element &r, Element &a) { Fr_rawToMontgomery(r.v, a.v); };
-    void inline fromMontgomery(Element &r, Element &a) { Fr_rawFromMontgomery(r.v, a.v); };
-    int inline eq(Element &a, Element &b) { return Fr_rawIsEq(a.v, b.v); };
-    int inline isZero(Element &a) { return Fr_rawIsZero(a.v); };
+    void inline toMontgomery(Element &r, Element &a) { Fr_rawToMontgomery(r.v, a.v); }
+    void inline fromMontgomery(Element &r, Element &a) { Fr_rawFromMontgomery(r.v, a.v); }
+    int inline eq(Element &a, Element &b) { return Fr_rawIsEq(a.v, b.v); }
+    int inline isZero(Element &a) { return Fr_rawIsZero(a.v); }
 
     void toMpz(mpz_t r, Element &a);
     void fromMpz(Element &a, mpz_t r);
