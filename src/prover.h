@@ -6,8 +6,9 @@ extern "C" {
 #endif
 
 //Error codes returned by the functions.
-#define PRPOVER_OK     0x0
-#define PPROVER_ERROR  0x1
+#define PRPOVER_OK                  0x0
+#define PPROVER_ERROR               0x1
+#define PPROVER_ERROR_SHORT_BUFFER  0x2
 
 
 /**
@@ -17,11 +18,11 @@ extern "C" {
  */
 
 int
-groth16_prover(const void *zkey_buffer,   unsigned long zkey_size,
-               const void *wtns_buffer,   unsigned long wtns_size,
-               char       *proof_buffer,  unsigned long proof_size,
-               char       *public_buffer, unsigned long public_size,
-               char       *error_msg,     unsigned long error_msg_maxsize);
+groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
+               const void *wtns_buffer,   unsigned long  wtns_size,
+               char       *proof_buffer,  unsigned long *proof_size,
+               char       *public_buffer, unsigned long *public_size,
+               char       *error_msg,     unsigned long  error_msg_maxsize);
 
 #ifdef __cplusplus
 }

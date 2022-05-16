@@ -1,5 +1,19 @@
 if(USE_ASM)
     add_definitions(-DUSE_ASM)
+
+    if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
+        set(NASM_FLAGS "-fmacho64 --prefix _")
+    else()
+        set(NASM_FLAGS -felf64)
+    endif()
+
+    add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/build/fq.o
+        COMMAND nasm ${NASM_FLAGS} fq.asm -o fq.o
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
+
+    add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/build/fr.o
+        COMMAND nasm ${NASM_FLAGS} fr.asm -o fr.o
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 endif()
 
 if(OpenMP_CXX_FOUND)

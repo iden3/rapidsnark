@@ -43,7 +43,7 @@ build_host()
     mkdir "$BUILD_DIR"
     cd "$BUILD_DIR"
 
-    ../configure ABI=64 --prefix="$PACKAGE_DIR" --disable-shared &&
+    ../configure --prefix="$PACKAGE_DIR" --disable-shared &&
     make -j$(nproc) &&
     make install
 
@@ -88,7 +88,7 @@ build_android()
     mkdir "$BUILD_DIR"
     cd "$BUILD_DIR"
 
-    ../configure ABI=64 --host $TARGET --prefix="$PACKAGE_DIR" --disable-shared --disable-fft &&
+    ../configure --host $TARGET --prefix="$PACKAGE_DIR" --disable-shared --disable-fft &&
     make -j$(nproc) &&
     make install
 
@@ -126,7 +126,7 @@ build_ios()
     mkdir "$BUILD_DIR"
     cd "$BUILD_DIR"
 
-    ../configure ABI=64 --host $TARGET --prefix="$PACKAGE_DIR" --disable-shared --disable-fft --disable-assembly &&
+    ../configure --host $TARGET --prefix="$PACKAGE_DIR" --disable-shared --disable-fft --disable-assembly &&
     make -j$(nproc) &&
     make install
 
