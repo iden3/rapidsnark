@@ -16,6 +16,8 @@ if(USE_ASM)
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 endif()
 
+add_compile_options(-Wno-c++11-narrowing)
+
 if(OpenMP_CXX_FOUND)
     add_definitions(-DUSE_OPENMP)
     add_compile_options(${OpenMP_CXX_FLAGS})
@@ -59,12 +61,16 @@ include_directories(
     ../depends/ffiasm/c
     ../depends/json/single_include)
 
-
-add_library(rapidsnark STATIC ${LIB_SOURCES})
+add_library(rapidsnarkStatic STATIC ${LIB_SOURCES})
+target_link_libraries(rapidsnarkStatic ${GMP_LIB})
+set_target_properties(rapidsnarkStatic PROPERTIES OUTPUT_NAME rapidsnark)
 
 add_executable(prover main_prover.cpp)
+target_link_libraries(prover rapidsnarkStatic ${GMP_LIB})
 
-target_link_libraries(prover rapidsnark ${GMP_LIB})
+add_library(rapidsnark SHARED ${LIB_SOURCES})
+target_link_libraries(rapidsnark ${GMP_LIB})
+
 
 if(USE_LOGGER)
     target_link_libraries(prover pthread)
@@ -79,6 +85,7 @@ if(OpenMP_CXX_FOUND)
 
     if(TARGET_PLATFORM MATCHES "android")
         target_link_libraries(prover -static-openmp -fopenmp)
+        target_link_libraries(rapidsnark -static-openmp -fopenmp)
 
     elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
         target_link_libraries(prover OpenMP::OpenMP_CXX)
