@@ -14,35 +14,72 @@
 
 using json = nlohmann::json;
 
+static size_t ProofBufferMinSize()
+{
+    return 726;
+}
 
-int
-groth16_prover(const void *zkey_buffer,   unsigned long zkey_size,
-               const void *wtns_buffer,   unsigned long wtns_size,
-               char       *proof_buffer,  unsigned long proof_size,
-               char       *public_buffer, unsigned long public_size,
-               char       *error_msg,     unsigned long error_msg_maxsize)
+static size_t PublicBufferMinSize(size_t count)
+{
+    return count * 81 + 3;
+}
+
+static void VerifyPrimes(mpz_srcptr zkey_prime, mpz_srcptr wtns_prime)
 {
     mpz_t altBbn128r;
 
     mpz_init(altBbn128r);
     mpz_set_str(altBbn128r, "21888242871839275222246405745257275088548364400416034343698204186575808495617", 10);
 
+    if (mpz_cmp(zkey_prime, altBbn128r) != 0) {
+        throw std::invalid_argument( "zkey curve not supported" );
+    }
+
+    if (mpz_cmp(wtns_prime, altBbn128r) != 0) {
+        throw std::invalid_argument( "different wtns curve" );
+    }
+
+    mpz_clear(altBbn128r);
+}
+
+std::string BuildPublicString(AltBn128::FrElement *wtnsData, size_t nPublic)
+{
+    json jsonPublic;
+    AltBn128::FrElement aux;
+    for (u_int32_t i=1; i<= nPublic; i++) {
+        AltBn128::Fr.toMontgomery(aux, wtnsData[i]);
+        jsonPublic.push_back(AltBn128::Fr.toString(aux));
+    }
+
+    return jsonPublic.dump();
+}
+
+int
+groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
+               const void *wtns_buffer,   unsigned long  wtns_size,
+               char       *proof_buffer,  unsigned long *proof_size,
+               char       *public_buffer, unsigned long *public_size,
+               char       *error_msg,     unsigned long  error_msg_maxsize)
+{
     try {
         BinFileUtils::BinFile zkey(zkey_buffer, zkey_size, "zkey", 1);
-
         auto zkeyHeader = ZKeyUtils::loadHeader(&zkey);
-
-        std::string proofStr;
-        if (mpz_cmp(zkeyHeader->rPrime, altBbn128r) != 0) {
-            throw std::invalid_argument( "zkey curve not supported" );
-        }
 
         BinFileUtils::BinFile wtns(wtns_buffer, wtns_size, "wtns", 2);
         auto wtnsHeader = WtnsUtils::loadHeader(&wtns);
 
-        if (mpz_cmp(wtnsHeader->prime, altBbn128r) != 0) {
-            throw std::invalid_argument( "different wtns curve" );
+        size_t proofMinSize  = ProofBufferMinSize();
+        size_t publicMinSize = PublicBufferMinSize(zkeyHeader->nPublic);
+
+        if (*proof_size < proofMinSize || *public_size < publicMinSize) {
+
+            *proof_size  = proofMinSize;
+            *public_size = publicMinSize;
+
+            return PPROVER_ERROR_SHORT_BUFFER;
         }
+
+        VerifyPrimes(zkeyHeader->rPrime, wtnsHeader->prime);
 
         auto prover = Groth16::makeProver<AltBn128::Engine>(
             zkeyHeader->nVars,
@@ -65,30 +102,43 @@ groth16_prover(const void *zkey_buffer,   unsigned long zkey_size,
         auto proof = prover->prove(wtnsData);
 
         std::string stringProof = proof->toJson().dump();
+        std::string stringPublic = BuildPublicString(wtnsData, zkeyHeader->nPublic);
 
-        std::strncpy(proof_buffer, stringProof.data(), proof_size);
+        size_t stringProofSize  = stringProof.length();
+        size_t stringPublicSize = stringPublic.length();
 
-        json jsonPublic;
-        AltBn128::FrElement aux;
-        for (u_int32_t i=1; i<=zkeyHeader->nPublic; i++) {
-            AltBn128::Fr.toMontgomery(aux, wtnsData[i]);
-            jsonPublic.push_back(AltBn128::Fr.toString(aux));
+        if (*proof_size < stringProofSize || *public_size < stringPublicSize) {
+
+            *proof_size  = stringProofSize;
+            *public_size = stringPublicSize;
+
+            return PPROVER_ERROR_SHORT_BUFFER;
         }
 
-        std::string stringPublic = jsonPublic.dump();
-
-        std::strncpy(public_buffer, stringPublic.data(), public_size);
+        std::strncpy(proof_buffer, stringProof.data(), *proof_size);
+        std::strncpy(public_buffer, stringPublic.data(), *public_size);
 
     } catch (std::exception& e) {
-        mpz_clear(altBbn128r);
 
         if (error_msg) {
             strncpy(error_msg, e.what(), error_msg_maxsize);
         }
         return PPROVER_ERROR;
-    }
 
-    mpz_clear(altBbn128r);
+    } catch (std::exception *e) {
+
+        if (error_msg) {
+            strncpy(error_msg, e->what(), error_msg_maxsize);
+        }
+        delete e;
+        return PPROVER_ERROR;
+
+    } catch (...) {
+        if (error_msg) {
+            strncpy(error_msg, "unknown error", error_msg_maxsize);
+        }
+        return PPROVER_ERROR;
+    }
 
     return PRPOVER_OK;
 }

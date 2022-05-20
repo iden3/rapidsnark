@@ -25,7 +25,7 @@
         global Fq_toNormal
         global Fq_toLongNormal
         global Fq_toMontgomery
-;        global Fq_toInt
+        global Fq_toInt
         global Fq_isTrue
         global Fq_q
         global Fq_R3
@@ -269,94 +269,94 @@ u64toLong_adjust_neg:
 ; Returs:
 ;   rax <= The value
 ;;;;;;;;;;;;;;;;;;;;;;;
-;Fq_toInt:
-;        mov     rax, [rdi]
-;        bt      rax, 63
-;        jc      Fq_long
-;        movsx   rax, eax
-;        ret
-;
-;Fq_long:
-;        push   rbp
-;        push   rsi
-;        push   rdx
-;        mov    rbp, rsp
-;        bt      rax, 62
-;        jnc     Fq_longNormal
-;Fq_longMontgomery:
-;
-;        mov  r8, rdi
-;        sub  rsp, 40
-;        mov  rdi, rsp
-;        push rdx
-;        push r8
-;        call Fq_toNormal
-;        mov  rsi, rdi
-;        pop  rdi
-;        pop  rdx
-;
-;
-;Fq_longNormal:
-;        mov     rax, [rdi + 8]
-;        mov     rcx, rax
-;        shr     rcx, 31
-;        jnz     Fq_longNeg
-;
-;        mov     rcx, [rdi + 16]
-;        test    rcx, rcx
-;        jnz     Fq_longNeg
-;
-;        mov     rcx, [rdi + 24]
-;        test    rcx, rcx
-;        jnz     Fq_longNeg
-;
-;        mov     rcx, [rdi + 32]
-;        test    rcx, rcx
-;        jnz     Fq_longNeg
-;
-;        mov rsp, rbp
-;        pop rdx
-;        pop rsi
-;        pop rbp
-;        ret
-;
-;Fq_longNeg:
-;        mov     rax, [rdi + 8]
-;        sub     rax, [q]
-;        jnc     Fq_longErr
-;
-;        mov     rcx, [rdi + 16]
-;        sbb     rcx, [q + 8]
-;        jnc     Fq_longErr
-;
-;        mov     rcx, [rdi + 24]
-;        sbb     rcx, [q + 16]
-;        jnc     Fq_longErr
-;
-;        mov     rcx, [rdi + 32]
-;        sbb     rcx, [q + 24]
-;        jnc     Fq_longErr
-;
-;        mov     rcx, rax
-;        sar     rcx, 31
-;        add     rcx, 1
-;        jnz     Fq_longErr
-;        mov rsp, rbp
-;        pop rdx
-;        pop rsi
-;        pop rbp
-;        ret
-;
-;Fq_longErr:
-;        push    rdi
-;        mov     rdi, 0
-;        call    Fq_fail
-;        pop     rdi
-;        mov rsp, rbp
-;        pop rdx
-;        pop rsi
-;        pop rbp
-;        ret
+Fq_toInt:
+        mov     rax, [rdi]
+        bt      rax, 63
+        jc      Fq_long
+        movsx   rax, eax
+        ret
+
+Fq_long:
+        push   rbp
+        push   rsi
+        push   rdx
+        mov    rbp, rsp
+        bt      rax, 62
+        jnc     Fq_longNormal
+Fq_longMontgomery:
+
+        mov  r8, rdi
+        sub  rsp, 40
+        mov  rdi, rsp
+        push rdx
+        push r8
+        call Fq_toNormal
+        mov  rsi, rdi
+        pop  rdi
+        pop  rdx
+
+
+Fq_longNormal:
+        mov     rax, [rdi + 8]
+        mov     rcx, rax
+        shr     rcx, 31
+        jnz     Fq_longNeg
+
+        mov     rcx, [rdi + 16]
+        test    rcx, rcx
+        jnz     Fq_longNeg
+
+        mov     rcx, [rdi + 24]
+        test    rcx, rcx
+        jnz     Fq_longNeg
+
+        mov     rcx, [rdi + 32]
+        test    rcx, rcx
+        jnz     Fq_longNeg
+
+        mov rsp, rbp
+        pop rdx
+        pop rsi
+        pop rbp
+        ret
+
+Fq_longNeg:
+        mov     rax, [rdi + 8]
+        sub     rax, [q]
+        jnc     Fq_longErr
+
+        mov     rcx, [rdi + 16]
+        sbb     rcx, [q + 8]
+        jnc     Fq_longErr
+
+        mov     rcx, [rdi + 24]
+        sbb     rcx, [q + 16]
+        jnc     Fq_longErr
+
+        mov     rcx, [rdi + 32]
+        sbb     rcx, [q + 24]
+        jnc     Fq_longErr
+
+        mov     rcx, rax
+        sar     rcx, 31
+        add     rcx, 1
+        jnz     Fq_longErr
+        mov rsp, rbp
+        pop rdx
+        pop rsi
+        pop rbp
+        ret
+
+Fq_longErr:
+        push    rdi
+        mov     rdi, 0
+        call    Fq_fail
+        pop     rdi
+        mov rsp, rbp
+        pop rdx
+        pop rsi
+        pop rbp
+        ret
 
 
 

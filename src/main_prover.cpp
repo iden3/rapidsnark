@@ -28,6 +28,8 @@ int main(int argc, char **argv) {
 
         char proofBuffer[BufferSize];
         char publicBuffer[BufferSize];
+        size_t proofSize  = sizeof(proofBuffer);
+        size_t publicSize = sizeof(publicBuffer);
         char errorMessage[256];
         int error = 0;
 
@@ -36,11 +38,17 @@ int main(int argc, char **argv) {
 
         error = groth16_prover(zkeyFileLoader.dataBuffer(), zkeyFileLoader.dataSize(),
                                wtnsFileLoader.dataBuffer(), wtnsFileLoader.dataSize(),
-                               proofBuffer,  sizeof(proofBuffer),
-                               publicBuffer, sizeof(publicBuffer),
+                               proofBuffer,  &proofSize,
+                               publicBuffer, &publicSize,
                                errorMessage, sizeof(errorMessage));
 
-        if (error) {
+        if (error == PPROVER_ERROR_SHORT_BUFFER) {
+
+            std::cerr << "Error: Short buffer for proof or public" << '\n';
+            return EXIT_FAILURE;
+        }
+
+        else if (error) {
             std::cerr << errorMessage << '\n';
             return EXIT_FAILURE;
         }
@@ -54,6 +62,10 @@ int main(int argc, char **argv) {
         publicFile.open (publicFilename);
         publicFile << publicBuffer;
         publicFile.close();
+
+    } catch (std::exception* e) {
+        std::cerr << e->what() << '\n';
+        return EXIT_FAILURE;
 
     } catch (std::exception& e) {
         std::cerr << e.what() << '\n';
