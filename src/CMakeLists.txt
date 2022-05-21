@@ -7,16 +7,16 @@ if(USE_ASM)
         set(NASM_FLAGS -felf64)
     endif()
 
-    add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/build/fq.o
-        COMMAND nasm ${NASM_FLAGS} fq.asm -o fq.o
+    add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/build/fq_asm.o
+        COMMAND nasm ${NASM_FLAGS} fq.asm -o fq_asm.o
+        DEPENDS ${CMAKE_SOURCE_DIR}/build/fq.asm
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
-    add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/build/fr.o
-        COMMAND nasm ${NASM_FLAGS} fr.asm -o fr.o
+    add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/build/fr_asm.o
+        COMMAND nasm ${NASM_FLAGS} fr.asm -o fr_asm.o
+        DEPENDS ${CMAKE_SOURCE_DIR}/build/fr.asm
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 endif()
-
-add_compile_options(-Wno-c++11-narrowing)
 
 if(OpenMP_CXX_FOUND)
     add_definitions(-DUSE_OPENMP)
@@ -47,7 +47,7 @@ set(LIB_SOURCES
     )
 
 if(USE_ASM)
-    set(LIB_SOURCES ${LIB_SOURCES} ../build/fq.o ../build/fr.o)
+    set(LIB_SOURCES ${LIB_SOURCES} ../build/fq_asm.o ../build/fr_asm.o)
 endif()
 
 if(USE_LOGGER)
@@ -102,26 +102,10 @@ set(UNIT_TEST_SOURCES
     )
 
 if(USE_ASM)
-    set(UNIT_TEST_SOURCES ${UNIT_TEST_SOURCES} ../build/fq.o ../build/fr.o)
+    set(UNIT_TEST_SOURCES ${UNIT_TEST_SOURCES} ../build/fq_asm.o ../build/fr_asm.o)
 endif()
 
 add_executable(test_prover test_prover.cpp ${UNIT_TEST_SOURCES})
 
 target_link_libraries(test_prover ${GMP_LIB})
 
-
-set(WITNESS_SOURCES
-    ../build/fr.hpp
-    ../build/fr.cpp
-    witness/main.cpp
-    witness/calcwit.cpp
-    witness/stub.cpp
-    )
-
-if(USE_ASM)
-    set(WITNESS_SOURCES ${WITNESS_SOURCES} ../build/fr.o)
-endif()
-
-add_executable(witness ${WITNESS_SOURCES})
-
-target_link_libraries(witness ${GMP_LIB})

@@ -1989,7 +1989,7 @@ static inline void and_s1l2n(PFrElement r, PFrElement a, PFrElement b)
 
     if (a->shortVal >= 0)
     {
-        a_n = {0, 0, {a->shortVal, 0, 0, 0}};
+        a_n = {0, 0, {(uint64_t)a->shortVal, 0, 0, 0}};
     }
     else
     {
@@ -2016,7 +2016,7 @@ static inline void and_l1ms2(PFrElement r, PFrElement a, PFrElement b)
 
     if (b->shortVal >= 0)
     {
-        b_n = {0, 0, {b->shortVal, 0, 0, 0}};
+        b_n = {0, 0, {(uint64_t)b->shortVal, 0, 0, 0}};
     }
     else
     {
@@ -2043,7 +2043,7 @@ static inline void and_s1l2m(PFrElement r, PFrElement a, PFrElement b)
 
     if (a->shortVal >= 0)
     {
-        a_n = {0, 0, {a->shortVal, 0, 0, 0}};
+        a_n = {0, 0, {(uint64_t)a->shortVal, 0, 0, 0}};
     }
     else
     {
@@ -2067,7 +2067,7 @@ static inline void and_l1ns2(PFrElement r, PFrElement a, PFrElement b)
 
     if (b->shortVal >= 0)
     {
-        b_n = {0, 0, {b->shortVal, 0, 0, 0}};
+        b_n = {0, 0, {(uint64_t)b->shortVal, 0, 0, 0}};
     }
     else
     {

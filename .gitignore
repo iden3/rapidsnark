@@ -72,3 +72,6 @@ depends/gmp*
 
 build_*
 package*
+
+build/fq_asm.o
+build/fr_asm.o
