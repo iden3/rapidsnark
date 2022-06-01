@@ -152,7 +152,7 @@ build_ios()
     fi
 
     export SDK="iphoneos"
-    export TARGET=arm-apple-darwin
+    export TARGET=arm64-apple-darwin
     export MIN_IOS_VERSION=8.0
 
     export ARCH_FLAGS="-arch arm64 -arch arm64e"
