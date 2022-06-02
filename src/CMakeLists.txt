@@ -1,3 +1,5 @@
+link_libraries(${GMP_LIB})
+
 if(USE_ASM)
     add_definitions(-DUSE_ASM)
 
@@ -17,6 +19,35 @@ if(USE_ASM)
         DEPENDS ${CMAKE_SOURCE_DIR}/build/fr.asm
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 endif()
+
+set(FR_SOURCES
+    ../build/fr.hpp
+    ../build/fr.cpp
+    )
+
+if(USE_ASM)
+    set(FR_SOURCES ${FR_SOURCES} ../build/fr_asm.o)
+endif()
+
+add_library(fr STATIC ${FR_SOURCES})
+set_target_properties(fr PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+link_libraries(fr)
+
+set(FQ_SOURCES
+    ../build/fq.hpp
+    ../build/fq.cpp
+    )
+
+if(USE_ASM)
+    set(FQ_SOURCES ${FQ_SOURCES} ../build/fq_asm.o)
+endif()
+
+add_library(fq STATIC ${FQ_SOURCES})
+set_target_properties(fq PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+link_libraries(fq)
+
 
 if(OpenMP_CXX_FOUND)
     add_definitions(-DUSE_OPENMP)
@@ -40,15 +71,7 @@ set(LIB_SOURCES
     ../depends/ffiasm/c/naf.cpp
     ../depends/ffiasm/c/splitparstr.cpp
     ../depends/ffiasm/c/alt_bn128.cpp
-    ../build/fq.hpp
-    ../build/fq.cpp
-    ../build/fr.hpp
-    ../build/fr.cpp
     )
-
-if(USE_ASM)
-    set(LIB_SOURCES ${LIB_SOURCES} ../build/fq_asm.o ../build/fr_asm.o)
-endif()
 
 if(USE_LOGGER)
     set(LIB_SOURCES ${LIB_SOURCES} logger.cpp)
@@ -62,14 +85,12 @@ include_directories(
     ../depends/json/single_include)
 
 add_library(rapidsnarkStatic STATIC ${LIB_SOURCES})
-target_link_libraries(rapidsnarkStatic ${GMP_LIB})
 set_target_properties(rapidsnarkStatic PROPERTIES OUTPUT_NAME rapidsnark)
 
 add_executable(prover main_prover.cpp)
-target_link_libraries(prover rapidsnarkStatic ${GMP_LIB})
+target_link_libraries(prover rapidsnarkStatic)
 
 add_library(rapidsnark SHARED ${LIB_SOURCES})
-target_link_libraries(rapidsnark ${GMP_LIB})
 
 
 if(USE_LOGGER)
@@ -94,18 +115,4 @@ if(OpenMP_CXX_FOUND)
 endif()
 
 
-set(UNIT_TEST_SOURCES
-    ../build/fq.hpp
-    ../build/fq.cpp
-    ../build/fr.hpp
-    ../build/fr.cpp
-    )
-
-if(USE_ASM)
-    set(UNIT_TEST_SOURCES ${UNIT_TEST_SOURCES} ../build/fq_asm.o ../build/fr_asm.o)
-endif()
-
-add_executable(test_prover test_prover.cpp ${UNIT_TEST_SOURCES})
-
-target_link_libraries(test_prover ${GMP_LIB})
-
+add_executable(test_prover test_prover.cpp)
