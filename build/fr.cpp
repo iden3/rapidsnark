@@ -2161,7 +2161,11 @@ static inline void rawShl(FrRawElement r, FrRawElement a, uint64_t b)
     uint64_t word_count = Fr_N64 - word_shift;
 
     mpn_copyi(r + word_shift, a, word_count);
-    mpn_lshift(r, r, Fr_N64, bit_shift);
+
+    if (bit_shift)
+    {
+        mpn_lshift(r, r, Fr_N64, bit_shift);
+    }
 }
 
 static inline void rawShr(FrRawElement r, FrRawElement a, uint64_t b)
