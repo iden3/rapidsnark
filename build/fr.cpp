@@ -2184,7 +2184,11 @@ static inline void rawShr(FrRawElement r, FrRawElement a, uint64_t b)
     const uint64_t word_count = Fr_N64 - word_shift;
 
     mpn_copyi(r, a + word_shift, word_count);
-    mpn_rshift(r, r, Fr_N64, bit_shift);
+
+    if (bit_shift)
+    {
+        mpn_rshift(r, r, Fr_N64, bit_shift);
+    }
 }
 
 static inline void Fr_setzero(PFrElement r)
