@@ -30,6 +30,32 @@ get_gmp()
     fi
 }
 
+build_aarch64()
+{
+    PACKAGE_DIR="$GMP_DIR/package_aarch64"
+    BUILD_DIR=build_aarch64
+
+    if [ -d "$PACKAGE_DIR" ]; then
+        echo "aarch64 package is built already. See $PACKAGE_DIR"
+        return 1
+    fi
+
+
+    export TARGET=aarch64-linux-gnu
+
+    echo $TARGET
+
+    rm -rf "$BUILD_DIR"
+    mkdir "$BUILD_DIR"
+    cd "$BUILD_DIR"
+
+    ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft &&
+    make -j$(nproc) &&
+    make install
+
+    cd ..
+}
+
 build_host()
 {
     PACKAGE_DIR="$GMP_DIR/package"
@@ -214,6 +240,11 @@ case "$TARGET_PLATFORM" in
     "host" )
         echo "Building for this host"
         build_host
+    ;;
+
+    "aarch64" )
+        echo "Building for linux aarch64"
+        build_aarch64
     ;;
 
     * )

@@ -5,11 +5,13 @@ include(cmake/platform.cmake)
 set(USE_ASM    ON CACHE BOOL "Use asm implementation for Fr and Fq")
 set(USE_OPENMP ON CACHE BOOL "Use OpenMP")
 
-project(rapidsnark LANGUAGES CXX)
+project(rapidsnark LANGUAGES CXX ASM)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+message("USE_ASM=" ${USE_ASM})
+message("USE_OPENMP=" ${USE_OPENMP})
 message("CMAKE_CROSSCOMPILING=" ${CMAKE_CROSSCOMPILING})
 
 message("GMP_PREFIX=" ${GMP_PREFIX})
@@ -47,14 +49,6 @@ if(USE_OPENMP)
     endif()
 endif()
 
-
-if(TARGET_PLATFORM MATCHES "android")
-    set(USE_ASM FALSE)
-
-elseif(TARGET_PLATFORM MATCHES "ios")
-    set(USE_ASM FALSE)
-
-endif()
 
 add_subdirectory(src)
 

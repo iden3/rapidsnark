@@ -1,7 +1,14 @@
 link_libraries(${GMP_LIB})
 
 if(USE_ASM)
-    add_definitions(-DUSE_ASM)
+    if(ARCH MATCHES "arm64")
+            add_definitions(-DUSE_ASM -DARCH_ARM64)
+    elseif(ARCH MATCHES "x86_64")
+            add_definitions(-DUSE_ASM -DARCH_X86_64)
+    endif()
+endif()
+
+if(USE_ASM AND ARCH MATCHES "x86_64")
 
     if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
         set(NASM_FLAGS "-fmacho64 --prefix _")
@@ -26,7 +33,13 @@ set(FR_SOURCES
     )
 
 if(USE_ASM)
-    set(FR_SOURCES ${FR_SOURCES} ../build/fr_asm.o)
+    if(ARCH MATCHES "arm64")
+        set(FR_SOURCES ${FR_SOURCES} ../build/fr_raw_arm64.s ../build/fr_raw_generic.cpp ../build/fr_generic.cpp)
+    elseif(ARCH MATCHES "x86_64")
+        set(FR_SOURCES ${FR_SOURCES} ../build/fr_asm.o)
+    endif()
+else()
+    set(FR_SOURCES ${FR_SOURCES} ../build/fr_generic.cpp ../build/fr_raw_generic.cpp)
 endif()
 
 add_library(fr STATIC ${FR_SOURCES})
@@ -40,7 +53,13 @@ set(FQ_SOURCES
     )
 
 if(USE_ASM)
-    set(FQ_SOURCES ${FQ_SOURCES} ../build/fq_asm.o)
+    if(ARCH MATCHES "arm64")
+        set(FQ_SOURCES ${FQ_SOURCES} ../build/fq_raw_arm64.s ../build/fq_raw_generic.cpp ../build/fq_generic.cpp)
+    elseif(ARCH MATCHES "x86_64")
+        set(FQ_SOURCES ${FQ_SOURCES} ../build/fq_asm.o)
+    endif()
+else()
+    set(FQ_SOURCES ${FQ_SOURCES} ../build/fq_raw_generic.cpp ../build/fq_generic.cpp)
 endif()
 
 add_library(fq STATIC ${FQ_SOURCES})

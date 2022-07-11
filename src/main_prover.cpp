@@ -12,8 +12,8 @@
 const size_t BufferSize = 16384;
 
 
-int main(int argc, char **argv) {
-
+int main(int argc, char **argv)
+{
     if (argc != 5) {
         std::cerr << "Invalid number of parameters:\n";
         std::cerr << "Usage: prove <circuit.zkey> <witness.wtns> <proof.json> <public.json>\n";
