@@ -17,10 +17,31 @@
     .global Fr_rawCmp
     .global Fr_rawAnd
 
+    .global _Fr_rawAdd
+    .global _Fr_rawAddLS
+    .global _Fr_rawSub
+    .global _Fr_rawSubRegular
+    .global _Fr_rawNeg
+    .global _Fr_rawNegLS
+    .global _Fr_rawSubSL
+    .global _Fr_rawSubLS
+    .global _Fr_rawMMul
+    .global _Fr_rawMMul1
+    .global _Fr_raw_FromMontgomery
+    .global _Fr_rawCopy
+    .global _Fr_rawSwap
+    .global _Fr_rawIsEq
+    .global _Fr_rawIsZero
+    .global _Fr_rawCopyS2L
+    .global _Fr_rawCmp
+    .global _Fr_rawAnd
+
     .text
+    .align 4
 
 // void Fr_rawAdd(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 Fr_rawAdd:
+_Fr_rawAdd:
         ldp  x3, x4, [x1]
         ldp  x7, x8, [x2]
         adds x3, x3, x7
@@ -57,6 +78,7 @@ Fr_rawAdd_done_s:
 
 //void Fr_rawAddLS(FrRawElement pRawResult, FrRawElement pRawA, uint64_t rawB)
 Fr_rawAddLS:
+_Fr_rawAddLS:
         ldp  x3, x4, [x1]
         adds x3, x3, x2
         adcs x4, x4, xzr
@@ -91,6 +113,7 @@ Fr_rawAddLS_done_s:
 
 // void Fr_rawSub(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 Fr_rawSub:
+_Fr_rawSub:
         ldp  x3, x4, [x1]
         ldp  x7, x8, [x2]
         subs x3, x3, x7
@@ -120,6 +143,7 @@ Fr_rawSub_done:
 
 //void Fr_rawSubRegular(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 Fr_rawSubRegular:
+_Fr_rawSubRegular:
         ldp  x3, x4, [x1]
         ldp  x7, x8, [x2]
         subs x3, x3, x7
@@ -136,6 +160,7 @@ Fr_rawSubRegular:
 
 //void Fr_rawSubSL(FrRawElement pRawResult, uint64_t rawA, FrRawElement pRawB)
 Fr_rawSubSL:
+_Fr_rawSubSL:
         ldp  x7, x8, [x2]
         subs x3, x1,  x7
         sbcs x4, xzr, x8
@@ -163,6 +188,7 @@ Fr_rawSubSL_done:
 
 //void Fr_rawSubLS(FrRawElement pRawResult, FrRawElement pRawA, uint64_t rawB)
 Fr_rawSubLS:
+_Fr_rawSubLS:
         ldp  x3, x4, [x1]
         subs x3, x3, x2
         sbcs x4, x4, xzr
@@ -190,6 +216,7 @@ Fr_rawSubLS_done:
 
 // void Fr_rawNeg(FrRawElement pRawResult, FrRawElement pRawA)
 Fr_rawNeg:
+_Fr_rawNeg:
         ldp x2, x3, [x1]
         orr x6, x2, x3
 
@@ -220,6 +247,7 @@ Fr_rawNeg_done_zero:
 
 //void Fr_rawNegLS(FrRawElement pRawResult, FrRawElement pRawA, uint64_t rawB)
 Fr_rawNegLS:
+_Fr_rawNegLS:
         ldp x3, x4, [x1]
         ldp x5, x6, [x1, 16]
 
@@ -258,6 +286,7 @@ Fr_rawNegLS_done:
 
 // void Fr_rawMMul(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 Fr_rawMMul:
+_Fr_rawMMul:
         ldr x3,     [x1]    //pRawA[0]
         ldp x5, x6, [x2]    //pRawB
         ldp x7, x8, [x2, 16]
@@ -469,6 +498,7 @@ Fr_rawMul_done_s:
 
 // void Fr_rawMMul1(FrRawElement pRawResult, FrRawElement pRawA, uint64_t pRawB)
 Fr_rawMMul1:
+_Fr_rawMMul1:
         ldp x5, x6, [x1]    //pRawA
         ldp x7, x8, [x1, 16]
 
@@ -611,6 +641,7 @@ Fr_rawMMul1:
 
 // void Fr_rawFromMontgomery(FrRawElement pRawResult, FrRawElement pRawA)
 Fr_rawFromMontgomery:
+_Fr_rawFromMontgomery:
         ldp x10, x11, [x1]    //pRawA
         ldp x12, x13, [x1, 16]
         mov x14, xzr
@@ -741,6 +772,7 @@ Fr_rawFromMontgomery_s:
 
 // void Fr_rawCopy(FrRawElement pRawResult, FrRawElement pRawA)
 Fr_rawCopy:
+_Fr_rawCopy:
         ldp x2, x3, [x1]
         stp x2, x3, [x0]
 
@@ -751,6 +783,7 @@ Fr_rawCopy:
 
 // void Fr_rawSwap(FrRawElement pRawResult, FrRawElement pRawA)
 Fr_rawSwap:
+_Fr_rawSwap:
         ldp  x3, x4, [x0]
         ldp  x7, x8, [x1]
 
@@ -767,6 +800,7 @@ Fr_rawSwap:
 
 // int Fr_rawIsEq(FrRawElement pRawA, FrRawElement pRawB)
 Fr_rawIsEq:
+_Fr_rawIsEq:
         ldp  x3, x4, [x0]
         ldp  x7, x8, [x1]
         eor x11, x3, x7
@@ -788,6 +822,7 @@ Fr_rawIsEq:
 
 // int Fr_rawIsZero(FrRawElement rawA)
 Fr_rawIsZero:
+_Fr_rawIsZero:
         ldp x1, x2, [x0]
         orr x5, x1, x2
 
@@ -802,6 +837,7 @@ Fr_rawIsZero:
 
 // void Fr_rawCopyS2L(FrRawElement pRawResult, int64_t val)
 Fr_rawCopyS2L:
+_Fr_rawCopyS2L:
         cmp  x1, xzr
         b.lt Fr_rawCopyS2L_adjust_neg
 
@@ -828,6 +864,7 @@ Fr_rawCopyS2L_adjust_neg:
 
 //int Fr_rawCmp(FrRawElement pRawA, FrRawElement pRawB)
 Fr_rawCmp:
+_Fr_rawCmp:
         ldp  x3, x4,  [x0]
         ldp  x5, x6,  [x0, 16]
         ldp  x7, x8,  [x1]
@@ -851,6 +888,7 @@ Fr_rawCmp:
 
 //void Fr_rawAnd(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
 Fr_rawAnd:
+_Fr_rawAnd:
         ldp x3, x4, [x1]
         ldp x7, x8, [x2]
         and x3, x3, x7
@@ -872,15 +910,13 @@ Fr_rawAnd:
         sbcs x9,  x5, x14
         sbcs x10, x6, x15
 
-        b.hs Fr_rawAnd_s
+        csel x3, x7,  x3, hs
+        csel x4, x8,  x4, hs
+        csel x5, x9,  x5, hs
+        csel x6, x10, x6, hs
 
         stp x3, x4, [x0]
         stp x5, x6, [x0, 16]
-        ret
-
-Fr_rawAnd_s:
-        stp x7, x8,  [x0]
-        stp x9, x10, [x0, 16]
         ret
 
 

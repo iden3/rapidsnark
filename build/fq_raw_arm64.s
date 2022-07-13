@@ -10,10 +10,24 @@
     .global Fq_rawIsZero
     .global Fq_rawCopyS2L
 
+    .global _Fq_rawAdd
+    .global _Fq_rawSub
+    .global _Fq_rawNeg
+    .global _Fq_rawMMul
+    .global _Fq_rawMMul1
+    .global _Fq_rawFromMontgomery
+    .global _Fq_rawCopy
+    .global _Fq_rawSwap
+    .global _Fq_rawIsEq
+    .global _Fq_rawIsZero
+    .global _Fq_rawCopyS2L
+
     .text
+    .align 4
 
 // void Fq_rawAdd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
 Fq_rawAdd:
+_Fq_rawAdd:
         ldp  x3, x4, [x1]
         ldp  x7, x8, [x2]
         adds x3, x3, x7
@@ -50,6 +64,7 @@ Fq_rawAdd_done_s:
 
 // void Fq_rawSub(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
 Fq_rawSub:
+_Fq_rawSub:
         ldp  x3, x4, [x1]
         ldp  x7, x8, [x2]
         subs x3, x3, x7
@@ -79,6 +94,7 @@ Fq_rawSub_done:
 
 // void Fq_rawNeg(FqRawElement pRawResult, FqRawElement pRawA)
 Fq_rawNeg:
+_Fq_rawNeg:
         ldp x2, x3, [x1]
         orr x6, x2, x3
 
@@ -109,6 +125,7 @@ Fq_rawNeg_done_zero:
 
 // void Fq_rawMMul(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
 Fq_rawMMul:
+_Fq_rawMMul:
         ldr x3,     [x1]    //pRawA[0]
         ldp x5, x6, [x2]    //pRawB
         ldp x7, x8, [x2, 16]
@@ -320,6 +337,7 @@ Fq_rawMul_done_s:
 
 // void Fq_rawMMul1(FqRawElement pRawResult, FqRawElement pRawA, uint64_t pRawB)
 Fq_rawMMul1:
+_Fq_rawMMul1:
         ldp x5, x6, [x1]    //pRawA
         ldp x7, x8, [x1, 16]
 
@@ -462,6 +480,7 @@ Fq_rawMMul1:
 
 // void Fq_rawFromMontgomery(FqRawElement pRawResult, FqRawElement pRawA)
 Fq_rawFromMontgomery:
+_Fq_rawFromMontgomery:
         ldp x10, x11, [x1]    //pRawA
         ldp x12, x13, [x1, 16]
         mov x14, xzr
@@ -592,6 +611,7 @@ Fq_rawFromMontgomery_s:
 
 // void Fq_rawCopy(FqRawElement pRawResult, FqRawElement pRawA)
 Fq_rawCopy:
+_Fq_rawCopy:
         ldp x2, x3, [x1]
         stp x2, x3, [x0]
 
@@ -602,6 +622,7 @@ Fq_rawCopy:
 
 // void Fq_rawSwap(FqRawElement pRawResult, FqRawElement pRawA)
 Fq_rawSwap:
+_Fq_rawSwap:
         ldp  x3, x4, [x0]
         ldp  x7, x8, [x1]
 
@@ -618,6 +639,7 @@ Fq_rawSwap:
 
 // int Fq_rawIsEq(FqRawElement pRawA, FqRawElement pRawB)
 Fq_rawIsEq:
+_Fq_rawIsEq:
         ldp  x3, x4, [x0]
         ldp  x7, x8, [x1]
         eor x11, x3, x7
@@ -639,6 +661,7 @@ Fq_rawIsEq:
 
 // int Fq_rawIsZero(FqRawElement rawA)
 Fq_rawIsZero:
+_Fq_rawIsZero:
         ldp x1, x2, [x0]
         orr x5, x1, x2
 
@@ -653,6 +676,7 @@ Fq_rawIsZero:
 
 // void Fq_rawCopyS2L(FqRawElement pRawResult, int64_t val)
 Fq_rawCopyS2L:
+_Fq_rawCopyS2L:
         cmp  x1, xzr
         b.lt Fq_rawCopyS2L_adjust_neg
 
