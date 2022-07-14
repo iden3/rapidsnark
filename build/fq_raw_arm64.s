@@ -700,5 +700,7 @@ Fq_rawCopyS2L_adjust_neg:
         stp x3, x4, [x0, 16]
         ret
 
+
+        .align 8
 Fq_rawq:    .quad 0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029
 Fq_np:      .quad 0x87d20782e4866389

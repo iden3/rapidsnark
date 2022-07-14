@@ -920,5 +920,6 @@ _Fr_rawAnd:
         ret
 
 
+        .align 8
 Fr_rawq:    .quad 0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029
 Fr_np:      .quad 0xc2e1f593efffffff
