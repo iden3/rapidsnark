@@ -27,7 +27,7 @@
     .global _Fr_rawSubLS
     .global _Fr_rawMMul
     .global _Fr_rawMMul1
-    .global _Fr_raw_FromMontgomery
+    .global _Fr_rawFromMontgomery
     .global _Fr_rawCopy
     .global _Fr_rawSwap
     .global _Fr_rawIsEq
