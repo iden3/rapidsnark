@@ -1,5 +1,8 @@
 #!/bin/sh
 
+NPROC=8
+fetch_cmd=$( (type wget > /dev/null 2>&1 && echo "wget") || echo "curl -O" )
+
 usage()
 {
     echo "USAGE: $0 <android|android_x86_64|ios|host>"
@@ -16,10 +19,11 @@ get_gmp()
 {
     GMP_NAME=gmp-6.2.1
     GMP_ARCHIVE=${GMP_NAME}.tar.xz
+    GMP_URL=https://ftp.gnu.org/gnu/gmp/${GMP_ARCHIVE}
 
     if [ ! -f ${GMP_ARCHIVE} ]; then
 
-        wget https://ftp.gnu.org/gnu/gmp/${GMP_ARCHIVE}
+        $fetch_cmd ${GMP_URL}
     fi
 
 
@@ -50,7 +54,7 @@ build_aarch64()
     cd "$BUILD_DIR"
 
     ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft &&
-    make -j$(nproc) &&
+    make -j${NPROC} &&
     make install
 
     cd ..
@@ -71,7 +75,7 @@ build_host()
     cd "$BUILD_DIR"
 
     ../configure --prefix="$PACKAGE_DIR" --with-pic &&
-    make -j$(nproc) &&
+    make -j${NPROC} &&
     make install
 
     cd ..
@@ -116,7 +120,7 @@ build_android()
     cd "$BUILD_DIR"
 
     ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft &&
-    make -j$(nproc) &&
+    make -j${NPROC} &&
     make install
 
     cd ..
@@ -161,7 +165,7 @@ build_android_x86_64()
     cd "$BUILD_DIR"
 
     ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft &&
-    make -j$(nproc) &&
+    make -j${NPROC} &&
     make install
 
     cd ..
@@ -199,7 +203,7 @@ build_ios()
     cd "$BUILD_DIR"
 
     ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft --disable-assembly &&
-    make -j$(nproc) &&
+    make -j${NPROC} &&
     make install
 
     cd ..

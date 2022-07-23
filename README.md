@@ -13,7 +13,7 @@ sudo apt install build-essential
 sudo apt install cmake
 ````
 
-## compile prover for local host
+## compile prover for x86_64 host machine
 
 ````sh
 git submodule init
@@ -21,7 +21,18 @@ git submodule update
 ./build_gmp.sh host
 mkdir build_prover && cd build_prover
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
-make -j$(nproc) && make install
+make -j4 && make install
+````
+
+## compile prover for arm64 host machine
+
+````sh
+git submodule init
+git submodule update
+./build_gmp.sh host
+mkdir build_prover && cd build_prover
+cmake .. -DTARGET_PLATFORM=arm64_host -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
+make -j4 && make install
 ````
 
 ## compile prover for Android
@@ -45,7 +56,7 @@ git submodule update
 ./build_gmp.sh android
 mkdir build_prover_android && cd build_prover_android
 cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android
-make -j$(nproc) && make install
+make -j4 && make install
 ````
 
 ## compile prover for iOS
