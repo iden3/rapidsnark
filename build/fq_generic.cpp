@@ -51,9 +51,9 @@ static inline void mul_s1s2(PFqElement r, PFqElement a, PFqElement b)
 
     if (overflow)
     {
+        Fq_rawCopyS2L(r->longVal, result);
         r->type = Fq_LONG;
         r->shortVal = 0;
-        Fq_rawCopyS2L(r->longVal, result);
     }
     else
     {
@@ -62,9 +62,9 @@ static inline void mul_s1s2(PFqElement r, PFqElement a, PFqElement b)
         r->type = Fq_SHORT;
         //
 
+        Fq_rawCopyS2L(r->longVal, result);
         r->type = Fq_LONG;
         r->shortVal = 0;
-        Fq_rawCopyS2L(r->longVal, result);
     }
 }
 

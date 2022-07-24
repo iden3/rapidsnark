@@ -55,9 +55,9 @@ static inline void mul_s1s2(PFrElement r, PFrElement a, PFrElement b)
 
     if (overflow)
     {
+        Fr_rawCopyS2L(r->longVal, result);
         r->type = Fr_LONG;
         r->shortVal = 0;
-        Fr_rawCopyS2L(r->longVal, result);
     }
     else
     {
@@ -66,9 +66,9 @@ static inline void mul_s1s2(PFrElement r, PFrElement a, PFrElement b)
         r->type = Fr_SHORT;
         //
 
+        Fr_rawCopyS2L(r->longVal, result);
         r->type = Fr_LONG;
         r->shortVal = 0;
-        Fr_rawCopyS2L(r->longVal, result);
     }
 }
 
@@ -282,9 +282,9 @@ void Fr_toLongNormal(PFrElement r, PFrElement a)
     }
     else
     {
+        Fr_rawCopyS2L(r->longVal, a->shortVal);
         r->type = Fr_LONG;
         r->shortVal = 0;
-        Fr_rawCopyS2L(r->longVal, a->shortVal);
     }
 }
 
@@ -344,9 +344,9 @@ static inline void sub_s1s2(PFrElement r, PFrElement a, PFrElement b)
 
     if (overflow)
     {
+        Fr_rawCopyS2L(r->longVal, diff);
         r->type = Fr_LONG;
         r->shortVal = 0;
-        Fr_rawCopyS2L(r->longVal, diff);
     }
     else
     {
@@ -532,9 +532,9 @@ static inline void add_s1s2(PFrElement r, PFrElement a, PFrElement b)
 
     if (overflow)
     {
+        Fr_rawCopyS2L(r->longVal, sum);
         r->type = Fr_LONG;
         r->shortVal = 0;
-        Fr_rawCopyS2L(r->longVal, sum);
     }
     else
     {
@@ -1010,9 +1010,9 @@ void Fr_neg(PFrElement r, PFrElement a)
 
         if (overflow)
         {
+            Fr_rawCopyS2L(r->longVal, a_shortVal);
             r->type = Fr_LONG;
             r->shortVal = 0;
-            Fr_rawCopyS2L(r->longVal, a_shortVal);
         }
         else
         {
