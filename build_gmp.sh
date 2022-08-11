@@ -209,6 +209,43 @@ build_ios()
     cd ..
 }
 
+build_ios_x86_64()
+{
+    PACKAGE_DIR="$GMP_DIR/package_ios_x86_64"
+    BUILD_DIR=build_ios_x86_64
+
+    if [ -d "$PACKAGE_DIR" ]; then
+        echo "iOS package is built already. See $PACKAGE_DIR"
+        return 1
+    fi
+
+    export SDK="iphonesimulator"
+    export TARGET=x86_64-apple-darwin
+    export MIN_IOS_VERSION=8.0
+
+    export ARCH_FLAGS="-arch x86_64"
+    export OPT_FLAGS="-O3 -g3 -fembed-bitcode"
+    export HOST_FLAGS="${ARCH_FLAGS} -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot $(xcrun --sdk ${SDK} --show-sdk-path)"
+
+    export CC=$(xcrun --find --sdk "${SDK}" clang)
+    export CXX=$(xcrun --find --sdk "${SDK}" clang++)
+    export CPP=$(xcrun --find --sdk "${SDK}" cpp)
+    export CFLAGS="${HOST_FLAGS} ${OPT_FLAGS}"
+    export CXXFLAGS="${HOST_FLAGS} ${OPT_FLAGS}"
+    export LDFLAGS="${HOST_FLAGS}"
+
+    echo $TARGET
+
+    rm -rf "$BUILD_DIR"
+    mkdir "$BUILD_DIR"
+    cd "$BUILD_DIR"
+
+    ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft --disable-assembly &&
+    make -j${NPROC} &&
+    make install
+
+    cd ..
+}
 
 if [ $# -ne 1 ]; then
     usage
