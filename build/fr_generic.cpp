@@ -1190,6 +1190,21 @@ void Fr_lor(PFrElement r, PFrElement a, PFrElement b)
     r->type = Fr_SHORT;
 }
 
+void Fr_lnot(PFrElement r, PFrElement a)
+{
+    if (a->type & Fr_LONG)
+    {
+        r->shortVal = Fr_rawIsZero(a->longVal);
+    }
+    else
+    {
+        r->shortVal = a->shortVal ? 0 : 1;
+    }
+
+    r->type = Fr_SHORT;
+}
+
+
 static inline int rgt_s1s2(PFrElement a, PFrElement b)
 {
     return (a->shortVal > b->shortVal) ? 1 : 0;
@@ -1368,6 +1383,15 @@ void Fr_gt(PFrElement r, PFrElement a, PFrElement b)
     r->type = Fr_SHORT;
 }
 
+void Fr_leq(PFrElement r, PFrElement a, PFrElement b)
+{
+   int32_t result = Fr_rgt(r, a, b);
+   result ^= 0x1;
+
+   r->shortVal = result;
+   r->type = Fr_SHORT;
+}
+
 // Logical and between two elements
 void Fr_land(PFrElement r, PFrElement a, PFrElement b)
 {
@@ -1412,10 +1436,10 @@ static inline void and_s1s2(PFrElement r, PFrElement a, PFrElement b)
     FrElement a_n;
     FrElement b_n;
 
-    Fr_toLongNormal(&b_n, b);
     Fr_toLongNormal(&a_n, a);
+    Fr_toLongNormal(&b_n, b);
 
-    Fr_rawAnd(r->longVal, a_n.longVal, b->longVal);
+    Fr_rawAnd(r->longVal, a_n.longVal, b_n.longVal);
 }
 
 static inline void and_l1nl2n(PFrElement r, PFrElement a, PFrElement b)
@@ -1828,5 +1852,529 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
         {
             do_shr(r, a, b_shortVal);
         }
+    }
+}
+
+static inline void Fr_shl_big_shift(PFrElement r, PFrElement a, PFrElement b)
+{
+    static FrRawElement max_shift = {254, 0, 0, 0};
+
+    FrRawElement shift;
+
+    Fr_rawSubRegular(shift, Fr_q.longVal, b->longVal);
+
+    if (Fr_rawCmp(shift, max_shift) >= 0)
+    {
+        Fr_setzero(r);
+    }
+    else
+    {
+        do_shr(r, a, shift[0]);
+    }
+}
+
+static inline void Fr_shl_long(PFrElement r, PFrElement a, PFrElement b)
+{
+    static FrRawElement max_shift = {254, 0, 0, 0};
+
+    if (Fr_rawCmp(b->longVal, max_shift) >= 0)
+    {
+        Fr_shl_big_shift(r, a, b);
+    }
+    else
+    {
+        do_shl(r, a, b->longVal[0]);
+    }
+}
+
+void Fr_shl(PFrElement r, PFrElement a, PFrElement b)
+{
+    if (b->type & Fr_LONG)
+    {
+        if (b->type == Fr_LONGMONTGOMERY)
+        {
+            FrElement b_long;
+            Fr_toNormal(&b_long, b);
+
+            Fr_shl_long(r, a, &b_long);
+        }
+        else
+        {
+            Fr_shl_long(r, a, b);
+        }
+    }
+    else
+    {
+        int32_t b_shortVal = b->shortVal;
+
+        if (b_shortVal < 0)
+        {
+            b_shortVal = -b_shortVal;
+
+            if (b_shortVal >= 254)
+            {
+                Fr_setzero(r);
+            }
+            else
+            {
+                do_shr(r, a, b_shortVal);
+            }
+        }
+        else if (b_shortVal >= 254)
+        {
+            Fr_setzero(r);
+        }
+        else
+        {
+            do_shl(r, a, b_shortVal);
+        }
+    }
+}
+
+void Fr_square(PFrElement r, PFrElement a)
+{
+    if (a->type & Fr_LONG)
+    {
+        if (a->type == Fr_LONGMONTGOMERY)
+        {
+            r->type = Fr_LONGMONTGOMERY;
+            Fr_rawMSquare(r->longVal, a->longVal);
+        }
+        else
+        {
+            r->type = Fr_LONGMONTGOMERY;
+            Fr_rawMSquare(r->longVal, a->longVal);
+            Fr_rawMMul(r->longVal, r->longVal, Fr_R3.longVal);
+        }
+    }
+    else
+    {
+        int64_t result;
+
+        int overflow = Fr_rawSMul(&result, a->shortVal, a->shortVal);
+
+        if (overflow)
+        {
+            Fr_rawCopyS2L(r->longVal, result);
+            r->type = Fr_LONG;
+            r->shortVal = 0;
+        }
+        else
+        {
+            // done the same way as in intel asm implementation
+            r->shortVal = (int32_t)result;
+            r->type = Fr_SHORT;
+            //
+
+            Fr_rawCopyS2L(r->longVal, result);
+            r->type = Fr_LONG;
+            r->shortVal = 0;
+        }
+    }
+}
+
+static inline void or_s1s2(PFrElement r, PFrElement a, PFrElement b)
+{
+    if (a->shortVal >= 0 && b->shortVal >= 0)
+    {
+        r->shortVal = a->shortVal | b->shortVal;
+        r->type = Fr_SHORT;
+        return;
+    }
+
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+    FrElement b_n;
+
+    Fr_toLongNormal(&a_n, a);
+    Fr_toLongNormal(&b_n, b);
+
+    Fr_rawOr(r->longVal, a_n.longVal, b_n.longVal);
+}
+
+static inline void or_s1l2m(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+    FrElement b_n;
+
+    Fr_toNormal(&b_n, b);
+
+    if (a->shortVal >= 0)
+    {
+        a_n = {0, 0, {(uint64_t)a->shortVal, 0, 0, 0}};
+    }
+    else
+    {
+        Fr_toLongNormal(&a_n, a);
+    }
+
+    Fr_rawOr(r->longVal, a_n.longVal, b_n.longVal);
+}
+
+static inline void or_s1l2n(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+
+    if (a->shortVal >= 0)
+    {
+        a_n = {0, 0, {(uint64_t)a->shortVal, 0, 0, 0}};
+    }
+    else
+    {
+        Fr_toLongNormal(&a_n, a);
+    }
+
+    Fr_rawOr(r->longVal, a_n.longVal, b->longVal);
+}
+
+static inline void or_l1ns2(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement b_n;
+
+    if (b->shortVal >= 0)
+    {
+        b_n = {0, 0, {(uint64_t)b->shortVal, 0, 0, 0}};
+    }
+    else
+    {
+        Fr_toLongNormal(&b_n, b);
+    }
+
+    Fr_rawOr(r->longVal, a->longVal, b_n.longVal);
+}
+
+static inline void or_l1ms2(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+    FrElement b_n;
+
+    Fr_toNormal(&a_n, a);
+
+    if (b->shortVal >= 0)
+    {
+        b_n = {0, 0, {(uint64_t)b->shortVal, 0, 0, 0}};
+    }
+    else
+    {
+        Fr_toLongNormal(&b_n, b);
+    }
+
+    Fr_rawOr(r->longVal, b_n.longVal, a_n.longVal);
+}
+
+static inline void or_l1nl2n(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+    Fr_rawOr(r->longVal, a->longVal, b->longVal);
+}
+
+static inline void or_l1nl2m(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement b_n;
+    Fr_toNormal(&b_n, b);
+
+    Fr_rawOr(r->longVal, a->longVal, b_n.longVal);
+}
+
+static inline void or_l1ml2n(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+    Fr_toNormal(&a_n, a);
+
+    Fr_rawOr(r->longVal, a_n.longVal, b->longVal);
+}
+
+static inline void or_l1ml2m(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+    FrElement b_n;
+
+    Fr_toNormal(&a_n, a);
+    Fr_toNormal(&b_n, b);
+
+    Fr_rawOr(r->longVal, a_n.longVal, b_n.longVal);
+}
+
+
+void Fr_bor(PFrElement r, PFrElement a, PFrElement b)
+{
+    if (a->type & Fr_LONG)
+    {
+        if (b->type & Fr_LONG)
+        {
+            if (a->type & Fr_MONTGOMERY)
+            {
+                if (b->type & Fr_MONTGOMERY)
+                {
+                    or_l1ml2m(r, a, b);
+                }
+                else
+                {
+                    or_l1ml2n(r, a, b);
+                }
+            }
+            else if (b->type & Fr_MONTGOMERY)
+            {
+                or_l1nl2m(r, a, b);
+            }
+            else
+            {
+                or_l1nl2n(r, a, b);
+            }
+        }
+        else if (a->type & Fr_MONTGOMERY)
+        {
+            or_l1ms2(r, a, b);
+        }
+        else
+        {
+           or_l1ns2(r, a, b);
+        }
+    }
+    else if (b->type & Fr_LONG)
+    {
+        if (b->type & Fr_MONTGOMERY)
+        {
+            or_s1l2m(r, a, b);
+        }
+        else
+        {
+            or_s1l2n(r, a, b);
+        }
+    }
+    else
+    {
+         or_s1s2(r, a, b);
+    }
+}
+
+static inline void xor_s1s2(PFrElement r, PFrElement a, PFrElement b)
+{
+    if (a->shortVal >= 0 && b->shortVal >= 0)
+    {
+        r->shortVal = a->shortVal ^ b->shortVal;
+        r->type = Fr_SHORT;
+        return;
+    }
+
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+    FrElement b_n;
+
+    Fr_toLongNormal(&a_n, a);
+    Fr_toLongNormal(&b_n, b);
+
+    Fr_rawXor(r->longVal, a_n.longVal, b_n.longVal);
+}
+
+static inline void xor_s1l2n(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+
+    if (a->shortVal >= 0)
+    {
+        a_n = {0, 0, {(uint64_t)a->shortVal, 0, 0, 0}};
+    }
+    else
+    {
+        Fr_toLongNormal(&a_n, a);
+    }
+
+    Fr_rawXor(r->longVal, a_n.longVal, b->longVal);
+}
+
+static inline void xor_s1l2m(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+    FrElement b_n;
+
+    Fr_toNormal(&b_n, b);
+
+    if (a->shortVal >= 0)
+    {
+        a_n = {0, 0, {(uint64_t)a->shortVal, 0, 0, 0}};
+    }
+    else
+    {
+        Fr_toLongNormal(&a_n, a);
+    }
+
+    Fr_rawXor(r->longVal, a_n.longVal, b_n.longVal);
+}
+
+static inline void xor_l1ns2(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement b_n;
+
+    if (b->shortVal >= 0)
+    {
+        b_n = {0, 0, {(uint64_t)b->shortVal, 0, 0, 0}};
+    }
+    else
+    {
+        Fr_toLongNormal(&b_n, b);
+    }
+
+    Fr_rawXor(r->longVal, a->longVal, b_n.longVal);
+}
+
+static inline void xor_l1ms2(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+    FrElement b_n;
+
+    Fr_toNormal(&a_n, a);
+
+    if (b->shortVal >= 0)
+    {
+        b_n = {0, 0, {(uint64_t)b->shortVal, 0, 0, 0}};
+    }
+    else
+    {
+        Fr_toLongNormal(&b_n, b);
+    }
+
+    Fr_rawXor(r->longVal, b_n.longVal, a_n.longVal);
+}
+
+static inline void xor_l1nl2n(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+    Fr_rawXor(r->longVal, a->longVal, b->longVal);
+}
+
+static inline void xor_l1nl2m(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement b_n;
+    Fr_toNormal(&b_n, b);
+
+    Fr_rawXor(r->longVal, a->longVal, b_n.longVal);
+}
+
+static inline void xor_l1ml2n(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+    Fr_toNormal(&a_n, a);
+
+    Fr_rawXor(r->longVal, a_n.longVal, b->longVal);
+}
+
+static inline void xor_l1ml2m(PFrElement r, PFrElement a, PFrElement b)
+{
+    r->type = Fr_LONG;
+
+    FrElement a_n;
+    FrElement b_n;
+
+    Fr_toNormal(&a_n, a);
+    Fr_toNormal(&b_n, b);
+
+    Fr_rawXor(r->longVal, a_n.longVal, b_n.longVal);
+}
+
+void Fr_bxor(PFrElement r, PFrElement a, PFrElement b)
+{
+    if (a->type & Fr_LONG)
+    {
+        if (b->type & Fr_LONG)
+        {
+            if (a->type & Fr_MONTGOMERY)
+            {
+                if (b->type & Fr_MONTGOMERY)
+                {
+                    xor_l1ml2m(r, a, b);
+                }
+                else
+                {
+                    xor_l1ml2n(r, a, b);
+                }
+            }
+            else if (b->type & Fr_MONTGOMERY)
+            {
+                xor_l1nl2m(r, a, b);
+            }
+            else
+            {
+                xor_l1nl2n(r, a, b);
+            }
+        }
+        else if (a->type & Fr_MONTGOMERY)
+        {
+            xor_l1ms2(r, a, b);
+        }
+        else
+        {
+           xor_l1ns2(r, a, b);
+        }
+    }
+    else if (b->type & Fr_LONG)
+    {
+        if (b->type & Fr_MONTGOMERY)
+        {
+            xor_s1l2m(r, a, b);
+        }
+        else
+        {
+            xor_s1l2n(r, a, b);
+        }
+    }
+    else
+    {
+         xor_s1s2(r, a, b);
+    }
+}
+
+void Fr_bnot(PFrElement r, PFrElement a)
+{
+    r->type = Fr_LONG;
+
+    if (a->type == Fr_LONG)
+    {
+        if (a->type & Fr_MONTGOMERY)
+        {
+            FrElement a_n;
+            Fr_toNormal(&a_n, a);
+
+            Fr_rawNot(r->longVal, a_n.longVal);
+        }
+        else
+        {
+            Fr_rawNot(r->longVal, a->longVal);
+        }
+    }
+    else
+    {
+        FrElement a_n;
+        Fr_toLongNormal(&a_n, a);
+
+        Fr_rawNot(r->longVal, a_n.longVal);
     }
 }

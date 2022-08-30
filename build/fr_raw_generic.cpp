@@ -290,6 +290,30 @@ void Fr_rawAnd(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
     }
 }
 
+void Fr_rawOr(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    mpn_ior_n(pRawResult, pRawA, pRawB, Fr_N64);
+
+    pRawResult[3] &= lboMask;
+
+    if (mpn_cmp(pRawResult, Fr_rawq, Fr_N64) >= 0)
+    {
+        mpn_sub_n(pRawResult, pRawResult, Fr_rawq, Fr_N64);
+    }
+}
+
+void Fr_rawXor(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+{
+    mpn_xor_n(pRawResult, pRawA, pRawB, Fr_N64);
+
+    pRawResult[3] &= lboMask;
+
+    if (mpn_cmp(pRawResult, Fr_rawq, Fr_N64) >= 0)
+    {
+        mpn_sub_n(pRawResult, pRawResult, Fr_rawq, Fr_N64);
+    }
+}
+
 void Fr_rawShl(FrRawElement r, FrRawElement a, uint64_t b)
 {
     uint64_t bit_shift  = b % 64;
@@ -324,5 +348,17 @@ void Fr_rawShr(FrRawElement r, FrRawElement a, uint64_t b)
     if (bit_shift)
     {
         mpn_rshift(r, r, Fr_N64, bit_shift);
+    }
+}
+
+void Fr_rawNot(FrRawElement pRawResult, FrRawElement pRawA)
+{
+    mpn_com(pRawResult, pRawA, Fr_N64);
+
+    pRawResult[3] &= lboMask;
+
+    if (mpn_cmp(pRawResult, Fr_rawq, Fr_N64) >= 0)
+    {
+        mpn_sub_n(pRawResult, pRawResult, Fr_rawq, Fr_N64);
     }
 }

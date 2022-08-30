@@ -10,6 +10,26 @@
 int tests_run = 0;
 int tests_failed = 0;
 
+FrElement fr_short(int32_t val)
+{
+    return {val, Fr_SHORT, {0, 0, 0, 0}};
+}
+
+FrElement fr_mshort(int32_t val)
+{
+    return {val, Fr_SHORTMONTGOMERY, {0, 0, 0, 0}};
+}
+
+FrElement fr_long(uint64_t val0, uint64_t val1 = 0, uint64_t val2 = 0, uint64_t val3 = 0)
+{
+    return {0, Fr_LONG, {val0, val1, val2, val3}};
+}
+
+FrElement fr_mlong(uint64_t val0, uint64_t val1 = 0, uint64_t val2 = 0, uint64_t val3 = 0)
+{
+    return {0, Fr_LONGMONTGOMERY, {val0, val1, val2, val3}};
+}
+
 bool is_equal(const FrRawElement a, const FrRawElement b)
 {
     return std::memcmp(a, b, sizeof(FrRawElement)) == 0;
@@ -3513,6 +3533,41 @@ void Fr_gt_s1l2n_unit_test()
     compare_Result(&pResult_s1l2n3, &Result3_c,&pA_s1l2n3, &pB_s1l2n3, 3, "Fr_gt_s1l2n_unit_test");
 }
 
+void Fr_leq_s1l2n_unit_test()
+{
+    //Fr_leq_s1l2n_test 0:
+    FrElement pA_s1l2n0= {0x1,0x0,{0x1,0x0,0x0,0x0}};
+    FrElement pB_s1l2n0= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_s1l2n0= {0x1,0x0,{0x0,0x0,0x0,0x0}};
+    //Fr_leq_s1l2n_test 1:
+    FrElement pA_s1l2n1= {0x0,0x0,{0x0,0x0,0x0,0x0}};
+    FrElement pB_s1l2n1= {0x2,0x80000000,{0x2,0x0,0x0,0x0}};
+    FrElement pResult_s1l2n1= {0x1,0x0,{0x0,0x0,0x0,0x0}};
+    //Fr_leq_s1l2n_test 2:
+    FrElement pA_s1l2n2= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pB_s1l2n2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
+    FrElement pResult_s1l2n2= {0x1,0x0,{0x0,0x0,0x0,0x0}};
+    //Fr_leq_s1l2n_test 3:
+    FrElement pA_s1l2n3= {0xffff,0x0,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pB_s1l2n3= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_s1l2n3= {0x0,0x0,{0x0,0x0,0x0,0x0}};
+
+    FrElement Result0_c = {0,0,{0,0,0,0}};
+    FrElement Result1_c = {0,0,{0,0,0,0}};
+    FrElement Result2_c= {0,0,{0,0,0,0}};
+    FrElement Result3_c= {0,0,{0,0,0,0}};
+
+    Fr_leq(&Result0_c, &pA_s1l2n0, &pB_s1l2n0);
+    Fr_leq(&Result1_c, &pA_s1l2n1, &pB_s1l2n1);
+    Fr_leq(&Result2_c, &pA_s1l2n2, &pB_s1l2n2);
+    Fr_leq(&Result3_c, &pA_s1l2n3, &pB_s1l2n3);
+
+    compare_Result(&pResult_s1l2n0, &Result0_c,&pA_s1l2n0, &pB_s1l2n0, 0, "Fr_leq_s1l2n_unit_test");
+    compare_Result(&pResult_s1l2n1, &Result1_c,&pA_s1l2n1, &pB_s1l2n1, 1, "Fr_leq_s1l2n_unit_test");
+    compare_Result(&pResult_s1l2n2, &Result2_c,&pA_s1l2n2, &pB_s1l2n2, 2, "Fr_leq_s1l2n_unit_test");
+    compare_Result(&pResult_s1l2n3, &Result3_c,&pA_s1l2n3, &pB_s1l2n3, 3, "Fr_leq_s1l2n_unit_test");
+}
+
 void Fr_band_s1s2_unit_test()
 {
     //Fr_band_s1s2_test 0:
@@ -4320,7 +4375,6 @@ void Fr_lor_l1nl2m_unit_test()
     compare_Result(&pResult_l1nl2m3, &Result3_c,&pA_l1nl2m3, &pB_l1nl2m3, 3, "Fr_lor_l1nl2m_unit_test");
 }
 
-// 6
 void Fr_lor_s1l2m_unit_test()
 {
     //Fr_lor_s1l2m_test 0:
@@ -4462,71 +4516,341 @@ void Fr_lor_s1l2n_unit_test()
     compare_Result(&pResult_s1l2n3, &Result3_c,&pA_s1l2n3, &pB_s1l2n3, 3, "Fr_lor_s1l2n_unit_test");
 }
 
-void Fr_shr_unit_test()
+void Fr_lnot_unit_test()
 {
-    //Fr_shr_test 0:
-    FrElement pA0= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement pB0= {0x1bb8,0x0,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
-    FrElement pResult0= {0x0,0x0,{0x0,0x0,0x0,0x0}};
-    //Fr_shr_test 1:
-    FrElement pA1= {0xa1f0,0x40000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement pB1= {0x1bb8,0x40000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
-    FrElement pResult1= {0x0,0x0,{0x0,0x0,0x0,0x0}};
-    //Fr_shr_test 2:
-    FrElement pA2= {0xa1f0,0x80000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement pB2= {0x1bb8,0x80000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
-    FrElement pResult2= {0x0,0x0,{0x0,0x0,0x0,0x0}};
-    //Fr_shr_test 3:
-    FrElement pA3= {0xa1f0,0xc0000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement pB3= {0x1bb8,0xc0000000,{0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5}};
-    FrElement pResult3= {0x0,0x0,{0x0,0x0,0x0,0x0}};
+    FrElement pA_l1ns20= {0x1,0x80000000,{0x1,0x0,0x0,0x0}};
+    FrElement pResult_l1ns20= {0x0,0x0,{0x0,0x0,0x0,0x0}};
 
-    //Fr_shr_test 5:
-    FrElement pA5= {0xa1f0,0x0,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement pB5= {0x1,0x0,{0x0,0x0,0x0,0x0}};
-    FrElement pResult5= {0x50f8,0x0,{0x0,0x0,0x0,0x0}};
-    //Fr_shr_test 6:
-    FrElement pA6= {0xa1f0,0x40000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement pB6= {-1,0x40000000,{0x0,0x0,0x0,0x0}};
-    FrElement pResult6= {0x143e0,0x0,{0x0,0x0,0x0,0x0}};
-    //Fr_shr_test 7:
-    FrElement pA7= {0x0,0x80000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement pB7= {0x0,0x80000000,{0x1,0x0,0x0,0x0}};
-    FrElement pResult7= {0x0,0x80000000,{0x50f87d64fc000000,0x4a0cfa121e6e5c24,0x6e14116da0605617,0xc19139cb84c680a}};
-    //Fr_shr_test 8:
-    FrElement pA8= {0xa1f0,0xc0000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
-    FrElement pB8= {-1,0xc0000000,{0x0,0x0,0x0,0x0}};
-    FrElement pResult8= {0x0,0x80000000,{0x55b425913927735a,0xa3ac6d7389307a4d,0x543d3ec42a2529ae,0x256e51ca1fcef59b}};
+    FrElement pA_l1ns21= {0x0,0x80000000,{0x0,0x0,0x0,0x0}};
+    FrElement pResult_l1ns21= {0x1,0x0,{0x0,0x0,0x0,0x0}};
+
+    FrElement pA_l1ns22= {0xa1f0,0x80000000,{0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014}};
+    FrElement pResult_l1ns22= {0x0,0x0,{0x0,0x0,0x0,0x0}};
+
+    FrElement pA_l1ns23= {0xffff,0x80000000,{0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff}};
+    FrElement pResult_l1ns23= {0x0,0x0,{0x0,0x0,0x0,0x0}};
 
     FrElement Result0_c = {0,0,{0,0,0,0}};
     FrElement Result1_c = {0,0,{0,0,0,0}};
     FrElement Result2_c= {0,0,{0,0,0,0}};
     FrElement Result3_c= {0,0,{0,0,0,0}};
 
-    FrElement Result5_c = {0,0,{0,0,0,0}};
-    FrElement Result6_c = {0,0,{0,0,0,0}};
-    FrElement Result7_c= {0,0,{0,0,0,0}};
-    FrElement Result8_c= {0,0,{0,0,0,0}};
+    Fr_lnot(&Result0_c, &pA_l1ns20);
+    Fr_lnot(&Result1_c, &pA_l1ns21);
+    Fr_lnot(&Result2_c, &pA_l1ns22);
+    Fr_lnot(&Result3_c, &pA_l1ns23);
 
-    Fr_shr(&Result0_c, &pA0, &pB0);
-    Fr_shr(&Result1_c, &pA1, &pB1);
-    Fr_shr(&Result2_c, &pA2, &pB2);
-    Fr_shr(&Result3_c, &pA3, &pB3);
+    compare_Result(&pResult_l1ns20, &Result0_c,&pA_l1ns20, 0, "Fr_lnot_unit_test");
+    compare_Result(&pResult_l1ns21, &Result1_c,&pA_l1ns21, 1, "Fr_lnot_unit_test");
+    compare_Result(&pResult_l1ns22, &Result2_c,&pA_l1ns22, 2, "Fr_lnot_unit_test");
+    compare_Result(&pResult_l1ns23, &Result3_c,&pA_l1ns23, 3, "Fr_lnot_unit_test");
+}
 
-    Fr_shr(&Result5_c, &pA5, &pB5);
-    Fr_shr(&Result6_c, &pA6, &pB6);
-    Fr_shr(&Result7_c, &pA7, &pB7);
-    Fr_shr(&Result8_c, &pA8, &pB8);
 
-    compare_Result(&pResult0, &Result0_c,&pA0, &pB0, 0, "Fr_shr_unit_test");
-    compare_Result(&pResult1, &Result1_c,&pA1, &pB1, 1, "Fr_shr_unit_test");
-    compare_Result(&pResult2, &Result2_c,&pA2, &pB2, 2, "Fr_shr_unit_test");
-    compare_Result(&pResult3, &Result3_c,&pA3, &pB3, 3, "Fr_shr_unit_test");
+void Fr_shr_test(FrElement r_expected, FrElement a, FrElement b, int index)
+{
+    FrElement r_computed = {0,0,{0,0,0,0}};
 
-    compare_Result(&pResult5, &Result5_c,&pA5, &pB5, 5, "Fr_shr_unit_test");
-    compare_Result(&pResult6, &Result6_c,&pA6, &pB6, 6, "Fr_shr_unit_test");
-    compare_Result(&pResult7, &Result7_c,&pA7, &pB7, 7, "Fr_shr_unit_test");
-    compare_Result(&pResult8, &Result8_c,&pA8, &pB8, 8, "Fr_shr_unit_test");
+    Fr_shr(&r_computed, &a, &b);
+
+    compare_Result(&r_expected, &r_computed, &a, &b, index, __func__);
+}
+
+void Fr_shr_short_test(int32_t r_expected, int32_t a, int32_t b, int index)
+{
+    Fr_shr_test(fr_short(r_expected), fr_short(a), fr_short(b), index);
+}
+
+void Fr_shr_mshort_test(int32_t r_expected, int32_t a, int32_t b, int index)
+{
+    Fr_shr_test(fr_mshort(r_expected), fr_mshort(a), fr_short(b), index);
+}
+
+void Fr_shr_unit_test()
+{
+    Fr_shr_short_test(        0,     0xa1f0, 0x1bb8,   0);
+    Fr_shr_short_test(   0xa1f0,     0xa1f0,       0,  1);
+    Fr_shr_short_test(   0x50f8,     0xa1f0,       1,  2);
+    Fr_shr_short_test(  0x143e0,     0xa1f0,      -1,  3);
+    Fr_shr_short_test(0x000287c,     0xa1f0,       2,  4);
+    Fr_shr_short_test(0x00287c0,     0xa1f0,      -2,  5);
+    Fr_shr_short_test(      0xa,     0xa1f0,      12,  6);
+    Fr_shr_short_test(0xa1f0000,     0xa1f0,     -12,  7);
+    Fr_shr_short_test(        7, 0x7000a1ff,      28,  8);
+    Fr_shr_short_test(        0,     0xa1f0,      31,  9);
+    Fr_shr_short_test(        0,     0xa1f0,      67, 10);
+    Fr_shr_short_test(        0,     0xa1f0,     256, 11);
+
+
+    FrElement a21 = fr_long(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b21 = fr_long(0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5);
+
+    FrElement a22 = fr_mlong(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b22 = fr_mlong(0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5);
+
+    FrElement a23 = fr_long(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b23 = fr_long(0xfbb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5);
+
+    FrElement a24 = fr_mlong(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b24 = fr_mlong(0xfbb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5);
+
+    FrElement a25 = fr_long(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b25 = fr_long(0x1bb8e645ae216da7);
+
+    FrElement a26 = fr_mlong(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b26 = fr_mlong(0x1bb8e645ae216da7);
+
+
+    Fr_shr_test(fr_short(0), a21, b21, 21);
+    Fr_shr_test(fr_short(0), a22, b22, 22);
+    Fr_shr_test(fr_short(0), a23, b23, 23);
+    Fr_shr_test(fr_short(0), a24, b24, 24);
+    Fr_shr_test(fr_short(0), a25, b25, 25);
+    Fr_shr_test(fr_short(0), a26, b26, 26);
+
+
+    FrElement r31 = fr_long(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement r32 = fr_long(0x50f87d64fc000000,0x4a0cfa121e6e5c24,0x6e14116da0605617,0x0c19139cb84c680a);
+    FrElement r33 = fr_long(0x450f87d64fc00000,0x74a0cfa121e6e5c2,0xa6e14116da060561,0x00c19139cb84c680);
+    FrElement r34 = fr_long(0x848a1f0fac9f8000,0xc2e9419f4243cdcb,0x014dc2822db40c0a,0x000183227397098d);
+    FrElement r35 = fr_long(0x72e12287c3eb27e0,0x02b0ba5067d090f3,0x63405370a08b6d03,0x00000060c89ce5c2);
+    FrElement r36 = fr_long(0x3cdcb848a1f0fac9,0x40c0ac2e9419f424,0x7098d014dc2822db,0x0000000018322739);
+    FrElement r37 = fr_long(0x4dc2822db40c0ac2,0x0183227397098d01,0x0000000000000000,0x0000000000000000);
+    FrElement r38 = fr_long(0x0000000000183227,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r41 = fr_long(0x43e1f593f0000000,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r42 = fr_long(0x3e1f593f00000000,0x833e84879b970914,0x85045b68181585d2,0x0644e72e131a029b);
+    FrElement r43 = fr_long(0x0fac9f8000000000,0x9f4243cdcb848a1f,0x822db40c0ac2e941,0x227397098d014dc2);
+    FrElement r44 = fr_long(0xb27e000000000000,0x090f372e12287c3e,0xb6d0302b0ba5067d,0x0e5c263405370a08);
+    FrElement r45 = fr_long(0xb41e0a6c0fffffff,0x14a8d00028378a38,0x8870667812989bc7,0x003481a1faf682b1);
+    FrElement r46 = fr_long(0x0000000000000000,0x0000000000000000,0x1f0fac9f80000000,0x019f4243cdcb848a);
+
+    Fr_shr_test(r31,         a21, fr_short(0),    31);
+    Fr_shr_test(r32,         a21, fr_short(1),    32);
+    Fr_shr_test(r33,         a21, fr_short(5),    33);
+    Fr_shr_test(r34,         a21, fr_short(12),   34);
+    Fr_shr_test(r35,         a21, fr_short(22),   35);
+    Fr_shr_test(r36,         a21, fr_short(32),   36);
+    Fr_shr_test(r37,         a21, fr_short(132),  37);
+    Fr_shr_test(r38,         a21, fr_short(232),  38);
+    Fr_shr_test(fr_short(0), a21, fr_short(432),  39);
+
+    Fr_shr_test(r41,         a21, fr_short(-1),   41);
+    Fr_shr_test(r42,         a21, fr_short(-5),   42);
+    Fr_shr_test(r43,         a21, fr_short(-12),  43);
+    Fr_shr_test(r44,         a21, fr_short(-22),  44);
+    Fr_shr_test(r45,         a21, fr_short(-32),  45);
+    Fr_shr_test(r46,         a21, fr_short(-132), 46);
+    Fr_shr_test(fr_long(0),  a21, fr_short(-232), 47);
+    Fr_shr_test(fr_short(0), a21, fr_short(-332), 48);
+    Fr_shr_test(fr_short(0), a21, fr_short(-432), 49);
+
+    Fr_shr_test(r31,         a21, fr_long(0),    51);
+    Fr_shr_test(r32,         a21, fr_long(1),    52);
+    Fr_shr_test(r33,         a21, fr_long(5),    53);
+    Fr_shr_test(r34,         a21, fr_long(12),   54);
+    Fr_shr_test(r35,         a21, fr_long(22),   55);
+    Fr_shr_test(r36,         a21, fr_long(32),   56);
+    Fr_shr_test(r37,         a21, fr_long(132),  57);
+    Fr_shr_test(r38,         a21, fr_long(232),  58);
+    Fr_shr_test(fr_short(0), a21, fr_long(432),  59);
+
+    Fr_shr_test(fr_short(0), a21, fr_long(-1),   61);
+    Fr_shr_test(fr_short(0), a21, fr_long(-5),   62);
+    Fr_shr_test(fr_short(0), a21, fr_long(-12),  63);
+    Fr_shr_test(fr_short(0), a21, fr_long(-22),  64);
+    Fr_shr_test(fr_short(0), a21, fr_long(-32),  65);
+    Fr_shr_test(fr_short(0), a21, fr_long(-132), 66);
+    Fr_shr_test(fr_short(0), a21, fr_long(-232), 67);
+    Fr_shr_test(fr_short(0), a21, fr_long(-332), 68);
+    Fr_shr_test(fr_short(0), a21, fr_long(-432), 69);
+
+    Fr_shr_test(fr_short(0), a21, fr_mlong(1),    71);
+    Fr_shr_test(fr_short(0), a21, fr_mlong(12),   72);
+    Fr_shr_test(fr_short(0), a21, fr_mlong(32),   73);
+    Fr_shr_test(fr_short(0), a21, fr_mlong(132),  74);
+    Fr_shr_test(fr_short(0), a21, fr_mlong(432),  75);
+    Fr_shr_test(fr_short(0), a21, fr_mlong(-1),   76);
+    Fr_shr_test(fr_short(0), a21, fr_mlong(-5),   77);
+    Fr_shr_test(fr_short(0), a21, fr_mlong(-12),  78);
+
+    FrElement r80 = fr_long(0x55b425913927735a,0xa3ac6d7389307a4d,0x543d3ec42a2529ae,0x256e51ca1fcef59b);
+    FrElement r81 = fr_long(0xaada12c89c93b9ad,0x51d636b9c4983d26,0xaa1e9f62151294d7,0x12b728e50fe77acd);
+    FrElement r82 = fr_long(0xa4d55b4259139277,0x9aea3ac6d7389307,0x59b543d3ec42a252,0x000256e51ca1fcef);
+    FrElement r83 = fr_long(0x89307a4d55b42591,0x2a2529aea3ac6d73,0x1fcef59b543d3ec4,0x00000000256e51ca);
+    FrElement r84 = fr_long(0xb543d3ec42a2529a,0x0256e51ca1fcef59,0x0000000000000000,0x0000000000000000);
+    FrElement r85 = fr_short(0);
+    FrElement r86 = fr_long(0xab684b22724ee6b4,0x4758dae71260f49a,0xa87a7d88544a535d,0x0adca3943f9deb36);
+    FrElement r87 = fr_long(0x3927735a00000000,0x89307a4d55b42591,0x2a2529aea3ac6d73,0x1fcef59b543d3ec4);
+    FrElement r88 = fr_long(0xbc1e0a6c0fffffff,0xd7cc17b786468f6e,0xa2f2135d10f5dd42,0x0a6288c5b1d604ab);
+    FrElement r89 = fr_short(0);
+
+    Fr_shr_test(r80, a22, fr_short(0),    80);
+    Fr_shr_test(r81, a22, fr_short(1),    81);
+    Fr_shr_test(r82, a22, fr_short(12),   82);
+    Fr_shr_test(r83, a22, fr_short(32),   83);
+    Fr_shr_test(r84, a22, fr_short(132),  84);
+    Fr_shr_test(r85, a22, fr_short(432),  85);
+    Fr_shr_test(r86, a22, fr_short(-1),   86);
+    Fr_shr_test(r87, a22, fr_short(-32),  87);
+    Fr_shr_test(r88, a22, fr_short(-132), 88);
+    Fr_shr_test(r89, a22, fr_short(-432), 89);
+
+}
+
+void Fr_shl_test(FrElement r_expected, FrElement a, FrElement b, int index)
+{
+    FrElement r_computed = {0,0,{0,0,0,0}};
+
+    Fr_shl(&r_computed, &a, &b);
+
+    compare_Result(&r_expected, &r_computed, &a, &b, index, __func__);
+}
+
+void Fr_shl_short_test(int32_t r_expected, int32_t a, int32_t b, int index)
+{
+    Fr_shl_test(fr_short(r_expected), fr_short(a), fr_short(b), index);
+}
+
+void Fr_shl_mshort_test(int32_t r_expected, int32_t a, int32_t b, int index)
+{
+    Fr_shl_test(fr_mshort(r_expected), fr_mshort(a), fr_short(b), index);
+}
+
+void Fr_shl_unit_test()
+{
+    Fr_shl_short_test(        0,     0xa1f0, 0x1bb8,   0);
+    Fr_shl_short_test(   0xa1f0,     0xa1f0,       0,  1);
+    Fr_shl_short_test(0x000143e0,    0xa1f0,       1,  2);
+    Fr_shl_short_test(0x000050f8,    0xa1f0,      -1,  3);
+    Fr_shl_short_test(0x000287c0,    0xa1f0,       2,  4);
+    Fr_shl_short_test(0x0000287c,    0xa1f0,      -2,  5);
+    Fr_shl_short_test(0x0000050f,    0xa1f0,      -5,  6);
+    Fr_shl_short_test(0x0a1f0000,    0xa1f0,      12,  7);
+    Fr_shl_short_test(      0xa,     0xa1f0,     -12,  8);
+    Fr_shl_short_test(        0,     0xa1f0,     -22,  9);
+    Fr_shl_short_test(        0,     0xa1f0,     256, 10);
+
+
+    FrElement a21 = fr_long(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b21 = fr_long(0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5);
+
+    FrElement a22 = fr_mlong(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b22 = fr_mlong(0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5);
+
+    FrElement a23 = fr_long(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b23 = fr_long(0xfbb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5);
+
+    FrElement a24 = fr_mlong(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b24 = fr_mlong(0xfbb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5);
+
+    FrElement a25 = fr_long(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b25 = fr_long(0x1bb8e645ae216da7);
+
+    FrElement a26 = fr_mlong(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement b26 = fr_mlong(0x1bb8e645ae216da7);
+
+
+    Fr_shl_test(fr_short(0), a21, b21, 21);
+    Fr_shl_test(fr_short(0), a22, b22, 22);
+    Fr_shl_test(fr_short(0), a23, b23, 23);
+    Fr_shl_test(fr_short(0), a24, b24, 24);
+    Fr_shl_test(fr_short(0), a25, b25, 25);
+    Fr_shl_test(fr_short(0), a26, b26, 26);
+
+
+    FrElement r31 = fr_long(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement r32 = fr_long(0x43e1f593f0000000,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r33 = fr_long(0x3e1f593f00000000,0x833e84879b970914,0x85045b68181585d2,0x0644e72e131a029b);
+    FrElement r34 = fr_long(0x0fac9f8000000000,0x9f4243cdcb848a1f,0x822db40c0ac2e941,0x227397098d014dc2);
+    FrElement r35 = fr_long(0xb27e000000000000,0x090f372e12287c3e,0xb6d0302b0ba5067d,0x0e5c263405370a08);
+    FrElement r36 = fr_long(0xb41e0a6c0fffffff,0x14a8d00028378a38,0x8870667812989bc7,0x003481a1faf682b1);
+    FrElement r37 = fr_long(0x0000000000000000,0x0000000000000000,0x1f0fac9f80000000,0x019f4243cdcb848a);
+    FrElement r41 = fr_long(0x50f87d64fc000000,0x4a0cfa121e6e5c24,0x6e14116da0605617,0x0c19139cb84c680a);
+    FrElement r42 = fr_long(0x450f87d64fc00000,0x74a0cfa121e6e5c2,0xa6e14116da060561,0x00c19139cb84c680);
+    FrElement r43 = fr_long(0x848a1f0fac9f8000,0xc2e9419f4243cdcb,0x014dc2822db40c0a,0x000183227397098d);
+    FrElement r44 = fr_long(0x72e12287c3eb27e0,0x02b0ba5067d090f3,0x63405370a08b6d03,0x00000060c89ce5c2);
+    FrElement r45 = fr_long(0x3cdcb848a1f0fac9,0x40c0ac2e9419f424,0x7098d014dc2822db,0x0000000018322739);
+    FrElement r46 = fr_long(0x4dc2822db40c0ac2,0x0183227397098d01,0x0000000000000000,0x0000000000000000);
+    FrElement r47 = fr_long(0x0000000000183227,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+
+    Fr_shl_test(r31,         a21, fr_short(0),    31);
+    Fr_shl_test(r32,         a21, fr_short(1),    32);
+    Fr_shl_test(r33,         a21, fr_short(5),    33);
+    Fr_shl_test(r34,         a21, fr_short(12),   34);
+    Fr_shl_test(r35,         a21, fr_short(22),   35);
+    Fr_shl_test(r36,         a21, fr_short(32),   36);
+    Fr_shl_test(r37,         a21, fr_short(132),  37);
+    Fr_shl_test(fr_long(0),  a21, fr_short(232),  38);
+    Fr_shl_test(fr_short(0), a21, fr_short(432),  39);
+
+    Fr_shl_test(r41,         a21, fr_short(-1),   41);
+    Fr_shl_test(r42,         a21, fr_short(-5),   42);
+    Fr_shl_test(r43,         a21, fr_short(-12),  43);
+    Fr_shl_test(r44,         a21, fr_short(-22),  44);
+    Fr_shl_test(r45,         a21, fr_short(-32),  45);
+    Fr_shl_test(r46,         a21, fr_short(-132), 46);
+    Fr_shl_test(r47,         a21, fr_short(-232), 47);
+    Fr_shl_test(fr_short(0), a21, fr_short(-332), 48);
+    Fr_shl_test(fr_short(0), a21, fr_short(-432), 49);
+
+    FrElement r51 = fr_long(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement r52 = fr_long(0x43e1f593f0000000,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r53 = fr_long(0x3e1f593f00000000,0x833e84879b970914,0x85045b68181585d2,0x0644e72e131a029b);
+    FrElement r54 = fr_long(0x0fac9f8000000000,0x9f4243cdcb848a1f,0x822db40c0ac2e941,0x227397098d014dc2);
+    FrElement r55 = fr_long(0xb27e000000000000,0x090f372e12287c3e,0xb6d0302b0ba5067d,0x0e5c263405370a08);
+    FrElement r56 = fr_long(0xb41e0a6c0fffffff,0x14a8d00028378a38,0x8870667812989bc7,0x003481a1faf682b1);
+    FrElement r57 = fr_long(0x0000000000000000,0x0000000000000000,0x1f0fac9f80000000,0x019f4243cdcb848a);
+
+    Fr_shl_test(r51,         a21, fr_long(0),    51);
+    Fr_shl_test(r52,         a21, fr_long(1),    52);
+    Fr_shl_test(r53,         a21, fr_long(5),    53);
+    Fr_shl_test(r54,         a21, fr_long(12),   54);
+    Fr_shl_test(r55,         a21, fr_long(22),   55);
+    Fr_shl_test(r56,         a21, fr_long(32),   56);
+    Fr_shl_test(r57,         a21, fr_long(132),  57);
+    Fr_shl_test(fr_long(0),  a21, fr_long(232),  58);
+    Fr_shl_test(fr_short(0), a21, fr_long(432),  59);
+
+    Fr_shl_test(fr_short(0), a21, fr_long(-1),   61);
+    Fr_shl_test(fr_short(0), a21, fr_long(-5),   62);
+    Fr_shl_test(fr_short(0), a21, fr_long(-12),  63);
+    Fr_shl_test(fr_short(0), a21, fr_long(-22),  64);
+    Fr_shl_test(fr_short(0), a21, fr_long(-32),  65);
+    Fr_shl_test(fr_short(0), a21, fr_long(-132), 66);
+    Fr_shl_test(fr_short(0), a21, fr_long(-232), 67);
+    Fr_shl_test(fr_short(0), a21, fr_long(-332), 68);
+    Fr_shl_test(fr_short(0), a21, fr_long(-432), 69);
+
+    Fr_shl_test(fr_short(0), a21, fr_mlong(1),    71);
+    Fr_shl_test(fr_short(0), a21, fr_mlong(12),   72);
+    Fr_shl_test(fr_short(0), a21, fr_mlong(32),   73);
+    Fr_shl_test(fr_short(0), a21, fr_mlong(132),  74);
+    Fr_shl_test(fr_short(0), a21, fr_mlong(432),  75);
+    Fr_shl_test(fr_short(0), a21, fr_mlong(-1),   76);
+    Fr_shl_test(fr_short(0), a21, fr_mlong(-5),   77);
+    Fr_shl_test(fr_short(0), a21, fr_mlong(-12),  78);
+
+    FrElement r80 = fr_long(0x55b425913927735a,0xa3ac6d7389307a4d,0x543d3ec42a2529ae,0x256e51ca1fcef59b);
+    FrElement r81 = fr_long(0xab684b22724ee6b4,0x4758dae71260f49a,0xa87a7d88544a535d,0x0adca3943f9deb36);
+    FrElement r82 = fr_long(0x425913927735a000,0xc6d7389307a4d55b,0xd3ec42a2529aea3a,0x251ca1fcef59b543);
+    FrElement r83 = fr_long(0x3927735a00000000,0x89307a4d55b42591,0x2a2529aea3ac6d73,0x1fcef59b543d3ec4);
+    FrElement r84 = fr_long(0xbc1e0a6c0fffffff,0xd7cc17b786468f6e,0xa2f2135d10f5dd42,0x0a6288c5b1d604ab);
+    FrElement r85 = fr_short(0);
+    FrElement r86 = fr_long(0xaada12c89c93b9ad,0x51d636b9c4983d26,0xaa1e9f62151294d7,0x12b728e50fe77acd);
+    FrElement r87 = fr_long(0x89307a4d55b42591,0x2a2529aea3ac6d73,0x1fcef59b543d3ec4,0x00000000256e51ca);
+    FrElement r88 = fr_long(0xb543d3ec42a2529a,0x0256e51ca1fcef59,0x0000000000000000,0x0000000000000000);
+    FrElement r89 = fr_short(0);
+
+    Fr_shl_test(r80, a22, fr_short(0),    80);
+    Fr_shl_test(r81, a22, fr_short(1),    81);
+    Fr_shl_test(r82, a22, fr_short(12),   82);
+    Fr_shl_test(r83, a22, fr_short(32),   83);
+    Fr_shl_test(r84, a22, fr_short(132),  84);
+    Fr_shl_test(r85, a22, fr_short(432),  85);
+    Fr_shl_test(r86, a22, fr_short(-1),   86);
+    Fr_shl_test(r87, a22, fr_short(-32),  87);
+    Fr_shl_test(r88, a22, fr_short(-132), 88);
+    Fr_shl_test(r89, a22, fr_short(-432), 89);
 }
 
 void Fq_Rw_Neg_unit_test()
@@ -4673,8 +4997,6 @@ void Fq_Rw_sub_unit_test()
     compare_Result(pRawResult1, pRawResult1_c,pRawA1, pRawB1, 1, "Fq_Rw_sub_unit_test");
     compare_Result(pRawResult2, pRawResult2_c,pRawA2, pRawB2, 2, "Fq_Rw_sub_unit_test");
     compare_Result(pRawResult3, pRawResult3_c,pRawA3, pRawB3, 3, "Fq_Rw_sub_unit_test");
-
-
 }
 
 void Fq_Rw_mul_unit_test()
@@ -5692,6 +6014,417 @@ void Fr_rawShl_unit_test()
     Fr_rawShl_test(result253, rawA1, 253);
 }
 
+void Fr_square_test(FrElement r_expected, FrElement a, int index)
+{
+    FrElement r_computed = {0,0,{0,0,0,0}};
+
+    Fr_square(&r_computed, &a);
+
+    compare_Result(&r_expected, &r_computed, &a, index, __func__);
+}
+
+void Fr_square_short_test(int64_t r_expected, int32_t a, int index)
+{
+    Fr_square_test(fr_long(r_expected), fr_short(a), index);
+}
+
+void Fr_square_unit_test()
+{
+    Fr_square_short_test(0,                0, 0);
+    Fr_square_short_test(1,                1, 1);
+    Fr_square_short_test(1,               -1, 2);
+    Fr_square_short_test(4,                2, 3);
+    Fr_square_short_test(4,               -2, 4);
+    Fr_square_short_test(65536,          256, 5);
+    Fr_square_short_test(65536,         -256, 6);
+    Fr_square_short_test(1067851684,   32678, 7);
+    Fr_square_short_test(4294967296,   65536, 8);
+    Fr_square_short_test(68719476736, 262144, 9);
+
+    FrElement a1 = fr_short(1048576);
+    FrElement a2 = fr_short(16777216);
+    FrElement a3 = fr_short(-16777216);
+    FrElement a4 = fr_short(2147483647);
+    FrElement a5 = fr_short(-2147483647);
+
+    FrElement r1 = fr_long(0x0000010000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r2 = fr_long(0x0001000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r3 = fr_long(0x0001000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r4 = fr_long(0x3fffffff00000001,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r5 = fr_long(0x3fffffff00000001,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+
+    Fr_square_test(r1, a1, 11);
+    Fr_square_test(r2, a2, 12);
+    Fr_square_test(r3, a3, 13);
+    Fr_square_test(r4, a4, 14);
+    Fr_square_test(r5, a5, 15);
+
+    FrElement a21 = fr_long(0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement a22 = fr_long(0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5);
+    FrElement a23 = fr_long(0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c);
+    FrElement a24 = fr_long(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement a25 = fr_long(0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5);
+    FrElement a26 = fr_long(0x1bb8e645ae216da7);
+
+    FrElement r21 = fr_mlong(0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r22 = fr_mlong(0x00915951a17a2cef,0xbf25f2dd9fd7425c,0xfb6cfdc4a7eeefb8,0x06eaaa4fb32c8ec9);
+    FrElement r23 = fr_mlong(0xbd21a87879979b42,0xc838a7401d9b5225,0x97846f8ea771a174,0x00ae773b6f7fa82d);
+    FrElement r24 = fr_mlong(0xbc1e0a6c0fffffff,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0x0f9bb18d1ece5fd6);
+    FrElement r25 = fr_mlong(0x00915951a17a2cef,0xbf25f2dd9fd7425c,0xfb6cfdc4a7eeefb8,0x06eaaa4fb32c8ec9);
+    FrElement r26 = fr_mlong(0x907220cfe9de6aa5,0xcbe953472316eb2c,0x2336c1a61ae5f272,0x136f2bc2b41ee96e);
+
+    Fr_square_test(r21, a21, 21);
+    Fr_square_test(r22, a22, 22);
+    Fr_square_test(r23, a23, 23);
+    Fr_square_test(r24, a24, 24);
+    Fr_square_test(r25, a25, 25);
+    Fr_square_test(r26, a26, 26);
+
+
+    FrElement a31 = fr_mlong(0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement a32 = fr_mlong(0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5);
+    FrElement a33 = fr_mlong(0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c);
+    FrElement a34 = fr_mlong(0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014);
+    FrElement a35 = fr_mlong(0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x216d0b17f4e44a5);
+    FrElement a36 = fr_mlong(0x1bb8e645ae216da7);
+
+    FrElement r31 = fr_mlong(0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r32 = fr_mlong(0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c);
+    FrElement r33 = fr_mlong(0x00915951a17a2cef,0xbf25f2dd9fd7425c,0xfb6cfdc4a7eeefb8,0x06eaaa4fb32c8ec9);
+    FrElement r34 = fr_mlong(0x9907e2cb536c4654,0xd65db18eb521336a,0x0e31a6546c6ec385,0x1dad258dd14a255c);
+    FrElement r35 = fr_mlong(0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c);
+    FrElement r36 = fr_mlong(0xa53f1bf76b3483d6,0x368cb00a6a77e255,0x7b8b05c69920615c,0x0248823bc34637b8);
+
+    Fr_square_test(r31, a31, 31);
+    Fr_square_test(r32, a32, 32);
+    Fr_square_test(r33, a33, 33);
+    Fr_square_test(r34, a34, 34);
+    Fr_square_test(r35, a35, 35);
+    Fr_square_test(r36, a36, 36);
+
+}
+
+void Fr_bor_test(FrElement r_expected, FrElement a, FrElement b, int index)
+{
+    FrElement r_computed = {0,0,{0,0,0,0}};
+
+    Fr_bor(&r_computed, &a, &b);
+
+    compare_Result(&r_expected, &r_computed, &a, &b, index, __func__);
+}
+
+void Fr_bor_unit_test()
+{
+    FrElement s0  = fr_short(0);
+    FrElement sf  = fr_short(0x7fffffff);
+    FrElement s5  = fr_short(0x55555555);
+    FrElement s9  = fr_short(0x99999999);
+    FrElement sf1 = fr_short(-1);
+    FrElement sf5 = fr_short(0xf5555555);
+    FrElement sf9 = fr_short(0xf9999999);
+
+    FrElement r2 = fr_long(0x43e1f5938999999a,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r3 = fr_long(0x43e1f593f0000000,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r4 = fr_long(0x43e1f593e5555556,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r5 = fr_long(0x43e1f593e999999a,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+
+    FrElement r12 = fr_long(0x43e1f593dddddddf,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r13 = fr_long(0x000000000ffffffe,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r14 = fr_long(0x43e1f593dddddddf,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r15 = fr_long(0x000000000ffffffe,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+
+
+    Fr_bor_test(sf, s0, sf,  0);
+    Fr_bor_test(s5, s0, s5,  1);
+    Fr_bor_test(r2, s0, s9,  2);
+    Fr_bor_test(r3, s0, sf1, 3);
+    Fr_bor_test(r4, s0, sf5, 4);
+    Fr_bor_test(r5, s0, sf9, 5);
+
+    Fr_bor_test(sf, sf,  s0, 6);
+    Fr_bor_test(s5, s5,  s0, 7);
+    Fr_bor_test(r2, s9,  s0, 8);
+    Fr_bor_test(r3, sf1, s0, 9);
+    Fr_bor_test(r4, sf5, s0, 10);
+    Fr_bor_test(r5, sf9, s0, 11);
+
+    Fr_bor_test(r12, s5,  s9, 12);
+    Fr_bor_test(r13, sf1, sf, 13);
+    Fr_bor_test(r14, s9,  s5, 14);
+    Fr_bor_test(r15, sf, sf1, 15);
+
+    FrElement l0 = fr_long(0);
+    FrElement l1 = fr_long(0x43e1f593f0000001,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement l2 = fr_long(0xffe1f593e999999a,0x2833e84879b97091,0xb85045b68181585d,0xf9999999);
+    FrElement l5 = fr_long(0xf5555555);
+    FrElement l9 = fr_long(0xf9999999);
+
+    FrElement r21 = fr_long(0x43e1f593f0000001,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r22 = fr_long(0xffe1f593e999999a,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+    FrElement r23 = fr_long(0x00000000f5555555,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r24 = fr_long(0x00000000f9999999,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r25 = fr_long(0x43e1f593f0000001,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r26 = fr_long(0xffe1f593e999999a,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+    FrElement r27 = fr_long(0x00000000f5555555,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r28 = fr_long(0x00000000f9999999,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r29 = fr_long(0x43e1f593f5555555,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r30 = fr_long(0x43e1f593f9999999,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r31 = fr_long(0xbc0000000999999a,0x04c811030644056c,0x0000000000000000,0x0000000018881990);
+    FrElement r32 = fr_long(0xffe1f593fddddddf,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+    FrElement r33 = fr_long(0xffe1f593f999999b,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+    FrElement r34 = fr_long(0xbc0000000999999a,0x04c811030644056c,0x0000000000000000,0x0000000018881990);
+    FrElement r35 = fr_long(0x00000000fddddddd,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+
+    Fr_bor_test(r21, l0, l1, 21);
+    Fr_bor_test(r22, l0, l2, 22);
+    Fr_bor_test(r23, l0, l5, 23);
+    Fr_bor_test(r24, l0, l9, 24);
+    Fr_bor_test(r25, l1, l0, 25);
+    Fr_bor_test(r26, l2, l0, 26);
+    Fr_bor_test(r27, l5, l0, 27);
+    Fr_bor_test(r28, l9, l0, 28);
+    Fr_bor_test(r29, l1, l5, 29);
+    Fr_bor_test(r30, l1, l9, 30);
+    Fr_bor_test(r31, l1, l2, 31);
+    Fr_bor_test(r32, l2, l5, 32);
+    Fr_bor_test(r33, l2, l9, 33);
+    Fr_bor_test(r34, l2, l1, 34);
+    Fr_bor_test(r35, l5, l9, 35);
+
+    FrElement m0 = fr_mlong(0);
+    FrElement m1 = fr_mlong(0x43e1f593f0000001,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement m5 = fr_mlong(0xf5555555);
+
+    FrElement r41 = fr_long(0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r42 = fr_long(0x7385aa3557a85e96,0x192cf64388bea21e,0x7ca3821d26ad9cfe,0x24ee27250a2cfac1);
+    FrElement r43 = fr_long(0x6656931836f71fc0,0xd91d972332e0fff9,0x6d1dc7a7d4dfb843,0x1151f9979bbe9426);
+    FrElement r44 = fr_long(0x33f5c5a987ff5fd5,0xb10a0f1b41458f6e,0xc56f8209757e64a2,0x059bb144ba8d5ebd);
+    FrElement r45 = fr_long(0x33f5c5a987ff5fd5,0xb10a0f1b41458f6e,0xc56f8209757e64a2,0x059bb144ba8d5ebd);
+    FrElement r46 = fr_long(0x6656931836f71fc0,0xd91d972332e0fff9,0x6d1dc7a7d4dfb843,0x1151f9979bbe9426);
+
+    Fr_bor_test(r41, m0, m0, 41);
+    Fr_bor_test(r42, m0, m1, 42);
+    Fr_bor_test(r43, m0, m5, 43);
+    Fr_bor_test(r44, m1, m5, 44);
+    Fr_bor_test(r45, m5, m1, 45);
+    Fr_bor_test(r46, m5, m0, 46);
+
+
+    FrElement r51 = fr_long(0x30040a23efb9df9d,0x110c16038006820e,0x44a38209262c84a2,0x048a21050a0c5ac0);
+    FrElement r52 = fr_long(0xbbfffffff9999999,0x0000000000000000,0x0000000000000000,0x0000000018881990);
+    FrElement r53 = fr_long(0x7385aa357fffffff,0x192cf64388bea21e,0x7ca3821d26ad9cfe,0x24ee27250a2cfac1);
+    FrElement r54 = fr_long(0xffe1f593ffffffff,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+    FrElement r55 = fr_long(0xffe5ffb7ffb9df9e,0x393ffe4bf9bff29f,0xfcf3c7bfa7addcff,0x24ee2725fbbdfbd9);
+    FrElement r56 = fr_long(0xffe5ffb7ffb9df9e,0x393ffe4bf9bff29f,0xfcf3c7bfa7addcff,0x24ee2725fbbdfbd9);
+    FrElement r57 = fr_long(0x30040a23efb9df9d,0x110c16038006820e,0x44a38209262c84a2,0x048a21050a0c5ac0);
+    FrElement r58 = fr_long(0xbbfffffff9999999,0x0000000000000000,0x0000000000000000,0x0000000018881990);
+    FrElement r59 = fr_long(0x7385aa357fffffff,0x192cf64388bea21e,0x7ca3821d26ad9cfe,0x24ee27250a2cfac1);
+    FrElement r50 = fr_long(0xffe1f593ffffffff,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+
+    Fr_bor_test(r51, s9, m1, 51);
+    Fr_bor_test(r52, s9, l2, 52);
+    Fr_bor_test(r53, sf, m1, 53);
+    Fr_bor_test(r54, sf, l2, 54);
+    Fr_bor_test(r55, l2, m1, 55);
+    Fr_bor_test(r56, m1, l2, 56);
+    Fr_bor_test(r57, m1, s9, 57);
+    Fr_bor_test(r58, l2, s9, 58);
+    Fr_bor_test(r59, m1, sf, 59);
+    Fr_bor_test(r50, l2, sf, 50);
+}
+
+void Fr_bxor_test(FrElement r_expected, FrElement a, FrElement b, int index)
+{
+    FrElement r_computed = {0,0,{0,0,0,0}};
+
+    Fr_bxor(&r_computed, &a, &b);
+
+    compare_Result(&r_expected, &r_computed, &a, &b, index, __func__);
+}
+
+void Fr_bxor_unit_test()
+{
+    FrElement s0  = fr_short(0);
+    FrElement sf  = fr_short(0x7fffffff);
+    FrElement s5  = fr_short(0x55555555);
+    FrElement s9  = fr_short(0x99999999);
+    FrElement sf1 = fr_short(-1);
+    FrElement sf5 = fr_short(0xf5555555);
+    FrElement sf9 = fr_short(0xf9999999);
+
+    FrElement r2 = fr_long(0x43e1f5938999999a,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r3 = fr_long(0x43e1f593f0000000,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r4 = fr_long(0x43e1f593e5555556,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r5 = fr_long(0x43e1f593e999999a,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+
+    FrElement r12 = fr_long(0x43e1f593dccccccf,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r13 = fr_long(0x43e1f5938fffffff,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r14 = fr_long(0x43e1f593dccccccf,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r15 = fr_long(0x43e1f5938fffffff,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029);
+
+
+    Fr_bxor_test(sf, s0, sf,  0);
+    Fr_bxor_test(s5, s0, s5,  1);
+    Fr_bxor_test(r2, s0, s9,  2);
+    Fr_bxor_test(r3, s0, sf1, 3);
+    Fr_bxor_test(r4, s0, sf5, 4);
+    Fr_bxor_test(r5, s0, sf9, 5);
+
+    Fr_bxor_test(sf, sf,  s0, 6);
+    Fr_bxor_test(s5, s5,  s0, 7);
+    Fr_bxor_test(r2, s9,  s0, 8);
+    Fr_bxor_test(r3, sf1, s0, 9);
+    Fr_bxor_test(r4, sf5, s0, 10);
+    Fr_bxor_test(r5, sf9, s0, 11);
+
+    Fr_bxor_test(r12, s5,  s9, 12);
+    Fr_bxor_test(r13, sf1, sf, 13);
+    Fr_bxor_test(r14, s9,  s5, 14);
+    Fr_bxor_test(r15, sf, sf1, 15);
+
+    FrElement l0 = fr_long(0);
+    FrElement l1 = fr_long(0x43e1f593f0000001,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement l2 = fr_long(0xffe1f593e999999a,0x2833e84879b97091,0xb85045b68181585d,0xf9999999);
+    FrElement l5 = fr_long(0xf5555555);
+    FrElement l9 = fr_long(0xf9999999);
+
+    FrElement r21 = fr_long(0x43e1f593f0000001,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r22 = fr_long(0xffe1f593e999999a,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+    FrElement r23 = fr_long(0x00000000f5555555,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r24 = fr_long(0x00000000f9999999,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r25 = fr_long(0x43e1f593f0000001,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r26 = fr_long(0xffe1f593e999999a,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+    FrElement r27 = fr_long(0x00000000f5555555,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r28 = fr_long(0x00000000f9999999,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r29 = fr_long(0x43e1f59305555554,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r30 = fr_long(0x43e1f59309999998,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement r31 = fr_long(0xbc0000001999999b,0x24cbb103067515ed,0x0000000000000000,0x30644e7218a839b0);
+    FrElement r32 = fr_long(0xffe1f5931ccccccf,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+    FrElement r33 = fr_long(0xffe1f59310000003,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+    FrElement r34 = fr_long(0xbc0000001999999b,0x24cbb103067515ed,0x0000000000000000,0x30644e7218a839b0);
+    FrElement r35 = fr_long(0x000000000ccccccc,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+
+    Fr_bxor_test(r21, l0, l1, 21);
+    Fr_bxor_test(r22, l0, l2, 22);
+    Fr_bxor_test(r23, l0, l5, 23);
+    Fr_bxor_test(r24, l0, l9, 24);
+    Fr_bxor_test(r25, l1, l0, 25);
+    Fr_bxor_test(r26, l2, l0, 26);
+    Fr_bxor_test(r27, l5, l0, 27);
+    Fr_bxor_test(r28, l9, l0, 28);
+    Fr_bxor_test(r29, l1, l5, 29);
+    Fr_bxor_test(r30, l1, l9, 30);
+    Fr_bxor_test(r31, l1, l2, 31);
+    Fr_bxor_test(r32, l2, l5, 32);
+    Fr_bxor_test(r33, l2, l9, 33);
+    Fr_bxor_test(r34, l2, l1, 34);
+    Fr_bxor_test(r35, l5, l9, 35);
+
+    FrElement m0 = fr_mlong(0);
+    FrElement m1 = fr_mlong(0x43e1f593f0000001,0x0cf8594b7fcc657c,0xb85045b68181585d,0x30644e72e131a029);
+    FrElement m5 = fr_mlong(0xf5555555);
+
+    FrElement r41 = fr_long(0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r42 = fr_long(0x7385aa3557a85e96,0x192cf64388bea21e,0x7ca3821d26ad9cfe,0x24ee27250a2cfac1);
+    FrElement r43 = fr_long(0x6656931836f71fc0,0xd91d972332e0fff9,0x6d1dc7a7d4dfb843,0x1151f9979bbe9426);
+    FrElement r44 = fr_long(0xd1f14399715f4155,0x97fd791840a4ed55,0x596e000470f0cc60,0x055b903fb060cebd);
+    FrElement r45 = fr_long(0xd1f14399715f4155,0x97fd791840a4ed55,0x596e000470f0cc60,0x055b903fb060cebd);
+    FrElement r46 = fr_long(0x6656931836f71fc0,0xd91d972332e0fff9,0x6d1dc7a7d4dfb843,0x1151f9979bbe9426);
+
+    Fr_bxor_test(r41, m0, m0, 41);
+    Fr_bxor_test(r42, m0, m1, 42);
+    Fr_bxor_test(r43, m0, m5, 43);
+    Fr_bxor_test(r44, m1, m5, 44);
+    Fr_bxor_test(r45, m5, m1, 45);
+    Fr_bxor_test(r46, m5, m0, 46);
+
+
+    FrElement r51 = fr_long(0x30645fa6de31c70c,0x311f1e0bf107d28f,0xc4f3c7aba72cc4a3,0x148a6957eb1d5ae8);
+    FrElement r52 = fr_long(0xbc00000060000000,0x0000000000000000,0x0000000000000000,0x30644e7218a839b0);
+    FrElement r53 = fr_long(0x7385aa352857a169,0x192cf64388bea21e,0x7ca3821d26ad9cfe,0x24ee27250a2cfac1);
+    FrElement r54 = fr_long(0xffe1f59396666665,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+    FrElement r55 = fr_long(0x8c645fa6be31c70c,0x311f1e0bf107d28f,0xc4f3c7aba72cc4a3,0x24ee2725f3b56358);
+    FrElement r56 = fr_long(0x8c645fa6be31c70c,0x311f1e0bf107d28f,0xc4f3c7aba72cc4a3,0x24ee2725f3b56358);
+    FrElement r57 = fr_long(0x30645fa6de31c70c,0x311f1e0bf107d28f,0xc4f3c7aba72cc4a3,0x148a6957eb1d5ae8);
+    FrElement r58 = fr_long(0xbc00000060000000,0x0000000000000000,0x0000000000000000,0x30644e7218a839b0);
+    FrElement r59 = fr_long(0x7385aa352857a169,0x192cf64388bea21e,0x7ca3821d26ad9cfe,0x24ee27250a2cfac1);
+    FrElement r50 = fr_long(0xffe1f59396666665,0x2833e84879b97091,0xb85045b68181585d,0x00000000f9999999);
+
+    Fr_bxor_test(r51, s9, m1, 51);
+    Fr_bxor_test(r52, s9, l2, 52);
+    Fr_bxor_test(r53, sf, m1, 53);
+    Fr_bxor_test(r54, sf, l2, 54);
+    Fr_bxor_test(r55, l2, m1, 55);
+    Fr_bxor_test(r56, m1, l2, 56);
+    Fr_bxor_test(r57, m1, s9, 57);
+    Fr_bxor_test(r58, l2, s9, 58);
+    Fr_bxor_test(r59, m1, sf, 59);
+    Fr_bxor_test(r50, l2, sf, 50);
+}
+
+
+void Fr_bnot_test(FrElement r_expected, FrElement a, int index)
+{
+    FrElement r_computed = {0,0,{0,0,0,0}};
+
+    Fr_bnot(&r_computed, &a);
+
+    compare_Result(&r_expected, &r_computed, &a, index, __func__);
+}
+
+void Fr_bnot_unit_test()
+{
+    FrElement s0  = fr_short(0);
+    FrElement s1  = fr_short(0x7fffffff);
+    FrElement s2  = fr_short(0xffffffff);
+    FrElement s3  = fr_short(0x55555555);
+    FrElement s4  = fr_short(0x99999999);
+
+    FrElement r0 = fr_long(0xbc1e0a6c0ffffffe,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0x0f9bb18d1ece5fd6);
+    FrElement r1 = fr_long(0xbc1e0a6b8fffffff,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0x0f9bb18d1ece5fd6);
+    FrElement r2 = fr_long(0xbc1e0a6c0fffffff,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0x0f9bb18d1ece5fd6);
+    FrElement r3 = fr_long(0xbc1e0a6bbaaaaaa9,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0x0f9bb18d1ece5fd6);
+    FrElement r4 = fr_long(0xbc1e0a6c76666665,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0x0f9bb18d1ece5fd6);
+
+    Fr_bnot_test(r0, s0, 0);
+    Fr_bnot_test(r1, s1, 1);
+    Fr_bnot_test(r2, s2, 2);
+    Fr_bnot_test(r3, s3, 3);
+    Fr_bnot_test(r4, s4, 4);
+
+
+    FrElement l0 = fr_long(0);
+    FrElement l1 = fr_long(0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff);
+    FrElement l2 = fr_long(0x5555555555555555,0x5555555555555555,0x5555555555555555,0x5555555555555555);
+    FrElement l3 = fr_long(0x9999999999999999,0x9999999999999999,0x9999999999999999,0x9999999999999999);
+
+    FrElement r10 = fr_long(0xbc1e0a6c0ffffffe,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0x0f9bb18d1ece5fd6);
+    FrElement r11 = fr_long(0x0000000000000000,0x0000000000000000,0x0000000000000000,0x0000000000000000);
+    FrElement r12 = fr_long(0xaaaaaaaaaaaaaaaa,0xaaaaaaaaaaaaaaaa,0xaaaaaaaaaaaaaaaa,0x2aaaaaaaaaaaaaaa);
+    FrElement r13 = fr_long(0x6666666666666666,0x6666666666666666,0x6666666666666666,0x2666666666666666);
+
+    Fr_bnot_test(r10, l0, 10);
+    Fr_bnot_test(r11, l1, 11);
+    Fr_bnot_test(r12, l2, 12);
+    Fr_bnot_test(r13, l3, 13);
+
+    FrElement m0 = fr_mlong(0);
+    FrElement m1 = fr_mlong(0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff,0xffffffffffffffff);
+    FrElement m2 = fr_mlong(0x5555555555555555,0x5555555555555555,0x5555555555555555,0x5555555555555555);
+    FrElement m3 = fr_mlong(0x9999999999999999,0x9999999999999999,0x9999999999999999,0x9999999999999999);
+
+    FrElement r20 = fr_long(0xbc1e0a6c0ffffffe,0xd7cc17b786468f6e,0x47afba497e7ea7a2,0x0f9bb18d1ece5fd6);
+    FrElement r21 = fr_long(0x9879aa717db1194b,0xe0db0d6167587bf6,0x0fd5c82e2d3704ff,0x2587aadea193b4f3);
+    FrElement r22 = fr_long(0x0591ea6ddf3b086d,0xdad114457bf7339c,0x8a6714406366c6c1,0x16ea59fd9fbad18a);
+    FrElement r23 = fr_long(0xbec76e9a8b6a425f,0x99f38166dca0bd1f,0x0fa67389b38655e8,0x09678e29acca860a);
+
+    Fr_bnot_test(r20, m0, 20);
+    Fr_bnot_test(r21, m1, 21);
+    Fr_bnot_test(r22, m2, 22);
+    Fr_bnot_test(r23, m3, 23);
+
+}
+
 void print_results()
 {
     std::cout << "Results: " << std::dec << tests_run << " tests were run, " << tests_failed << " failed." << std::endl;
@@ -5823,8 +6556,15 @@ int main()
     Fr_toInt_unit_test();
     Fr_neg_unit_test();
     Fr_shr_unit_test();
+    Fr_shl_unit_test();
     Fr_rawShr_unit_test();
     Fr_rawShl_unit_test();
+    Fr_square_unit_test();
+    Fr_bor_unit_test();
+    Fr_bxor_unit_test();
+    Fr_bnot_unit_test();
+    Fr_leq_s1l2n_unit_test();
+    Fr_lnot_unit_test();
 
     Fq_Rw_add_unit_test();
     Fq_Rw_sub_unit_test();

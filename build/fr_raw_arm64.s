@@ -16,6 +16,11 @@
     .global Fr_rawCopyS2L
     .global Fr_rawCmp
     .global Fr_rawAnd
+    .global Fr_rawOr
+    .global Fr_rawXor
+    .global Fr_rawShr
+    .global Fr_rawShl
+    .global Fr_rawNot
 
     .global _Fr_rawAdd
     .global _Fr_rawAddLS
@@ -35,6 +40,11 @@
     .global _Fr_rawCopyS2L
     .global _Fr_rawCmp
     .global _Fr_rawAnd
+    .global _Fr_rawOr
+    .global _Fr_rawXor
+    .global _Fr_rawShr
+    .global _Fr_rawShl
+    .global _Fr_rawNot
 
     .text
     .align 4
@@ -883,7 +893,6 @@ _Fr_rawCmp:
         cinc x0, x0, ne
 
         cneg x0, x0, lo
-
         ret
 
 //void Fr_rawAnd(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
@@ -898,6 +907,255 @@ _Fr_rawAnd:
         ldp x9, x10, [x2, 16]
         and x5, x5, x9
         and x6, x6, x10
+
+        and x6, x6, 0x3fffffffffffffff // lboMask
+
+        adr x11, Fr_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        subs x7,  x3, x12
+        sbcs x8,  x4, x13
+        sbcs x9,  x5, x14
+        sbcs x10, x6, x15
+
+        csel x3, x7,  x3, hs
+        csel x4, x8,  x4, hs
+        csel x5, x9,  x5, hs
+        csel x6, x10, x6, hs
+
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
+        ret
+
+//void Fr_rawOr(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+Fr_rawOr:
+_Fr_rawOr:
+        ldp x3, x4, [x1]
+        ldp x7, x8, [x2]
+        orr x3, x3, x7
+        orr x4, x4, x8
+
+        ldp x5, x6,  [x1, 16]
+        ldp x9, x10, [x2, 16]
+        orr x5, x5, x9
+        orr x6, x6, x10
+
+        and x6, x6, 0x3fffffffffffffff // lboMask
+
+        adr x11, Fr_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        subs x7,  x3, x12
+        sbcs x8,  x4, x13
+        sbcs x9,  x5, x14
+        sbcs x10, x6, x15
+
+        csel x3, x7,  x3, hs
+        csel x4, x8,  x4, hs
+        csel x5, x9,  x5, hs
+        csel x6, x10, x6, hs
+
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
+        ret
+
+//void Fr_rawXor(FrRawElement pRawResult, FrRawElement pRawA, FrRawElement pRawB)
+Fr_rawXor:
+_Fr_rawXor:
+        ldp x3, x4, [x1]
+        ldp x7, x8, [x2]
+        eor x3, x3, x7
+        eor x4, x4, x8
+
+        ldp x5, x6,  [x1, 16]
+        ldp x9, x10, [x2, 16]
+        eor x5, x5, x9
+        eor x6, x6, x10
+
+        and x6, x6, 0x3fffffffffffffff // lboMask
+
+        adr x11, Fr_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        subs x7,  x3, x12
+        sbcs x8,  x4, x13
+        sbcs x9,  x5, x14
+        sbcs x10, x6, x15
+
+        csel x3, x7,  x3, hs
+        csel x4, x8,  x4, hs
+        csel x5, x9,  x5, hs
+        csel x6, x10, x6, hs
+
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
+        ret
+
+//void Fr_rawShl(FrRawElement r, FrRawElement a, uint64_t b)
+Fr_rawShl:
+_Fr_rawShl:
+        ldp x3, x4, [x1]
+        ldp x5, x6, [x1, 16]
+
+        and x7, x2, 0x3f    // bit_shift = b % 64
+        mov x8, 0x40
+        sub x8, x8, x7      // bit_shift augmenter to 64
+
+        tbnz x2, 7, Fr_rawShl_word_shift_2
+        tbnz x2, 6, Fr_rawShl_word_shift_1
+
+Fr_rawShl_word_shift_0:
+        lsl x13, x6,  x7
+        lsr x15, x5,  x8
+        orr x13, x13, x15
+
+        lsl x12, x5,  x7
+        lsr x16, x4,  x8
+        orr x12, x12, x16
+
+        lsl x11, x4,  x7
+        lsr x17, x3,  x8
+        orr x11, x11, x17
+
+        lsl x10, x3,  x7
+
+        b Fr_rawShl_sub
+
+Fr_rawShl_word_shift_1:
+        lsl x13, x5,  x7
+        lsr x15, x4,  x8
+        orr x13, x13, x15
+
+        lsl x12, x4,  x7
+        lsr x16, x3,  x8
+        orr x12, x12, x16
+
+        lsl x11, x3,  x7
+        mov x10, xzr
+
+        b Fr_rawShl_sub
+
+Fr_rawShl_word_shift_2:
+        tbnz x2, 6, Fr_rawShl_word_shift_3
+
+        lsl x13, x4,  x7
+        lsr x15, x3,  x8
+        orr x13, x13, x15
+
+        lsl x12, x3,  x7
+        mov x11, xzr
+        mov x10, xzr
+
+        b Fr_rawShl_sub
+
+Fr_rawShl_word_shift_3:
+        lsl x13, x3, x7
+        mov x12, xzr
+        mov x11, xzr
+        mov x10, xzr
+
+Fr_rawShl_sub:
+        and x13, x13, 0x3fffffffffffffff // lboMask
+
+        adr x9, Fr_rawq
+        ldp x14, x15, [x9]
+        ldp x16, x17, [x9, 16]
+
+        subs x3, x10, x14
+        sbcs x4, x11, x15
+        sbcs x5, x12, x16
+        sbcs x6, x13, x17
+
+        csel x10, x3, x10, hs
+        csel x11, x4, x11, hs
+        csel x12, x5, x12, hs
+        csel x13, x6, x13, hs
+
+        stp x10, x11, [x0]
+        stp x12, x13, [x0, 16]
+        ret
+
+
+//void Fr_rawShr(FrRawElement r, FrRawElement a, uint64_t b)
+Fr_rawShr:
+_Fr_rawShr:
+        ldp x3, x4, [x1]
+        ldp x5, x6, [x1, 16]
+
+        and x7, x2, 0x3f    // bit_shift = b % 64
+        mov x8, 0x40
+        sub x8, x8, x7      // bit_shift augmenter to 64
+
+        tbnz x2, 7, Fr_rawShr_word_shift_2
+        tbnz x2, 6, Fr_rawShr_word_shift_1
+
+Fr_rawShr_word_shift_0:
+        lsr x10, x3,  x7
+        lsl x15, x4,  x8
+        orr x10, x10, x15
+
+        lsr x11, x4,  x7
+        lsl x16, x5,  x8
+        orr x11, x11, x16
+
+        lsr x12, x5,  x7
+        lsl x17, x6,  x8
+        orr x12, x12, x17
+
+        lsr x13, x6,  x7
+
+        stp x10, x11, [x0]
+        stp x12, x13, [x0, 16]
+        ret
+
+Fr_rawShr_word_shift_1:
+        lsr x10, x4,  x7
+        lsl x15, x5,  x8
+        orr x10, x10, x15
+
+        lsr x11, x5,  x7
+        lsl x16, x6,  x8
+        orr x11, x11, x16
+
+        lsr x12, x6,  x7
+
+        stp x10, x11, [x0]
+        stp x12, xzr, [x0, 16]
+        ret
+
+Fr_rawShr_word_shift_2:
+        tbnz x2, 6, Fr_rawShr_word_shift_3
+
+        lsr x10, x5,  x7
+        lsl x15, x6,  x8
+        orr x10, x10, x15
+
+        lsr x11, x6,  x7
+
+        stp x10, x11, [x0]
+        stp xzr, xzr, [x0, 16]
+        ret
+
+Fr_rawShr_word_shift_3:
+        lsr x10, x6, x7
+
+        stp x10, xzr, [x0]
+        stp xzr, xzr, [x0, 16]
+        ret
+
+//void Fr_rawNot(FrRawElement pRawResult, FrRawElement pRawA)
+Fr_rawNot:
+_Fr_rawNot:
+        ldp x3, x4, [x1]
+        mvn x3, x3
+        mvn x4, x4
+
+        ldp x5, x6,  [x1, 16]
+        mvn x5, x5
+        mvn x6, x6
 
         and x6, x6, 0x3fffffffffffffff // lboMask
 
