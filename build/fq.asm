@@ -43,6 +43,8 @@
         global Fq_rawFromMontgomery
         global Fq_rawIsEq
         global Fq_rawIsZero
+        global Fq_rawShr
+        global Fq_rawShl
         global Fq_rawq
         global Fq_rawR3
 
@@ -6542,6 +6544,7 @@ tmp_107:
 ; Modified Registers:
 ;    r8, r9, 10, r11, rax, rcx
 ;;;;;;;;;;;;;;;;;;;;;;
+Fq_rawShr:
 rawShr:
         cmp rdx, 0
         je Fq_rawCopy
@@ -6742,6 +6745,7 @@ rawShr_endif3_3:
 ; Modified Registers:
 ;    r8, r9, 10, r11, rax, rcx
 ;;;;;;;;;;;;;;;;;;;;;;
+Fq_rawShl:
 rawShl:
         cmp rdx, 0
         je Fq_rawCopy

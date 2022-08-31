@@ -5,6 +5,7 @@
 static uint64_t     Fq_rawq[] = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029, 0};
 static FqRawElement Fq_rawR2  = {0xf32cfc5b538afa89,0xb5e71911d44501fb,0x47ab1eff0a417ff6,0x06d89f71cab8351f};
 static uint64_t     Fq_np     = {0x87d20782e4866389};
+static uint64_t     lboMask   =  0x3fffffffffffffff;
 
 
 void Fq_rawAdd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
@@ -17,9 +18,46 @@ void Fq_rawAdd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
     }
 }
 
+void Fq_rawAddLS(FqRawElement pRawResult, FqRawElement pRawA, uint64_t rawB)
+{
+    uint64_t carry = mpn_add_1(pRawResult, pRawA, Fq_N64, rawB);
+
+    if(carry || mpn_cmp(pRawResult, Fq_rawq, Fq_N64) >= 0)
+    {
+        mpn_sub_n(pRawResult, pRawResult, Fq_rawq, Fq_N64);
+    }
+}
+
 void Fq_rawSub(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
 {
     uint64_t carry = mpn_sub_n(pRawResult, pRawA, pRawB, Fq_N64);
+
+    if(carry)
+    {
+        mpn_add_n(pRawResult, pRawResult, Fq_rawq, Fq_N64);
+    }
+}
+
+void Fq_rawSubRegular(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+{
+    mpn_sub_n(pRawResult, pRawA, pRawB, Fq_N64);
+}
+
+void Fq_rawSubSL(FqRawElement pRawResult, uint64_t rawA, FqRawElement pRawB)
+{
+    FqRawElement pRawA = {rawA, 0, 0, 0};
+
+    uint64_t carry = mpn_sub_n(pRawResult, pRawA, pRawB, Fq_N64);
+
+    if(carry)
+    {
+        mpn_add_n(pRawResult, pRawResult, Fq_rawq, Fq_N64);
+    }
+}
+
+void Fq_rawSubLS(FqRawElement pRawResult, FqRawElement pRawA, uint64_t rawB)
+{
+    uint64_t carry = mpn_sub_1(pRawResult, pRawA, Fq_N64, rawB);
 
     if(carry)
     {
@@ -38,6 +76,18 @@ void Fq_rawNeg(FqRawElement pRawResult, FqRawElement pRawA)
     else
     {
         mpn_copyi(pRawResult, zero, Fq_N64);
+    }
+}
+
+//  Substracts a long element and a short element form 0
+void Fq_rawNegLS(FqRawElement pRawResult, FqRawElement pRawA, uint64_t rawB)
+{
+    uint64_t carry1 = mpn_sub_1(pRawResult, Fq_rawq, Fq_N64, rawB);
+    uint64_t carry2 = mpn_sub_n(pRawResult, pRawResult, pRawA, Fq_N64);
+
+    if (carry1 || carry2)
+    {
+        mpn_add_n(pRawResult, pRawResult, Fq_rawq, Fq_N64);
     }
 }
 
@@ -186,6 +236,11 @@ int Fq_rawIsZero(FqRawElement rawA)
     return mpn_zero_p(rawA, Fq_N64) ? 1 : 0;
 }
 
+int Fq_rawCmp(FqRawElement pRawA, FqRawElement pRawB)
+{
+    return mpn_cmp(pRawA, pRawB, Fq_N64);
+}
+
 void Fq_rawSwap(FqRawElement pRawResult, FqRawElement pRawA)
 {
     FqRawElement temp;
@@ -220,5 +275,91 @@ void Fq_rawCopyS2L(FqRawElement pRawResult, int64_t val)
         pRawResult[3] = -1;
 
         mpn_add_n(pRawResult, pRawResult, Fq_rawq, Fq_N64);
+    }
+}
+
+
+void Fq_rawAnd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+{
+    mpn_and_n(pRawResult, pRawA, pRawB, Fq_N64);
+
+    pRawResult[3] &= lboMask;
+
+    if (mpn_cmp(pRawResult, Fq_rawq, Fq_N64) >= 0)
+    {
+        mpn_sub_n(pRawResult, pRawResult, Fq_rawq, Fq_N64);
+    }
+}
+
+void Fq_rawOr(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+{
+    mpn_ior_n(pRawResult, pRawA, pRawB, Fq_N64);
+
+    pRawResult[3] &= lboMask;
+
+    if (mpn_cmp(pRawResult, Fq_rawq, Fq_N64) >= 0)
+    {
+        mpn_sub_n(pRawResult, pRawResult, Fq_rawq, Fq_N64);
+    }
+}
+
+void Fq_rawXor(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+{
+    mpn_xor_n(pRawResult, pRawA, pRawB, Fq_N64);
+
+    pRawResult[3] &= lboMask;
+
+    if (mpn_cmp(pRawResult, Fq_rawq, Fq_N64) >= 0)
+    {
+        mpn_sub_n(pRawResult, pRawResult, Fq_rawq, Fq_N64);
+    }
+}
+
+void Fq_rawShl(FqRawElement r, FqRawElement a, uint64_t b)
+{
+    uint64_t bit_shift  = b % 64;
+    uint64_t word_shift = b / 64;
+    uint64_t word_count = Fq_N64 - word_shift;
+
+    mpn_copyi(r + word_shift, a, word_count);
+    std::memset(r, 0, word_shift * sizeof(uint64_t));
+
+    if (bit_shift)
+    {
+        mpn_lshift(r, r, Fq_N64, bit_shift);
+    }
+
+    r[3] &= lboMask;
+
+    if (mpn_cmp(r, Fq_rawq, Fq_N64) >= 0)
+    {
+        mpn_sub_n(r, r, Fq_rawq, Fq_N64);
+    }
+}
+
+void Fq_rawShr(FqRawElement r, FqRawElement a, uint64_t b)
+{
+    const uint64_t bit_shift  = b % 64;
+    const uint64_t word_shift = b / 64;
+    const uint64_t word_count = Fq_N64 - word_shift;
+
+    mpn_copyi(r, a + word_shift, word_count);
+    std::memset(r + word_count, 0, word_shift * sizeof(uint64_t));
+
+    if (bit_shift)
+    {
+        mpn_rshift(r, r, Fq_N64, bit_shift);
+    }
+}
+
+void Fq_rawNot(FqRawElement pRawResult, FqRawElement pRawA)
+{
+    mpn_com(pRawResult, pRawA, Fq_N64);
+
+    pRawResult[3] &= lboMask;
+
+    if (mpn_cmp(pRawResult, Fq_rawq, Fq_N64) >= 0)
+    {
+        mpn_sub_n(pRawResult, pRawResult, Fq_rawq, Fq_N64);
     }
 }

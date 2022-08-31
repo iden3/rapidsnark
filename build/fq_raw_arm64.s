@@ -1,6 +1,11 @@
     .global Fq_rawAdd
+    .global Fq_rawAddLS
     .global Fq_rawSub
+    .global Fq_rawSubRegular
     .global Fq_rawNeg
+    .global Fq_rawNegLS
+    .global Fq_rawSubSL
+    .global Fq_rawSubLS
     .global Fq_rawMMul
     .global Fq_rawMMul1
     .global Fq_rawFromMontgomery
@@ -9,10 +14,22 @@
     .global Fq_rawIsEq
     .global Fq_rawIsZero
     .global Fq_rawCopyS2L
+    .global Fq_rawCmp
+    .global Fq_rawAnd
+    .global Fq_rawOr
+    .global Fq_rawXor
+    .global Fq_rawShr
+    .global Fq_rawShl
+    .global Fq_rawNot
 
     .global _Fq_rawAdd
+    .global _Fq_rawAddLS
     .global _Fq_rawSub
+    .global _Fq_rawSubRegular
     .global _Fq_rawNeg
+    .global _Fq_rawNegLS
+    .global _Fq_rawSubSL
+    .global _Fq_rawSubLS
     .global _Fq_rawMMul
     .global _Fq_rawMMul1
     .global _Fq_rawFromMontgomery
@@ -21,6 +38,13 @@
     .global _Fq_rawIsEq
     .global _Fq_rawIsZero
     .global _Fq_rawCopyS2L
+    .global _Fq_rawCmp
+    .global _Fq_rawAnd
+    .global _Fq_rawOr
+    .global _Fq_rawXor
+    .global _Fq_rawShr
+    .global _Fq_rawShl
+    .global _Fq_rawNot
 
     .text
     .align 4
@@ -62,6 +86,41 @@ Fq_rawAdd_done_s:
         ret
 
 
+//void Fq_rawAddLS(FqRawElement pRawResult, FqRawElement pRawA, uint64_t rawB)
+Fq_rawAddLS:
+_Fq_rawAddLS:
+        ldp  x3, x4, [x1]
+        adds x3, x3, x2
+        adcs x4, x4, xzr
+
+        ldp  x5, x6,  [x1, 16]
+        adcs x5, x5, xzr
+        adcs x6, x6, xzr
+
+        cset x16, cs
+
+        adr x11, Fq_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        subs x7,  x3, x12
+        sbcs x8,  x4, x13
+        sbcs x9,  x5, x14
+        sbcs x10, x6, x15
+
+        cbnz x16, Fq_rawAddLS_done_s
+        b.hs      Fq_rawAddLS_done_s
+
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
+        ret
+
+Fq_rawAddLS_done_s:
+        stp x7, x8,  [x0]
+        stp x9, x10, [x0, 16]
+        ret
+
+
 // void Fq_rawSub(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
 Fq_rawSub:
 _Fq_rawSub:
@@ -87,6 +146,79 @@ _Fq_rawSub:
         adc  x6, x6, x15
 
 Fq_rawSub_done:
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
+        ret
+
+
+//void Fq_rawSubRegular(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+Fq_rawSubRegular:
+_Fq_rawSubRegular:
+        ldp  x3, x4, [x1]
+        ldp  x7, x8, [x2]
+        subs x3, x3, x7
+        sbcs x4, x4, x8
+
+        ldp  x5, x6,  [x1, 16]
+        ldp  x9, x10, [x2, 16]
+        sbcs x5, x5, x9
+        sbc  x6, x6, x10
+
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
+        ret
+
+//void Fq_rawSubSL(FqRawElement pRawResult, uint64_t rawA, FqRawElement pRawB)
+Fq_rawSubSL:
+_Fq_rawSubSL:
+        ldp  x7, x8, [x2]
+        subs x3, x1,  x7
+        sbcs x4, xzr, x8
+
+        ldp  x9, x10, [x2, 16]
+        sbcs x5, xzr, x9
+        sbcs x6, xzr, x10
+
+        b.cs Fq_rawSubSL_done
+
+        adr x11, Fq_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        adds x3, x3, x12
+        adcs x4, x4, x13
+        adcs x5, x5, x14
+        adc  x6, x6, x15
+
+Fq_rawSubSL_done:
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
+        ret
+
+
+//void Fq_rawSubLS(FqRawElement pRawResult, FqRawElement pRawA, uint64_t rawB)
+Fq_rawSubLS:
+_Fq_rawSubLS:
+        ldp  x3, x4, [x1]
+        subs x3, x3, x2
+        sbcs x4, x4, xzr
+
+        ldp  x5, x6,  [x1, 16]
+        sbcs x5, x5, xzr
+        sbcs x6, x6, xzr
+
+        b.cs Fq_rawSubLS_done
+
+        adr x11, Fq_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        adds x3, x3, x12
+        adcs x4, x4, x13
+        adcs x5, x5, x14
+        adc  x6, x6, x15
+
+Fq_rawSubLS_done:
         stp x3, x4, [x0]
         stp x5, x6, [x0, 16]
         ret
@@ -120,6 +252,45 @@ _Fq_rawNeg:
 Fq_rawNeg_done_zero:
         stp xzr, xzr, [x0]
         stp xzr, xzr, [x0, 16]
+        ret
+
+
+//void Fq_rawNegLS(FqRawElement pRawResult, FqRawElement pRawA, uint64_t rawB)
+Fq_rawNegLS:
+_Fq_rawNegLS:
+        ldp x3, x4, [x1]
+        ldp x5, x6, [x1, 16]
+
+        adr x11, Fq_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        subs x7,  x12, x2
+        sbcs x8,  x13, xzr
+        sbcs x9,  x14, xzr
+        sbcs x10, x15, xzr
+
+        cset x16, cs
+
+        subs x7,  x7,  x3
+        sbcs x8,  x8,  x4
+        sbcs x9,  x9,  x5
+        sbcs x10, x10, x6
+
+        cset x17, cs
+        orr  x17, x17, x16
+
+        cbz x17, Fq_rawNegLS_done
+
+        adds x7,  x7,  x12
+        adcs x8,  x8,  x13
+        adcs x9,  x9,  x14
+        adc  x10, x10, x15
+
+
+Fq_rawNegLS_done:
+        stp x7, x8,  [x0]
+        stp x9, x10, [x0, 16]
         ret
 
 
@@ -698,6 +869,312 @@ Fq_rawCopyS2L_adjust_neg:
 
         stp x1, x2, [x0]
         stp x3, x4, [x0, 16]
+        ret
+
+
+//int Fq_rawCmp(FqRawElement pRawA, FqRawElement pRawB)
+Fq_rawCmp:
+_Fq_rawCmp:
+        ldp  x3, x4,  [x0]
+        ldp  x5, x6,  [x0, 16]
+        ldp  x7, x8,  [x1]
+        ldp  x9, x10, [x1, 16]
+
+        subs x3, x3, x7
+        cset x0, ne
+
+        sbcs x4, x4, x8
+        cinc x0, x0, ne
+
+        sbcs x5, x5, x9
+        cinc x0, x0, ne
+
+        sbcs x6, x6, x10
+        cinc x0, x0, ne
+
+        cneg x0, x0, lo
+        ret
+
+//void Fq_rawAnd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+Fq_rawAnd:
+_Fq_rawAnd:
+        ldp x3, x4, [x1]
+        ldp x7, x8, [x2]
+        and x3, x3, x7
+        and x4, x4, x8
+
+        ldp x5, x6,  [x1, 16]
+        ldp x9, x10, [x2, 16]
+        and x5, x5, x9
+        and x6, x6, x10
+
+        and x6, x6, 0x3fffffffffffffff // lboMask
+
+        adr x11, Fq_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        subs x7,  x3, x12
+        sbcs x8,  x4, x13
+        sbcs x9,  x5, x14
+        sbcs x10, x6, x15
+
+        csel x3, x7,  x3, hs
+        csel x4, x8,  x4, hs
+        csel x5, x9,  x5, hs
+        csel x6, x10, x6, hs
+
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
+        ret
+
+//void Fq_rawOr(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+Fq_rawOr:
+_Fq_rawOr:
+        ldp x3, x4, [x1]
+        ldp x7, x8, [x2]
+        orr x3, x3, x7
+        orr x4, x4, x8
+
+        ldp x5, x6,  [x1, 16]
+        ldp x9, x10, [x2, 16]
+        orr x5, x5, x9
+        orr x6, x6, x10
+
+        and x6, x6, 0x3fffffffffffffff // lboMask
+
+        adr x11, Fq_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        subs x7,  x3, x12
+        sbcs x8,  x4, x13
+        sbcs x9,  x5, x14
+        sbcs x10, x6, x15
+
+        csel x3, x7,  x3, hs
+        csel x4, x8,  x4, hs
+        csel x5, x9,  x5, hs
+        csel x6, x10, x6, hs
+
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
+        ret
+
+//void Fq_rawXor(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+Fq_rawXor:
+_Fq_rawXor:
+        ldp x3, x4, [x1]
+        ldp x7, x8, [x2]
+        eor x3, x3, x7
+        eor x4, x4, x8
+
+        ldp x5, x6,  [x1, 16]
+        ldp x9, x10, [x2, 16]
+        eor x5, x5, x9
+        eor x6, x6, x10
+
+        and x6, x6, 0x3fffffffffffffff // lboMask
+
+        adr x11, Fq_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        subs x7,  x3, x12
+        sbcs x8,  x4, x13
+        sbcs x9,  x5, x14
+        sbcs x10, x6, x15
+
+        csel x3, x7,  x3, hs
+        csel x4, x8,  x4, hs
+        csel x5, x9,  x5, hs
+        csel x6, x10, x6, hs
+
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
+        ret
+
+//void Fq_rawShl(FqRawElement r, FqRawElement a, uint64_t b)
+Fq_rawShl:
+_Fq_rawShl:
+        ldp x3, x4, [x1]
+        ldp x5, x6, [x1, 16]
+
+        and x7, x2, 0x3f    // bit_shift = b % 64
+        mov x8, 0x40
+        sub x8, x8, x7      // bit_shift augmenter to 64
+
+        tbnz x2, 7, Fq_rawShl_word_shift_2
+        tbnz x2, 6, Fq_rawShl_word_shift_1
+
+Fq_rawShl_word_shift_0:
+        lsl x13, x6,  x7
+        lsr x15, x5,  x8
+        orr x13, x13, x15
+
+        lsl x12, x5,  x7
+        lsr x16, x4,  x8
+        orr x12, x12, x16
+
+        lsl x11, x4,  x7
+        lsr x17, x3,  x8
+        orr x11, x11, x17
+
+        lsl x10, x3,  x7
+
+        b Fq_rawShl_sub
+
+Fq_rawShl_word_shift_1:
+        lsl x13, x5,  x7
+        lsr x15, x4,  x8
+        orr x13, x13, x15
+
+        lsl x12, x4,  x7
+        lsr x16, x3,  x8
+        orr x12, x12, x16
+
+        lsl x11, x3,  x7
+        mov x10, xzr
+
+        b Fq_rawShl_sub
+
+Fq_rawShl_word_shift_2:
+        tbnz x2, 6, Fq_rawShl_word_shift_3
+
+        lsl x13, x4,  x7
+        lsr x15, x3,  x8
+        orr x13, x13, x15
+
+        lsl x12, x3,  x7
+        mov x11, xzr
+        mov x10, xzr
+
+        b Fq_rawShl_sub
+
+Fq_rawShl_word_shift_3:
+        lsl x13, x3, x7
+        mov x12, xzr
+        mov x11, xzr
+        mov x10, xzr
+
+Fq_rawShl_sub:
+        and x13, x13, 0x3fffffffffffffff // lboMask
+
+        adr x9, Fq_rawq
+        ldp x14, x15, [x9]
+        ldp x16, x17, [x9, 16]
+
+        subs x3, x10, x14
+        sbcs x4, x11, x15
+        sbcs x5, x12, x16
+        sbcs x6, x13, x17
+
+        csel x10, x3, x10, hs
+        csel x11, x4, x11, hs
+        csel x12, x5, x12, hs
+        csel x13, x6, x13, hs
+
+        stp x10, x11, [x0]
+        stp x12, x13, [x0, 16]
+        ret
+
+
+//void Fq_rawShr(FqRawElement r, FqRawElement a, uint64_t b)
+Fq_rawShr:
+_Fq_rawShr:
+        ldp x3, x4, [x1]
+        ldp x5, x6, [x1, 16]
+
+        and x7, x2, 0x3f    // bit_shift = b % 64
+        mov x8, 0x40
+        sub x8, x8, x7      // bit_shift augmenter to 64
+
+        tbnz x2, 7, Fq_rawShr_word_shift_2
+        tbnz x2, 6, Fq_rawShr_word_shift_1
+
+Fq_rawShr_word_shift_0:
+        lsr x10, x3,  x7
+        lsl x15, x4,  x8
+        orr x10, x10, x15
+
+        lsr x11, x4,  x7
+        lsl x16, x5,  x8
+        orr x11, x11, x16
+
+        lsr x12, x5,  x7
+        lsl x17, x6,  x8
+        orr x12, x12, x17
+
+        lsr x13, x6,  x7
+
+        stp x10, x11, [x0]
+        stp x12, x13, [x0, 16]
+        ret
+
+Fq_rawShr_word_shift_1:
+        lsr x10, x4,  x7
+        lsl x15, x5,  x8
+        orr x10, x10, x15
+
+        lsr x11, x5,  x7
+        lsl x16, x6,  x8
+        orr x11, x11, x16
+
+        lsr x12, x6,  x7
+
+        stp x10, x11, [x0]
+        stp x12, xzr, [x0, 16]
+        ret
+
+Fq_rawShr_word_shift_2:
+        tbnz x2, 6, Fq_rawShr_word_shift_3
+
+        lsr x10, x5,  x7
+        lsl x15, x6,  x8
+        orr x10, x10, x15
+
+        lsr x11, x6,  x7
+
+        stp x10, x11, [x0]
+        stp xzr, xzr, [x0, 16]
+        ret
+
+Fq_rawShr_word_shift_3:
+        lsr x10, x6, x7
+
+        stp x10, xzr, [x0]
+        stp xzr, xzr, [x0, 16]
+        ret
+
+//void Fq_rawNot(FqRawElement pRawResult, FqRawElement pRawA)
+Fq_rawNot:
+_Fq_rawNot:
+        ldp x3, x4, [x1]
+        mvn x3, x3
+        mvn x4, x4
+
+        ldp x5, x6,  [x1, 16]
+        mvn x5, x5
+        mvn x6, x6
+
+        and x6, x6, 0x3fffffffffffffff // lboMask
+
+        adr x11, Fq_rawq
+        ldp x12, x13, [x11]
+        ldp x14, x15, [x11, 16]
+
+        subs x7,  x3, x12
+        sbcs x8,  x4, x13
+        sbcs x9,  x5, x14
+        sbcs x10, x6, x15
+
+        csel x3, x7,  x3, hs
+        csel x4, x8,  x4, hs
+        csel x5, x9,  x5, hs
+        csel x6, x10, x6, hs
+
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
         ret
 
 

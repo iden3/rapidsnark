@@ -168,6 +168,10 @@ void Fq_fail() {
     assert(false);
 }
 
+void Fq_longErr()
+{
+    Fq_fail();
+}
 
 RawFq::RawFq() {
     Fq_init();

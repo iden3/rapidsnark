@@ -6,7 +6,6 @@
 #include <string>
 #include <gmp.h>
 
-
 extern FrElement Fr_q;
 extern FrElement Fr_R2;
 extern FrElement Fr_R3;
