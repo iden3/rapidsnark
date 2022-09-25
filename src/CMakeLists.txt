@@ -113,8 +113,7 @@ target_link_libraries(prover rapidsnarkStatic)
 
 add_library(rapidsnark SHARED ${LIB_SOURCES})
 
-
-if(USE_LOGGER)
+if(USE_LOGGER OR NOT USE_OPENMP)
     target_link_libraries(prover pthread)
 endif()
 
