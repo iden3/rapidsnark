@@ -10,7 +10,7 @@ FrElement Fr_R3 = {0, 0x80000000, {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc
 static FrRawElement half = {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
 
 
-void Fr_copy(PFrElement r, PFrElement a)
+void Fr_copy(PFrElement r, const PFrElement a)
 {
     *r = *a;
 }

@@ -287,15 +287,12 @@ Fr_long:
         jnc     Fr_longNormal
 Fr_longMontgomery:
 
-        mov  r8, rdi
+
         sub  rsp, 40
-        mov  rdi, rsp
-        push rdx
-        push r8
-        call Fr_toNormal
+        push rsi
         mov  rsi, rdi
-        pop  rdi
-        pop  rdx
+        call Fr_toNormal
+        pop  rsi
 
 
 Fr_longNormal:
