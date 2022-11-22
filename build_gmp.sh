@@ -81,6 +81,27 @@ build_host()
     cd ..
 }
 
+build_host_noasm()
+{
+    PACKAGE_DIR="$GMP_DIR/package"
+    BUILD_DIR=build
+
+    if [ -d "$PACKAGE_DIR" ]; then
+        echo "Host package is built already. See $PACKAGE_DIR"
+        return 1
+    fi
+
+    rm -rf "$BUILD_DIR"
+    mkdir "$BUILD_DIR"
+    cd "$BUILD_DIR"
+
+    ../configure --prefix="$PACKAGE_DIR" --with-pic --enable-fat &&
+    make -j${NPROC} &&
+    make install
+
+    cd ..
+}
+
 build_android()
 {
     PACKAGE_DIR="$GMP_DIR/package_android_arm64"
@@ -281,6 +302,11 @@ case "$TARGET_PLATFORM" in
     "host" )
         echo "Building for this host"
         build_host
+    ;;
+
+    "host_noasm" )
+        echo "Building for this host"
+        build_host_noasm
     ;;
 
     "aarch64" )
