@@ -287,15 +287,12 @@ Fq_long:
         jnc     Fq_longNormal
 Fq_longMontgomery:
 
-        mov  r8, rdi
         sub  rsp, 40
-        mov  rdi, rsp
-        push rdx
-        push r8
-        call Fq_toNormal
+        push rsi
         mov  rsi, rdi
-        pop  rdi
-        pop  rdx
+        mov  rdi, rsp
+        call Fq_toNormal
+        pop  rsi
 
 
 Fq_longNormal:
