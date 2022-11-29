@@ -74,28 +74,7 @@ build_host()
     mkdir "$BUILD_DIR"
     cd "$BUILD_DIR"
 
-    ../configure --prefix="$PACKAGE_DIR" --with-pic &&
-    make -j${NPROC} &&
-    make install
-
-    cd ..
-}
-
-build_host_noasm()
-{
-    PACKAGE_DIR="$GMP_DIR/package"
-    BUILD_DIR=build
-
-    if [ -d "$PACKAGE_DIR" ]; then
-        echo "Host package is built already. See $PACKAGE_DIR"
-        return 1
-    fi
-
-    rm -rf "$BUILD_DIR"
-    mkdir "$BUILD_DIR"
-    cd "$BUILD_DIR"
-
-    ../configure --prefix="$PACKAGE_DIR" --with-pic --enable-fat &&
+    ../configure --prefix="$PACKAGE_DIR" --with-pic --disable-fft &&
     make -j${NPROC} &&
     make install
 
@@ -302,11 +281,6 @@ case "$TARGET_PLATFORM" in
     "host" )
         echo "Building for this host"
         build_host
-    ;;
-
-    "host_noasm" )
-        echo "Building for this host"
-        build_host_noasm
     ;;
 
     "aarch64" )
