@@ -11,8 +11,9 @@ usage()
     echo "    android_x86_64: build for Android x86_64"
     echo "    aarch64:        build for Linux aarch64"
     echo "    ios:            build for iOS arm64"
-    echo "    ios_x86_64:     build for iOS x86_64"
+    echo "    ios_x86_64:     build for iOS simulator on x86_64"
     echo "    host:           build for this host"
+    echo "    host_noasm:     build for this host without asm optimizations (e.g. needed for macOS)"
 
     exit 1
 }
@@ -77,6 +78,27 @@ build_host()
     cd "$BUILD_DIR"
 
     ../configure --prefix="$PACKAGE_DIR" --with-pic --disable-fft &&
+    make -j${NPROC} &&
+    make install
+
+    cd ..
+}
+
+build_host_noasm()
+{
+    PACKAGE_DIR="$GMP_DIR/package"
+    BUILD_DIR=build
+
+    if [ -d "$PACKAGE_DIR" ]; then
+        echo "Host package is built already. See $PACKAGE_DIR"
+        return 1
+    fi
+
+    rm -rf "$BUILD_DIR"
+    mkdir "$BUILD_DIR"
+    cd "$BUILD_DIR"
+
+    ../configure --prefix="$PACKAGE_DIR" --with-pic --disable-fft --disable-assembly &&
     make -j${NPROC} &&
     make install
 
@@ -271,7 +293,7 @@ case "$TARGET_PLATFORM" in
     ;;
 
     "ios_x86_64" )
-        echo "Building for ios"
+        echo "Building for ios simulator on x86_64"
         build_ios_x86_64
     ;;
 
@@ -288,6 +310,11 @@ case "$TARGET_PLATFORM" in
     "host" )
         echo "Building for this host"
         build_host
+    ;;
+
+    "host_noasm" )
+        echo "Building for this host without asm optimizations (e.g. needed for macOS)"
+        build_host_noasm
     ;;
 
     "aarch64" )
