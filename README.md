@@ -24,7 +24,18 @@ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
 make -j4 && make install
 ````
 
-## compile prover for arm64 host machine
+## compile prover for macOS arm64 host machine
+
+````sh
+git submodule init
+git submodule update
+./build_gmp.sh host_noasm
+mkdir build_prover && cd build_prover
+cmake .. -DTARGET_PLATFORM=arm64_host -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
+make -j4 && make install
+````
+
+## compile prover for linux arm64 host machine
 
 ````sh
 git submodule init
@@ -32,6 +43,17 @@ git submodule update
 ./build_gmp.sh host
 mkdir build_prover && cd build_prover
 cmake .. -DTARGET_PLATFORM=arm64_host -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
+make -j4 && make install
+````
+
+## compile prover for linux arm64 machine
+
+````sh
+git submodule init
+git submodule update
+./build_gmp.sh host
+mkdir build_prover && cd build_prover
+cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_aarch64
 make -j4 && make install
 ````
 
@@ -94,7 +116,7 @@ This prover parallelizes as much as it can the proof generation.
 
 The prover is much faster that snarkjs and faster than bellman.
 
-[TODO] Some comparation tests should be done.
+[TODO] Some comparative tests should be done.
 
 
 ## License
