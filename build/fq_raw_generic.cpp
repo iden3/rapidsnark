@@ -8,7 +8,7 @@ static uint64_t     Fq_np     = {0x87d20782e4866389};
 static uint64_t     lboMask   =  0x3fffffffffffffff;
 
 
-void Fq_rawAdd(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+void Fq_rawAdd(FqRawElement pRawResult, const FqRawElement pRawA, const FqRawElement pRawB)
 {
     uint64_t carry = mpn_add_n(pRawResult, pRawA, pRawB, Fq_N64);
 
@@ -28,7 +28,7 @@ void Fq_rawAddLS(FqRawElement pRawResult, FqRawElement pRawA, uint64_t rawB)
     }
 }
 
-void Fq_rawSub(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+void Fq_rawSub(FqRawElement pRawResult, const FqRawElement pRawA, const FqRawElement pRawB)
 {
     uint64_t carry = mpn_sub_n(pRawResult, pRawA, pRawB, Fq_N64);
 
@@ -65,7 +65,7 @@ void Fq_rawSubLS(FqRawElement pRawResult, FqRawElement pRawA, uint64_t rawB)
     }
 }
 
-void Fq_rawNeg(FqRawElement pRawResult, FqRawElement pRawA)
+void Fq_rawNeg(FqRawElement pRawResult, const FqRawElement pRawA)
 {
     const uint64_t zero[Fq_N64] = {0, 0, 0, 0};
 
@@ -91,7 +91,7 @@ void Fq_rawNegLS(FqRawElement pRawResult, FqRawElement pRawA, uint64_t rawB)
     }
 }
 
-void Fq_rawCopy(FqRawElement pRawResult, FqRawElement pRawA)
+void Fq_rawCopy(FqRawElement pRawResult, const FqRawElement pRawA)
 {
     pRawResult[0] = pRawA[0];
     pRawResult[1] = pRawA[1];
@@ -99,12 +99,12 @@ void Fq_rawCopy(FqRawElement pRawResult, FqRawElement pRawA)
     pRawResult[3] = pRawA[3];
 }
 
-int Fq_rawIsEq(FqRawElement pRawA, FqRawElement pRawB)
+int Fq_rawIsEq(const FqRawElement pRawA, const FqRawElement pRawB)
 {
     return mpn_cmp(pRawA, pRawB, Fq_N64) == 0;
 }
 
-void Fq_rawMMul(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
+void Fq_rawMMul(FqRawElement pRawResult, const FqRawElement pRawA, const FqRawElement pRawB)
 {
     const mp_size_t  N = Fq_N64+1;
     const uint64_t  *mq = Fq_rawq;
@@ -147,12 +147,12 @@ void Fq_rawMMul(FqRawElement pRawResult, FqRawElement pRawA, FqRawElement pRawB)
     }
 }
 
-void Fq_rawMSquare(FqRawElement pRawResult, FqRawElement pRawA)
+void Fq_rawMSquare(FqRawElement pRawResult, const FqRawElement pRawA)
 {
     Fq_rawMMul(pRawResult, pRawA, pRawA);
 }
 
-void Fq_rawMMul1(FqRawElement pRawResult, FqRawElement pRawA, uint64_t pRawB)
+void Fq_rawMMul1(FqRawElement pRawResult, const FqRawElement pRawA, uint64_t pRawB)
 {
     const mp_size_t  N = Fq_N64+1;
     const uint64_t  *mq = Fq_rawq;
@@ -189,12 +189,12 @@ void Fq_rawMMul1(FqRawElement pRawResult, FqRawElement pRawA, uint64_t pRawB)
     }
 }
 
-void Fq_rawToMontgomery(FqRawElement pRawResult, FqRawElement pRawA)
+void Fq_rawToMontgomery(FqRawElement pRawResult, const FqRawElement &pRawA)
 {
     Fq_rawMMul(pRawResult, pRawA, Fq_rawR2);
 }
 
-void Fq_rawFromMontgomery(FqRawElement pRawResult, FqRawElement pRawA)
+void Fq_rawFromMontgomery(FqRawElement pRawResult, const FqRawElement &pRawA)
 {
     const mp_size_t  N = Fq_N64+1;
     const uint64_t  *mq = Fq_rawq;
@@ -231,7 +231,7 @@ void Fq_rawFromMontgomery(FqRawElement pRawResult, FqRawElement pRawA)
     }
 }
 
-int Fq_rawIsZero(FqRawElement rawA)
+int Fq_rawIsZero(const FqRawElement rawA)
 {
     return mpn_zero_p(rawA, Fq_N64) ? 1 : 0;
 }

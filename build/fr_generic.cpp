@@ -104,7 +104,8 @@ static inline void mul_l1ns2n(PFrElement r, PFrElement a, PFrElement b)
 
     if (b->shortVal < 0)
     {
-        Fr_rawMMul1(r->longVal, a->longVal, -b->shortVal);
+        int64_t b_shortVal = b->shortVal;
+        Fr_rawMMul1(r->longVal, a->longVal, -b_shortVal);
         Fr_rawNeg(r->longVal, r->longVal);
     }
     else
@@ -121,7 +122,8 @@ static inline void mul_s1nl2n(PFrElement r, PFrElement a, PFrElement b)
 
     if (a->shortVal < 0)
     {
-        Fr_rawMMul1(r->longVal, b->longVal, -a->shortVal);
+        int64_t a_shortVal = a->shortVal;
+        Fr_rawMMul1(r->longVal, b->longVal, -a_shortVal);
         Fr_rawNeg(r->longVal, r->longVal);
     }
     else
@@ -138,7 +140,8 @@ static inline void mul_l1ms2n(PFrElement r, PFrElement a, PFrElement b)
 
     if (b->shortVal < 0)
     {
-        Fr_rawMMul1(r->longVal, a->longVal, -b->shortVal);
+        int64_t b_shortVal = b->shortVal;
+        Fr_rawMMul1(r->longVal, a->longVal, -b_shortVal);
         Fr_rawNeg(r->longVal, r->longVal);
     }
     else
@@ -153,7 +156,8 @@ static inline void mul_s1nl2m(PFrElement r, PFrElement a, PFrElement b)
 
     if (a->shortVal < 0)
     {
-        Fr_rawMMul1(r->longVal, b->longVal, -a->shortVal);
+        int64_t a_shortVal = a->shortVal;
+        Fr_rawMMul1(r->longVal, b->longVal, -a_shortVal);
         Fr_rawNeg(r->longVal, r->longVal);
     }
     else
@@ -304,7 +308,8 @@ void Fr_toMontgomery(PFrElement r, PFrElement a)
     }
     else if (a->shortVal < 0)
     {
-       Fr_rawMMul1(r->longVal, Fr_R2.longVal, -a->shortVal);
+       int64_t a_shortVal = a->shortVal;
+       Fr_rawMMul1(r->longVal, Fr_R2.longVal, -a_shortVal);
        Fr_rawNeg(r->longVal, r->longVal);
 
        r->type = Fr_SHORTMONTGOMERY;
@@ -399,7 +404,8 @@ static inline void sub_s1l2n(PFrElement r, PFrElement a, PFrElement b)
     }
     else
     {
-        Fr_rawNegLS(r->longVal, b->longVal, -a->shortVal);
+        int64_t a_shortVal = a->shortVal;
+        Fr_rawNegLS(r->longVal, b->longVal, -a_shortVal);
     }
 }
 
@@ -429,7 +435,8 @@ static inline void sub_l1ns2(PFrElement r, PFrElement a, PFrElement b)
 
     if (b->shortVal < 0)
     {
-        Fr_rawAddLS(r->longVal, a->longVal, -b->shortVal);
+        int64_t b_shortVal = b->shortVal;
+        Fr_rawAddLS(r->longVal, a->longVal, -b_shortVal);
     }
     else
     {
@@ -586,7 +593,8 @@ static inline void add_s1l2n(PFrElement r, PFrElement a, PFrElement b)
     }
     else
     {
-        Fr_rawSubLS(r->longVal, b->longVal, -a->shortVal);
+        int64_t a_shortVal = a->shortVal;
+        Fr_rawSubLS(r->longVal, b->longVal, -a_shortVal);
     }
 }
 
@@ -621,7 +629,8 @@ static inline void add_l1ns2(PFrElement r, PFrElement a, PFrElement b)
     }
     else
     {
-        Fr_rawSubLS(r->longVal, a->longVal, -b->shortVal);
+        int64_t b_shortVal = b->shortVal;
+        Fr_rawSubLS(r->longVal, a->longVal, -b_shortVal);
     }
 }
 
@@ -1829,7 +1838,7 @@ void Fr_shr(PFrElement r, PFrElement a, PFrElement b)
     }
     else
     {
-        int32_t b_shortVal = b->shortVal;
+        int64_t b_shortVal = b->shortVal;
 
         if (b_shortVal < 0)
         {
@@ -1905,7 +1914,7 @@ void Fr_shl(PFrElement r, PFrElement a, PFrElement b)
     }
     else
     {
-        int32_t b_shortVal = b->shortVal;
+        int64_t b_shortVal = b->shortVal;
 
         if (b_shortVal < 0)
         {

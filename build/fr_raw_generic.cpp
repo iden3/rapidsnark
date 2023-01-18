@@ -189,12 +189,12 @@ void Fr_rawMMul1(FrRawElement pRawResult, const FrRawElement pRawA, uint64_t pRa
     }
 }
 
-void Fr_rawToMontgomery(FrRawElement pRawResult, const FrRawElement pRawA)
+void Fr_rawToMontgomery(FrRawElement pRawResult, const FrRawElement &pRawA)
 {
     Fr_rawMMul(pRawResult, pRawA, Fr_rawR2);
 }
 
-void Fr_rawFromMontgomery(FrRawElement pRawResult, const FrRawElement pRawA)
+void Fr_rawFromMontgomery(FrRawElement pRawResult, const FrRawElement &pRawA)
 {
     const mp_size_t  N = Fr_N64+1;
     const uint64_t  *mq = Fr_rawq;

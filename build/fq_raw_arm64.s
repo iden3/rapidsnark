@@ -1000,9 +1000,10 @@ _Fq_rawShl:
         ldp x3, x4, [x1]
         ldp x5, x6, [x1, 16]
 
-        and x7, x2, 0x3f    // bit_shift = b % 64
-        mov x8, 0x40
-        sub x8, x8, x7      // bit_shift augmenter to 64
+        ands x7, x2, 0x3f    // bit_shift = b % 64
+        mov  x8, 0x3f
+        mov  x9, 0x1
+        sub  x8, x8, x7      // bit_shift augmenter to 64
 
         tbnz x2, 7, Fq_rawShl_word_shift_2
         tbnz x2, 6, Fq_rawShl_word_shift_1
@@ -1010,14 +1011,17 @@ _Fq_rawShl:
 Fq_rawShl_word_shift_0:
         lsl x13, x6,  x7
         lsr x15, x5,  x8
+        lsr x15, x15, x9
         orr x13, x13, x15
 
         lsl x12, x5,  x7
         lsr x16, x4,  x8
+        lsr x16, x16, x9
         orr x12, x12, x16
 
         lsl x11, x4,  x7
         lsr x17, x3,  x8
+        lsr x17, x17, x9
         orr x11, x11, x17
 
         lsl x10, x3,  x7
@@ -1027,10 +1031,12 @@ Fq_rawShl_word_shift_0:
 Fq_rawShl_word_shift_1:
         lsl x13, x5,  x7
         lsr x15, x4,  x8
+        lsr x15, x15, x9
         orr x13, x13, x15
 
         lsl x12, x4,  x7
         lsr x16, x3,  x8
+        lsr x16, x16, x9
         orr x12, x12, x16
 
         lsl x11, x3,  x7
@@ -1043,6 +1049,7 @@ Fq_rawShl_word_shift_2:
 
         lsl x13, x4,  x7
         lsr x15, x3,  x8
+        lsr x15, x15, x9
         orr x13, x13, x15
 
         lsl x12, x3,  x7
@@ -1093,56 +1100,65 @@ _Fq_rawShr:
         tbnz x2, 6, Fq_rawShr_word_shift_1
 
 Fq_rawShr_word_shift_0:
-        lsr x10, x3,  x7
+        cbz x7, Fq_rawShr_word_shift_0_end
+
+        lsr x3,  x3,  x7
         lsl x15, x4,  x8
-        orr x10, x10, x15
+        orr x3,  x3, x15
 
-        lsr x11, x4,  x7
+        lsr x4,  x4,  x7
         lsl x16, x5,  x8
-        orr x11, x11, x16
+        orr x4,  x4, x16
 
-        lsr x12, x5,  x7
+        lsr x5,  x5,  x7
         lsl x17, x6,  x8
-        orr x12, x12, x17
+        orr x5,  x5, x17
 
-        lsr x13, x6,  x7
+        lsr x6, x6,  x7
 
-        stp x10, x11, [x0]
-        stp x12, x13, [x0, 16]
+Fq_rawShr_word_shift_0_end:
+        stp x3, x4, [x0]
+        stp x5, x6, [x0, 16]
         ret
 
 Fq_rawShr_word_shift_1:
-        lsr x10, x4,  x7
+        cbz x7, Fq_rawShr_word_shift_1_end
+
+        lsr x4,  x4,  x7
         lsl x15, x5,  x8
-        orr x10, x10, x15
+        orr x4,  x4, x15
 
-        lsr x11, x5,  x7
+        lsr x5,  x5,  x7
         lsl x16, x6,  x8
-        orr x11, x11, x16
+        orr x5,  x5, x16
 
-        lsr x12, x6,  x7
+        lsr x6, x6,  x7
 
-        stp x10, x11, [x0]
-        stp x12, xzr, [x0, 16]
+Fq_rawShr_word_shift_1_end:
+        stp x4, x5,  [x0]
+        stp x6, xzr, [x0, 16]
         ret
 
 Fq_rawShr_word_shift_2:
         tbnz x2, 6, Fq_rawShr_word_shift_3
 
-        lsr x10, x5,  x7
+        cbz x7, Fq_rawShr_word_shift_2_end
+
+        lsr x5,  x5,  x7
         lsl x15, x6,  x8
-        orr x10, x10, x15
+        orr x5,  x5, x15
 
-        lsr x11, x6,  x7
+        lsr x6, x6,  x7
 
-        stp x10, x11, [x0]
+Fq_rawShr_word_shift_2_end:
+        stp x5, x6, [x0]
         stp xzr, xzr, [x0, 16]
         ret
 
 Fq_rawShr_word_shift_3:
-        lsr x10, x6, x7
+        lsr x6, x6, x7
 
-        stp x10, xzr, [x0]
+        stp x6,  xzr, [x0]
         stp xzr, xzr, [x0, 16]
         ret
 
