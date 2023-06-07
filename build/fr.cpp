@@ -2,7 +2,7 @@
 #include <gmp.h>
 #include <string>
 #include <cstring>
-
+#include <stdexcept>
 
 static mpz_t q;
 static mpz_t zero;
