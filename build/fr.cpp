@@ -1,6 +1,5 @@
 #include "fr.hpp"
 #include <gmp.h>
-#include <cassert>
 #include <string>
 #include <cstring>
 
@@ -161,7 +160,7 @@ void Fr_div(PFrElement r, PFrElement a, PFrElement b) {
 }
 
 void Fr_fail() {
-    assert(false);
+    throw std::runtime_error("Fr error");
 }
 
 void Fr_longErr()
