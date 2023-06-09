@@ -9,7 +9,7 @@ FqElement Fq_R3 = {0, 0x80000000, {0xb1cd6dafda1530df,0x62f210e6a7283db6,0xef7f0
 static FqRawElement half = {0x9e10460b6c3e7ea3,0xcbc0b548b438e546,0xdc2822db40c0ac2e,0x183227397098d014};
 
 
-void Fq_copy(PFqElement r, PFqElement a)
+void Fq_copy(PFqElement r, const PFqElement a)
 {
     *r = *a;
 }
@@ -103,7 +103,8 @@ static inline void mul_l1ns2n(PFqElement r, PFqElement a, PFqElement b)
 
     if (b->shortVal < 0)
     {
-        Fq_rawMMul1(r->longVal, a->longVal, -b->shortVal);
+        int64_t b_shortVal = b->shortVal;
+        Fq_rawMMul1(r->longVal, a->longVal, -b_shortVal);
         Fq_rawNeg(r->longVal, r->longVal);
     }
     else
@@ -120,7 +121,8 @@ static inline void mul_s1nl2n(PFqElement r, PFqElement a, PFqElement b)
 
     if (a->shortVal < 0)
     {
-        Fq_rawMMul1(r->longVal, b->longVal, -a->shortVal);
+        int64_t a_shortVal = a->shortVal;
+        Fq_rawMMul1(r->longVal, b->longVal, -a_shortVal);
         Fq_rawNeg(r->longVal, r->longVal);
     }
     else
@@ -137,7 +139,8 @@ static inline void mul_l1ms2n(PFqElement r, PFqElement a, PFqElement b)
 
     if (b->shortVal < 0)
     {
-        Fq_rawMMul1(r->longVal, a->longVal, -b->shortVal);
+        int64_t b_shortVal = b->shortVal;
+        Fq_rawMMul1(r->longVal, a->longVal, -b_shortVal);
         Fq_rawNeg(r->longVal, r->longVal);
     }
     else
@@ -152,7 +155,8 @@ static inline void mul_s1nl2m(PFqElement r, PFqElement a, PFqElement b)
 
     if (a->shortVal < 0)
     {
-        Fq_rawMMul1(r->longVal, b->longVal, -a->shortVal);
+        int64_t a_shortVal = a->shortVal;
+        Fq_rawMMul1(r->longVal, b->longVal, -a_shortVal);
         Fq_rawNeg(r->longVal, r->longVal);
     }
     else
@@ -304,7 +308,8 @@ void Fq_toMontgomery(PFqElement r, PFqElement a)
     }
     else if (a->shortVal < 0)
     {
-       Fq_rawMMul1(r->longVal, Fq_R2.longVal, -a->shortVal);
+       int64_t a_shortVal = a->shortVal;
+       Fq_rawMMul1(r->longVal, Fq_R2.longVal, -a_shortVal);
        Fq_rawNeg(r->longVal, r->longVal);
 
        r->type = Fq_SHORTMONTGOMERY;
@@ -400,7 +405,8 @@ static inline void sub_s1l2n(PFqElement r, PFqElement a, PFqElement b)
     }
     else
     {
-        Fq_rawNegLS(r->longVal, b->longVal, -a->shortVal);
+        int64_t a_shortVal = a->shortVal;
+        Fq_rawNegLS(r->longVal, b->longVal, -a_shortVal);
     }
 }
 
@@ -430,7 +436,8 @@ static inline void sub_l1ns2(PFqElement r, PFqElement a, PFqElement b)
 
     if (b->shortVal < 0)
     {
-        Fq_rawAddLS(r->longVal, a->longVal, -b->shortVal);
+        int64_t b_shortVal = b->shortVal;
+        Fq_rawAddLS(r->longVal, a->longVal, -b_shortVal);
     }
     else
     {
@@ -587,7 +594,8 @@ static inline void add_s1l2n(PFqElement r, PFqElement a, PFqElement b)
     }
     else
     {
-        Fq_rawSubLS(r->longVal, b->longVal, -a->shortVal);
+        int64_t a_shortVal = a->shortVal;
+        Fq_rawSubLS(r->longVal, b->longVal, -a_shortVal);
     }
 }
 
@@ -622,7 +630,8 @@ static inline void add_l1ns2(PFqElement r, PFqElement a, PFqElement b)
     }
     else
     {
-        Fq_rawSubLS(r->longVal, a->longVal, -b->shortVal);
+        int64_t b_shortVal = b->shortVal;
+        Fq_rawSubLS(r->longVal, a->longVal, -b_shortVal);
     }
 }
 
@@ -1830,7 +1839,7 @@ void Fq_shr(PFqElement r, PFqElement a, PFqElement b)
     }
     else
     {
-        int32_t b_shortVal = b->shortVal;
+        int64_t b_shortVal = b->shortVal;
 
         if (b_shortVal < 0)
         {
@@ -1906,7 +1915,7 @@ void Fq_shl(PFqElement r, PFqElement a, PFqElement b)
     }
     else
     {
-        int32_t b_shortVal = b->shortVal;
+        int64_t b_shortVal = b->shortVal;
 
         if (b_shortVal < 0)
         {

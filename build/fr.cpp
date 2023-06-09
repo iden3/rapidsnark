@@ -1,7 +1,8 @@
 #include "fr.hpp"
+#include <stdio.h>
+#include <stdlib.h>
 #include <gmp.h>
 #include <string>
-#include <cstring>
 #include <stdexcept>
 
 static mpz_t q;
@@ -50,9 +51,9 @@ bool Fr_init() {
     return true;
 }
 
-void Fr_str2element(PFrElement pE, char const *s) {
+void Fr_str2element(PFrElement pE, char const *s, uint base) {
     mpz_t mr;
-    mpz_init_set_str(mr, s, 10);
+    mpz_init_set_str(mr, s, base);
     mpz_fdiv_r(mr, mr, q);
     Fr_fromMpz(pE, mr);
     mpz_clear(mr);
@@ -178,10 +179,20 @@ RawFr::RawFr() {
 RawFr::~RawFr() {
 }
 
-void RawFr::fromString(Element &r, const std::string& s, uint32_t radix) {
+void RawFr::fromString(Element &r, const std::string &s, uint32_t radix) {
     mpz_t mr;
     mpz_init_set_str(mr, s.c_str(), radix);
     mpz_fdiv_r(mr, mr, q);
+    for (int i=0; i<Fr_N64; i++) r.v[i] = 0;
+    mpz_export((void *)(r.v), NULL, -1, 8, -1, 0, mr);
+    Fr_rawToMontgomery(r.v,r.v);
+    mpz_clear(mr);
+}
+
+void RawFr::fromUI(Element &r, unsigned long int v) {
+    mpz_t mr;
+    mpz_init(mr);
+    mpz_set_ui(mr, v);
     for (int i=0; i<Fr_N64; i++) r.v[i] = 0;
     mpz_export((void *)(r.v), NULL, -1, 8, -1, 0, mr);
     Fr_rawToMontgomery(r.v,r.v);
@@ -209,18 +220,6 @@ void RawFr::set(Element &r, int value) {
   Fr_rawToMontgomery(r.v,r.v);
   mpz_clear(mr);
 }
-
-void RawFr::fromUI(Element &r, unsigned long int v) {
-    mpz_t mr;
-    mpz_init(mr);
-    mpz_set_ui(mr, v);
-    for (int i=0; i<Fr_N64; i++) r.v[i] = 0;
-    mpz_export((void *)(r.v), NULL, -1, 8, -1, 0, mr);
-    Fr_rawToMontgomery(r.v,r.v);
-    mpz_clear(mr);
-}
-
-
 
 std::string RawFr::toString(const Element &a, uint32_t radix) {
     Element tmp;

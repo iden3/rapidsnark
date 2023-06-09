@@ -68,6 +68,10 @@
 
 
 
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;
 ; copy
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -286,7 +290,6 @@ Fr_long:
         bt      rax, 62
         jnc     Fr_longNormal
 Fr_longMontgomery:
-
 
         sub  rsp, 40
         push rsi
