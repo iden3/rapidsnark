@@ -4,8 +4,6 @@
 #include <gmp.h>
 #include <assert.h>
 #include <string>
-#include <iostream>
-#include <cstring>
 
 
 static mpz_t q;
@@ -14,7 +12,6 @@ static mpz_t one;
 static mpz_t mask;
 static size_t nBits;
 static bool initialized = false;
-
 
 void Fq_toMpz(mpz_t r, PFqElement pE) {
     FqElement tmp;
@@ -55,9 +52,9 @@ bool Fq_init() {
     return true;
 }
 
-void Fq_str2element(PFqElement pE, char const *s) {
+void Fq_str2element(PFqElement pE, char const *s, uint base) {
     mpz_t mr;
-    mpz_init_set_str(mr, s, 10);
+    mpz_init_set_str(mr, s, base);
     mpz_fdiv_r(mr, mr, q);
     Fq_fromMpz(pE, mr);
     mpz_clear(mr);
@@ -175,17 +172,17 @@ void Fq_longErr()
 
 RawFq::RawFq() {
     Fq_init();
-    fromString(fZero, "0");
-    fromString(fOne, "1");
+    set(fZero, 0);
+    set(fOne, 1);
     neg(fNegOne, fOne);
 }
 
 RawFq::~RawFq() {
 }
-extern "C"
-void RawFq::fromString(Element &r, std::string s) {
+
+void RawFq::fromString(Element &r, const std::string &s, uint32_t radix) {
     mpz_t mr;
-    mpz_init_set_str(mr, s.c_str(), 10);
+    mpz_init_set_str(mr, s.c_str(), radix);
     mpz_fdiv_r(mr, mr, q);
     for (int i=0; i<Fq_N64; i++) r.v[i] = 0;
     mpz_export((void *)(r.v), NULL, -1, 8, -1, 0, mr);
@@ -203,7 +200,29 @@ void RawFq::fromUI(Element &r, unsigned long int v) {
     mpz_clear(mr);
 }
 
-std::string RawFq::toString(Element &a, uint32_t radix) {
+RawFq::Element RawFq::set(int value) {
+  Element r;
+  set(r, value);
+  return r;
+}
+
+void RawFq::set(Element &r, int value) {
+  mpz_t mr;
+  mpz_init(mr);
+  mpz_set_si(mr, value);
+  if (value < 0) {
+      mpz_add(mr, mr, q);
+  }
+
+  mpz_export((void *)(r.v), NULL, -1, 8, -1, 0, mr);
+
+  for (int i=0; i<Fq_N64; i++) r.v[i] = 0;
+  mpz_export((void *)(r.v), NULL, -1, 8, -1, 0, mr);
+  Fq_rawToMontgomery(r.v,r.v);
+  mpz_clear(mr);
+}
+
+std::string RawFq::toString(const Element &a, uint32_t radix) {
     Element tmp;
     mpz_t r;
     Fq_rawFromMontgomery(tmp.v, a.v);
@@ -216,7 +235,7 @@ std::string RawFq::toString(Element &a, uint32_t radix) {
     return resS;
 }
 
-void RawFq::inv(Element &r, Element &a) {
+void RawFq::inv(Element &r, const Element &a) {
     mpz_t mr;
     mpz_init(mr);
     mpz_import(mr, Fq_N64, -1, 8, -1, 0, (const void *)(a.v));
@@ -230,14 +249,14 @@ void RawFq::inv(Element &r, Element &a) {
     mpz_clear(mr);
 }
 
-void RawFq::div(Element &r, Element &a, Element &b) {
+void RawFq::div(Element &r, const Element &a, const Element &b) {
     Element tmp;
     inv(tmp, b);
     mul(r, a, tmp);
 }
 
 #define BIT_IS_SET(s, p) (s[p>>3] & (1 << (p & 0x7)))
-void RawFq::exp(Element &r, Element &base, uint8_t* scalar, unsigned int scalarSize) {
+void RawFq::exp(Element &r, const Element &base, uint8_t* scalar, unsigned int scalarSize) {
     bool oneFound = false;
     Element copyBase;
     copy(copyBase, base);
@@ -258,18 +277,46 @@ void RawFq::exp(Element &r, Element &base, uint8_t* scalar, unsigned int scalarS
     }
 }
 
-void RawFq::toMpz(mpz_t r, Element &a) {
+void RawFq::toMpz(mpz_t r, const Element &a) {
     Element tmp;
     Fq_rawFromMontgomery(tmp.v, a.v);
     mpz_import(r, Fq_N64, -1, 8, -1, 0, (const void *)tmp.v);
 }
 
-void RawFq::fromMpz(Element &r, mpz_t a) {
+void RawFq::fromMpz(Element &r, const mpz_t a) {
     for (int i=0; i<Fq_N64; i++) r.v[i] = 0;
     mpz_export((void *)(r.v), NULL, -1, 8, -1, 0, a);
     Fq_rawToMontgomery(r.v, r.v);
 }
 
+int RawFq::toRprBE(const Element &element, uint8_t *data, int bytes)
+{
+    if (bytes < Fq_N64 * 8) {
+      return -(Fq_N64 * 8);
+    }
+
+    mpz_t r;
+    mpz_init(r);
+
+    toMpz(r, element);
+
+    mpz_export(data, NULL, 1, 8, 1, 0, r);
+
+    return Fq_N64 * 8;
+}
+
+int RawFq::fromRprBE(Element &element, const uint8_t *data, int bytes)
+{
+    if (bytes < Fq_N64 * 8) {
+      return -(Fq_N64* 8);
+    }
+    mpz_t r;
+    mpz_init(r);
+
+    mpz_import(r, Fq_N64 * 8, 0, 1, 0, 0, data);
+    fromMpz(element, r);
+    return Fq_N64 * 8;
+}
 
 static bool init = Fq_init();
 
