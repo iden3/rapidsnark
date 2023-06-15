@@ -1,19 +1,20 @@
 # rapidsnark
 
-rapid snark is a zkSnark proof generation written in C++. That generates proofs created in [circom](https://github.com/iden3/snarkjs) and [snarkjs](https://github.com/iden3/circom) very fast.
+rapidsnark is a zkSnark proof generation written in C++ and intel/arm assembly. That generates proofs created in [circom](https://github.com/iden3/snarkjs) and [snarkjs](https://github.com/iden3/circom) very fast.
 
-## dependencies
+## Dependencies
 
-You should have installed gcc and cmake
+You should have installed gcc, cmake, libsodium, and gmp (development)
 
 In ubuntu:
 
 ````
-sudo apt install build-essential
-sudo apt install cmake
+sudo apt-get install build-essential cmake libgmp-dev libsodium-dev nasm
 ````
 
-## compile prover for x86_64 host machine
+## Compile prover in standalone mode
+
+### Compile prover for x86_64 host machine
 
 ````sh
 git submodule init
@@ -24,7 +25,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
 make -j4 && make install
 ````
 
-## compile prover for macOS arm64 host machine
+### Compile prover for macOS arm64 host machine
 
 ````sh
 git submodule init
@@ -35,7 +36,7 @@ cmake .. -DTARGET_PLATFORM=arm64_host -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL
 make -j4 && make install
 ````
 
-## compile prover for linux arm64 host machine
+### Compile prover for linux arm64 host machine
 
 ````sh
 git submodule init
@@ -46,7 +47,7 @@ cmake .. -DTARGET_PLATFORM=arm64_host -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL
 make -j4 && make install
 ````
 
-## compile prover for linux arm64 machine
+### Compile prover for linux arm64 machine
 
 ````sh
 git submodule init
@@ -57,7 +58,7 @@ cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PR
 make -j4 && make install
 ````
 
-## compile prover for Android
+### Compile prover for Android
 
 Install Android NDK from https://developer.android.com/ndk or with help of "SDK Manager" in Android Studio.
 
@@ -81,7 +82,7 @@ cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PR
 make -j4 && make install
 ````
 
-## compile prover for iOS
+### Compile prover for iOS
 
 Install Xcode.
 
@@ -93,6 +94,18 @@ mkdir build_prover_ios && cd build_prover_ios
 cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_ios
 ````
 Open generated Xcode project and compile prover.
+
+
+## Compile prover in server mode
+
+````sh
+npm install
+git submodule init
+git submodule update
+npx task createFieldSources
+npx task buildPistache
+npx task buildProverServer
+````
 
 
 ## Building proof
@@ -108,6 +121,19 @@ snarkjs groth16 prove <circuit.zkey> <witness.wtns> <proof.json> <public.json>
 by this one
 ````sh
 ./package/bin/prover <circuit.zkey> <witness.wtns> <proof.json> <public.json>
+````
+
+## Launch prover in server mode
+````sh
+./build/proverServer  <port> <circuit1_zkey> <circuit2_zkey> ... <circuitN_zkey>
+````
+
+For every `circuit.circom` you have to generate with circom with --c option the `circuit_cpp` and after compilation you have to copy the executable into the `build` folder so the server can generate the witness and then the proof based on this witness.
+You have an example of the usage calling the server endpoints to generate the proof with Nodejs in `/tools/request.js`.
+
+To test a request you should pass an `input.json` as a parameter to the request call.
+````sh
+node tools/request.js <input.json> <circuit>
 ````
 
 ## Benchmark
