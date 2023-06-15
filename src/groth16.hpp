@@ -5,7 +5,6 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#include "binfile_utils.hpp"
 #include "fft.hpp"
 
 namespace Groth16 {
@@ -18,7 +17,7 @@ namespace Groth16 {
         typename Engine::G2PointAffine B;
         typename Engine::G1PointAffine C;
 
-        Proof(Engine &_E) : E(_E) { };
+        Proof(Engine &_E) : E(_E) { }
         std::string toJsonStr();
         json toJson();
     };
@@ -92,7 +91,7 @@ namespace Groth16 {
             pointsH(_pointsH)
         { 
             fft = new FFT<typename Engine::Fr>(domainSize*2);
-        };
+        }
 
         ~Prover() {
             delete fft;
@@ -119,7 +118,7 @@ namespace Groth16 {
         void *pointsC,
         void *pointsH
     );
-};
+}
 
 
 #include "groth16.cpp"
