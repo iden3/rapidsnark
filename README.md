@@ -95,19 +95,6 @@ cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTAL
 ````
 Open generated Xcode project and compile prover.
 
-
-## Compile prover in server mode
-
-````sh
-npm install
-git submodule init
-git submodule update
-npx task createFieldSources
-npx task buildPistache
-npx task buildProverServer
-````
-
-
 ## Building proof
 
 You have a full prover compiled in the build directory.
@@ -121,6 +108,17 @@ snarkjs groth16 prove <circuit.zkey> <witness.wtns> <proof.json> <public.json>
 by this one
 ````sh
 ./package/bin/prover <circuit.zkey> <witness.wtns> <proof.json> <public.json>
+````
+
+## Compile prover in server mode
+
+````sh
+npm install
+git submodule init
+git submodule update
+npx task createFieldSources
+npx task buildPistache
+npx task buildProverServer
 ````
 
 ## Launch prover in server mode
