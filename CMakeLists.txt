@@ -53,7 +53,7 @@ endif()
 add_subdirectory(src)
 
 
-install(TARGETS prover rapidsnark rapidsnarkStatic test_prover fr fq
+install(TARGETS prover rapidsnark rapidsnarkStatic rapidsnarkStaticFrFq test_prover fr fq
     RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
     BUNDLE DESTINATION ${CMAKE_INSTALL_PREFIX}/app
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
