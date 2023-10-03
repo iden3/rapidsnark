@@ -13,3 +13,5 @@ jobs:
       - run: |
             xcode-select -p
             uname -a
+            find /opt/homebrew -name omp.h
+            mdfind -name omp.h
