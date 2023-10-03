@@ -11,7 +11,8 @@ jobs:
     runs-on: macos-13-xlarge
     steps:
       - run: |
-            xcode-select -p
             uname -a
+            xcode-select -p
+            brew install libomp
             find /opt/homebrew -name omp.h
             mdfind -name omp.h
