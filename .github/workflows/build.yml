@@ -12,3 +12,4 @@ jobs:
     steps:
       - run: |
             xcode-select -p
+            uname -a
