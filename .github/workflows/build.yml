@@ -1,0 +1,14 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - cibuild
+
+jobs:
+  build:
+    runs-on: macos-13
+    steps:
+      - run: |
+            xcode-select -p
