@@ -105,6 +105,14 @@ include_directories(
     ../depends/ffiasm/c
     ../depends/json/single_include)
 
+if(APPLE)
+    execute_process(COMMAND brew --prefix OUTPUT_VARIABLE BREW_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
+	if(NOT EXISTS "${BREW_PREFIX}/opt/libomp/include")
+	    message(FATAL_ERROR "libomp is not found in ${BREW_PREFIX}/opt/libomp/include, install it with `brew install libomp`")
+	endif()
+	include_directories("${BREW_PREFIX}/opt/libomp/include")
+endif()
+
 add_library(rapidsnarkStatic STATIC ${LIB_SOURCES})
 set_target_properties(rapidsnarkStatic PROPERTIES OUTPUT_NAME rapidsnark)
 

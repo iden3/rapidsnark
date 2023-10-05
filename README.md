@@ -9,7 +9,7 @@ You should have installed gcc, cmake, libsodium, and gmp (development)
 In ubuntu:
 
 ````
-sudo apt-get install build-essential cmake libgmp-dev libsodium-dev nasm
+sudo apt-get install build-essential cmake libgmp-dev libsodium-dev nasm curl m4
 ````
 
 ## Compile prover in standalone mode
@@ -84,14 +84,16 @@ make -j4 && make install
 
 ### Compile prover for iOS
 
-Install Xcode.
+Install Xcode & homebrew.
 
 ````sh
+brew install libomp
 git submodule init
 git submodule update
 ./build_gmp.sh ios
 mkdir build_prover_ios && cd build_prover_ios
-cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_ios
+cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
+xcodebuild -destinations='platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
 ````
 Open generated Xcode project and compile prover.
 
