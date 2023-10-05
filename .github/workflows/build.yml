@@ -13,9 +13,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: "recursive"
+
+      - name: Cache gmp build
+        uses: actions/cache@v3
+        with:
+          path: |
+            depends/gmp
+            gmp-6.2.1.tar.xz
+          key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}
+
       - run: |
           brew install libomp
-          ./build_gmp.sh ios
+          if [[ ! -d "depends/gmp/package_ios_arm64" ]]; then ./build_gmp.sh ios; fi
           mkdir build_prover_ios && cd build_prover_ios
           cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
           xcodebuild -destinations='platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
+        name: build
