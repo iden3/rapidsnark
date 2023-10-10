@@ -71,6 +71,12 @@ export ANDROID_NDK=/home/test/Android/Sdk/ndk/23.1.7779620  # NDK is installed b
 export ANDROID_NDK=/home/test/android-ndk-r23b              # NDK is installed as a stand-alone package.
 ````
 
+Prerequisites if build on Ubuntu:
+
+```sh
+apt-get install curl xz-utils build-essential cmake m4
+```
+
 Compilation:
 
 ````sh
@@ -93,9 +99,23 @@ git submodule update
 ./build_gmp.sh ios
 mkdir build_prover_ios && cd build_prover_ios
 cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
-xcodebuild -destinations='platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
+xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
 ````
 Open generated Xcode project and compile prover.
+
+## Build for iOS emulator
+
+Install Xcode & homebrew.
+
+````sh
+brew install libomp
+git submodule init
+git submodule update
+./build_gmp.sh ios
+mkdir build_prover_ios_simulator && cd build_prover_ios_simulator
+cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO
+xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
+````
 
 ## Building proof
 
