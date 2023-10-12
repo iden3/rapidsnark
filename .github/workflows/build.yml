@@ -34,11 +34,11 @@ jobs:
           key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: build gmp android arm64
-        if: "! -d "depends/gmp/package_android_arm64""
+        if: "! -d depends/gmp/package_android_arm64"
         run: ./build_gmp.sh android
 
       - name: build gmp android x86_64
-        if: "! -d "depends/gmp/package_android_x86_64""
+        if: "! -d depends/gmp/package_android_x86_64"
         run: ./build_gmp.sh android_x86_64
 
       - name: Build prover Android ARM64
