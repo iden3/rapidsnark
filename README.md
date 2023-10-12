@@ -74,7 +74,7 @@ export ANDROID_NDK=/home/test/android-ndk-r23b              # NDK is installed a
 Prerequisites if build on Ubuntu:
 
 ```sh
-apt-get install curl xz-utils build-essential cmake m4
+apt-get install curl xz-utils build-essential cmake m4 nasm
 ```
 
 Compilation:

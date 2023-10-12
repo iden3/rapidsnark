@@ -19,6 +19,58 @@ jobs:
           echo $ANDROID_NDK
           ls /usr/local/lib/android/sdk/ndk/25.2.9519653
 
+      - name: install requirements
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: curl xz-utils build-essential cmake m4 nasm
+          version: 1.0
+
+      - name: Cache gmp build
+        uses: actions/cache@v3
+        with:
+          path: |
+            depends/gmp
+            gmp-6.2.1.tar.xz
+          key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}
+
+      - name: build gmp android arm64
+        if: "! -d "depends/gmp/package_android_arm64""
+        run: ./build_gmp.sh android
+
+      - name: build gmp android x86_64
+        if: "! -d "depends/gmp/package_android_x86_64""
+        run: ./build_gmp.sh android_x86_64
+
+      - name: Build prover Android ARM64
+        run: |
+          pwd
+          mkdir build_prover_android && cd build_prover_android
+          cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android
+          make -j4 && make install
+
+      - name: Build prover Android x86_64
+        run: |
+          pwd
+          mkdir build_prover_android_x86_64 && cd build_prover_android_x86_64
+          cmake .. -DTARGET_PLATFORM=ANDROID_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android_x86_64
+          make -j4 && make install
+
+      - name: upload Android ARM64 artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Android_ARM64
+          path: |
+            package_android
+          if-no-files-found: error
+
+      - name: upload Android x86_64 artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Android_x86_64
+          path: |
+            package_android_x86_64
+          if-no-files-found: error
+
   build-ios:
     runs-on: macos-13-xlarge
     steps:
