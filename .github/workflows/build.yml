@@ -91,7 +91,7 @@ jobs:
           mkdir build_prover_ios_simulator && cd build_prover_ios_simulator
           cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO
           xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
-          cp ../depends/gmp/package_ios_simulator/lib/libgmp.a src/Debug-iphonesimulator
+          cp ../depends/gmp/package_iphone_simulator/lib/libgmp.a src/Debug-iphonesimulator
 
       - name: upload iOS artifacts
         uses: actions/upload-artifact@v3
