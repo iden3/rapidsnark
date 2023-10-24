@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 NPROC=8
 fetch_cmd=$( (type wget > /dev/null 2>&1 && echo "wget") || echo "curl -O" )
 
@@ -11,7 +13,7 @@ usage()
     echo "    android_x86_64: build for Android x86_64"
     echo "    aarch64:        build for Linux aarch64"
     echo "    ios:            build for iOS arm64"
-    echo "    ios_x86_64:     build for iOS simulator on x86_64"
+    echo "    ios_simulator:  build for iPhone Simulator for arm64/x86_64 (fat binary)"
     echo "    host:           build for this host"
     echo "    host_noasm:     build for this host without asm optimizations (e.g. needed for macOS)"
 
@@ -233,42 +235,51 @@ build_ios()
     cd ..
 }
 
-build_ios_x86_64()
+build_ios_simulator()
 {
-    PACKAGE_DIR="$GMP_DIR/package_ios_x86_64"
-    BUILD_DIR=build_ios_x86_64
+	libs=()
+	for ARCH in "arm64" "x86_64"; do
+		case "$ARCH" in
+			"arm64" )
+				echo "Building for iPhone Simulator ARM64"
+				ARCH_FLAGS="-arch arm64 -arch arm64e"
+				;;
+			"x86_64" )
+				echo "Building for iPhone Simulator x86_64"
+				ARCH_FLAGS="-arch x86_64"
+				;;
+			* )
+				echo "Incorrect iPhone Simulator arch"
+				exit 1
+		esac
+		
+		BUILD_DIR="build_iphone_simulator_${ARCH}"
+		PACKAGE_DIR="$GMP_DIR/package_iphone_simulator_${ARCH}"
+		libs+=("${PACKAGE_DIR}/lib/libgmp.a")
 
-    if [ -d "$PACKAGE_DIR" ]; then
-        echo "iOS package is built already. See $PACKAGE_DIR"
-        return 1
-    fi
+		if [ -d "$PACKAGE_DIR" ]; then
+			echo "iPhone Simulator ${ARCH} package is built already. See $PACKAGE_DIR. Skip building this ARCH."
+			continue
+		fi
 
-    export SDK="iphonesimulator"
-    export TARGET=x86_64-apple-darwin
-    export MIN_IOS_VERSION=8.0
+		rm -rf "$BUILD_DIR"
+		mkdir "$BUILD_DIR"
+		cd "$BUILD_DIR"
 
-    export ARCH_FLAGS="-arch x86_64"
-    export OPT_FLAGS="-O3 -g3 -fembed-bitcode"
-    export HOST_FLAGS="${ARCH_FLAGS} -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot $(xcrun --sdk ${SDK} --show-sdk-path)"
+		../configure --prefix="${PACKAGE_DIR}" \
+					 CC="$(xcrun --sdk iphonesimulator --find clang)" \
+					 CFLAGS="-O3 -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path) ${ARCH_FLAGS} -fvisibility=hidden -mios-simulator-version-min=8.0" \
+					 LDFLAGS="" \
+					 --host ${ARCH}-apple-darwin --disable-assembly --enable-static --disable-shared --with-pic &&
+			make -j${NPROC} &&
+			make install
+		
+		cd ..
+	done
 
-    export CC=$(xcrun --find --sdk "${SDK}" clang)
-    export CXX=$(xcrun --find --sdk "${SDK}" clang++)
-    export CPP=$(xcrun --find --sdk "${SDK}" cpp)
-    export CFLAGS="${HOST_FLAGS} ${OPT_FLAGS}"
-    export CXXFLAGS="${HOST_FLAGS} ${OPT_FLAGS}"
-    export LDFLAGS="${HOST_FLAGS}"
-
-    echo $TARGET
-
-    rm -rf "$BUILD_DIR"
-    mkdir "$BUILD_DIR"
-    cd "$BUILD_DIR"
-
-    ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft --disable-assembly &&
-    make -j${NPROC} &&
-    make install
-
-    cd ..
+	mkdir -p "${GMP_DIR}/package_iphone_simulator/lib"
+	lipo ${libs[@]} -create -output "${GMP_DIR}/package_iphone_simulator/lib/libgmp.a"
+	echo "Wrote universal fat library for iPhone Simulator arm64/x86_64 to ${GMP_DIR}/package_iphone_simulator/lib/libgmp.a"
 }
 
 if [ $# -ne 1 ]; then
@@ -292,9 +303,9 @@ case "$TARGET_PLATFORM" in
         build_ios
     ;;
 
-    "ios_x86_64" )
-        echo "Building for ios simulator on x86_64"
-        build_ios_x86_64
+    "ios_simulator" )
+        echo "Building for iPhone Simulator"
+        build_ios_simulator
     ;;
 
     "android" )

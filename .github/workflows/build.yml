@@ -14,11 +14,6 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: look up for android SDK
-        run: |
-          echo $ANDROID_NDK
-          ls /usr/local/lib/android/sdk/ndk/25.2.9519653
-
       - name: install requirements
         uses: awalsh128/cache-apt-pkgs-action@v1
         with:
@@ -86,15 +81,17 @@ jobs:
 
       - name: build
         run: |
-          brew install libomp
           if [[ ! -d "depends/gmp/package_ios_arm64" ]]; then ./build_gmp.sh ios; fi
+          if [[ ! -d "depends/gmp/package_iphone_simulator" ]]; then ./build_gmp.sh ios_simulator; fi
           mkdir build_prover_ios && cd build_prover_ios
           cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
           xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
+          cp ../depends/gmp/package_ios_arm64/lib/libgmp.a src/Release-iphoneos
           cd ../
           mkdir build_prover_ios_simulator && cd build_prover_ios_simulator
           cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO
           xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
+          cp ../depends/gmp/package_ios_simulator/lib/libgmp.a src/Debug-iphonesimulator
 
       - name: upload iOS artifacts
         uses: actions/upload-artifact@v3
