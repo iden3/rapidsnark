@@ -14,6 +14,7 @@ usage()
     echo "    aarch64:        build for Linux aarch64"
     echo "    ios:            build for iOS arm64"
     echo "    ios_simulator:  build for iPhone Simulator for arm64/x86_64 (fat binary)"
+    echo "    macos:          build for maxOS for arm64/x86_64 (fat binary)"
     echo "    host:           build for this host"
     echo "    host_noasm:     build for this host without asm optimizations (e.g. needed for macOS)"
 
@@ -241,7 +242,7 @@ build_ios_simulator()
 	for ARCH in "arm64" "x86_64"; do
 		case "$ARCH" in
 			"arm64" )
-				echo "Building for iPhone Simulator ARM64"
+				echo "Building for iPhone Simulator arm64"
 				ARCH_FLAGS="-arch arm64 -arch arm64e"
 				;;
 			"x86_64" )
@@ -282,6 +283,55 @@ build_ios_simulator()
 	echo "Wrote universal fat library for iPhone Simulator arm64/x86_64 to ${GMP_DIR}/package_iphone_simulator/lib/libgmp.a"
 }
 
+build_macos_fat()
+{
+	libs=()
+	for ARCH in "arm64" "x86_64"; do
+		case "$ARCH" in
+			"arm64" )
+				echo "Building for macOS arm64"
+				ARCH_FLAGS="-arch arm64 -arch arm64e"
+				;;
+			"x86_64" )
+				echo "Building for macOS x86_64"
+				ARCH_FLAGS="-arch x86_64"
+				;;
+			* )
+				echo "Incorrect arch"
+				exit 1
+		esac
+
+		BUILD_DIR="build_macos_${ARCH}"
+		PACKAGE_DIR="$GMP_DIR/package_macos_${ARCH}"
+		libs+=("${PACKAGE_DIR}/lib/libgmp.a")
+
+		if [ -d "$PACKAGE_DIR" ]; then
+			echo "macOS ${ARCH} package is built already. See $PACKAGE_DIR. Skip building this ARCH."
+			continue
+		fi
+
+		rm -rf "$BUILD_DIR"
+		mkdir "$BUILD_DIR"
+		cd "$BUILD_DIR"
+
+		../configure --prefix="${PACKAGE_DIR}" \
+					 CC="$(xcrun --sdk macosx --find clang)" \
+					 CFLAGS="-O3 -isysroot $(xcrun --sdk macosx --show-sdk-path) ${ARCH_FLAGS} -fvisibility=hidden -mmacos-version-min=14.0" \
+					 LDFLAGS="" \
+					 --host ${ARCH}-apple-darwin --disable-assembly --enable-static --disable-shared --with-pic &&
+			make -j${NPROC} &&
+			make install
+
+		cd ..
+	done
+
+	mkdir -p "${GMP_DIR}/package_macos/lib"
+	lipo ${libs[@]} -create -output "${GMP_DIR}/package_macos/lib/libgmp.a"
+	mkdir -p "${GMP_DIR}/package_macos/include"
+	cp  "${GMP_DIR}/package_macos_arm64/include/gmp.h" "${GMP_DIR}/package_macos/include/"
+	echo "Wrote universal fat library for macOS arm64/x86_64 to ${GMP_DIR}/package_macos/lib/libgmp.a"
+}
+
 if [ $# -ne 1 ]; then
     usage
 fi
@@ -306,6 +356,11 @@ case "$TARGET_PLATFORM" in
     "ios_simulator" )
         echo "Building for iPhone Simulator"
         build_ios_simulator
+    ;;
+
+    "macos" )
+        echo "Building fat library for macOS"
+        build_macos_fat
     ;;
 
     "android" )

@@ -349,7 +349,7 @@ Fq_longNeg:
 Fq_longErr:
         push    rdi
         mov     rdi, 0
-        call    Fq_fail WRT ..plt
+        call    Fq_fail
         pop     rdi
         mov rsp, rbp
         pop rdx

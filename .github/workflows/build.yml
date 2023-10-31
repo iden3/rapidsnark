@@ -83,15 +83,35 @@ jobs:
         run: |
           if [[ ! -d "depends/gmp/package_ios_arm64" ]]; then ./build_gmp.sh ios; fi
           if [[ ! -d "depends/gmp/package_iphone_simulator" ]]; then ./build_gmp.sh ios_simulator; fi
+          if [[ ! -d "depends/gmp/package_macos" ]]; then ./build_gmp.sh macos; fi
           mkdir build_prover_ios && cd build_prover_ios
           cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
           xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
           cp ../depends/gmp/package_ios_arm64/lib/libgmp.a src/Release-iphoneos
+          
           cd ../
           mkdir build_prover_ios_simulator && cd build_prover_ios_simulator
           cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO
           xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
           cp ../depends/gmp/package_iphone_simulator/lib/libgmp.a src/Debug-iphonesimulator
+          
+          cd ../
+          mkdir build_prover_macos_arm64 && cd build_prover_macos_arm64
+          cmake .. -GXcode -DTARGET_PLATFORM=macos_arm64 -DCMAKE_INSTALL_PREFIX=../package_macos_arm64
+          xcodebuild -project rapidsnark.xcodeproj -scheme rapidsnarkStatic -configuration Release -arch arm64 -arch arm64e
+
+          cd ../
+          mkdir build_prover_macos_x86_64 && cd build_prover_macos_x86_64
+          cmake .. -GXcode -DTARGET_PLATFORM=macos_x86_64 -DCMAKE_INSTALL_PREFIX=../package_macos_x86_64
+          xcodebuild -project rapidsnark.xcodeproj -scheme rapidsnarkStatic -configuration Release -arch x86_64
+          
+          cd ../
+          mkdir -p package_macos/lib package_macos/include
+          cp src/prover.h ./depends/gmp/package_macos/include/gmp.h ./package_macos/include/
+          cp depends/gmp/package_macos/lib/libgmp.a ./package_macos/lib/
+          lipo ./build_prover_macos_x86_64/src/Release/libfq.a ./build_prover_macos_arm64/src/Release/libfq.a -create -output "./package_macos/lib/libfq.a"
+          lipo ./build_prover_macos_x86_64/src/Release/libfr.a ./build_prover_macos_arm64/src/Release/libfr.a -create -output "./package_macos/lib/libfr.a"
+          lipo ./build_prover_macos_x86_64/src/Release/librapidsnark.a ./build_prover_macos_arm64/src/Release/librapidsnark.a -create -output "./package_macos/lib/librapidsnark.a"
 
       - name: upload iOS artifacts
         uses: actions/upload-artifact@v3
@@ -107,4 +127,12 @@ jobs:
           name: iOS Simulator
           path: |
             build_prover_ios_simulator/src/Debug-iphonesimulator
+          if-no-files-found: error
+
+      - name: upload macOS  artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: macOS
+          path: |
+            package_macos
           if-no-files-found: error
