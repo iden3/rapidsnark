@@ -118,7 +118,7 @@ build_android()
         return 1
     fi
 
-    if [ -z $ANDROID_NDK ]; then
+    if [ -z "$ANDROID_NDK" ]; then
 
         echo "ERROR: ANDROID_NDK environment variable is not set."
         echo "       It must be an absolute path to the root directory of Android NDK."
@@ -139,8 +139,8 @@ build_android()
     export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
     export STRIP=$TOOLCHAIN/bin/llvm-strip
 
-    echo $TOOLCHAIN
-    echo $TARGET
+    echo "$TOOLCHAIN"
+    echo "$TARGET"
 
     rm -rf "$BUILD_DIR"
     mkdir "$BUILD_DIR"
@@ -163,7 +163,7 @@ build_android_x86_64()
         return 1
     fi
 
-    if [ -z $ANDROID_NDK ]; then
+    if [ -z "$ANDROID_NDK" ]; then
 
         echo "ERROR: ANDROID_NDK environment variable is not set."
         echo "       It must be an absolute path to the root directory of Android NDK."
@@ -184,7 +184,7 @@ build_android_x86_64()
     export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
     export STRIP=$TOOLCHAIN/bin/llvm-strip
 
-    echo $TOOLCHAIN
+    echo "$TOOLCHAIN"
     echo $TARGET
 
     rm -rf "$BUILD_DIR"
@@ -214,11 +214,14 @@ build_ios()
 
     export ARCH_FLAGS="-arch arm64 -arch arm64e"
     export OPT_FLAGS="-O3 -g3 -fembed-bitcode"
-    export HOST_FLAGS="${ARCH_FLAGS} -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot $(xcrun --sdk ${SDK} --show-sdk-path)"
+    HOST_FLAGS="${ARCH_FLAGS} -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot $(xcrun --sdk ${SDK} --show-sdk-path)"
 
-    export CC=$(xcrun --find --sdk "${SDK}" clang)
-    export CXX=$(xcrun --find --sdk "${SDK}" clang++)
-    export CPP=$(xcrun --find --sdk "${SDK}" cpp)
+    CC=$(xcrun --find --sdk "${SDK}" clang)
+    export CC
+    CXX=$(xcrun --find --sdk "${SDK}" clang++)
+    export CXX
+    CPP=$(xcrun --find --sdk "${SDK}" cpp)
+    export CPP
     export CFLAGS="${HOST_FLAGS} ${OPT_FLAGS}"
     export CXXFLAGS="${HOST_FLAGS} ${OPT_FLAGS}"
     export LDFLAGS="${HOST_FLAGS}"
@@ -279,54 +282,57 @@ build_ios_simulator()
 	done
 
 	mkdir -p "${GMP_DIR}/package_iphone_simulator/lib"
-	lipo ${libs[@]} -create -output "${GMP_DIR}/package_iphone_simulator/lib/libgmp.a"
+	lipo "${libs[@]}" -create -output "${GMP_DIR}/package_iphone_simulator/lib/libgmp.a"
 	echo "Wrote universal fat library for iPhone Simulator arm64/x86_64 to ${GMP_DIR}/package_iphone_simulator/lib/libgmp.a"
+}
+
+build_macos_arch()
+{
+  ARCH="$1"
+  case "$ARCH" in
+    "arm64" )
+      ARCH_FLAGS="-arch arm64 -arch arm64e"
+      ;;
+    "x86_64" )
+      ARCH_FLAGS="-arch x86_64"
+      ;;
+    * )
+      echo "Incorrect arch"
+      exit 1
+  esac
+
+  BUILD_DIR="build_macos_${ARCH}"
+  PACKAGE_DIR="$GMP_DIR/package_macos_${ARCH}"
+  if [ -d "$PACKAGE_DIR" ]; then
+    echo "macOS ${ARCH} package is built already. See $PACKAGE_DIR. Skip building this ARCH."
+    return
+  fi
+  rm -rf "$BUILD_DIR"
+  mkdir "$BUILD_DIR"
+  cd "$BUILD_DIR"
+  ../configure --prefix="${PACKAGE_DIR}" \
+         CC="$(xcrun --sdk macosx --find clang)" \
+         CFLAGS="-O3 -isysroot $(xcrun --sdk macosx --show-sdk-path) ${ARCH_FLAGS} -fvisibility=hidden -mmacos-version-min=14.0" \
+         LDFLAGS="" \
+         --host "${ARCH}-apple-darwin" --disable-assembly --enable-static --disable-shared --with-pic &&
+    make -j${NPROC} &&
+    make install
+  cd ..
 }
 
 build_macos_fat()
 {
-	libs=()
-	for ARCH in "arm64" "x86_64"; do
-		case "$ARCH" in
-			"arm64" )
-				echo "Building for macOS arm64"
-				ARCH_FLAGS="-arch arm64 -arch arm64e"
-				;;
-			"x86_64" )
-				echo "Building for macOS x86_64"
-				ARCH_FLAGS="-arch x86_64"
-				;;
-			* )
-				echo "Incorrect arch"
-				exit 1
-		esac
+  echo "Building for macOS arm64"
+  build_macos_arch "arm64"
+  echo "Building for macOS x86_64"
+  build_macos_arch "x86_64"
 
-		BUILD_DIR="build_macos_${ARCH}"
-		PACKAGE_DIR="$GMP_DIR/package_macos_${ARCH}"
-		libs+=("${PACKAGE_DIR}/lib/libgmp.a")
-
-		if [ -d "$PACKAGE_DIR" ]; then
-			echo "macOS ${ARCH} package is built already. See $PACKAGE_DIR. Skip building this ARCH."
-			continue
-		fi
-
-		rm -rf "$BUILD_DIR"
-		mkdir "$BUILD_DIR"
-		cd "$BUILD_DIR"
-
-		../configure --prefix="${PACKAGE_DIR}" \
-					 CC="$(xcrun --sdk macosx --find clang)" \
-					 CFLAGS="-O3 -isysroot $(xcrun --sdk macosx --show-sdk-path) ${ARCH_FLAGS} -fvisibility=hidden -mmacos-version-min=14.0" \
-					 LDFLAGS="" \
-					 --host ${ARCH}-apple-darwin --disable-assembly --enable-static --disable-shared --with-pic &&
-			make -j${NPROC} &&
-			make install
-
-		cd ..
-	done
+  gmp_lib_arm64="$GMP_DIR/package_macos_arm64/lib/libgmp.a"
+  gmp_lib_x86_64="$GMP_DIR/package_macos_x86_64/lib/libgmp.a"
+  gmp_lib_fat="$GMP_DIR/package_macos/lib/libgmp.a"
 
 	mkdir -p "${GMP_DIR}/package_macos/lib"
-	lipo ${libs[@]} -create -output "${GMP_DIR}/package_macos/lib/libgmp.a"
+	lipo "${gmp_lib_arm64}" "${gmp_lib_x86_64}" -create -output "${gmp_lib_fat}"
 	mkdir -p "${GMP_DIR}/package_macos/include"
 	cp  "${GMP_DIR}/package_macos_arm64/include/gmp.h" "${GMP_DIR}/package_macos/include/"
 	echo "Wrote universal fat library for macOS arm64/x86_64 to ${GMP_DIR}/package_macos/lib/libgmp.a"
@@ -336,7 +342,7 @@ if [ $# -ne 1 ]; then
     usage
 fi
 
-TARGET_PLATFORM=`echo $1 | tr A-Z a-z`
+TARGET_PLATFORM=$(echo "$1" | tr "[:upper:]" "[:lower:]")
 
 cd depends
 
@@ -361,6 +367,16 @@ case "$TARGET_PLATFORM" in
     "macos" )
         echo "Building fat library for macOS"
         build_macos_fat
+    ;;
+
+    "macos_arm64" )
+        echo "Building library for macOS arm64"
+        build_macos_arch "arm64"
+    ;;
+
+    "macos_x86_64" )
+        echo "Building library for macOS x86_64"
+        build_macos_arch "x86_64"
     ;;
 
     "android" )
