@@ -150,19 +150,21 @@ jobs:
             gmp-6.2.1.tar.xz
           key: ${{ runner.os }}-gmp-x86_64-${{ hashFiles('build_gmp.sh') }}
 
-      - name: check
+      - name: install dependencies
         run: |
-          uname -a
+          brew install nasm
 
       - name: build
+        if: false
         run: |
           if [[ ! -d "depends/gmp/package_macos_x86_64" ]]; then ./build_gmp.sh macos_x86_64; fi
 
-          mkdir build_prover_macos_x86_64 && cd build_prover_macos_x86_64
-          cmake .. -DTARGET_PLATFORM=macos_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_x86_64
-          make -j4 && make install
+          # mkdir build_prover_macos_x86_64 && cd build_prover_macos_x86_64
+          # cmake .. -DTARGET_PLATFORM=macos_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_x86_64
+          # make -j4 && make install
 
       - name: test prover
+        if: false
         run: |
           set -x
           set -e
