@@ -112,7 +112,6 @@ jobs:
           ls .
           ls package_macos_arm64
           package_macos_arm64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
-#          snarkjs help
           ls -l .
           ls -l testdata
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
