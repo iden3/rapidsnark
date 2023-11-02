@@ -170,7 +170,7 @@ jobs:
           package_macos_x86_64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
 
-        if: false
+      - name: upload macOS x86_64 artifacts
         uses: actions/upload-artifact@v3
         with:
           name: macOS-x86_64
