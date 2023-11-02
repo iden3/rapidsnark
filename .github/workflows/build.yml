@@ -173,6 +173,7 @@ jobs:
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
 
       - name: upload macOS x86_64 artifacts
+        if: false
         uses: actions/upload-artifact@v3
         with:
           name: macOS-x86_64
