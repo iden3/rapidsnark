@@ -104,7 +104,10 @@ jobs:
 
       - name: test prover
         run: |
+          set -x
+          set -e
           npm install -g snarkjs
+          which node
           ls .
           ls package_macos_arm64
           package_macos_arm64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
