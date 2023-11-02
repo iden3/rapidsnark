@@ -26,7 +26,7 @@ jobs:
         with:
           path: |
             depends/gmp
-            gmp-6.2.1.tar.xz
+            depends/gmp-6.2.1.tar.xz
           key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: build gmp android arm64
@@ -78,7 +78,7 @@ jobs:
         with:
           path: |
             depends/gmp
-            gmp-6.2.1.tar.xz
+            depends/gmp-6.2.1.tar.xz
           key: ${{ runner.os }}-gmp-arm64-${{ hashFiles('build_gmp.sh') }}
 
       - name: build
@@ -147,7 +147,7 @@ jobs:
         with:
           path: |
             depends/gmp
-            gmp-6.2.1.tar.xz
+            depends/gmp-6.2.1.tar.xz
           key: ${{ runner.os }}-gmp-x86_64-${{ hashFiles('build_gmp.sh') }}-2
 
       - name: install dependencies
@@ -158,9 +158,9 @@ jobs:
         run: |
           if [[ ! -d "depends/gmp/package_macos_x86_64" ]]; then ./build_gmp.sh macos_x86_64; fi
 
-          # mkdir build_prover_macos_x86_64 && cd build_prover_macos_x86_64
-          # cmake .. -DTARGET_PLATFORM=macos_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_x86_64
-          # make -j4 && make install
+          mkdir build_prover_macos_x86_64 && cd build_prover_macos_x86_64
+          cmake .. -DTARGET_PLATFORM=macos_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_x86_64
+          make -j4 && make install
 
       - name: test prover
         if: false
