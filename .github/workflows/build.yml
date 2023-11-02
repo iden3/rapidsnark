@@ -163,7 +163,6 @@ jobs:
           make -j4 && make install
 
       - name: test prover
-        if: false
         run: |
           set -x
           set -e
@@ -171,7 +170,6 @@ jobs:
           package_macos_x86_64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
 
-      - name: upload macOS x86_64 artifacts
         if: false
         uses: actions/upload-artifact@v3
         with:
