@@ -82,21 +82,21 @@ jobs:
 
       - name: build
         run: |
-          # if [[ ! -d "depends/gmp/package_ios_arm64" ]]; then ./build_gmp.sh ios; fi
-          # if [[ ! -d "depends/gmp/package_iphone_simulator" ]]; then ./build_gmp.sh ios_simulator; fi
+          if [[ ! -d "depends/gmp/package_ios_arm64" ]]; then ./build_gmp.sh ios; fi
+          if [[ ! -d "depends/gmp/package_iphone_simulator" ]]; then ./build_gmp.sh ios_simulator; fi
           if [[ ! -d "depends/gmp/package_macos_arm64" ]]; then ./build_gmp.sh macos_arm64; fi
           
-          # mkdir build_prover_ios && cd build_prover_ios
-          # cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
-          # xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
-          # cp ../depends/gmp/package_ios_arm64/lib/libgmp.a src/Release-iphoneos
-          # cd ../
+          mkdir build_prover_ios && cd build_prover_ios
+          cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
+          xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
+          cp ../depends/gmp/package_ios_arm64/lib/libgmp.a src/Release-iphoneos
+          cd ../
           
-          # mkdir build_prover_ios_simulator && cd build_prover_ios_simulator
-          # cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO
-          # xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
-          # cp ../depends/gmp/package_iphone_simulator/lib/libgmp.a src/Debug-iphonesimulator
-          # cd ../
+          mkdir build_prover_ios_simulator && cd build_prover_ios_simulator
+          cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO
+          xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
+          cp ../depends/gmp/package_iphone_simulator/lib/libgmp.a src/Debug-iphonesimulator
+          cd ../
           
           mkdir build_prover_macos_arm64 && cd build_prover_macos_arm64
           cmake .. -DTARGET_PLATFORM=macos_arm64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_arm64
@@ -107,13 +107,7 @@ jobs:
           set -x
           set -e
           npm install -g snarkjs
-          which node
-          ls -l /opt/homebrew/opt
-          ls .
-          ls package_macos_arm64
           package_macos_arm64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
-          ls -l .
-          ls -l testdata
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
 
       - name: upload iOS artifacts
