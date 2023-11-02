@@ -67,6 +67,7 @@ jobs:
 
   build-apple-arm64:
     runs-on: macos-13-xlarge
+    if: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -129,7 +130,50 @@ jobs:
       - name: upload macOS arm64 artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: macOS
+          name: macOS-arm64
           path: |
             package_macos_arm64
+          if-no-files-found: error
+
+  build-apple-x86_64:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Cache gmp build
+        uses: actions/cache@v3
+        with:
+          path: |
+            depends/gmp
+            gmp-6.2.1.tar.xz
+          key: ${{ runner.os }}-gmp-x86_64-${{ hashFiles('build_gmp.sh') }}
+
+      - name: check
+        run: |
+          uname -a
+
+      - name: build
+        run: |
+          if [[ ! -d "depends/gmp/package_macos_x86_64" ]]; then ./build_gmp.sh macos_x86_64; fi
+
+          mkdir build_prover_macos_x86_64 && cd build_prover_macos_x86_64
+          cmake .. -DTARGET_PLATFORM=macos_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_x86_64
+          make -j4 && make install
+
+      - name: test prover
+        run: |
+          set -x
+          set -e
+          npm install -g snarkjs
+          package_macos_x86_64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
+          snarkjs groth16 verify testdata/verification_key.json public.json proof.json
+
+      - name: upload macOS x86_64 artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: macOS-x86_64
+          path: |
+            package_macos_x86_64
           if-no-files-found: error
