@@ -148,14 +148,13 @@ jobs:
           path: |
             depends/gmp
             gmp-6.2.1.tar.xz
-          key: ${{ runner.os }}-gmp-x86_64-${{ hashFiles('build_gmp.sh') }}
+          key: ${{ runner.os }}-gmp-x86_64-${{ hashFiles('build_gmp.sh') }}-2
 
       - name: install dependencies
         run: |
           brew install nasm
 
       - name: build
-        if: false
         run: |
           if [[ ! -d "depends/gmp/package_macos_x86_64" ]]; then ./build_gmp.sh macos_x86_64; fi
 
