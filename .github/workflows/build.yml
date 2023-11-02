@@ -108,10 +108,11 @@ jobs:
           set -e
           npm install -g snarkjs
           which node
+          ls -l /opt/homebrew/opt
           ls .
           ls package_macos_arm64
           package_macos_arm64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
-          snarkjs help
+#          snarkjs help
           ls -l .
           ls -l testdata
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
