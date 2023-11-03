@@ -15,7 +15,7 @@ if(USE_ASM AND ARCH MATCHES "x86_64")
     if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
         set(NASM_FLAGS -fmacho64 --prefix _)
     else()
-        set(NASM_FLAGS -felf64)
+        set(NASM_FLAGS -felf64 -DPIC)
     endif()
 
     add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/build/fq_asm.o
