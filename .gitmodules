@@ -6,7 +6,7 @@
 	url = https://github.com/nlohmann/json.git
 [submodule "depends/ffiasm"]
 	path = depends/ffiasm
-	url = https://github.com/nixw4/ffiasm.git
+	url = https://github.com/0xPolygonID/ffiasm
 	branch = master
 [submodule "depends/circom_runtime"]
 	path = depends/circom_runtime
