@@ -9,14 +9,16 @@ usage()
 {
     echo "USAGE: $0 <target>"
     echo "where target is one of:"
-    echo "    android:        build for Android arm64"
-    echo "    android_x86_64: build for Android x86_64"
-    echo "    aarch64:        build for Linux aarch64"
     echo "    ios:            build for iOS arm64"
     echo "    ios_simulator:  build for iPhone Simulator for arm64/x86_64 (fat binary)"
-    echo "    macos:          build for maxOS for arm64/x86_64 (fat binary)"
+    echo "    macos:          build for macOS for arm64/x86_64 (fat binary)"
+    echo "    macos_arm64:    build for macOS arm64"
+    echo "    macos_x86_64:   build for macOS x86_64"
+    echo "    android:        build for Android arm64"
+    echo "    android_x86_64: build for Android x86_64"
     echo "    host:           build for this host"
     echo "    host_noasm:     build for this host without asm optimizations (e.g. needed for macOS)"
+    echo "    aarch64:        build for Linux aarch64"
 
     exit 1
 }

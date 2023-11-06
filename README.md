@@ -90,7 +90,7 @@ make -j4 && make install
 
 ### Compile prover for iOS
 
-Install Xcode & homebrew.
+Install Xcode
 
 ```sh
 git submodule init
@@ -104,7 +104,7 @@ Open generated Xcode project and compile prover.
 
 ## Build for iOS emulator
 
-Install Xcode & homebrew.
+Install Xcode
 
 ```sh
 git submodule init
