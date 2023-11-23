@@ -1,10 +1,6 @@
-## Important note :warning: 
-
-**This is an original implementation of ffiasm. The new one is in the https://github.com/iden3/ffiasm .**
-
 ## Important note 
 
-**This is a new implementation of rapid snark. If you need access to the original (and now obsoleted) implemenation at  https://github.com/iden3/rapidsnark-old .**
+**This is a new implementation of rapidsnark. The original (and now obsoleted) implemenation is available here: [rapidsnark-old](https://github.com/iden3/rapidsnark-old).**
 
 # rapidsnark
 
