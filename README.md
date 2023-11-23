@@ -146,7 +146,6 @@ by this one
 npm install
 git submodule init
 git submodule update
-npx task createFieldSources
 npx task buildPistache
 npx task buildProverServer
 ```
