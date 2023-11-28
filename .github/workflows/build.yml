@@ -1,10 +1,12 @@
 name: Build
 
 on:
+  release:
+    types: [published]
   push:
     branches:
       - main
-      - cibuild
+  pull_request:
 
 jobs:
   build-linux:
@@ -17,7 +19,7 @@ jobs:
       - name: install requirements
         uses: awalsh128/cache-apt-pkgs-action@v1
         with:
-          packages: curl xz-utils build-essential cmake m4 nasm
+          packages: build-essential cmake m4 nasm
           version: 1.0
 
       - name: Cache gmp build
@@ -56,28 +58,37 @@ jobs:
           make -j4 && make install
 
       - name: upload Android ARM64 artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: rapidsnark-Android-arm64
-          path: |
-            package_android
-          if-no-files-found: error
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          mkdir rapidsnark-android-arm64-${{ github.ref_name }}
+          cp -r package_android/* rapidsnark-android-arm64-${{ github.ref_name }}/
+          zip -r rapidsnark-android-arm64-${{ github.ref_name }}.zip rapidsnark-android-arm64-${{ github.ref_name }}
+          gh release upload ${{ github.event.release.tag_name }} rapidsnark-android-arm64-${{ github.ref_name }}.zip
 
       - name: upload Android x86_64 artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: rapidsnark-Android-x86_64
-          path: |
-            package_android_x86_64
-          if-no-files-found: error
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          mkdir rapidsnark-android-x86_64-${{ github.ref_name }}
+          cp -r package_android_x86_64/* rapidsnark-android-x86_64-${{ github.ref_name }}/
+          zip -r rapidsnark-android-x86_64-${{ github.ref_name }}.zip rapidsnark-android-x86_64-${{ github.ref_name }}
+          gh release upload ${{ github.event.release.tag_name }} rapidsnark-android-x86_64-${{ github.ref_name }}.zip
 
       - name: upload Linux x86_64 artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: rapidsnark-Linux-x86_64
-          path: |
-            package
-          if-no-files-found: error
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          mkdir rapidsnark-linux-x86_64-${{ github.ref_name }}
+          cp -r rapidsnark-Linux-x86_64/* rapidsnark-linux-x86_64-${{ github.ref_name }}/
+          zip -r rapidsnark-linux-x86_64-${{ github.ref_name }}.zip rapidsnark-linux-x86_64-${{ github.ref_name }}
+          gh release upload ${{ github.event.release.tag_name }} rapidsnark-linux-x86_64-${{ github.ref_name }}.zip
 
   build-apple-arm64:
     runs-on: macos-13-xlarge
@@ -125,28 +136,37 @@ jobs:
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
 
       - name: upload iOS artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: rapidsnark-iOS
-          path: |
-            build_prover_ios/src/Release-iphoneos
-          if-no-files-found: error
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          mkdir rapidsnark-iOS-${{ github.ref_name }}
+          cp -r build_prover_ios/src/Release-iphoneos/* rapidsnark-iOS-${{ github.ref_name }}/
+          zip -r rapidsnark-iOS-${{ github.ref_name }}.zip rapidsnark-iOS-${{ github.ref_name }}
+          gh release upload ${{ github.event.release.tag_name }} rapidsnark-iOS-${{ github.ref_name }}.zip
 
       - name: upload iOS Simulator artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: rapidsnark-iOS-Simulator
-          path: |
-            build_prover_ios_simulator/src/Debug-iphonesimulator
-          if-no-files-found: error
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          mkdir rapidsnark-iOS-Simulator-${{ github.ref_name }}
+          cp -r build_prover_ios_simulator/src/Debug-iphonesimulator/* rapidsnark-iOS-Simulator-${{ github.ref_name }}/
+          zip -r rapidsnark-iOS-Simulator-${{ github.ref_name }}.zip rapidsnark-iOS-Simulator-${{ github.ref_name }}
+          gh release upload ${{ github.event.release.tag_name }} rapidsnark-iOS-Simulator-${{ github.ref_name }}.zip
 
       - name: upload macOS arm64 artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: rapidsnark-macOS-arm64
-          path: |
-            package_macos_arm64
-          if-no-files-found: error
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          mkdir rapidsnark-macOS-arm64-${{ github.ref_name }}
+          cp -r package_macos_arm64/* rapidsnark-macOS-arm64-${{ github.ref_name }}/
+          zip -r rapidsnark-macOS-arm64-${{ github.ref_name }}.zip rapidsnark-macOS-arm64-${{ github.ref_name }}
+          gh release upload ${{ github.event.release.tag_name }} rapidsnark-macOS-arm64-${{ github.ref_name }}.zip
 
   build-apple-x86_64:
     runs-on: macos-13
@@ -184,9 +204,12 @@ jobs:
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
 
       - name: upload macOS x86_64 artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: rapidsnark-macOS-x86_64
-          path: |
-            package_macos_x86_64
-          if-no-files-found: error
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          mkdir rapidsnark-macos-x86_64-${{ github.ref_name }}
+          cp -r package_macos_x86_64/* rapidsnark-macos-x86_64-${{ github.ref_name }}/
+          zip -r rapidsnark-macos-x86_64-${{ github.ref_name }}.zip rapidsnark-macos-x86_64-${{ github.ref_name }}
+          gh release upload ${{ github.event.release.tag_name }} rapidsnark-macos-x86_64-${{ github.ref_name }}.zip
