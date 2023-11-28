@@ -86,7 +86,7 @@ jobs:
         run: |
           set -x
           mkdir rapidsnark-linux-x86_64-${{ github.ref_name }}
-          cp -r rapidsnark-Linux-x86_64/* rapidsnark-linux-x86_64-${{ github.ref_name }}/
+          cp -r package/* rapidsnark-linux-x86_64-${{ github.ref_name }}/
           zip -r rapidsnark-linux-x86_64-${{ github.ref_name }}.zip rapidsnark-linux-x86_64-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-linux-x86_64-${{ github.ref_name }}.zip
 
