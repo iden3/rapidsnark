@@ -68,6 +68,13 @@ groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
         BinFileUtils::BinFile wtns(wtns_buffer, wtns_size, "wtns", 2);
         auto wtnsHeader = WtnsUtils::loadHeader(&wtns);
 
+		if (zkeyHeader->nVars != wtnsHeader->nVars) {
+		  snprintf(error_msg, error_msg_maxsize,
+				   "Invalid witness length. Circuit: %u, witness: %u",
+				   zkeyHeader->nVars, wtnsHeader->nVars);
+		  return PPROVER_INVALID_WITNESS_LENGTH;
+		}
+
         size_t proofMinSize  = ProofBufferMinSize();
         size_t publicMinSize = PublicBufferMinSize(zkeyHeader->nPublic);
 

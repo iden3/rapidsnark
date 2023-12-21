@@ -30,13 +30,13 @@ jobs:
             depends/gmp-6.2.1.tar.xz
           key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}-2
 
-      - name: build gmp android arm64
+      - name: build gmp for Android arm64
         run: if [[ ! -d "depends/gmp/package_android_arm64" ]]; then ./build_gmp.sh android; fi
 
-      - name: build gmp android x86_64
+      - name: build gmp for Android x86_64
         run: if [[ ! -d "depends/gmp/package_android_x86_64" ]]; then ./build_gmp.sh android_x86_64; fi
 
-      - name: build gmp android x86_64
+      - name: build gmp for Linux x86_64
         run: if [[ ! -d "depends/gmp/package" ]]; then ./build_gmp.sh host; fi
 
       - name: Build prover Android ARM64
@@ -209,7 +209,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -x
-          mkdir rapidsnark-macos-x86_64-${{ github.ref_name }}
-          cp -r package_macos_x86_64/* rapidsnark-macos-x86_64-${{ github.ref_name }}/
-          zip -r rapidsnark-macos-x86_64-${{ github.ref_name }}.zip rapidsnark-macos-x86_64-${{ github.ref_name }}
-          gh release upload ${{ github.event.release.tag_name }} rapidsnark-macos-x86_64-${{ github.ref_name }}.zip
+          mkdir rapidsnark-macOS-x86_64-${{ github.ref_name }}
+          cp -r package_macos_x86_64/* rapidsnark-macOS-x86_64-${{ github.ref_name }}/
+          zip -r rapidsnark-macOS-x86_64-${{ github.ref_name }}.zip rapidsnark-macOS-x86_64-${{ github.ref_name }}
+          gh release upload ${{ github.event.release.tag_name }} rapidsnark-macOS-x86_64-${{ github.ref_name }}.zip
