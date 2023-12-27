@@ -56,7 +56,20 @@ elseif(TARGET_PLATFORM MATCHES "arm64_host")
     set(GMP_PREFIX ${GMP_ROOT}/package)
     set(ARCH arm64)
 
+elseif(TARGET_PLATFORM MATCHES "macos_x86_64")
+
+    set(CMAKE_OSX_ARCHITECTURES x86_64)
+    set(GMP_PREFIX ${GMP_ROOT}/package_macos_x86_64)
+    set(ARCH x86_64)
+
+elseif(TARGET_PLATFORM MATCHES "macos_arm64")
+
+    set(CMAKE_OSX_ARCHITECTURES arm64)
+    set(GMP_PREFIX ${GMP_ROOT}/package_macos_arm64)
+    set(ARCH arm64)
+
 else()
+
     set(GMP_PREFIX ${GMP_ROOT}/package)
     set(ARCH x86_64)
 

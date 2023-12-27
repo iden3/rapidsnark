@@ -225,8 +225,8 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     LOG_DEBUG(E.fr.toString(a[0]).c_str());
     LOG_DEBUG(E.fr.toString(a[1]).c_str());
 
-    delete b;
-    delete c;
+    delete [] b;
+    delete [] c;
 
     LOG_TRACE("Start Multiexp H");
     typename Engine::G1Point pih;
@@ -235,7 +235,7 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     ss1 << "pih: " << E.g1.toString(pih);
     LOG_DEBUG(ss1);
 
-    delete a;
+    delete [] a;
 
     typename Engine::FrElement r;
     typename Engine::FrElement s;

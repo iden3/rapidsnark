@@ -6,6 +6,10 @@
 #include <string>
 #include <gmp.h>
 
+#ifdef __APPLE__
+#include <sys/types.h> // typedef unsigned int uint;
+#endif // __APPLE__
+
 extern FqElement Fq_q;
 extern FqElement Fq_R2;
 extern FqElement Fq_R3;

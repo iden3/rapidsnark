@@ -6,6 +6,10 @@
 #include <string>
 #include <gmp.h>
 
+#ifdef __APPLE__
+#include <sys/types.h> // typedef unsigned int uint;
+#endif // __APPLE__
+
 extern FrElement Fr_q;
 extern FrElement Fr_R2;
 extern FrElement Fr_R3;
