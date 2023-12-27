@@ -26,15 +26,22 @@ int main(int argc, char **argv)
         std::string proofFilename = argv[3];
         std::string publicFilename = argv[4];
 
+        BinFileUtils::FileLoader zkeyFileLoader(zkeyFilename);
+        BinFileUtils::FileLoader wtnsFileLoader(wtnsFilename);
+
         char proofBuffer[BufferSize];
-        char publicBuffer[BufferSize];
+
+        size_t publicBufferSize = groth16_CalcPublicBufferSize(
+            zkeyFileLoader.dataBuffer(),
+            zkeyFileLoader.dataSize()
+        );
+
+        char publicBuffer[publicBufferSize];
+
         size_t proofSize  = sizeof(proofBuffer);
         size_t publicSize = sizeof(publicBuffer);
         char errorMessage[256];
         int error = 0;
-
-        BinFileUtils::FileLoader zkeyFileLoader(zkeyFilename);
-        BinFileUtils::FileLoader wtnsFileLoader(wtnsFilename);
 
         error = groth16_prover(zkeyFileLoader.dataBuffer(), zkeyFileLoader.dataSize(),
                                wtnsFileLoader.dataBuffer(), wtnsFileLoader.dataSize(),
@@ -42,13 +49,10 @@ int main(int argc, char **argv)
                                publicBuffer, &publicSize,
                                errorMessage, sizeof(errorMessage));
 
-        if (error == PPROVER_ERROR_SHORT_BUFFER) {
-
+        if (error == PROVER_ERROR_SHORT_BUFFER) {
             std::cerr << "Error: Short buffer for proof or public" << '\n';
             return EXIT_FAILURE;
-        }
-
-        else if (error) {
+        } else if (error) {
             std::cerr << errorMessage << '\n';
             return EXIT_FAILURE;
         }
@@ -66,7 +70,6 @@ int main(int argc, char **argv)
     } catch (std::exception* e) {
         std::cerr << e->what() << '\n';
         return EXIT_FAILURE;
-
     } catch (std::exception& e) {
         std::cerr << e.what() << '\n';
         return EXIT_FAILURE;

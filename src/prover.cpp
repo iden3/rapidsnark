@@ -16,12 +16,12 @@ using json = nlohmann::json;
 
 static size_t ProofBufferMinSize()
 {
-    return 726;
+    return 810;
 }
 
 static size_t PublicBufferMinSize(size_t count)
 {
-    return count * 81 + 3;
+    return count * 82 + 4;
 }
 
 static void VerifyPrimes(mpz_srcptr zkey_prime, mpz_srcptr wtns_prime)
@@ -54,6 +54,17 @@ std::string BuildPublicString(AltBn128::FrElement *wtnsData, size_t nPublic)
     return jsonPublic.dump();
 }
 
+unsigned long groth16_CalcPublicBufferSize(const void *zkey_buffer,   unsigned long  zkey_size) {
+    try {
+        BinFileUtils::BinFile zkey(zkey_buffer, zkey_size, "zkey", 1);
+        auto zkeyHeader = ZKeyUtils::loadHeader(&zkey);
+        return PublicBufferMinSize(zkeyHeader->nPublic);
+    } catch (...) {
+    }
+
+    return 0;
+}
+
 int
 groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
                const void *wtns_buffer,   unsigned long  wtns_size,
@@ -76,7 +87,7 @@ groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
             *proof_size  = proofMinSize;
             *public_size = publicMinSize;
 
-            return PPROVER_ERROR_SHORT_BUFFER;
+            return PROVER_ERROR_SHORT_BUFFER;
         }
 
         VerifyPrimes(zkeyHeader->rPrime, wtnsHeader->prime);
@@ -112,7 +123,7 @@ groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
             *proof_size  = stringProofSize;
             *public_size = stringPublicSize;
 
-            return PPROVER_ERROR_SHORT_BUFFER;
+            return PROVER_ERROR_SHORT_BUFFER;
         }
 
         std::strncpy(proof_buffer, stringProof.data(), *proof_size);
@@ -123,7 +134,7 @@ groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
         if (error_msg) {
             strncpy(error_msg, e.what(), error_msg_maxsize);
         }
-        return PPROVER_ERROR;
+        return PROVER_ERROR;
 
     } catch (std::exception *e) {
 
@@ -131,14 +142,14 @@ groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
             strncpy(error_msg, e->what(), error_msg_maxsize);
         }
         delete e;
-        return PPROVER_ERROR;
+        return PROVER_ERROR;
 
     } catch (...) {
         if (error_msg) {
             strncpy(error_msg, "unknown error", error_msg_maxsize);
         }
-        return PPROVER_ERROR;
+        return PROVER_ERROR;
     }
 
-    return PRPOVER_OK;
+    return PROVER_OK;
 }
