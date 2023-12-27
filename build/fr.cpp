@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 
+
 static mpz_t q;
 static mpz_t zero;
 static mpz_t one;
