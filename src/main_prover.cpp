@@ -9,7 +9,7 @@
            do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 
-const size_t BufferSize = 16384;
+const size_t BufferSize = 4194304;
 
 
 int main(int argc, char **argv)
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
         std::string proofFilename = argv[3];
         std::string publicFilename = argv[4];
 
-        char proofBuffer[BufferSize];
+        char proofBuffer[910];
         char publicBuffer[BufferSize];
         size_t proofSize  = sizeof(proofBuffer);
         size_t publicSize = sizeof(publicBuffer);
