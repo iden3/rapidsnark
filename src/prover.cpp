@@ -83,7 +83,7 @@ groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
             snprintf(error_msg, error_msg_maxsize,
                      "Invalid witness length. Circuit: %u, witness: %u",
                      zkeyHeader->nVars, wtnsHeader->nVars);
-            return PPROVER_INVALID_WITNESS_LENGTH;
+            return PROVER_INVALID_WITNESS_LENGTH;
         }
 
         size_t proofMinSize  = ProofBufferMinSize();
