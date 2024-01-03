@@ -19,13 +19,13 @@ BinFile::BinFile(const void *fileData, size_t fileSize, std::string _type, uint3
 
     if (type != _type) {
         free(addr);
-        throw new std::invalid_argument("Invalid file type. It should be " + _type + " and it us " + type);
+        throw new std::invalid_argument("Invalid file type. It should be " + _type + " and it is " + type);
     }
 
     version = readU32LE();
     if (version > maxVersion) {
         free(addr);
-        throw new std::invalid_argument("Invalid version. It should be <=" + std::to_string(maxVersion) + " and it us " + std::to_string(version));
+        throw new std::invalid_argument("Invalid version. It should be <=" + std::to_string(maxVersion) + " and it is " + std::to_string(version));
     }
 
     u_int32_t nSections = readU32LE();

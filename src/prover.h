@@ -6,9 +6,10 @@ extern "C" {
 #endif
 
 //Error codes returned by the functions.
-#define PRPOVER_OK                  0x0
-#define PPROVER_ERROR               0x1
-#define PPROVER_ERROR_SHORT_BUFFER  0x2
+#define PRPOVER_OK                     0x0
+#define PPROVER_ERROR                  0x1
+#define PPROVER_ERROR_SHORT_BUFFER     0x2
+#define PPROVER_INVALID_WITNESS_LENGTH 0x3
 
 
 /**
