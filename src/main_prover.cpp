@@ -9,7 +9,7 @@
            do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 
-const size_t BufferSize = 16384;
+const size_t BufferSize = 32768;
 
 
 int main(int argc, char **argv)

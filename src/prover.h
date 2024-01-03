@@ -6,9 +6,10 @@ extern "C" {
 #endif
 
 //Error codes returned by the functions.
-#define PROVER_OK                  0x0
-#define PROVER_ERROR               0x1
-#define PROVER_ERROR_SHORT_BUFFER  0x2
+#define PROVER_OK                     0x0
+#define PROVER_ERROR                  0x1
+#define PROVER_ERROR_SHORT_BUFFER     0x2
+#define PPROVER_INVALID_WITNESS_LENGTH 0x3
 
 /**
  * Calculates buffer size to output public signals as json string
