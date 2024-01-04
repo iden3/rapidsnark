@@ -6,18 +6,24 @@ extern "C" {
 #endif
 
 //Error codes returned by the functions.
-#define PRPOVER_OK                     0x0
-#define PPROVER_ERROR                  0x1
-#define PPROVER_ERROR_SHORT_BUFFER     0x2
-#define PPROVER_INVALID_WITNESS_LENGTH 0x3
-
+#define PROVER_OK                     0x0
+#define PROVER_ERROR                  0x1
+#define PROVER_ERROR_SHORT_BUFFER     0x2
+#define PROVER_INVALID_WITNESS_LENGTH 0x3
 
 /**
- * @return error code:
- *         PRPOVER_OK - in case of success.
- *         PPROVER_ERROR - in case of an error.
+ * Calculates buffer size to output public signals as json string
+ * @returns buffer size in bytes or 0 in case of an error
  */
+unsigned long CalcPublicBufferSize(const void *zkey_buffer, unsigned long zkey_size);
 
+/**
+ * groth16_prover
+ * @return error code:
+ *         PROVER_OK - in case of success
+ *         PPOVER_ERROR - in case of an error
+ *         PROVER_ERROR_SHORT_BUFFER - in case of a short buffer error, also updates proof_size and public_size with actual proof and public sizess
+ */
 int
 groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
                const void *wtns_buffer,   unsigned long  wtns_size,

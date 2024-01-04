@@ -57,6 +57,14 @@ jobs:
           cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
           make -j4 && make install
 
+      - name: test prover for linux
+        run: |
+          set -x
+          set -e
+          npm install -g snarkjs
+          package/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
+          snarkjs groth16 verify testdata/verification_key.json public.json proof.json
+
       - name: upload Android ARM64 artifacts
         if: github.event_name == 'release'
         env:
