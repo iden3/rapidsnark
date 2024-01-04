@@ -15,7 +15,7 @@ extern "C" {
  * Calculates buffer size to output public signals as json string
  * @returns buffer size in bytes or 0 in case of an error
  */
-unsigned long groth16_CalcPublicBufferSize(const void *zkey_buffer,   unsigned long  zkey_size);
+unsigned long CalcPublicBufferSize(const void *zkey_buffer, unsigned long zkey_size);
 
 /**
  * groth16_prover

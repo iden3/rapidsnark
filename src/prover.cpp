@@ -54,7 +54,7 @@ std::string BuildPublicString(AltBn128::FrElement *wtnsData, size_t nPublic)
     return jsonPublic.dump();
 }
 
-unsigned long groth16_CalcPublicBufferSize(const void *zkey_buffer,   unsigned long  zkey_size) {
+unsigned long CalcPublicBufferSize(const void *zkey_buffer, unsigned long zkey_size) {
     try {
         BinFileUtils::BinFile zkey(zkey_buffer, zkey_size, "zkey", 1);
         auto zkeyHeader = ZKeyUtils::loadHeader(&zkey);
