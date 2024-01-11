@@ -9,6 +9,9 @@ namespace BinFileUtils {
     
     class BinFile {
 
+        bool is_fd;
+        int fd;
+
         void *addr;
         u_int64_t size;
         u_int64_t pos;
@@ -33,6 +36,7 @@ namespace BinFileUtils {
     public:
 
         BinFile(const void *fileData, size_t fileSize, std::string _type, uint32_t maxVersion);
+        BinFile(std::string fileName, std::string _type, uint32_t maxVersion);
         ~BinFile();
 
         void *getSetcionData(u_int32_t sectionId, u_int32_t sectionPos = 0);

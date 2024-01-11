@@ -1,3 +1,7 @@
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <system_error>
 #include <string>
 #include <memory.h>
@@ -7,6 +11,64 @@
 #include "fileloader.hpp"
 
 namespace BinFileUtils {
+
+BinFile::BinFile(std::string fileName, std::string _type, uint32_t maxVersion) {
+
+    is_fd = true;
+    struct stat sb;
+
+    fd = open(fileName.c_str(), O_RDONLY);
+    if (fd == -1)
+        throw std::system_error(errno, std::generic_category(), "open");
+
+
+    if (fstat(fd, &sb) == -1)           /* To obtain file size */
+        throw std::system_error(errno, std::generic_category(), "fstat");
+
+    size = sb.st_size;
+
+    addr = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
+    if (addr == MAP_FAILED) {
+        close(fd);
+        throw std::system_error(errno, std::generic_category(), "mmap failed");
+    }
+
+    type.assign((const char *)addr, 4);
+    pos = 4;
+
+    if (type != _type) {
+        munmap(addr, size);
+        close(fd);
+        throw new std::invalid_argument("Invalid file type. It should be " + _type + " and it is " + type + " filename: " + fileName);
+    }
+
+    version = readU32LE();
+    if (version > maxVersion) {
+        munmap(addr, size);
+        close(fd);
+        throw new std::invalid_argument("Invalid version. It should be <=" + std::to_string(maxVersion) + " and it is " + std::to_string(version));
+    }
+
+    u_int32_t nSections = readU32LE();
+
+
+    for (u_int32_t i=0; i<nSections; i++) {
+        u_int32_t sType=readU32LE();
+        u_int64_t sSize=readU64LE();
+
+        if (sections.find(sType) == sections.end()) {
+            sections.insert(std::make_pair(sType, std::vector<Section>()));
+        }
+
+        sections[sType].push_back(Section( (void *)((u_int64_t)addr + pos), sSize));
+
+        pos += sSize;
+    }
+
+    pos = 0;
+    readingSection = NULL;
+}
+
 
 BinFile::BinFile(const void *fileData, size_t fileSize, std::string _type, uint32_t maxVersion) {
 
@@ -49,7 +111,12 @@ BinFile::BinFile(const void *fileData, size_t fileSize, std::string _type, uint3
 }
 
 BinFile::~BinFile() {
-    free(addr);
+    if (is_fd) {
+        munmap(addr, size);
+        close(fd);
+    } else {
+        free(addr);
+    }
 }
 
 void BinFile::startReadSection(u_int32_t sectionId, u_int32_t sectionPos) {
@@ -126,9 +193,11 @@ void *BinFile::read(u_int64_t len) {
 
 std::unique_ptr<BinFile> openExisting(std::string filename, std::string type, uint32_t maxVersion) {
 
-    FileLoader fileLoader(filename);
+    // FileLoader fileLoader(filename);
+    //
+    // return std::unique_ptr<BinFile>(new BinFile(fileLoader.dataBuffer(), fileLoader.dataSize(), type, maxVersion));
 
-    return std::unique_ptr<BinFile>(new BinFile(fileLoader.dataBuffer(), fileLoader.dataSize(), type, maxVersion));
+    return std::unique_ptr<BinFile>(new BinFile(filename, type, maxVersion));
 }
 
 } // Namespace
