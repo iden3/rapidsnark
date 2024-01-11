@@ -27,11 +27,12 @@ BinFile::BinFile(std::string fileName, std::string _type, uint32_t maxVersion) {
 
     size = sb.st_size;
 
-    addr = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
+    addr = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (addr == MAP_FAILED) {
         close(fd);
         throw std::system_error(errno, std::generic_category(), "mmap failed");
     }
+    madvise(addr, size, MADV_SEQUENTIAL);
 
     type.assign((const char *)addr, 4);
     pos = 4;
