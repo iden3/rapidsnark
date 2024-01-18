@@ -73,6 +73,9 @@ BinFile::BinFile(std::string fileName, std::string _type, uint32_t maxVersion) {
 
 BinFile::BinFile(const void *fileData, size_t fileSize, std::string _type, uint32_t maxVersion) {
 
+    is_fd = false;
+    fd = -1;
+
     size = fileSize;
     addr = malloc(size);
     memcpy(addr, fileData, size);

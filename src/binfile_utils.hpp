@@ -39,8 +39,6 @@ namespace BinFileUtils {
         BinFile(std::string fileName, std::string _type, uint32_t maxVersion);
         ~BinFile();
 
-        void *getSetcionData(u_int32_t sectionId, u_int32_t sectionPos = 0);
-
         void startReadSection(u_int32_t sectionId, u_int32_t setionPos = 0);
         void endReadSection(bool check = true);
 
