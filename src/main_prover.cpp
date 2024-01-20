@@ -11,10 +11,15 @@
 #include "wtns_utils.hpp"
 #include "groth16.hpp"
 
+#include "fileloader.hpp"
+#include "prover.h"
+
 using json = nlohmann::json;
 
 #define handle_error(msg) \
            do { perror(msg); exit(EXIT_FAILURE); } while (0)
+
+const size_t BufferSize = 32768;
 
 int main(int argc, char **argv)
 {
@@ -35,57 +40,38 @@ int main(int argc, char **argv)
         std::string proofFilename = argv[3];
         std::string publicFilename = argv[4];
 
-        auto zkey = BinFileUtils::openExisting(zkeyFilename, "zkey", 1);
-        auto zkeyHeader = ZKeyUtils::loadHeader(zkey.get());
+        BinFileUtils::FileLoader wtnsFileLoader(wtnsFilename);
 
-        std::string proofStr;
-        if (mpz_cmp(zkeyHeader->rPrime, altBbn128r) != 0) {
-            throw std::invalid_argument( "zkey curve not supported" );
+        char proofBuffer[BufferSize];
+        char publicBuffer[BufferSize];
+
+        size_t proofSize  = sizeof(proofBuffer);
+        size_t publicSize = sizeof(publicBuffer);
+        char errorMessage[256];
+        int error = 0;
+
+        error = groth16_prover_zkey_file(zkeyFilename,
+                               wtnsFileLoader.dataBuffer(), wtnsFileLoader.dataSize(),
+                               proofBuffer,  &proofSize,
+                               publicBuffer, &publicSize,
+                               errorMessage, sizeof(errorMessage));
+
+        if (error == PROVER_ERROR_SHORT_BUFFER) {
+            std::cerr << "Error: Short buffer for proof or public" << '\n';
+            return EXIT_FAILURE;
+        } else if (error) {
+            std::cerr << errorMessage << '\n';
+            return EXIT_FAILURE;
         }
-
-        auto wtns = BinFileUtils::openExisting(wtnsFilename, "wtns", 2);
-        auto wtnsHeader = WtnsUtils::loadHeader(wtns.get());
-
-        if (mpz_cmp(wtnsHeader->prime, altBbn128r) != 0) {
-            throw std::invalid_argument( "different wtns curve" );
-        }
-
-        auto prover = Groth16::makeProver<AltBn128::Engine>(
-            zkeyHeader->nVars,
-            zkeyHeader->nPublic,
-            zkeyHeader->domainSize,
-            zkeyHeader->nCoefs,
-            zkeyHeader->vk_alpha1,
-            zkeyHeader->vk_beta1,
-            zkeyHeader->vk_beta2,
-            zkeyHeader->vk_delta1,
-            zkeyHeader->vk_delta2,
-            zkey->getSectionData(4),    // Coefs
-            zkey->getSectionData(5),    // pointsA
-            zkey->getSectionData(6),    // pointsB1
-            zkey->getSectionData(7),    // pointsB2
-            zkey->getSectionData(8),    // pointsC
-            zkey->getSectionData(9)     // pointsH1
-        );
-        AltBn128::FrElement *wtnsData = (AltBn128::FrElement *)wtns->getSectionData(2);
-        auto proof = prover->prove(wtnsData);
 
         std::ofstream proofFile;
         proofFile.open (proofFilename);
-        proofFile << proof->toJson();
+        proofFile << proofBuffer;
         proofFile.close();
 
         std::ofstream publicFile;
         publicFile.open (publicFilename);
-
-        json jsonPublic;
-        AltBn128::FrElement aux;
-        for (int i=1; i<=zkeyHeader->nPublic; i++) {
-            AltBn128::Fr.toMontgomery(aux, wtnsData[i]);
-            jsonPublic.push_back(AltBn128::Fr.toString(aux));
-        }
-
-        publicFile << jsonPublic;
+        publicFile << publicBuffer;
         publicFile.close();
 
     } catch (std::exception* e) {
