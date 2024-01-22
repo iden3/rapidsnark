@@ -37,7 +37,7 @@ int groth16_prover(const void *zkey_buffer, unsigned long zkey_size,
  *         PPOVER_ERROR - in case of an error
  *         PROVER_ERROR_SHORT_BUFFER - in case of a short buffer error, also updates proof_size and public_size with actual proof and public sizess
  */
-int groth16_prover_zkey_file(const std::string &zkey_filename,
+int groth16_prover_zkey_file(const char *zkey_file_path,
                          const void *wtns_buffer, unsigned long wtns_size,
                          char *proof_buffer, unsigned long *proof_size,
                          char *public_buffer, unsigned long *public_size,
