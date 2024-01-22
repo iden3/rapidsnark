@@ -16,6 +16,12 @@ In ubuntu:
 sudo apt-get install build-essential cmake libgmp-dev libsodium-dev nasm curl m4
 ```
 
+On MacOS:
+
+```
+brew install cmake gmp libsodium nasm
+```
+
 ## Compile prover in standalone mode
 
 ### Compile prover for x86_64 host machine
