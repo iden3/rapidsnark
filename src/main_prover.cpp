@@ -40,6 +40,8 @@ int main(int argc, char **argv)
         std::string proofFilename = argv[3];
         std::string publicFilename = argv[4];
 
+        const char* zkeyFilenameC = zkeyFilename.c_str();
+
         BinFileUtils::FileLoader wtnsFileLoader(wtnsFilename);
 
         char proofBuffer[BufferSize];
@@ -50,7 +52,7 @@ int main(int argc, char **argv)
         char errorMessage[256];
         int error = 0;
 
-        error = groth16_prover_zkey_file(zkeyFilename,
+        error = groth16_prover_zkey_file(zkeyFilenameC,
                                wtnsFileLoader.dataBuffer(), wtnsFileLoader.dataSize(),
                                proofBuffer,  &proofSize,
                                publicBuffer, &publicSize,
