@@ -160,11 +160,13 @@ int groth16_prover(const void *zkey_buffer, unsigned long zkey_size,
     return PROVER_OK;
 }
 
-int groth16_prover_zkey_file(const std::string& zkey_filename,
+int groth16_prover_zkey_file(const char *zkey_file_path,
                              const void *wtns_buffer, unsigned long wtns_size,
                              char *proof_buffer, unsigned long *proof_size,
                              char *public_buffer, unsigned long *public_size,
                              char *error_msg, unsigned long error_msg_maxsize) {
+
+    std::string zkey_filename(zkey_file_path);
 
     BinFileUtils::FileLoader fileLoader(zkey_filename);
 
