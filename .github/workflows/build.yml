@@ -185,7 +185,7 @@ jobs:
         with:
           name: rapidsnark-iOS
           path: |
-            package_ios
+            build_prover_ios/src/Release-iphoneos
           if-no-files-found: error
 
       - name: upload iOS Simulator dev artifacts
@@ -194,7 +194,7 @@ jobs:
         with:
           name: rapidsnark-iOS-Simulator
           path: |
-            package_ios_simulator
+            build_prover_ios_simulator/src/Debug-iphonesimulator
           if-no-files-found: error
 
       - name: upload iOS release artifacts
