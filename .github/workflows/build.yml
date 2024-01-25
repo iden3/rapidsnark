@@ -176,7 +176,7 @@ jobs:
         with:
           name: rapidsnark-macOS-arm64
           path: |
-            package
+            package_macos_arm64
           if-no-files-found: error
 
       - name: upload iOS dev artifacts
