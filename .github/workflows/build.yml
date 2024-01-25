@@ -65,8 +65,35 @@ jobs:
           package/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
 
-      - name: upload Android ARM64 artifacts
-        #if: github.event_name == 'release'
+      - name: upload Linux amd64 dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v3
+        with:
+          name: rapidsnark-linux-amd64
+          path: |
+            package
+          if-no-files-found: error
+
+      - name: upload Android dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v3
+        with:
+          name: rapidsnark-Android
+          path: |
+            package_android
+          if-no-files-found: error
+
+      - name: upload Android x86_64 dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v3
+        with:
+          name: rapidsnark-Android-x86_64
+          path: |
+            package_android_x86_64
+          if-no-files-found: error
+
+      - name: upload Android ARM64 release artifacts
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -76,8 +103,8 @@ jobs:
           zip -r rapidsnark-android-arm64-${{ github.ref_name }}.zip rapidsnark-android-arm64-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-android-arm64-${{ github.ref_name }}.zip
 
-      - name: upload Android x86_64 artifacts
-        #if: github.event_name == 'release'
+      - name: upload Android x86_64 release artifacts
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -87,8 +114,8 @@ jobs:
           zip -r rapidsnark-android-x86_64-${{ github.ref_name }}.zip rapidsnark-android-x86_64-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-android-x86_64-${{ github.ref_name }}.zip
 
-      - name: upload Linux x86_64 artifacts
-        #if: github.event_name == 'release'
+      - name: upload Linux x86_64 release artifacts
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -143,8 +170,35 @@ jobs:
           package_macos_arm64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
 
-      - name: upload iOS artifacts
-        #if: github.event_name == 'release'
+      - name: upload macOS arm64 dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v3
+        with:
+          name: rapidsnark-macOS-arm64
+          path: |
+            package
+          if-no-files-found: error
+
+      - name: upload iOS dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v3
+        with:
+          name: rapidsnark-iOS
+          path: |
+            package_ios
+          if-no-files-found: error
+
+      - name: upload iOS Simulator dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v3
+        with:
+          name: rapidsnark-iOS-Simulator
+          path: |
+            package_ios_simulator
+          if-no-files-found: error
+
+      - name: upload iOS release artifacts
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -154,8 +208,8 @@ jobs:
           zip -r rapidsnark-iOS-${{ github.ref_name }}.zip rapidsnark-iOS-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-iOS-${{ github.ref_name }}.zip
 
-      - name: upload iOS Simulator artifacts
-        #if: github.event_name == 'release'
+      - name: upload iOS Simulator release artifacts
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -165,8 +219,8 @@ jobs:
           zip -r rapidsnark-iOS-Simulator-${{ github.ref_name }}.zip rapidsnark-iOS-Simulator-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-iOS-Simulator-${{ github.ref_name }}.zip
 
-      - name: upload macOS arm64 artifacts
-        #if: github.event_name == 'release'
+      - name: upload macOS arm64 release artifacts
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -211,8 +265,17 @@ jobs:
           package_macos_x86_64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
           snarkjs groth16 verify testdata/verification_key.json public.json proof.json
 
-      - name: upload macOS x86_64 artifacts
-        #if: github.event_name == 'release'
+      - name: upload macOS x86_64 dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v3
+        with:
+          name: rapidsnark-macOS-x86_64
+          path: |
+            package_macos_x86_64
+          if-no-files-found: error
+
+      - name: upload macOS x86_64 release artifacts
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
