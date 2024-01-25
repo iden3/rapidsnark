@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <gmp.h>
-#include <assert.h>
 #include <string>
+#include <stdexcept>
 
 
 static mpz_t q;
@@ -162,7 +162,7 @@ void Fq_div(PFqElement r, PFqElement a, PFqElement b) {
 }
 
 void Fq_fail() {
-    assert(false);
+    throw std::runtime_error("Fq error");
 }
 
 void Fq_longErr()

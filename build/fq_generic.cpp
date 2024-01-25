@@ -1,7 +1,6 @@
 #include "fq.hpp"
 #include <cstdint>
 #include <cstring>
-#include <cassert>
 
 FqElement Fq_q  = {0, 0x80000000, {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029}};
 FqElement Fq_R2 = {0, 0x80000000, {0xf32cfc5b538afa89,0xb5e71911d44501fb,0x47ab1eff0a417ff6,0x06d89f71cab8351f}};
