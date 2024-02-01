@@ -66,6 +66,29 @@ unsigned long CalcPublicBufferSize(const void *zkey_buffer, unsigned long zkey_s
 }
 
 int
+groth16_public_size_for_zkey_file(const char *zkey_fname,
+                                  unsigned   long *public_size,
+                                  char       *error_msg,        unsigned long  error_msg_maxsize) {
+    try {
+        auto zkey = BinFileUtils::openExisting(zkey_fname, "zkey", 1);
+        auto zkeyHeader = ZKeyUtils::loadHeader(zkey.get());
+        *public_size = PublicBufferMinSize(zkeyHeader->nPublic);
+    } catch (std::exception& e) {
+        if (error_msg) {
+            strncpy(error_msg, e.what(), error_msg_maxsize);
+        }
+        return PROVER_ERROR;
+    } catch (...) {
+        if (error_msg) {
+            strncpy(error_msg, "unknown error", error_msg_maxsize);
+        }
+        return PROVER_ERROR;
+    }
+
+    return 0;
+}
+
+int
 groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
                const void *wtns_buffer,   unsigned long  wtns_size,
                char       *proof_buffer,  unsigned long *proof_size,
@@ -90,6 +113,16 @@ groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
         size_t publicMinSize = PublicBufferMinSize(zkeyHeader->nPublic);
 
         if (*proof_size < proofMinSize || *public_size < publicMinSize) {
+
+            if (*proof_size < proofMinSize) {
+                snprintf(error_msg, error_msg_maxsize,
+                         "Proof buffer is too short. Minimum size: %lu, actual size: %lu",
+                         proofMinSize, *proof_size);
+            } else {
+                snprintf(error_msg, error_msg_maxsize,
+                         "Public buffer is too short. Minimum size: %lu, actual size: %lu",
+                         publicMinSize, *public_size);
+            }
 
             *proof_size  = proofMinSize;
             *public_size = publicMinSize;
