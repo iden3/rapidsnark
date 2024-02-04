@@ -2,6 +2,7 @@
 #define GROTH16_HPP
 
 #include <string>
+#include <array>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -20,8 +21,22 @@ namespace Groth16 {
         Proof(Engine &_E) : E(_E) { }
         std::string toJsonStr();
         json toJson();
+        void fromJson(const json& proof);
     };
 
+    template <typename Engine>
+    class VerificationKey {
+        Engine &E;
+    public:
+        typename Engine::G1PointAffine Alpha;
+        typename Engine::G2PointAffine Beta;
+        typename Engine::G2PointAffine Gamma;
+        typename Engine::G2PointAffine Delta;
+        std::vector<typename Engine::G1PointAffine> IC;
+
+        VerificationKey(Engine &_E) : E(_E) { }
+        void fromJson(const json& proof);
+    };
 
  #pragma pack(push, 1)
     template <typename Engine>
@@ -118,6 +133,60 @@ namespace Groth16 {
         void *pointsC,
         void *pointsH
     );
+
+    template <typename Engine>
+    class Verifier {
+
+        typedef std::vector<typename Engine::Fr::Element> InputsVector;
+        typedef std::array<typename Engine::G1Point, 4> G1PointArray;
+        typedef std::array<typename Engine::G2Point, 4> G2PointArray;
+
+        Engine &E;
+
+    public:
+        Verifier();
+
+        bool verify(
+            Proof<Engine> &proof,
+            InputsVector &inputs,
+            VerificationKey<Engine> &key);
+
+    private:
+        bool pairingCheck(G1PointArray& g1, G2PointArray& g2);
+
+        typename Engine::F12Element miller(typename Engine::G2Point& b, typename Engine::G1Point& a);
+
+        typename Engine::F12Element finalExponentiation(typename Engine::F12Element& in);
+
+        void lineFunctionDouble(
+            typename Engine::G2Point& r,
+            typename Engine::G1PointAffine& q,
+            typename Engine::F2Element& a,
+            typename Engine::F2Element& b,
+            typename Engine::F2Element& c,
+            typename Engine::G2Point& rOut);
+
+        void lineFunctionAdd(
+            typename Engine::G2Point& r,
+            typename Engine::G2PointAffine& p,
+            typename Engine::G1PointAffine& q,
+            typename Engine::F2Element& r2,
+            typename Engine::F2Element& a,
+            typename Engine::F2Element& b,
+            typename Engine::F2Element& c,
+            typename Engine::G2Point& rOut);
+
+        void mulLine(
+            typename Engine::F12Element& ret,
+            typename Engine::F2Element& a,
+            typename Engine::F2Element& b,
+            typename Engine::F2Element& c);
+
+    private:
+        typename Engine::F2Element xiToPMinus1Over3;
+        typename Engine::F2Element xiToPMinus1Over2;
+        typename Engine::F1Element xiToPSquaredMinus1Over3;
+    };
 }
 
 

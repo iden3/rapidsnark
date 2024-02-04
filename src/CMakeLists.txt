@@ -88,6 +88,8 @@ set(LIB_SOURCES
     fileloader.hpp
     prover.cpp
     prover.h
+    verifier.cpp
+    verifier.h
     ../depends/ffiasm/c/misc.cpp
     ../depends/ffiasm/c/naf.cpp
     ../depends/ffiasm/c/splitparstr.cpp
@@ -115,10 +117,14 @@ set_target_properties(rapidsnarkStaticFrFq PROPERTIES OUTPUT_NAME rapidsnark-fr-
 add_executable(prover main_prover.cpp)
 target_link_libraries(prover rapidsnarkStatic)
 
+add_executable(verifier main_verifier.cpp)
+target_link_libraries(verifier rapidsnarkStatic)
+
 add_library(rapidsnark SHARED ${LIB_SOURCES})
 
 if(USE_LOGGER OR NOT USE_OPENMP)
     target_link_libraries(prover pthread)
+    target_link_libraries(verifier pthread)
 endif()
 
 if(USE_SODIUM)
@@ -130,10 +136,12 @@ if(OpenMP_CXX_FOUND)
 
     if(TARGET_PLATFORM MATCHES "android")
         target_link_libraries(prover -static-openmp -fopenmp)
+        target_link_libraries(verifier -static-openmp -fopenmp)
         target_link_libraries(rapidsnark -static-openmp -fopenmp)
 
     elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
         target_link_libraries(prover OpenMP::OpenMP_CXX)
+        target_link_libraries(verifier OpenMP::OpenMP_CXX)
     endif()
 
 endif()
