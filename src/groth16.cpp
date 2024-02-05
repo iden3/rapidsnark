@@ -612,7 +612,7 @@ typename Engine::F12Element
 Verifier<Engine>::miller(typename Engine::G2Point& q, typename Engine::G1Point& p)
 {
 
-    const char sixuPlus2NAF[] =  {0, 0, 0, 1, 0, 1, 0, -1, 0, 0, 1, -1, 0, 0, 1, 0,
+    const int  sixuPlus2NAF[] =  {0, 0, 0, 1, 0, 1, 0, -1, 0, 0, 1, -1, 0, 0, 1, 0,
                                   0, 1, 1, 0, -1, 0, 0, 1, 0, -1, 0, 0, 0, 0, 1, 1,
                                   1, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, -1, 0, 0, 1,
                                   1, 0, 0, -1, 0, 0, 0, 1, 1, 0, -1, 0, 0, 1, 0, 1, 1};
