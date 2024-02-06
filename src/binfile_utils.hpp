@@ -36,7 +36,7 @@ namespace BinFileUtils {
     public:
 
         BinFile(const void *fileData, size_t fileSize, std::string _type, uint32_t maxVersion);
-        BinFile(std::string fileName, std::string _type, uint32_t maxVersion);
+        BinFile(const std::string& fileName, const std::string& _type, uint32_t maxVersion);
         ~BinFile();
 
         void startReadSection(u_int32_t sectionId, u_int32_t setionPos = 0);
@@ -51,7 +51,7 @@ namespace BinFileUtils {
         void *read(uint64_t l);
     };
 
-    std::unique_ptr<BinFile> openExisting(std::string filename, std::string type, uint32_t maxVersion);
+    std::unique_ptr<BinFile> openExisting(const std::string& filename, const std::string& type, uint32_t maxVersion);
 }
 
 #endif // BINFILE_UTILS_H

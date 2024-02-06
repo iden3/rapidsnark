@@ -12,7 +12,7 @@
 
 namespace BinFileUtils {
 
-BinFile::BinFile(std::string fileName, std::string _type, uint32_t maxVersion) {
+BinFile::BinFile(const std::string& fileName, const std::string& _type, uint32_t maxVersion) {
 
     is_fd = true;
     struct stat sb;
@@ -195,7 +195,7 @@ void *BinFile::read(u_int64_t len) {
     return res;
 }
 
-std::unique_ptr<BinFile> openExisting(std::string filename, std::string type, uint32_t maxVersion) {
+std::unique_ptr<BinFile> openExisting(const std::string& filename, const std::string& type, uint32_t maxVersion) {
     return std::unique_ptr<BinFile>(new BinFile(filename, type, maxVersion));
 }
 
