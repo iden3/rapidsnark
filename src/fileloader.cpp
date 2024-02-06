@@ -25,7 +25,7 @@ FileLoader::FileLoader(const std::string& fileName)
 
     size = sb.st_size;
 
-    addr = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+    addr = mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd, 0);
 }
 
 FileLoader::~FileLoader()
