@@ -37,6 +37,8 @@ namespace BinFileUtils {
 
         BinFile(const void *fileData, size_t fileSize, std::string _type, uint32_t maxVersion);
         BinFile(const std::string& fileName, const std::string& _type, uint32_t maxVersion);
+        BinFile(const BinFile&) = delete;
+        BinFile& operator=(const BinFile&) = delete;
         ~BinFile();
 
         void startReadSection(u_int32_t sectionId, u_int32_t setionPos = 0);
