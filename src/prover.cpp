@@ -56,9 +56,9 @@ std::string BuildPublicString(AltBn128::FrElement *wtnsData, size_t nPublic)
 }
 
 int
-groth16_public_size(const void *zkey_buffer, unsigned long zkey_size,
-                    size_t     *public_size,
-                    char       *error_msg,   unsigned long error_msg_maxsize) {
+groth16_public_size_for_zkey_buf(const void *zkey_buffer, unsigned long zkey_size,
+                                 size_t     *public_size,
+                                 char       *error_msg,   unsigned long error_msg_maxsize) {
     try {
         BinFileUtils::BinFile zkey(zkey_buffer, zkey_size, "zkey", 1);
         auto zkeyHeader = ZKeyUtils::loadHeader(&zkey);
