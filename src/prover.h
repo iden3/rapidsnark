@@ -13,9 +13,26 @@ extern "C" {
 
 /**
  * Calculates buffer size to output public signals as json string
- * @returns buffer size in bytes or 0 in case of an error
+ * @returns PROVER_OK in case of success, and the size of public buffer is written to public_size
  */
-unsigned long CalcPublicBufferSize(const void *zkey_buffer, unsigned long zkey_size);
+int
+groth16_public_size_for_zkey_buf(const void *zkey_buffer, unsigned long zkey_size,
+                                 size_t     *public_size,
+                                 char       *error_msg,   unsigned long error_msg_maxsize);
+
+/**
+ * groth16_public_size_for_zkey_file calculates minimum buffer size for
+ * JSON-formatted public signals. The calculated buffer size is written
+ * to the public_size variable.
+ *
+ * @return error code:
+ *        PROVER_OK (0) - in case of success
+ *        PROVER_ERROR - in case of an error, error_msg contains the error message
+ */
+int
+groth16_public_size_for_zkey_file(const char *zkey_fname,
+                                  unsigned   long *public_size,
+                                  char       *error_msg,        unsigned long  error_msg_maxsize);
 
 /**
  * groth16_prover
