@@ -55,25 +55,15 @@ std::string BuildPublicString(AltBn128::FrElement *wtnsData, size_t nPublic)
     return jsonPublic.dump();
 }
 
-unsigned long CalcPublicBufferSize(const void *zkey_buffer, unsigned long zkey_size) {
+int
+groth16_public_size(const void *zkey_buffer, unsigned long zkey_size,
+                    size_t     *public_size,
+                    char       *error_msg,   unsigned long error_msg_maxsize) {
     try {
         BinFileUtils::BinFile zkey(zkey_buffer, zkey_size, "zkey", 1);
         auto zkeyHeader = ZKeyUtils::loadHeader(&zkey);
-        return PublicBufferMinSize(zkeyHeader->nPublic);
-    } catch (...) {
-    }
-
-    return 0;
-}
-
-int
-groth16_public_size_for_zkey_file(const char *zkey_fname,
-                                  unsigned   long *public_size,
-                                  char       *error_msg,        unsigned long  error_msg_maxsize) {
-    try {
-        auto zkey = BinFileUtils::openExisting(zkey_fname, "zkey", 1);
-        auto zkeyHeader = ZKeyUtils::loadHeader(zkey.get());
         *public_size = PublicBufferMinSize(zkeyHeader->nPublic);
+        return PROVER_OK;
     } catch (std::exception& e) {
         if (error_msg) {
             strncpy(error_msg, e.what(), error_msg_maxsize);
@@ -85,8 +75,28 @@ groth16_public_size_for_zkey_file(const char *zkey_fname,
         }
         return PROVER_ERROR;
     }
+}
 
-    return 0;
+int
+groth16_public_size_for_zkey_file(const char    *zkey_fname,
+                                  unsigned long *public_size,
+                                  char          *error_msg,   unsigned long  error_msg_maxsize) {
+    try {
+        auto zkey = BinFileUtils::openExisting(zkey_fname, "zkey", 1);
+        auto zkeyHeader = ZKeyUtils::loadHeader(zkey.get());
+        *public_size = PublicBufferMinSize(zkeyHeader->nPublic);
+        return PROVER_OK;
+    } catch (std::exception& e) {
+        if (error_msg) {
+            strncpy(error_msg, e.what(), error_msg_maxsize);
+        }
+        return PROVER_ERROR;
+    } catch (...) {
+        if (error_msg) {
+            strncpy(error_msg, "unknown error", error_msg_maxsize);
+        }
+        return PROVER_ERROR;
+    }
 }
 
 int
@@ -195,11 +205,12 @@ groth16_prover(const void *zkey_buffer,   unsigned long  zkey_size,
     return PROVER_OK;
 }
 
-int groth16_prover_zkey_file(const char *zkey_file_path,
-                             const void *wtns_buffer, unsigned long wtns_size,
-                             char *proof_buffer, unsigned long *proof_size,
-                             char *public_buffer, unsigned long *public_size,
-                             char *error_msg, unsigned long error_msg_maxsize) {
+int
+groth16_prover_zkey_file(const char *zkey_file_path,
+                         const void *wtns_buffer, unsigned long wtns_size,
+                         char *proof_buffer, unsigned long *proof_size,
+                         char *public_buffer, unsigned long *public_size,
+                         char *error_msg, unsigned long error_msg_maxsize) {
 
     std::string zkey_filename(zkey_file_path);
 
