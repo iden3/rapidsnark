@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <gmp.h>
-#include <assert.h>
 #include <string>
+#include <stdexcept>
 
 
 static mpz_t q;
@@ -162,7 +162,7 @@ void Fr_div(PFrElement r, PFrElement a, PFrElement b) {
 }
 
 void Fr_fail() {
-    assert(false);
+    throw std::runtime_error("Fr error");
 }
 
 void Fr_longErr()
