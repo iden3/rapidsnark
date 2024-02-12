@@ -8,14 +8,14 @@ int main(int argc, char **argv)
 {
     if (argc != 4) {
         std::cerr << "Invalid number of parameters:\n";
-        std::cerr << "Usage: verifier <proof.json> <inputs.json> <verification_key.json>\n";
+        std::cerr << "Usage: verifier <verification_key.json> <inputs.json> <proof.json>\n";
         return EXIT_FAILURE;
     }
 
     try {
-        const std::string proofFilename  = argv[1];
+        const std::string keyFilename    = argv[1];
         const std::string inputsFilename = argv[2];
-        const std::string keyFilename    = argv[3];
+        const std::string proofFilename  = argv[3];
 
         BinFileUtils::FileLoader proof(proofFilename);
         BinFileUtils::FileLoader inputs(inputsFilename);
