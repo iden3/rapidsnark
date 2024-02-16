@@ -389,12 +389,12 @@ Verifier<Engine>::Verifier()
     : E(Engine::engine)
 {
     E.f2.fromString(xiToPMinus1Over3,
-                    "10307601595873709700152284273816112264069230130616436755625194854815875713954,"
-                    "21575463638280843010398324269430826099269044274347216827212613867836435027261");
+                    "21575463638280843010398324269430826099269044274347216827212613867836435027261,"
+                    "10307601595873709700152284273816112264069230130616436755625194854815875713954");
 
     E.f2.fromString(xiToPMinus1Over2,
-                    "10307601595873709700152284273816112264069230130616436755625194854815875713954,"
-                    "21575463638280843010398324269430826099269044274347216827212613867836435027261");
+                    "2821565182194536844548159561693502659359617185244120367078079554186484126554,"
+                    "3505843767911556378687030309984248845540243509899259641013678093033130930403");
 
     E.f1.fromString(xiToPSquaredMinus1Over3,
                     "21888242871839275220042445260109153167277707414472061641714758635765020556616");
@@ -466,7 +466,7 @@ void Verifier<Engine>::lineFunctionAdd(
     typename Engine::F2Element B, D, H, I, E1, J, L1, V, t, t2;
 
     E.f2.mul(B, p.x, r.zzz);
-    E.f2.mul(D, p.y, r.zz);
+    E.f2.add(D, p.y, r.zz);
     E.f2.square(D, D);
     E.f2.sub(D, D, r2);
     E.f2.sub(D, D, r.zzz);
@@ -481,7 +481,7 @@ void Verifier<Engine>::lineFunctionAdd(
     E.f2.sub(L1, L1, r.y);
     E.f2.mul(V, r.x, E1);
 
-    E.f2.square(rOut.y, L1);
+    E.f2.square(rOut.x, L1);
     E.f2.sub(rOut.x, rOut.x, J);
     E.f2.sub(rOut.x, rOut.x, V);
     E.f2.sub(rOut.x, rOut.x, V);
@@ -538,6 +538,7 @@ void Verifier<Engine>::lineFunctionDouble(
     E.f2.add(D, D, D);
 
     E.f2.add(E1, A, A);
+    E.f2.add(E1, E1, A);
     E.f2.square(G, E1);
     E.f2.sub(rOut.x, G, D);
     E.f2.sub(rOut.x, rOut.x, D);
@@ -626,12 +627,12 @@ Verifier<Engine>::miller(typename Engine::G2Point& q, typename Engine::G1Point& 
 
     E.g2.copy(aAffine, q);
     E.g1.copy(bAffine, p);
-    E.g2.copy(minusA, aAffine);
+    E.g2.neg(minusA, aAffine);
     E.g2.copy(r, aAffine);
 
     E.f2.square(r2, aAffine.y);
 
-    const size_t count = sizeof(sixuPlus2NAF) - 1;
+    const size_t count = sizeof(sixuPlus2NAF)/sizeof(sixuPlus2NAF[0]) - 1;
 
     for (int i = count; i > 0; i--) {
 
@@ -646,9 +647,8 @@ Verifier<Engine>::miller(typename Engine::G2Point& q, typename Engine::G1Point& 
 
         switch (sixuPlus2NAF[i-1]) {
         case 1:
-            break;
             lineFunctionAdd(r, aAffine, bAffine, r2, a, b, c, newR);
-
+            break;
         case -1:
             lineFunctionAdd(r, minusA, bAffine, r2, a, b, c, newR);
             break;
@@ -672,10 +672,10 @@ Verifier<Engine>::miller(typename Engine::G2Point& q, typename Engine::G1Point& 
 
     typename Engine::G2Point minusQ2;
 
+    E.f2.mulScalar(minusQ2.x, aAffine.x, xiToPSquaredMinus1Over3);
     E.f2.copy(minusQ2.y, aAffine.y);
     E.f2.copy(minusQ2.zz, E.f2.one());
     E.f2.copy(minusQ2.zzz, E.f2.one());
-    E.f2.mulScalar(minusQ2.x, aAffine.x, xiToPSquaredMinus1Over3);
 
     E.f2.square(r2, q1.y);
 
@@ -767,10 +767,10 @@ bool Verifier<Engine>::pairingCheck(G1PointArray& a, G2PointArray& b)
 
         if (E.g1.isZero(a[i]) || E.g2.isZero(b[i])) {
             continue;
-
-            auto millerRes = miller(b[i], a[i]);
-            E.f12.mul(acc, acc, millerRes);
         }
+
+        auto millerRes = miller(b[i], a[i]);
+        E.f12.mul(acc, acc, millerRes);
     }
 
     auto ret = finalExponentiation(acc);
