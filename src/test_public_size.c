@@ -1,3 +1,14 @@
+/**
+ * Test functions groth16_public_size_for_zkey_file and
+ * groth16_public_size_for_zkey_buf.
+ *
+ * Run it as
+ * ./test_public_size <zkey_file> <expected_inputs>
+ * it will read the number of inputs from the zkey file and compare it with
+ * the expected number of inputs. Return 0 if success. Return 1 if failure.
+ * Also prints the time taken by each function.
+ */
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>

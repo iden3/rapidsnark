@@ -185,6 +185,8 @@ After that you can run tests with the following command from the build
 directory:
 
 ```sh
+# Make sure you are in the build directory
+# ./build_prover for linux, ./build_prover_macos_arm64 for macOS.
 cmake --build . --parallel && ctest --rerun-failed --output-on-failure
 ```
 
