@@ -56,6 +56,7 @@ jobs:
           mkdir -p build_prover && cd build_prover
           cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
           make -j4 && make install
+          ctest --rerun-failed --output-on-failure
 
       - name: test rapidsnark
         run: |
@@ -167,6 +168,7 @@ jobs:
           mkdir -p build_prover_macos_arm64 && cd build_prover_macos_arm64
           cmake .. -DTARGET_PLATFORM=macos_arm64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_arm64
           make -j4 && make install
+          ctest --rerun-failed --output-on-failure
 
       - name: test rapidsnark
         run: |
@@ -268,6 +270,7 @@ jobs:
           mkdir -p build_prover_macos_x86_64 && cd build_prover_macos_x86_64
           cmake .. -DTARGET_PLATFORM=macos_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_x86_64
           make -j4 && make install
+          ctest --rerun-failed --output-on-failure
 
       - name: test rapidsnark
         run: |

@@ -177,6 +177,23 @@ The prover is much faster that snarkjs and faster than bellman.
 
 [TODO] Some comparative tests should be done.
 
+## Run tests
+
+You need to perform all the steps from the
+[Compile prover in standalone mode](#compile-prover-in-standalone-mode) section.
+After that you can run tests with the following command from the build
+directory:
+
+```sh
+cmake --build . --parallel && ctest --rerun-failed --output-on-failure
+```
+
+To run just the `test_public_size` test for custom zkey to measure the
+performance, you can run the following command from the build directory:
+
+```sh
+src/test_public_size ../testdata/circuit_final.zkey 86
+```
 
 ## License
 
