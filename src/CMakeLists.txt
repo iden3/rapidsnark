@@ -132,6 +132,12 @@ if(USE_SODIUM)
 endif()
 
 
+enable_testing()
+add_executable(test_public_size test_public_size.c)
+target_link_libraries(test_public_size rapidsnarkStaticFrFq)
+add_test(NAME test_public_size COMMAND test_public_size circuit_final.zkey 86
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testdata)
+
 if(OpenMP_CXX_FOUND)
 
     if(TARGET_PLATFORM MATCHES "android")
@@ -142,16 +148,10 @@ if(OpenMP_CXX_FOUND)
     elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
         target_link_libraries(prover OpenMP::OpenMP_CXX)
         target_link_libraries(verifier OpenMP::OpenMP_CXX)
+        target_link_libraries(test_public_size OpenMP::OpenMP_CXX)
     endif()
 
 endif()
 
 
 add_executable(test_prover test_prover.cpp)
-
-enable_testing()
-
-add_executable(test_public_size test_public_size.c)
-target_link_libraries(test_public_size rapidsnarkStaticFrFq)
-add_test(NAME test_public_size COMMAND test_public_size circuit_final.zkey 86
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testdata)
