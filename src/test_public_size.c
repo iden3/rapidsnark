@@ -3,10 +3,10 @@
  * groth16_public_size_for_zkey_buf.
  *
  * Run it as
- * ./test_public_size <zkey_file> <expected_inputs>
- * it will read the number of inputs from the zkey file and compare it with
- * the expected number of inputs. Return 0 if success. Return 1 if failure.
- * Also prints the time taken by each function.
+ * ./test_public_size <zkey_file> <expected_pub_size>
+ * it will calculate the required public signals buffer size from the zkey file
+ * and compare it with the expected one. Return 0 if success.
+ * Return 1 if failure. Also prints the time taken by each function.
  */
 
 #include <stdio.h>
@@ -88,12 +88,12 @@ test_groth16_public_size_for_zkey_file(const char *zkey_fname,
 int
 main(int argc, char *argv[]) {
     if (argc < 3) {
-        printf("Usage: %s <zkey_file> <expected_inputs>\n", argv[0]);
+        printf("Usage: %s <zkey_file> <expected_pub_size>\n", argv[0]);
         return 1;
     }
 
-    long want_inputs = 0;
-    want_inputs = strtol(argv[2], NULL, 10);
+    long want_pub_size = 0;
+    want_pub_size = strtol(argv[2], NULL, 10);
 
     int ret_val = 0;
     clock_t start = clock();
@@ -111,9 +111,11 @@ main(int argc, char *argv[]) {
                (double)(end - start) / CLOCKS_PER_SEC);
     }
 
-    if (public_size != want_inputs) {
-        printf("test_groth16_public_size expected inputs: %ld\n", want_inputs);
-        printf("test_groth16_public_size actual inputs: %lu\n", public_size);
+    if (public_size != want_pub_size) {
+        printf("test_groth16_public_size expected public signals buf size: %ld\n",
+               want_pub_size);
+        printf("test_groth16_public_size actual public signals buf size: %lu\n",
+               public_size);
         ret_val = 1;
     }
 
@@ -130,9 +132,11 @@ main(int argc, char *argv[]) {
                (double)(end - start) / CLOCKS_PER_SEC);
     }
 
-    if (public_size != want_inputs) {
-        printf("test_groth16_public_size_for_zkey_file expected inputs: %ld\n", want_inputs);
-        printf("test_groth16_public_size_for_zkey_file actual inputs: %lu\n", public_size);
+    if (public_size != want_pub_size) {
+        printf("test_groth16_public_size_for_zkey_file expected public signals buf size: %ld\n",
+               want_pub_size);
+        printf("test_groth16_public_size_for_zkey_file actual public signals buf size: %lu\n",
+               public_size);
         ret_val = 1;
     }
 
