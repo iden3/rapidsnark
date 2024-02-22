@@ -57,7 +57,7 @@ jobs:
           cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
           make -j4 && make install
 
-      - name: test prover for linux
+      - name: test rapidsnark
         run: |
           set -x
           set -e
@@ -168,7 +168,7 @@ jobs:
           cmake .. -DTARGET_PLATFORM=macos_arm64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_arm64
           make -j4 && make install
 
-      - name: test prover
+      - name: test rapidsnark
         run: |
           set -x
           set -e
@@ -269,7 +269,7 @@ jobs:
           cmake .. -DTARGET_PLATFORM=macos_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_x86_64
           make -j4 && make install
 
-      - name: test prover
+      - name: test rapidsnark
         run: |
           set -x
           set -e
