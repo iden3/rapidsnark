@@ -5,7 +5,7 @@ include(cmake/platform.cmake)
 set(USE_ASM    ON CACHE BOOL "Use asm implementation for Fr and Fq")
 set(USE_OPENMP ON CACHE BOOL "Use OpenMP")
 
-project(rapidsnark LANGUAGES CXX ASM)
+project(rapidsnark LANGUAGES CXX C ASM)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -63,3 +63,5 @@ install(FILES "${GMP_LIB_DIR}/${GMP_LIB_FILE}"
 
 install(FILES src/prover.h src/verifier.h
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+
+enable_testing()

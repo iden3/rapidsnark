@@ -56,14 +56,21 @@ jobs:
           mkdir -p build_prover && cd build_prover
           cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
           make -j4 && make install
+          ctest --rerun-failed --output-on-failure
 
-      - name: test prover for linux
+      - name: test rapidsnark
         run: |
           set -x
           set -e
-          npm install -g snarkjs
           package/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
-          snarkjs groth16 verify testdata/verification_key.json public.json proof.json
+          package/bin/verifier testdata/verification_key.json public.json proof.json
+          # make a wrong public.json by decrementing the first element by 1
+          (value_0=$(jq '.[0]' public.json | tr -d '"') && value_0=$(echo "$value_0 - 1" | BC_LINE_LENGTH=100 bc) && jq --arg value_0 "$value_0" '.[0] = $value_0' public.json) > public_bad.json
+          set +e
+          package/bin/verifier testdata/verification_key.json public_bad.json proof.json
+          exit_code=$?
+          set -e
+          [ $exit_code -ne 0 ]
 
       - name: upload Linux amd64 dev artifacts
         if: github.event_name != 'release'
@@ -161,14 +168,21 @@ jobs:
           mkdir -p build_prover_macos_arm64 && cd build_prover_macos_arm64
           cmake .. -DTARGET_PLATFORM=macos_arm64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_arm64
           make -j4 && make install
+          ctest --rerun-failed --output-on-failure
 
-      - name: test prover
+      - name: test rapidsnark
         run: |
           set -x
           set -e
-          npm install -g snarkjs
           package_macos_arm64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
-          snarkjs groth16 verify testdata/verification_key.json public.json proof.json
+          package_macos_arm64/bin/verifier testdata/verification_key.json public.json proof.json
+          # make a wrong public.json by decrementing the first element by 1
+          (value_0=$(jq '.[0]' public.json | tr -d '"') && value_0=$(echo "$value_0 - 1" | BC_LINE_LENGTH=100 bc) && jq --arg value_0 "$value_0" '.[0] = $value_0' public.json) > public_bad.json
+          set +e
+          package_macos_arm64/bin/verifier testdata/verification_key.json public_bad.json proof.json
+          exit_code=$?
+          set -e
+          [ $exit_code -ne 0 ]
 
       - name: upload macOS arm64 dev artifacts
         if: github.event_name != 'release'
@@ -256,14 +270,21 @@ jobs:
           mkdir -p build_prover_macos_x86_64 && cd build_prover_macos_x86_64
           cmake .. -DTARGET_PLATFORM=macos_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_x86_64
           make -j4 && make install
+          ctest --rerun-failed --output-on-failure
 
-      - name: test prover
+      - name: test rapidsnark
         run: |
           set -x
           set -e
-          npm install -g snarkjs
           package_macos_x86_64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
-          snarkjs groth16 verify testdata/verification_key.json public.json proof.json
+          package_macos_x86_64/bin/verifier testdata/verification_key.json public.json proof.json
+          # make a wrong public.json by decrementing the first element by 1
+          (value_0=$(jq '.[0]' public.json | tr -d '"') && value_0=$(echo "$value_0 - 1" | BC_LINE_LENGTH=100 bc) && jq --arg value_0 "$value_0" '.[0] = $value_0' public.json) > public_bad.json
+          set +e
+          package_macos_x86_64/bin/verifier testdata/verification_key.json public_bad.json proof.json
+          exit_code=$?
+          set -e
+          [ $exit_code -ne 0 ]
 
       - name: upload macOS x86_64 dev artifacts
         if: github.event_name != 'release'
