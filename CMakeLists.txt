@@ -5,7 +5,7 @@ include(cmake/platform.cmake)
 set(USE_ASM    ON CACHE BOOL "Use asm implementation for Fr and Fq")
 set(USE_OPENMP ON CACHE BOOL "Use OpenMP")
 
-project(rapidsnark LANGUAGES CXX ASM)
+project(rapidsnark LANGUAGES CXX C ASM)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -53,7 +53,7 @@ endif()
 add_subdirectory(src)
 
 
-install(TARGETS prover rapidsnark rapidsnarkStatic rapidsnarkStaticFrFq test_prover fr fq
+install(TARGETS prover verifier rapidsnark rapidsnarkStatic rapidsnarkStaticFrFq test_prover fr fq
     RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
     BUNDLE DESTINATION ${CMAKE_INSTALL_PREFIX}/app
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
@@ -61,5 +61,7 @@ install(TARGETS prover rapidsnark rapidsnarkStatic rapidsnarkStaticFrFq test_pro
 install(FILES "${GMP_LIB_DIR}/${GMP_LIB_FILE}"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
-install(FILES src/prover.h
+install(FILES src/prover.h src/verifier.h
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+
+enable_testing()
