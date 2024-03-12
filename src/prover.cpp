@@ -3,6 +3,7 @@
 #include <string>
 #include <cstring>
 #include <stdexcept>
+#include <sstream>
 #include <alt_bn128.hpp>
 #include <nlohmann/json.hpp>
 
@@ -221,4 +222,34 @@ groth16_prover_zkey_file(const char *zkey_file_path,
                           proof_buffer, proof_size,
                           public_buffer, public_size,
                           error_msg, error_msg_maxsize);
+}
+
+int
+groth16_test_env(char *buffer, unsigned long buffer_maxsize)
+{
+    std::ostringstream  stream;
+
+#ifdef USE_ASM
+#if defined(ARCH_X86_64)
+    stream << "ASM: x86_64" << std::endl;
+#elif defined(ARCH_ARM64)
+    stream << "ASM: arm64" << std::endl;
+#endif
+#else
+    stream << "ASM is disabled" << std::endl;
+#endif
+
+#ifdef USE_OPENMP
+    stream << "OpenMP max threads: " << omp_get_max_threads() << std::endl;
+#else
+    stream << "OpenMP is disabled" << std::endl;
+#endif
+
+    if (buffer_maxsize < stream.str().size() + 1) {
+        return PROVER_ERROR_SHORT_BUFFER;
+    }
+
+    strncpy(buffer, stream.str().c_str(), buffer_maxsize);
+
+    return PROVER_OK;
 }
