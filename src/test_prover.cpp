@@ -7,6 +7,10 @@
 #include "fr.hpp"
 #include "fq.hpp"
 
+#ifdef USE_OPENMP
+#include <omp.h>
+#endif
+
 int tests_run = 0;
 int tests_failed = 0;
 
@@ -10928,8 +10932,29 @@ void print_results()
     std::cout << "Results: " << std::dec << tests_run << " tests were run, " << tests_failed << " failed." << std::endl;
 }
 
+void test_env()
+{
+#ifdef USE_ASM
+#if defined(ARCH_X86_64)
+    std::cout << "ASM: x86_64" << std::endl;
+#elif defined(ARCH_ARM64)
+    std::cout << "ASM: arm64" << std::endl;
+#endif
+#else
+    std::cout << "ASM is disabled" << std::endl;
+#endif
+
+#ifdef USE_OPENMP
+    std::cout << "OpenMP max threads: " << omp_get_max_threads() << std::endl;
+#else
+    std::cout << "OpenMP is disabled" << std::endl;
+#endif
+}
+
 int main()
 {
+    test_env();
+
     Fr_Rw_add_unit_test();
     Fr_Rw_sub_unit_test();
     Fr_Rw_copy_unit_test();
