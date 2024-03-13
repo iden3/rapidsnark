@@ -6,6 +6,11 @@
 #include <cstring>
 #include "fr.hpp"
 #include "fq.hpp"
+#include "prover.h"
+
+#ifdef USE_OPENMP
+#include <omp.h>
+#endif
 
 int tests_run = 0;
 int tests_failed = 0;
@@ -10928,8 +10933,18 @@ void print_results()
     std::cout << "Results: " << std::dec << tests_run << " tests were run, " << tests_failed << " failed." << std::endl;
 }
 
+void test_env()
+{
+    char buffer[4096];
+    groth16_test_env(buffer, 4096);
+
+    std::cout << buffer << std::endl;
+}
+
 int main()
 {
+    test_env();
+
     Fr_Rw_add_unit_test();
     Fr_Rw_sub_unit_test();
     Fr_Rw_copy_unit_test();
