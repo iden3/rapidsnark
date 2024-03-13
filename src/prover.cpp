@@ -249,7 +249,9 @@ groth16_test_env(char *buffer, unsigned long buffer_maxsize)
         return PROVER_ERROR_SHORT_BUFFER;
     }
 
-    strncpy(buffer, stream.str().c_str(), buffer_maxsize);
+    const std::string str = stream.str();
+
+    strncpy(buffer, str.c_str(), buffer_maxsize);
 
     return PROVER_OK;
 }

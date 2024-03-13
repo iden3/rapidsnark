@@ -6,6 +6,7 @@
 #include <cstring>
 #include "fr.hpp"
 #include "fq.hpp"
+#include "prover.h"
 
 #ifdef USE_OPENMP
 #include <omp.h>
@@ -10934,21 +10935,10 @@ void print_results()
 
 void test_env()
 {
-#ifdef USE_ASM
-#if defined(ARCH_X86_64)
-    std::cout << "ASM: x86_64" << std::endl;
-#elif defined(ARCH_ARM64)
-    std::cout << "ASM: arm64" << std::endl;
-#endif
-#else
-    std::cout << "ASM is disabled" << std::endl;
-#endif
+    char buffer[4096];
+    groth16_test_env(buffer, 4096);
 
-#ifdef USE_OPENMP
-    std::cout << "OpenMP max threads: " << omp_get_max_threads() << std::endl;
-#else
-    std::cout << "OpenMP is disabled" << std::endl;
-#endif
+    std::cout << buffer << std::endl;
 }
 
 int main()
