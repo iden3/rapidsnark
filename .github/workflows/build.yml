@@ -23,7 +23,7 @@ jobs:
           version: 1.0
 
       - name: Cache gmp build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             depends/gmp
@@ -74,7 +74,7 @@ jobs:
 
       - name: upload Linux amd64 dev artifacts
         if: github.event_name != 'release'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rapidsnark-linux-amd64
           path: |
@@ -83,7 +83,7 @@ jobs:
 
       - name: upload Android dev artifacts
         if: github.event_name != 'release'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rapidsnark-Android
           path: |
@@ -92,7 +92,7 @@ jobs:
 
       - name: upload Android x86_64 dev artifacts
         if: github.event_name != 'release'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rapidsnark-Android-x86_64
           path: |
@@ -140,7 +140,7 @@ jobs:
           submodules: "recursive"
 
       - name: Cache gmp build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             depends/gmp
@@ -186,7 +186,7 @@ jobs:
 
       - name: upload macOS arm64 dev artifacts
         if: github.event_name != 'release'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rapidsnark-macOS-arm64
           path: |
@@ -195,7 +195,7 @@ jobs:
 
       - name: upload iOS dev artifacts
         if: github.event_name != 'release'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rapidsnark-iOS
           path: |
@@ -204,7 +204,7 @@ jobs:
 
       - name: upload iOS Simulator dev artifacts
         if: github.event_name != 'release'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rapidsnark-iOS-Simulator
           path: |
@@ -252,7 +252,7 @@ jobs:
           submodules: "recursive"
 
       - name: Cache gmp build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             depends/gmp
@@ -288,7 +288,7 @@ jobs:
 
       - name: upload macOS x86_64 dev artifacts
         if: github.event_name != 'release'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rapidsnark-macOS-x86_64
           path: |
