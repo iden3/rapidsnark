@@ -42,13 +42,13 @@ jobs:
       - name: Build prover Android ARM64
         run: |
           mkdir -p build_prover_android && cd build_prover_android
-          cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android
+          cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android -DUSE_OPENMP=OFF
           make -j4 && make install
 
       - name: Build prover Android x86_64
         run: |
           mkdir -p build_prover_android_x86_64 && cd build_prover_android_x86_64
-          cmake .. -DTARGET_PLATFORM=ANDROID_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android_x86_64
+          cmake .. -DTARGET_PLATFORM=ANDROID_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android_x86_64 -DUSE_OPENMP=OFF
           make -j4 && make install
 
       - name: Build prover Linux
