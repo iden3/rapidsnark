@@ -45,10 +45,22 @@ jobs:
           cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android -DUSE_OPENMP=OFF
           make -j4 && make install
 
+      - name: Build prover Android ARM64 with OpenMP
+        run: |
+          mkdir -p build_prover_android_openmp && cd build_prover_android_openmp
+          cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android_openmp -DUSE_OPENMP=ON
+          make -j4 && make install
+
       - name: Build prover Android x86_64
         run: |
           mkdir -p build_prover_android_x86_64 && cd build_prover_android_x86_64
           cmake .. -DTARGET_PLATFORM=ANDROID_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android_x86_64 -DUSE_OPENMP=OFF
+          make -j4 && make install
+
+      - name: Build prover Android x86_64 with OpenMP
+        run: |
+          mkdir -p build_prover_android_openmp_x86_64 && cd build_prover_android_openmp_x86_64
+          cmake .. -DTARGET_PLATFORM=ANDROID_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android_openmp_x86_64 -DUSE_OPENMP=ON
           make -j4 && make install
 
       - name: Build prover Linux
@@ -90,6 +102,15 @@ jobs:
             package_android
           if-no-files-found: error
 
+      - name: upload Android dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapidsnark-Android-OpenMP
+          path: |
+            package_android_openmp
+          if-no-files-found: error
+
       - name: upload Android x86_64 dev artifacts
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
@@ -97,6 +118,15 @@ jobs:
           name: rapidsnark-Android-x86_64
           path: |
             package_android_x86_64
+          if-no-files-found: error
+
+      - name: upload Android x86_64 dev artifacts (with OpenMP)
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapidsnark-Android-OpenMP-x86_64
+          path: |
+            package_android_openmp_x86_64
           if-no-files-found: error
 
       - name: upload Android ARM64 release artifacts
