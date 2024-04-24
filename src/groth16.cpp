@@ -50,28 +50,28 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     LOG_TRACE("Start Multiexp A");
     uint32_t sW = sizeof(wtns[0]);
     typename Engine::G1Point pi_a;
-    E.g1.multiMulByScalar(pi_a, pointsA, (uint8_t *)wtns, sW, nVars);
+    E.g1.multiMulByScalarMSM(pi_a, pointsA, (uint8_t *)wtns, sW, nVars);
     std::ostringstream ss2;
     ss2 << "pi_a: " << E.g1.toString(pi_a);
     LOG_DEBUG(ss2);
 
     LOG_TRACE("Start Multiexp B1");
     typename Engine::G1Point pib1;
-    E.g1.multiMulByScalar(pib1, pointsB1, (uint8_t *)wtns, sW, nVars);
+    E.g1.multiMulByScalarMSM(pib1, pointsB1, (uint8_t *)wtns, sW, nVars);
     std::ostringstream ss3;
     ss3 << "pib1: " << E.g1.toString(pib1);
     LOG_DEBUG(ss3);
 
     LOG_TRACE("Start Multiexp B2");
     typename Engine::G2Point pi_b;
-    E.g2.multiMulByScalar(pi_b, pointsB2, (uint8_t *)wtns, sW, nVars);
+    E.g2.multiMulByScalarMSM(pi_b, pointsB2, (uint8_t *)wtns, sW, nVars);
     std::ostringstream ss4;
     ss4 << "pi_b: " << E.g2.toString(pi_b);
     LOG_DEBUG(ss4);
 
     LOG_TRACE("Start Multiexp C");
     typename Engine::G1Point pi_c;
-    E.g1.multiMulByScalar(pi_c, pointsC, (uint8_t *)((uint64_t)wtns + (nPublic +1)*sW), sW, nVars-nPublic-1);
+    E.g1.multiMulByScalarMSM(pi_c, pointsC, (uint8_t *)((uint64_t)wtns + (nPublic +1)*sW), sW, nVars-nPublic-1);
     std::ostringstream ss5;
     ss5 << "pi_c: " << E.g1.toString(pi_c);
     LOG_DEBUG(ss5);
@@ -80,25 +80,25 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     uint32_t sW = sizeof(wtns[0]);
     typename Engine::G1Point pi_a;
     auto pA_future = std::async([&]() {
-        E.g1.multiMulByScalar(pi_a, pointsA, (uint8_t *)wtns, sW, nVars);
+        E.g1.multiMulByScalarMSM(pi_a, pointsA, (uint8_t *)wtns, sW, nVars);
     });
 
     LOG_TRACE("Start Multiexp B1");
     typename Engine::G1Point pib1;
     auto pB1_future = std::async([&]() {
-        E.g1.multiMulByScalar(pib1, pointsB1, (uint8_t *)wtns, sW, nVars);
+        E.g1.multiMulByScalarMSM(pib1, pointsB1, (uint8_t *)wtns, sW, nVars);
     });
 
     LOG_TRACE("Start Multiexp B2");
     typename Engine::G2Point pi_b;
     auto pB2_future = std::async([&]() {
-        E.g2.multiMulByScalar(pi_b, pointsB2, (uint8_t *)wtns, sW, nVars);
+        E.g2.multiMulByScalarMSM(pi_b, pointsB2, (uint8_t *)wtns, sW, nVars);
     });
 
     LOG_TRACE("Start Multiexp C");
     typename Engine::G1Point pi_c;
     auto pC_future = std::async([&]() {
-        E.g1.multiMulByScalar(pi_c, pointsC, (uint8_t *)((uint64_t)wtns + (nPublic +1)*sW), sW, nVars-nPublic-1);
+        E.g1.multiMulByScalarMSM(pi_c, pointsC, (uint8_t *)((uint64_t)wtns + (nPublic +1)*sW), sW, nVars-nPublic-1);
     });
 #endif
 
@@ -230,7 +230,7 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
 
     LOG_TRACE("Start Multiexp H");
     typename Engine::G1Point pih;
-    E.g1.multiMulByScalar(pih, pointsH, (uint8_t *)a, sizeof(a[0]), domainSize);
+    E.g1.multiMulByScalarMSM(pih, pointsH, (uint8_t *)a, sizeof(a[0]), domainSize);
     std::ostringstream ss1;
     ss1 << "pih: " << E.g1.toString(pih);
     LOG_DEBUG(ss1);

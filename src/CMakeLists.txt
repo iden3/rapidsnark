@@ -134,7 +134,7 @@ endif()
 
 enable_testing()
 add_executable(test_public_size test_public_size.c)
-target_link_libraries(test_public_size rapidsnarkStaticFrFq)
+target_link_libraries(test_public_size rapidsnarkStaticFrFq pthread)
 add_test(NAME test_public_size COMMAND test_public_size circuit_final.zkey 86
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testdata)
 
