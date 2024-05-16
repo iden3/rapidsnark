@@ -62,6 +62,16 @@ groth16_prover_zkey_file(const char *zkey_file_path,
                          char *public_buffer, unsigned long *public_size,
                          char *error_msg, unsigned long error_msg_maxsize);
 
+/**
+ * groth16_test_env
+ * @return error code:
+ *         PROVER_OK - in case of success
+ *         PROVER_ERROR_SHORT_BUFFER - in case of a short buffer error
+ */
+int
+groth16_test_env(char *buffer, unsigned long buffer_maxsize);
+
+
 #ifdef __cplusplus
 }
 #endif
