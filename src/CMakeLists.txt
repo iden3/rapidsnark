@@ -122,7 +122,7 @@ target_link_libraries(verifier rapidsnarkStatic)
 
 add_library(rapidsnark SHARED ${LIB_SOURCES})
 
-if(USE_LOGGER OR NOT USE_OPENMP)
+if((USE_LOGGER OR NOT USE_OPENMP) AND NOT TARGET_PLATFORM MATCHES "android")
     target_link_libraries(prover pthread)
     target_link_libraries(verifier pthread)
 endif()
