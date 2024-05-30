@@ -42,13 +42,13 @@ jobs:
       - name: Build prover Android ARM64
         run: |
           mkdir -p build_prover_android && cd build_prover_android
-          cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android
+          cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android -DBUILD_TESTS=OFF
           make -j4 && make install
 
       - name: Build prover Android x86_64
         run: |
           mkdir -p build_prover_android_x86_64 && cd build_prover_android_x86_64
-          cmake .. -DTARGET_PLATFORM=ANDROID_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android_x86_64
+          cmake .. -DTARGET_PLATFORM=ANDROID_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android_x86_64 -DBUILD_TESTS=OFF
           make -j4 && make install
 
       - name: Build prover Linux
@@ -154,13 +154,13 @@ jobs:
           if [[ ! -d "depends/gmp/package_macos_arm64" ]]; then ./build_gmp.sh macos_arm64; fi
           
           mkdir -p build_prover_ios && cd build_prover_ios
-          cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
+          cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios -DBUILD_TESTS=OFF
           xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
           cp ../depends/gmp/package_ios_arm64/lib/libgmp.a src/Release-iphoneos
           cd ../
           
-          mkdir -p build_prover_ios_simulator && cd build_prover_ios_simulator
-          cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO
+          mkdir -p build_prover_ios_simulator && cd build_prover_ios_simulator 
+          cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO -DBUILD_TESTS=OFF
           xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
           cp ../depends/gmp/package_iphone_simulator/lib/libgmp.a src/Debug-iphonesimulator
           cd ../
