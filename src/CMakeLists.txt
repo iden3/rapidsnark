@@ -10,6 +10,10 @@ if(USE_ASM)
     endif()
 endif()
 
+if(DEFINED BITS_PER_CHUNK)
+    add_definitions(-DMSM_BITS_PER_CHUNK=${BITS_PER_CHUNK})
+endif()
+
 if(USE_ASM AND ARCH MATCHES "x86_64")
 
     if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
