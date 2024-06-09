@@ -22,8 +22,10 @@ BinFile::BinFile(const std::string& fileName, const std::string& _type, uint32_t
         throw std::system_error(errno, std::generic_category(), "open");
 
 
-    if (fstat(fd, &sb) == -1)           /* To obtain file size */
+    if (fstat(fd, &sb) == -1) {          /* To obtain file size */
+        close(fd);
         throw std::system_error(errno, std::generic_category(), "fstat");
+    }
 
     size = sb.st_size;
 

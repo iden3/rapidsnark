@@ -126,7 +126,7 @@ target_link_libraries(verifier rapidsnarkStatic)
 
 add_library(rapidsnark SHARED ${LIB_SOURCES})
 
-if(USE_LOGGER OR NOT USE_OPENMP)
+if((USE_LOGGER OR NOT USE_OPENMP) AND NOT TARGET_PLATFORM MATCHES "android")
     target_link_libraries(prover pthread)
     target_link_libraries(verifier pthread)
 endif()
@@ -135,12 +135,15 @@ if(USE_SODIUM)
     target_link_libraries(prover sodium)
 endif()
 
+option(BUILD_TESTS "Build the tests" ON)
 
-enable_testing()
-add_executable(test_public_size test_public_size.c)
-target_link_libraries(test_public_size rapidsnarkStaticFrFq pthread)
-add_test(NAME test_public_size COMMAND test_public_size circuit_final.zkey 86
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testdata)
+if(BUILD_TESTS)
+    enable_testing()
+    add_executable(test_public_size test_public_size.c)
+    target_link_libraries(test_public_size rapidsnarkStaticFrFq pthread)
+    add_test(NAME test_public_size COMMAND test_public_size circuit_final.zkey 86
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testdata)
+endif()
 
 if(OpenMP_CXX_FOUND)
 
