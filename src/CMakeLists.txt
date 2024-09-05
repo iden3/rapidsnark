@@ -10,6 +10,10 @@ if(USE_ASM)
     endif()
 endif()
 
+if(DEFINED BITS_PER_CHUNK)
+    add_definitions(-DMSM_BITS_PER_CHUNK=${BITS_PER_CHUNK})
+endif()
+
 if(USE_ASM AND ARCH MATCHES "x86_64")
 
     if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
@@ -131,12 +135,15 @@ if(USE_SODIUM)
     target_link_libraries(prover sodium)
 endif()
 
+option(BUILD_TESTS "Build the tests" ON)
 
-enable_testing()
-add_executable(test_public_size test_public_size.c)
-target_link_libraries(test_public_size rapidsnarkStaticFrFq)
-add_test(NAME test_public_size COMMAND test_public_size circuit_final.zkey 86
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testdata)
+if(BUILD_TESTS)
+    enable_testing()
+    add_executable(test_public_size test_public_size.c)
+    target_link_libraries(test_public_size rapidsnarkStaticFrFq pthread)
+    add_test(NAME test_public_size COMMAND test_public_size circuit_final.zkey 86
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testdata)
+endif()
 
 if(OpenMP_CXX_FOUND)
 
