@@ -199,4 +199,4 @@ src/test_public_size ../testdata/circuit_final.zkey 86
 
 ## License
 
-rapidsnark is part of the iden3 project copyright 2021 0KIMS association and published with GPL-3 license. Please check the COPYING file for more details.
+rapidsnark is part of the iden3 project copyright 2021 0KIMS association and published with LGPL-3 license. Please check the COPYING file for more details.
