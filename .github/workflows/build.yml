@@ -22,16 +22,28 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           push: false
-          outputs:
-            type=docker
-          platforms: linux/amd64,linux/arm64
+          outputs: type=docker
+          platforms: linux/arm64
           file: .github/images/Dockerfile.build
           context: ./.github/images/context.build
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: builder:latest
+          tags: builder:amd64
 
-      - run: docker run --platform=linux/arm64 ubuntu uname -a
+      - uses: docker/build-push-action@v6
+        with:
+          push: false
+          outputs: type=docker
+          platforms: linux/arm64
+          file: .github/images/Dockerfile.build
+          context: ./.github/images/context.build
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: builder:arm64
+
+      - run: docker run --platform=linux/arm64 builder:arm64 uname -a
+
+      - run: docker run --platform=linux/amd64 builder:amd64 uname -a
 
   build-linux:
     runs-on: ubuntu-22.04
