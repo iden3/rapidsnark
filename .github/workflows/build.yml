@@ -66,7 +66,7 @@ jobs:
             set -x
             set -e
             mkdir -p build_prover_arm64 && cd build_prover_arm64
-            cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_aarch64
+            cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_arm64
             make -j4 && make install
             ctest --rerun-failed --output-on-failure
           EOF
@@ -78,7 +78,7 @@ jobs:
         with:
           name: rapidsnark-linux-arm64
           path: |
-            package_aarch64
+            package_arm64
           if-no-files-found: error
 
       - run: docker run --platform=linux/arm64 builder:arm64 uname -a
