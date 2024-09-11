@@ -13,6 +13,9 @@ jobs:
   build-linux-2:
     runs-on: ubuntu-22.04
     steps:
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
       - run: docker run --platform=linux/arm64 ubuntu uname -a
 
   build-linux:
