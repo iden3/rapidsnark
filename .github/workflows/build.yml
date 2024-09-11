@@ -30,7 +30,7 @@ jobs:
           platforms: linux/amd64
           file: .github/images/Dockerfile.build
           context: ./.github/images/context.build
-          cache-from: type=gha
+          cache-from: type=gha,scope=buildkit-amd64
           cache-to: type=gha,mode=max
           tags: builder:amd64
 
@@ -41,7 +41,7 @@ jobs:
           platforms: linux/arm64
           file: .github/images/Dockerfile.build
           context: ./.github/images/context.build
-          cache-from: type=gha
+          cache-from: type=gha,scope=buildkit-arm64
           cache-to: type=gha,mode=max
           tags: builder:arm64
 
