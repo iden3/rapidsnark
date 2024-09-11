@@ -14,7 +14,22 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: docker/setup-qemu-action@v3
-#      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - uses: docker/build-push-action@v6
+        with:
+          push: false
+          outputs:
+            type=docker
+          platforms: linux/amd64,linux/arm64
+          file: .github/images/Dockerfile.build
+          context: ./.github/images/context.build
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: builder:latest
 
       - run: docker run --platform=linux/arm64 ubuntu uname -a
 
@@ -172,18 +187,8 @@ jobs:
           zip -r rapidsnark-linux-x86_64-${{ github.ref_name }}.zip rapidsnark-linux-x86_64-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-linux-x86_64-${{ github.ref_name }}.zip
 
-  build-apple-1:
-    runs-on: macos-14
-    steps:
-      - run: uname -a
-
-  build-apple-2:
-    runs-on: macos-13
-    steps:
-      - run: uname -a
-
   build-apple-arm64:
-    runs-on: macos-13-xlarge
+    runs-on: macos-14
     if: false
     steps:
       - uses: actions/checkout@v4
