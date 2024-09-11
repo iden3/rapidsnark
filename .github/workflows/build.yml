@@ -31,7 +31,7 @@ jobs:
           file: .github/images/Dockerfile.build
           context: ./.github/images/context.build
           cache-from: type=gha,scope=buildkit-amd64
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,scope=buildkit-amd64
           tags: builder:amd64
 
       - uses: docker/build-push-action@v6
@@ -42,7 +42,7 @@ jobs:
           file: .github/images/Dockerfile.build
           context: ./.github/images/context.build
           cache-from: type=gha,scope=buildkit-arm64
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,scope=buildkit-arm64
           tags: builder:arm64
 
       - run: docker run --platform=linux/arm64 builder:arm64 uname -a
