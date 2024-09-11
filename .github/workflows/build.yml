@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - main
-      - build
   pull_request:
 
 jobs:
@@ -45,6 +44,43 @@ jobs:
           cache-to: type=gha,mode=max,scope=buildkit-arm64
           tags: builder:arm64
 
+      - name: Cache gmp build
+        uses: actions/cache@v4
+        with:
+          path: |
+            depends/gmp
+            depends/gmp-6.2.1.tar.xz
+          key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}-3
+
+      - name: Build gmp for Linux arm64
+        run: |
+          set -x
+          set -e
+          if [[ ! -d "depends/gmp/package_aarch64" ]]; then
+            docker run --rm --platform=linux/arm64 -i -v $PWD:/work --workdir=/work builder:arm64 ./build_gmp.sh aarch64
+          fi
+
+      - name: Build prover Linux arm64
+        run: |
+          docker run --rm --platform=linux/arm64 -i -v $PWD:/work --workdir=/work builder:arm64 bash -c "$(cat << 'EOF'
+            set -x
+            set -e
+            mkdir -p build_prover_arm64 && cd build_prover_arm64
+            cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_aarch64
+            make -j4 && make install
+            ctest --rerun-failed --output-on-failure
+          EOF
+          )"
+
+      - name: Upload Linux arm64 dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapidsnark-linux-arm64
+          path: |
+            package_aarch64
+          if-no-files-found: error
+
       - run: docker run --platform=linux/arm64 builder:arm64 uname -a
 
       - run: docker run --platform=linux/amd64 builder:amd64 uname -a
@@ -71,13 +107,13 @@ jobs:
             depends/gmp-6.2.1.tar.xz
           key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}-2
 
-      - name: build gmp for Android arm64
+      - name: Build gmp for Android arm64
         run: if [[ ! -d "depends/gmp/package_android_arm64" ]]; then ./build_gmp.sh android; fi
 
-      - name: build gmp for Android x86_64
+      - name: Build gmp for Android x86_64
         run: if [[ ! -d "depends/gmp/package_android_x86_64" ]]; then ./build_gmp.sh android_x86_64; fi
 
-      - name: build gmp for Linux x86_64
+      - name: Build gmp for Linux x86_64
         run: if [[ ! -d "depends/gmp/package" ]]; then ./build_gmp.sh host; fi
 
       - name: Build prover Android ARM64
