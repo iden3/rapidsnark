@@ -27,7 +27,7 @@ jobs:
         with:
           push: false
           outputs: type=docker
-          platforms: linux/arm64
+          platforms: linux/amd64
           file: .github/images/Dockerfile.build
           context: ./.github/images/context.build
           cache-from: type=gha
