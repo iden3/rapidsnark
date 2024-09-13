@@ -11,6 +11,7 @@ on:
 jobs:
   build-linux-2:
     runs-on: ubuntu-22.04
+    if: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,18 +23,21 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
 
-      - uses: docker/build-push-action@v6
-        with:
-          push: false
-          outputs: type=docker
-          platforms: linux/amd64
-          file: .github/images/Dockerfile.build
-          context: ./.github/images/context.build
-          cache-from: type=gha,scope=buildkit-amd64
-          cache-to: type=gha,mode=max,scope=buildkit-amd64
-          tags: builder:amd64
+#      - uses: docker/build-push-action@v6
+#        with:
+#          push: false
+#          outputs: type=docker
+#          platforms: linux/amd64
+#          file: .github/images/Dockerfile.build
+#          context: ./.github/images/context.build
+#          cache-from: type=gha,scope=buildkit-amd64
+#          cache-to: type=gha,mode=max,scope=buildkit-amd64
+#          tags: builder:amd64
 
       - uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
         with:
           push: false
           outputs: type=docker
@@ -99,13 +103,36 @@ jobs:
           packages: build-essential cmake m4 nasm
           version: 1.0
 
+      - name: Setup QEMU to build ARM64 variant
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup buildx for ARM64 platform
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Prepare Docker image builder for ARM64
+        uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          push: false
+          outputs: type=docker
+          platforms: linux/arm64
+          file: .github/images/Dockerfile.build
+          context: ./.github/images/context.build
+          cache-from: type=gha,scope=buildkit-arm64
+          cache-to: type=gha,mode=max,scope=buildkit-arm64
+          tags: builder:arm64
+
       - name: Cache gmp build
         uses: actions/cache@v4
         with:
           path: |
             depends/gmp
             depends/gmp-6.2.1.tar.xz
-          key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}-2
+          key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}-4
 
       - name: Build gmp for Android arm64
         run: if [[ ! -d "depends/gmp/package_android_arm64" ]]; then ./build_gmp.sh android; fi
@@ -115,6 +142,12 @@ jobs:
 
       - name: Build gmp for Linux x86_64
         run: if [[ ! -d "depends/gmp/package" ]]; then ./build_gmp.sh host; fi
+
+      - name: Build gmp for Linux arm64
+        run: |
+          if [[ ! -d "depends/gmp/package_aarch64" ]]; then
+            docker run --rm --platform=linux/arm64 -i -v $PWD:/work --workdir=/work builder:arm64 ./build_gmp.sh aarch64
+          fi
 
       - name: Build prover Android ARM64
         run: |
@@ -140,14 +173,26 @@ jobs:
           cmake .. -DTARGET_PLATFORM=ANDROID_x86_64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android_openmp_x86_64 -DBUILD_TESTS=OFF -DUSE_OPENMP=ON
           make -j4 && make install
 
-      - name: Build prover Linux
+      - name: Build prover Linux x86_64
         run: |
           mkdir -p build_prover && cd build_prover
           cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
           make -j4 && make install
           ctest --rerun-failed --output-on-failure
 
-      - name: test rapidsnark
+      - name: Build prover Linux arm64
+        run: |
+          docker run --rm --platform=linux/arm64 -i -v $PWD:/work --workdir=/work builder:arm64 bash -c "$(cat << 'EOF'
+            set -x
+            set -e
+            mkdir -p build_prover_arm64 && cd build_prover_arm64
+            cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_arm64
+            make -j4 && make install
+            ctest --rerun-failed --output-on-failure
+          EOF
+          )"
+
+      - name: Test rapidsnark
         run: |
           set -x
           set -e
@@ -161,16 +206,25 @@ jobs:
           set -e
           [ $exit_code -ne 0 ]
 
-      - name: upload Linux amd64 dev artifacts
+      - name: Upload Linux x86_64 dev artifacts
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
         with:
-          name: rapidsnark-linux-amd64
+          name: rapidsnark-linux-x86_64
           path: |
             package
           if-no-files-found: error
 
-      - name: upload Android dev artifacts
+      - name: Upload Linux arm64 dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapidsnark-linux-arm64
+          path: |
+            package_arm64
+          if-no-files-found: error
+
+      - name: Upload Android dev artifacts
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
         with:
@@ -179,7 +233,7 @@ jobs:
             package_android
           if-no-files-found: error
 
-      - name: upload Android dev artifacts
+      - name: Upload Android dev artifacts
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
         with:
@@ -188,7 +242,7 @@ jobs:
             package_android_openmp
           if-no-files-found: error
 
-      - name: upload Android x86_64 dev artifacts
+      - name: Upload Android x86_64 dev artifacts
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
         with:
@@ -197,7 +251,7 @@ jobs:
             package_android_x86_64
           if-no-files-found: error
 
-      - name: upload Android x86_64 dev artifacts (with OpenMP)
+      - name: Upload Android x86_64 dev artifacts (with OpenMP)
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
         with:
@@ -206,7 +260,7 @@ jobs:
             package_android_openmp_x86_64
           if-no-files-found: error
 
-      - name: upload Android ARM64 release artifacts
+      - name: Upload Android ARM64 release artifacts
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -217,7 +271,7 @@ jobs:
           zip -r rapidsnark-android-arm64-${{ github.ref_name }}.zip rapidsnark-android-arm64-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-android-arm64-${{ github.ref_name }}.zip
 
-      - name: upload Android x86_64 release artifacts
+      - name: Upload Android x86_64 release artifacts
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -228,7 +282,7 @@ jobs:
           zip -r rapidsnark-android-x86_64-${{ github.ref_name }}.zip rapidsnark-android-x86_64-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-android-x86_64-${{ github.ref_name }}.zip
 
-      - name: upload Linux x86_64 release artifacts
+      - name: Upload Linux x86_64 release artifacts
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -238,6 +292,17 @@ jobs:
           cp -r package/* rapidsnark-linux-x86_64-${{ github.ref_name }}/
           zip -r rapidsnark-linux-x86_64-${{ github.ref_name }}.zip rapidsnark-linux-x86_64-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-linux-x86_64-${{ github.ref_name }}.zip
+
+      - name: Upload Linux ARM64 release artifacts
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          mkdir -p rapidsnark-linux-arm64-${{ github.ref_name }}
+          cp -r package_arm64/* rapidsnark-linux-arm64-${{ github.ref_name }}/
+          zip -r rapidsnark-linux-arm64-${{ github.ref_name }}.zip rapidsnark-linux-arm64-${{ github.ref_name }}
+          gh release upload ${{ github.event.release.tag_name }} rapidsnark-linux-arm64-${{ github.ref_name }}.zip
 
   build-apple-arm64:
     runs-on: macos-14
@@ -264,12 +329,14 @@ jobs:
           mkdir -p build_prover_ios && cd build_prover_ios
           cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios -DBUILD_TESTS=OFF
           xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
+          xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnark -project rapidsnark.xcodeproj -configuration Release CODE_SIGNING_ALLOWED=NO
           cp ../depends/gmp/package_ios_arm64/lib/libgmp.a src/Release-iphoneos
           cd ../
           
           mkdir -p build_prover_ios_simulator && cd build_prover_ios_simulator 
-          cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO -DBUILD_TESTS=OFF
+          cmake .. -GXcode -DTARGET_PLATFORM=IOS_SIMULATOR -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO -DBUILD_TESTS=OFF
           xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
+          xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnark -project rapidsnark.xcodeproj CODE_SIGNING_ALLOWED=NO ARCHS=arm64
           cp ../depends/gmp/package_iphone_simulator/lib/libgmp.a src/Debug-iphonesimulator
           cd ../
           
