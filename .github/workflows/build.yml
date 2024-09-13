@@ -179,6 +179,13 @@ jobs:
           make -j4 && make install
           ctest --rerun-failed --output-on-failure
 
+      - name: Build prover Linux x86_64 noasm
+        run: |
+          mkdir -p build_prover_noasm && cd build_prover_noasm
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_noasm -DUSE_ASM=NO
+          make -j4 && make install
+          ctest --rerun-failed --output-on-failure
+
       - name: Build prover Linux arm64
         run: |
           docker run --rm --platform=linux/arm64 -i -v $PWD:/work --workdir=/work builder:arm64 bash -c "$(cat << 'EOF'
@@ -212,6 +219,15 @@ jobs:
           name: rapidsnark-linux-x86_64
           path: |
             package
+          if-no-files-found: error
+
+      - name: Upload Linux x86_64 noasm dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapidsnark-linux-x86_64-noasm
+          path: |
+            package_noasm
           if-no-files-found: error
 
       - name: Upload Linux arm64 dev artifacts
@@ -291,6 +307,17 @@ jobs:
           cp -r package/* rapidsnark-linux-x86_64-${{ github.ref_name }}/
           zip -r rapidsnark-linux-x86_64-${{ github.ref_name }}.zip rapidsnark-linux-x86_64-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-linux-x86_64-${{ github.ref_name }}.zip
+
+      - name: Upload Linux x86_64 noasm release artifacts
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          mkdir -p rapidsnark-linux-x86_64-noasm-${{ github.ref_name }}
+          cp -r package_noasm/* rapidsnark-linux-x86_64-noasm-${{ github.ref_name }}/
+          zip -r rapidsnark-linux-x86_64-noasm-${{ github.ref_name }}.zip rapidsnark-linux-x86_64-noasm-${{ github.ref_name }}
+          gh release upload ${{ github.event.release.tag_name }} rapidsnark-linux-x86_64-noasm-${{ github.ref_name }}.zip
 
       - name: Upload Linux ARM64 release artifacts
         if: github.event_name == 'release'
