@@ -9,85 +9,6 @@ on:
   pull_request:
 
 jobs:
-  build-linux-2:
-    runs-on: ubuntu-22.04
-    if: false
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: "recursive"
-
-      - uses: docker/setup-qemu-action@v3
-
-      - uses: docker/setup-buildx-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
-
-#      - uses: docker/build-push-action@v6
-#        with:
-#          push: false
-#          outputs: type=docker
-#          platforms: linux/amd64
-#          file: .github/images/Dockerfile.build
-#          context: ./.github/images/context.build
-#          cache-from: type=gha,scope=buildkit-amd64
-#          cache-to: type=gha,mode=max,scope=buildkit-amd64
-#          tags: builder:amd64
-
-      - uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
-          DOCKER_BUILD_RECORD_UPLOAD: false
-        with:
-          push: false
-          outputs: type=docker
-          platforms: linux/arm64
-          file: .github/images/Dockerfile.build
-          context: ./.github/images/context.build
-          cache-from: type=gha,scope=buildkit-arm64
-          cache-to: type=gha,mode=max,scope=buildkit-arm64
-          tags: builder:arm64
-
-      - name: Cache gmp build
-        uses: actions/cache@v4
-        with:
-          path: |
-            depends/gmp
-            depends/gmp-6.2.1.tar.xz
-          key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}-3
-
-      - name: Build gmp for Linux arm64
-        run: |
-          set -x
-          set -e
-          if [[ ! -d "depends/gmp/package_aarch64" ]]; then
-            docker run --rm --platform=linux/arm64 -i -v $PWD:/work --workdir=/work builder:arm64 ./build_gmp.sh aarch64
-          fi
-
-      - name: Build prover Linux arm64
-        run: |
-          docker run --rm --platform=linux/arm64 -i -v $PWD:/work --workdir=/work builder:arm64 bash -c "$(cat << 'EOF'
-            set -x
-            set -e
-            mkdir -p build_prover_arm64 && cd build_prover_arm64
-            cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_arm64
-            make -j4 && make install
-            ctest --rerun-failed --output-on-failure
-          EOF
-          )"
-
-      - name: Upload Linux arm64 dev artifacts
-        if: github.event_name != 'release'
-        uses: actions/upload-artifact@v4
-        with:
-          name: rapidsnark-linux-arm64
-          path: |
-            package_arm64
-          if-no-files-found: error
-
-      - run: docker run --platform=linux/arm64 builder:arm64 uname -a
-
-      - run: docker run --platform=linux/amd64 builder:amd64 uname -a
 
   build-linux:
     runs-on: ubuntu-22.04
@@ -446,7 +367,6 @@ jobs:
 
   build-apple-x86_64:
     runs-on: macos-13
-    if: false
     steps:
       - uses: actions/checkout@v4
         with:
