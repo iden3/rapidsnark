@@ -91,7 +91,6 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-22.04
-    if: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -306,7 +305,6 @@ jobs:
 
   build-apple-arm64:
     runs-on: macos-14
-    if: false
     steps:
       - uses: actions/checkout@v4
         with:
