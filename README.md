@@ -169,6 +169,18 @@ To test a request you should pass an `input.json` as a parameter to the request 
 node tools/request.js <input.json> <circuit>
 ```
 
+## Wrappers
+
+Rapidsnark can be used with several programming languages and environments through wrappers that provide integration with the original library. Below is a list of available wrappers:
+
+| Wrapper      | Repository Link                         |
+| ------------ |-----------------------------------------|
+| Go           | https://github.com/iden3/go-rapidsnark  |
+| iOS          | https://github.com/iden3/ios-rapidsnark |
+| Android      | https://github.com/iden3/android-rapidsnark |
+| React Native | https://github.com/iden3/react-native-rapidsnark |
+| Flutter      | https://github.com/iden3/flutter-rapidsnark |
+
 ## Benchmark
 
 This prover parallelizes as much as it can the proof generation.
