@@ -19,7 +19,7 @@
 #include "prover.h"
 
 int
-test_groth16_public_size(const char *zkey_fname, size_t *public_size) {
+test_groth16_public_size(const char *zkey_fname, unsigned long long *public_size) {
     int ret_val = 0;
     const int error_sz = 256;
     char error_msg[error_sz];
@@ -54,7 +54,7 @@ test_groth16_public_size(const char *zkey_fname, size_t *public_size) {
 
     int ok = groth16_public_size_for_zkey_buf(buf, sb.st_size, public_size, error_msg, error_sz);
     if (ok == 0) {
-        printf("Public size: %lu\n", *public_size);
+        printf("Public size: %llu\n", *public_size);
     } else {
         printf("Error: %s\n", error_msg);
         ret_val = 1;
@@ -72,13 +72,13 @@ cleanup:
 
 int
 test_groth16_public_size_for_zkey_file(const char *zkey_fname,
-                                       size_t *public_size) {
+                                       unsigned long long *public_size) {
     const int err_ln = 256;
     char error_msg[err_ln];
     int ret = groth16_public_size_for_zkey_file(zkey_fname, public_size, error_msg, err_ln);
 
     if (ret == 0) {
-        printf("Public size: %lu\n", *public_size);
+        printf("Public size: %llu\n", *public_size);
     } else {
         printf("Error: %s\n", error_msg);
     }
@@ -98,7 +98,7 @@ main(int argc, char *argv[]) {
     int ret_val = 0;
     clock_t start = clock();
 
-    size_t public_size = 0;
+    unsigned long long public_size = 0;
 
     int test_groth16_public_size_ok =
             test_groth16_public_size(argv[1], &public_size);
@@ -114,7 +114,7 @@ main(int argc, char *argv[]) {
     if (public_size != want_pub_size) {
         printf("test_groth16_public_size expected public signals buf size: %ld\n",
                want_pub_size);
-        printf("test_groth16_public_size actual public signals buf size: %lu\n",
+        printf("test_groth16_public_size actual public signals buf size: %llu\n",
                public_size);
         ret_val = 1;
     }
@@ -135,7 +135,7 @@ main(int argc, char *argv[]) {
     if (public_size != want_pub_size) {
         printf("test_groth16_public_size_for_zkey_file expected public signals buf size: %ld\n",
                want_pub_size);
-        printf("test_groth16_public_size_for_zkey_file actual public signals buf size: %lu\n",
+        printf("test_groth16_public_size_for_zkey_file actual public signals buf size: %llu\n",
                public_size);
         ret_val = 1;
     }
