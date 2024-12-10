@@ -1,6 +1,7 @@
 #include "random_generator.hpp"
 #include "logging.hpp"
 #include "misc.hpp"
+#include <sstream>
 #include <vector>
 #include <mutex>
 
@@ -84,7 +85,7 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     auto b = new typename Engine::FrElement[domainSize];
     auto c = new typename Engine::FrElement[domainSize];
 
-    threadPool.parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
+    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
         for (u_int32_t i=begin; i<end; i++) {
             E.fr.copy(a[i], E.fr.zero());
             E.fr.copy(b[i], E.fr.zero());
@@ -96,7 +97,7 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     #define NLOCKS 1024
     std::vector<std::mutex> locks(NLOCKS);
 
-    threadPool.parallelFor(0, nCoefs, [&] (int begin, int end, int numThread) {
+    threadPool.parallelFor(0, nCoefs, [&] (int64_t begin, int64_t end, uint64_t idThread) {
         for (u_int64_t i=begin; i<end; i++) {
             typename Engine::FrElement *ab = (coefs[i].m == 0) ? a : b;
             typename Engine::FrElement aux;
@@ -117,7 +118,7 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
         }
     });
     LOG_TRACE("Calculating c");
-    threadPool.parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
+    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
         for (u_int64_t i=begin; i<end; i++) {
             E.fr.mul(
                 c[i],
@@ -137,7 +138,7 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     LOG_DEBUG(E.fr.toString(a[1]).c_str());
     LOG_TRACE("Start Shift A");
 
-    threadPool.parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
+    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
         for (u_int64_t i=begin; i<end; i++) {
             E.fr.mul(a[i], a[i], fft->root(domainPower+1, i));
         }
@@ -157,7 +158,7 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     LOG_DEBUG(E.fr.toString(b[0]).c_str());
     LOG_DEBUG(E.fr.toString(b[1]).c_str());
     LOG_TRACE("Start Shift B");
-    threadPool.parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
+    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
         for (u_int64_t i=begin; i<end; i++) {
             E.fr.mul(b[i], b[i], fft->root(domainPower+1, i));
         }
@@ -177,7 +178,7 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     LOG_DEBUG(E.fr.toString(c[0]).c_str());
     LOG_DEBUG(E.fr.toString(c[1]).c_str());
     LOG_TRACE("Start Shift C");
-    threadPool.parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
+    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
         for (u_int64_t i=begin; i<end; i++) {
             E.fr.mul(c[i], c[i], fft->root(domainPower+1, i));
         }
@@ -192,7 +193,7 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     LOG_DEBUG(E.fr.toString(c[1]).c_str());
 
     LOG_TRACE("Start ABC");
-    threadPool.parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
+    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
         for (u_int64_t i=begin; i<end; i++) {
             E.fr.mul(a[i], a[i], b[i]);
             E.fr.sub(a[i], a[i], c[i]);

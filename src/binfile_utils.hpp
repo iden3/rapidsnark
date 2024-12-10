@@ -4,15 +4,15 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include "fileloader.hpp"
 
 namespace BinFileUtils {
     
     class BinFile {
 
-        bool is_fd;
-        int fd;
+        FileLoader fileLoader;
 
-        void *addr;
+        const void *addr;
         u_int64_t size;
         u_int64_t pos;
 
@@ -32,6 +32,7 @@ namespace BinFileUtils {
 
         Section *readingSection;
 
+        void readFileData(std::string _type, uint32_t maxVersion);
 
     public:
 
@@ -39,7 +40,6 @@ namespace BinFileUtils {
         BinFile(const std::string& fileName, const std::string& _type, uint32_t maxVersion);
         BinFile(const BinFile&) = delete;
         BinFile& operator=(const BinFile&) = delete;
-        ~BinFile();
 
         void startReadSection(u_int32_t sectionId, u_int32_t setionPos = 0);
         void endReadSection(bool check = true);

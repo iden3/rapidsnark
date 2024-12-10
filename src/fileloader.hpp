@@ -9,8 +9,11 @@ namespace BinFileUtils {
 class FileLoader
 {
 public:
+    FileLoader();
     FileLoader(const std::string& fileName);
     ~FileLoader();
+
+    void load(const std::string& fileName);
 
     void*  dataBuffer() { return addr; }
     size_t dataSize() const { return size; }

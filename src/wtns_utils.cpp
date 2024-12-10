@@ -3,6 +3,7 @@
 namespace WtnsUtils {
 
 Header::Header() {
+    mpz_init(prime);
 }
 
 Header::~Header() {
@@ -10,18 +11,18 @@ Header::~Header() {
 }
 
 std::unique_ptr<Header> loadHeader(BinFileUtils::BinFile *f) {
-    Header *h = new Header();
+    std::unique_ptr<Header> h(new Header());
+
     f->startReadSection(1);
 
     h->n8 = f->readU32LE();
-    mpz_init(h->prime);
     mpz_import(h->prime, h->n8, -1, 1, -1, 0, f->read(h->n8));
 
     h->nVars = f->readU32LE();
 
     f->endReadSection();
 
-    return std::unique_ptr<Header>(h);
+    return h;
 }
 
 } // NAMESPACE

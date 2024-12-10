@@ -9,8 +9,23 @@
 
 namespace BinFileUtils {
 
-FileLoader::FileLoader(const std::string& fileName)
+FileLoader::FileLoader()
+    : fd(-1)
 {
+}
+
+FileLoader::FileLoader(const std::string& fileName)
+    : fd(-1)
+{
+    load(fileName);
+}
+
+void FileLoader::load(const std::string& fileName)
+{
+    if (fd != -1) {
+        throw std::invalid_argument("file already loaded");
+    }
+
     struct stat sb;
 
     fd = open(fileName.c_str(), O_RDONLY);
@@ -26,12 +41,21 @@ FileLoader::FileLoader(const std::string& fileName)
     size = sb.st_size;
 
     addr = mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd, 0);
+
+    if (addr == MAP_FAILED) {
+        close(fd);
+        throw std::system_error(errno, std::generic_category(), "mmap failed");
+    }
+
+    madvise(addr, size, MADV_SEQUENTIAL);
 }
 
 FileLoader::~FileLoader()
 {
-    munmap(addr, size);
-    close(fd);
+    if (fd != -1) {
+        munmap(addr, size);
+        close(fd);
+    }
 }
 
 } // Namespace
