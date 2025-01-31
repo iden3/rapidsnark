@@ -259,10 +259,8 @@ jobs:
           if [[ ! -d "depends/gmp/package_macos_arm64" ]]; then ./build_gmp.sh macos_arm64; fi
           
           make ios
-          cd ../
           
           make ios_simulator
-          cd ../
           
           make macos_arm64
           ctest --rerun-failed --output-on-failure
