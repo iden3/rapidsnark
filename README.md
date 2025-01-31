@@ -30,9 +30,7 @@ brew install cmake gmp libsodium nasm
 git submodule init
 git submodule update
 ./build_gmp.sh host
-mkdir build_prover && cd build_prover
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
-make -j4 && make install
+make host
 ```
 
 ### Compile prover for macOS arm64 host machine
@@ -41,9 +39,7 @@ make -j4 && make install
 git submodule init
 git submodule update
 ./build_gmp.sh macos_arm64
-mkdir build_prover_macos_arm64 && cd build_prover_macos_arm64
-cmake .. -DTARGET_PLATFORM=macos_arm64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_macos_arm64
-make -j4 && make install
+make macos_arm64
 ```
 
 ### Compile prover for linux arm64 host machine
@@ -52,9 +48,7 @@ make -j4 && make install
 git submodule init
 git submodule update
 ./build_gmp.sh host
-mkdir build_prover && cd build_prover
-cmake .. -DTARGET_PLATFORM=arm64_host -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package
-make -j4 && make install
+make host_arm64
 ```
 
 ### Compile prover for linux arm64 machine
@@ -63,9 +57,7 @@ make -j4 && make install
 git submodule init
 git submodule update
 ./build_gmp.sh host
-mkdir build_prover && cd build_prover
-cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_aarch64
-make -j4 && make install
+make arm64
 ```
 
 ### Compile prover for Android
@@ -93,9 +85,7 @@ Compilation:
 git submodule init
 git submodule update
 ./build_gmp.sh android
-mkdir build_prover_android && cd build_prover_android
-cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android
-make -j4 && make install
+make android
 ```
 
 ### Compile prover for iOS
@@ -106,9 +96,7 @@ Install Xcode
 git submodule init
 git submodule update
 ./build_gmp.sh ios
-mkdir build_prover_ios && cd build_prover_ios
-cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
-xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
+make ios
 ```
 Open generated Xcode project and compile prover.
 
@@ -120,9 +108,7 @@ Install Xcode
 git submodule init
 git submodule update
 ./build_gmp.sh ios_simulator
-mkdir build_prover_ios_simulator && cd build_prover_ios_simulator
-cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO
-xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
+make ios_simulator
 ```
 
 Files that you need to copy to your XCode project to link against Rapidsnark:
