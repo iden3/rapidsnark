@@ -273,14 +273,14 @@ jobs:
           if [[ ! -d "depends/gmp/package_macos_arm64" ]]; then ./build_gmp.sh macos_arm64; fi
           
           mkdir -p build_prover_ios && cd build_prover_ios
-          cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios -DBUILD_TESTS=OFF
+          cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
           xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
           xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnark -project rapidsnark.xcodeproj -configuration Release CODE_SIGNING_ALLOWED=NO
           cp ../depends/gmp/package_ios_arm64/lib/libgmp.a src/Release-iphoneos
           cd ../
           
           mkdir -p build_prover_ios_simulator && cd build_prover_ios_simulator 
-          cmake .. -GXcode -DTARGET_PLATFORM=IOS_SIMULATOR -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO -DBUILD_TESTS=OFF
+          cmake .. -GXcode -DTARGET_PLATFORM=IOS_SIMULATOR -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO
           xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
           xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnark -project rapidsnark.xcodeproj CODE_SIGNING_ALLOWED=NO ARCHS=arm64
           cp ../depends/gmp/package_iphone_simulator/lib/libgmp.a src/Debug-iphonesimulator
