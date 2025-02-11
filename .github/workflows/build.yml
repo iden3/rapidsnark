@@ -10,7 +10,7 @@ on:
 
 jobs:
 
-  build-linux:
+  build-linux-x86_64:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@v1
         with:
           packages: build-essential cmake m4 nasm
-          version: 1.0
+          version: x86_64-1.0
 
       - name: Cache gmp build
         uses: actions/cache@v4
@@ -29,7 +29,7 @@ jobs:
           path: |
             depends/gmp
             depends/gmp-6.2.1.tar.xz
-          key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}-4
+          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: Build gmp for Android arm64
         run: if [[ ! -d "depends/gmp/package_android_arm64" ]]; then ./build_gmp.sh android; fi
@@ -201,7 +201,7 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@v1
         with:
           packages: build-essential cmake m4 nasm
-          version: 1.0
+          version: arm64-1.0
 
       - name: Cache gmp build
         uses: actions/cache@v4
@@ -209,7 +209,7 @@ jobs:
           path: |
             depends/gmp
             depends/gmp-6.2.1.tar.xz
-          key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}-4
+          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: Build gmp for Linux arm64
         run: if [[ ! -d "depends/gmp/package_aarch64" ]]; then ./build_gmp.sh aarch64; fi
@@ -268,7 +268,7 @@ jobs:
           path: |
             depends/gmp
             depends/gmp-6.2.1.tar.xz
-          key: ${{ runner.os }}-gmp-arm64-${{ hashFiles('build_gmp.sh') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: build
         run: |
@@ -382,7 +382,7 @@ jobs:
           path: |
             depends/gmp
             depends/gmp-6.2.1.tar.xz
-          key: ${{ runner.os }}-gmp-x86_64-${{ hashFiles('build_gmp.sh') }}-2
+          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: install dependencies
         run: |
