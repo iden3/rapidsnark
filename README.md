@@ -94,7 +94,7 @@ git submodule init
 git submodule update
 ./build_gmp.sh android
 mkdir build_prover_android && cd build_prover_android
-cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android
+cmake .. -DTARGET_PLATFORM=ANDROID -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_android -DBUILD_TESTS=OFF
 make -j4 && make install
 ```
 
