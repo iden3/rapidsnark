@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 string(TOLOWER "${TARGET_PLATFORM}" TARGET_PLATFORM)
 
@@ -53,11 +53,6 @@ elseif(TARGET_PLATFORM MATCHES "ios")
 elseif(TARGET_PLATFORM MATCHES "aarch64")
 
     set(GMP_PREFIX ${GMP_ROOT}/package_aarch64)
-    set(ARCH arm64)
-
-elseif(TARGET_PLATFORM MATCHES "arm64_host")
-
-    set(GMP_PREFIX ${GMP_ROOT}/package)
     set(ARCH arm64)
 
 elseif(TARGET_PLATFORM MATCHES "macos_x86_64")
