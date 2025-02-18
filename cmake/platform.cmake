@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 string(TOLOWER "${TARGET_PLATFORM}" TARGET_PLATFORM)
 
@@ -55,11 +55,6 @@ elseif(TARGET_PLATFORM MATCHES "aarch64")
     set(GMP_PREFIX ${GMP_ROOT}/package_aarch64)
     set(ARCH arm64)
 
-elseif(TARGET_PLATFORM MATCHES "arm64_host")
-
-    set(GMP_PREFIX ${GMP_ROOT}/package)
-    set(ARCH arm64)
-
 elseif(TARGET_PLATFORM MATCHES "macos_x86_64")
 
     set(CMAKE_OSX_ARCHITECTURES x86_64)
@@ -79,7 +74,7 @@ else()
 
 endif()
 
-if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
+if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin" AND NOT TARGET_PLATFORM MATCHES "^android(_x86_64)?")
     set(GMP_DEFINIONS -D_LONG_LONG_LIMB)
 endif()
 

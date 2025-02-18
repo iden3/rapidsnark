@@ -10,8 +10,8 @@ on:
 
 jobs:
 
-  build-linux:
-    runs-on: ubuntu-22.04
+  build-linux-x86_64:
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,30 +21,7 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@v1
         with:
           packages: build-essential cmake m4 nasm
-          version: 1.0
-
-      - name: Setup QEMU to build ARM64 variant
-        uses: docker/setup-qemu-action@v3
-
-      - name: Setup buildx for ARM64 platform
-        uses: docker/setup-buildx-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
-
-      - name: Prepare Docker image builder for ARM64
-        uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_SUMMARY: false
-          DOCKER_BUILD_RECORD_UPLOAD: false
-        with:
-          push: false
-          outputs: type=docker
-          platforms: linux/arm64
-          file: .github/images/Dockerfile.build
-          context: ./.github/images/context.build
-          cache-from: type=gha,scope=buildkit-arm64
-          cache-to: type=gha,mode=max,scope=buildkit-arm64
-          tags: builder:arm64
+          version: x86_64-1.0
 
       - name: Cache gmp build
         uses: actions/cache@v4
@@ -52,7 +29,7 @@ jobs:
           path: |
             depends/gmp
             depends/gmp-6.2.1.tar.xz
-          key: ${{ runner.os }}-gmp-${{ hashFiles('build_gmp.sh') }}-4
+          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: Build gmp for Android arm64
         run: if [[ ! -d "depends/gmp/package_android_arm64" ]]; then ./build_gmp.sh android; fi
@@ -62,12 +39,6 @@ jobs:
 
       - name: Build gmp for Linux x86_64
         run: if [[ ! -d "depends/gmp/package" ]]; then ./build_gmp.sh host; fi
-
-      - name: Build gmp for Linux arm64
-        run: |
-          if [[ ! -d "depends/gmp/package_aarch64" ]]; then
-            docker run --rm --platform=linux/arm64 -i -v $PWD:/work --workdir=/work builder:arm64 ./build_gmp.sh aarch64
-          fi
 
       - name: Build prover Android ARM64
         run: |
@@ -94,16 +65,6 @@ jobs:
         run: |
           make host_noasm
           ctest --rerun-failed --output-on-failure
-
-      - name: Build prover Linux arm64
-        run: |
-          docker run --rm --platform=linux/arm64 -i -v $PWD:/work --workdir=/work builder:arm64 bash -c "$(cat << 'EOF'
-            set -x
-            set -e
-            make arm64
-            ctest --rerun-failed --output-on-failure
-          EOF
-          )"
 
       - name: Test rapidsnark
         run: |
@@ -135,15 +96,6 @@ jobs:
           name: rapidsnark-linux-x86_64-noasm
           path: |
             package_noasm
-          if-no-files-found: error
-
-      - name: Upload Linux arm64 dev artifacts
-        if: github.event_name != 'release'
-        uses: actions/upload-artifact@v4
-        with:
-          name: rapidsnark-linux-arm64
-          path: |
-            package_arm64
           if-no-files-found: error
 
       - name: Upload Android dev artifacts
@@ -226,6 +178,58 @@ jobs:
           zip -r rapidsnark-linux-x86_64-noasm-${{ github.ref_name }}.zip rapidsnark-linux-x86_64-noasm-${{ github.ref_name }}
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-linux-x86_64-noasm-${{ github.ref_name }}.zip
 
+  build-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: install requirements
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: build-essential cmake m4 nasm
+          version: arm64-1.0
+
+      - name: Cache gmp build
+        uses: actions/cache@v4
+        with:
+          path: |
+            depends/gmp
+            depends/gmp-6.2.1.tar.xz
+          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
+
+      - name: Build gmp for Linux arm64
+        run: if [[ ! -d "depends/gmp/package_aarch64" ]]; then ./build_gmp.sh aarch64; fi
+
+      - name: Build prover Linux arm64
+        run: |
+          make host_arm64
+          ctest --rerun-failed --output-on-failure
+
+      - name: Test rapidsnark
+        run: |
+          set -x
+          set -e
+          time package_arm64/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
+          time package_arm64/bin/verifier testdata/verification_key.json public.json proof.json
+          # make a wrong public.json by decrementing the first element by 1
+          (value_0=$(jq '.[0]' public.json | tr -d '"') && value_0=$(echo "$value_0 - 1" | BC_LINE_LENGTH=100 bc) && jq --arg value_0 "$value_0" '.[0] = $value_0' public.json) > public_bad.json
+          set +e
+          time package_arm64/bin/verifier testdata/verification_key.json public_bad.json proof.json
+          exit_code=$?
+          set -e
+          [ $exit_code -ne 0 ]
+
+      - name: Upload Linux arm64 dev artifacts
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapidsnark-linux-arm64
+          path: |
+            package_arm64
+          if-no-files-found: error
+
       - name: Upload Linux ARM64 release artifacts
         if: github.event_name == 'release'
         env:
@@ -250,18 +254,15 @@ jobs:
           path: |
             depends/gmp
             depends/gmp-6.2.1.tar.xz
-          key: ${{ runner.os }}-gmp-arm64-${{ hashFiles('build_gmp.sh') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: build
         run: |
           if [[ ! -d "depends/gmp/package_ios_arm64" ]]; then ./build_gmp.sh ios; fi
           if [[ ! -d "depends/gmp/package_iphone_simulator" ]]; then ./build_gmp.sh ios_simulator; fi
           if [[ ! -d "depends/gmp/package_macos_arm64" ]]; then ./build_gmp.sh macos_arm64; fi
-          
           make ios
-          
           make ios_simulator
-          
           make macos_arm64
           ctest --rerun-failed --output-on-failure
 
@@ -352,7 +353,7 @@ jobs:
           path: |
             depends/gmp
             depends/gmp-6.2.1.tar.xz
-          key: ${{ runner.os }}-gmp-x86_64-${{ hashFiles('build_gmp.sh') }}-2
+          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: install dependencies
         run: |
@@ -361,7 +362,6 @@ jobs:
       - name: build
         run: |
           if [[ ! -d "depends/gmp/package_macos_x86_64" ]]; then ./build_gmp.sh macos_x86_64; fi
-
           make macos_x86_64
           ctest --rerun-failed --output-on-failure
 
