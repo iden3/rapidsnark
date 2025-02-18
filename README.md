@@ -107,7 +107,7 @@ git submodule init
 git submodule update
 ./build_gmp.sh ios
 mkdir build_prover_ios && cd build_prover_ios
-cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios -DBUILD_TESTS=OFF
+cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios
 xcodebuild -destination 'generic/platform=iOS' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj -configuration Release
 ```
 Open generated Xcode project and compile prover.
@@ -121,7 +121,7 @@ git submodule init
 git submodule update
 ./build_gmp.sh ios_simulator
 mkdir build_prover_ios_simulator && cd build_prover_ios_simulator
-cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO -DBUILD_TESTS=OFF
+cmake .. -GXcode -DTARGET_PLATFORM=IOS -DCMAKE_INSTALL_PREFIX=../package_ios_simulator -DUSE_ASM=NO
 xcodebuild -destination 'generic/platform=iOS Simulator' -scheme rapidsnarkStatic -project rapidsnark.xcodeproj
 ```
 
