@@ -128,7 +128,11 @@ build_android()
         return 1
     fi
 
-    export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
+    if [ "$(uname)" == "Darwin" ]; then
+        export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/darwin-x86_64
+    else
+        export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
+    fi
 
     export TARGET=aarch64-linux-android
     export API=21
@@ -173,7 +177,11 @@ build_android_x86_64()
         return 1
     fi
 
-    export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
+    if [ "$(uname)" == "Darwin" ]; then
+        export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/darwin-x86_64
+    else
+        export TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
+    fi
 
     export TARGET=x86_64-linux-android
     export API=21
