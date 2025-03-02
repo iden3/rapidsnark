@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.24)
 
 string(TOLOWER "${TARGET_PLATFORM}" TARGET_PLATFORM)
 
 message("Building for " ${TARGET_PLATFORM})
 
 set(GMP_ROOT depends/gmp)
+
 
 if(TARGET_PLATFORM MATCHES "android")
 
@@ -18,7 +19,7 @@ if(TARGET_PLATFORM MATCHES "android")
     endif()
 
     set(CMAKE_SYSTEM_NAME Android)
-    set(CMAKE_SYSTEM_VERSION 23) # API level
+    set(CMAKE_SYSTEM_VERSION 24) # API level
 
     if(TARGET_PLATFORM MATCHES "android_x86_64")
         set(CMAKE_ANDROID_ARCH_ABI x86_64)
@@ -75,7 +76,7 @@ else()
 endif()
 
 if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin" AND NOT TARGET_PLATFORM MATCHES "^android(_x86_64)?")
-    set(GMP_DEFINIONS -D_LONG_LONG_LIMB)
+    set(GMP_DEFINIONS _LONG_LONG_LIMB)
 endif()
 
 

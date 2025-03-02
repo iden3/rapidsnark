@@ -1,0 +1,20 @@
+#version 450
+
+layout (local_size_x = 128) in;
+
+layout(binding = 0) buffer bufA { uint a[]; };
+layout(binding = 1) buffer bufB { uint b[]; };
+layout(binding = 2) buffer bufR { uint r[]; };
+
+void main() {
+    uint i = gl_GlobalInvocationID.x*8;
+
+    r[i+0] = a[i+0] + b[i+0];
+    r[i+1] = a[i+1] + b[i+1];
+    r[i+2] = a[i+2] + b[i+2];
+    r[i+3] = a[i+3] + b[i+3];
+    r[i+4] = a[i+4] + b[i+4];
+    r[i+5] = a[i+5] + b[i+5];
+    r[i+6] = a[i+6] + b[i+6];
+    r[i+7] = a[i+7] + b[i+7];
+}

@@ -1,12 +1,12 @@
 link_libraries(${GMP_LIB})
 
-add_definitions(${GMP_DEFINIONS})
+add_compile_definitions(${GMP_DEFINIONS})
 
 if(USE_ASM)
     if(ARCH MATCHES "arm64")
-            add_definitions(-DUSE_ASM -DARCH_ARM64)
+            add_compile_definitions(USE_ASM ARCH_ARM64)
     elseif(ARCH MATCHES "x86_64")
-            add_definitions(-DUSE_ASM -DARCH_X86_64)
+            add_compile_definitions(USE_ASM ARCH_X86_64)
     endif()
 endif()
 
@@ -75,7 +75,8 @@ link_libraries(fq)
 
 
 if(OpenMP_CXX_FOUND)
-    add_definitions(-DUSE_OPENMP)
+    add_compile_definitions(USE_OPENMP)
+
     add_compile_options(${OpenMP_CXX_FLAGS})
 endif()
 
@@ -102,14 +103,15 @@ set(LIB_SOURCES
 
 if(USE_LOGGER)
     set(LIB_SOURCES ${LIB_SOURCES} logger.cpp)
-    add_definitions(-DUSE_LOGGER)
+    add_compile_definitions(USE_LOGGER)
 endif()
 
 include_directories(
     ../src
     ../build
     ../depends/ffiasm/c
-    ../depends/json/single_include)
+    ../depends/json/single_include
+    )
 
 add_library(rapidsnarkStatic STATIC ${LIB_SOURCES})
 set_target_properties(rapidsnarkStatic PROPERTIES OUTPUT_NAME rapidsnark)
@@ -162,3 +164,31 @@ endif()
 
 
 add_executable(test_prover test_prover.cpp)
+
+
+if(Vulkan_FOUND)
+    add_library(gpu_test SHARED
+        gpu_test.cpp
+        vulkan_manager.cpp
+        vulkan_buffer.cpp)
+
+    target_link_libraries(gpu_test Vulkan::Vulkan)
+
+    if(NOT TARGET_PLATFORM MATCHES "android")
+        target_link_libraries(gpu_test pthread)
+    endif()
+
+    add_executable(test_perf test_perf.cpp)
+    target_link_libraries(test_perf gpu_test)
+
+
+    add_custom_command(OUTPUT shader.spv
+        COMMAND ${Vulkan_GLSLANG_VALIDATOR_EXECUTABLE} -V ${CMAKE_SOURCE_DIR}/src/shader.comp -o shader.spv
+        MAIN_DEPENDENCY ${CMAKE_SOURCE_DIR}/src/shader.comp
+        )
+
+    add_custom_target(shader
+        DEPENDS shader.spv)
+
+    add_dependencies(test_perf shader)
+endif()
