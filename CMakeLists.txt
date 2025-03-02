@@ -83,6 +83,9 @@ install(FILES src/prover.h src/verifier.h
 if(Vulkan_FOUND)
     install(TARGETS test_perf gpu_test)
 
+    install(FILES src/prover.h src/gpu_test.h
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+
     install(FILES ${CMAKE_BINARY_DIR}/src/shader.spv
         DESTINATION ${CMAKE_INSTALL_PREFIX}/shader)
 endif()
