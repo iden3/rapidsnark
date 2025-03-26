@@ -20,6 +20,12 @@
 const size_t Count = 1024*1024;
 const size_t IterNum = 10;
 
+struct Params
+{
+    uint32_t delta;
+    uint32_t iterNum;
+};
+
 struct Element
 {
     uint64_t& operator[](int i) { return val[i]; }
@@ -32,6 +38,11 @@ struct Element
 };
 
 using Vector = std::vector<Element>;
+
+VulkanBufferView Vector2View(Vector &v)
+{
+    return {v.data(), v.size() * sizeof(Vector::value_type)};
+}
 
 std::string format(uint64_t val)
 {
@@ -139,6 +150,14 @@ bool cmpVec(const Vector& a, const Vector& b)
     return true;
 }
 
+void printVec(std::ostringstream& oss, const Vector& r, const Vector& a, const Vector& b)
+{
+    oss << "a[0]: " << a[0] << std::endl;
+    oss << "b[0]: " << b[0] << std::endl;
+    oss << "r[0]: " << r[0] << std::endl;
+    oss << "r[M]: " << r[Count-1] << std::endl;
+}
+
 void test_cpu(Vector& c2, const Vector& a, const Vector& b,
               char       *msg,
               long        msg_max_size)
@@ -172,20 +191,26 @@ void test_cpu(Vector& c2, const Vector& a, const Vector& b,
     strncat(msg, oss.str().c_str(), msg_max_size);
 }
 
-void test_gpu(Vector& cv, Vector& a, Vector& b,
+void test_gpu(Vector& r, Vector& a, Vector& b,
               const char *shader_path,
               char       *msg,
               long        msg_max_size)
 {
-    std::ostringstream  oss;
-    const size_t data_size = a.size() * sizeof(Vector::value_type);
-    const uint32_t groupCount = Count/128;
-
-    VulkanManager vkMgr(shader_path);
+    std::ostringstream oss;
+    VulkanBufferView   vR = Vector2View(r);
+    VulkanBufferView   vA = Vector2View(a);
+    VulkanBufferView   vB = Vector2View(b);
+    Params             params = {1, IterNum};
+    VulkanBufferView   vParams = {&params, sizeof(params)};
+    VulkanMemoryLayout memoryLayout = {vR.size, vA.size, vB.size, vParams.size, Count*4};
+    const uint32_t     groupCount = Count/128;
+    VulkanManager      vkMgr;
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    vkMgr.run(cv.data(), a.data(), b.data(), data_size, groupCount);
+    auto vkPipeline = vkMgr.createPipeline(shader_path, memoryLayout, groupCount);
+
+    vkPipeline->run(vR, vA, vB, vParams);
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -222,10 +247,7 @@ void test(
     oss << "ElementSize: " << elementSize << std::endl;
     oss << "VectorSize: " << Count << std::endl;
 
-    oss << "a[0]: " << a[0] << std::endl;
-    oss << "b[0]: " << b[0] << std::endl;
-    oss << "r[0]: " << rv[0] << std::endl;
-    oss << "r[M]: " << rv[Count-1] << std::endl;
+    printVec(oss, rv, a, b);
 
     strncat(msg, oss.str().c_str(), msg_max_size);
 }

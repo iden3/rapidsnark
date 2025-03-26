@@ -1,24 +1,23 @@
 #include "vulkan_buffer.h"
 #include <cstring>
 #include <stdexcept>
+#include <cassert>
 
-VulkanBuffer::VulkanBuffer(VkPhysicalDevice physicalDevice, VkDevice device, void *data, size_t dataSize) :
-    m_physicalDevice(physicalDevice),
-    m_device(device),
-    m_data(data),
-    m_dataSize(dataSize),
-    m_primaryBuffer(VK_NULL_HANDLE),
-    m_primaryMemory(VK_NULL_HANDLE),
-    m_stagingBuffer(VK_NULL_HANDLE),
-    m_stagingMemory(VK_NULL_HANDLE)
+VulkanBuffer::VulkanBuffer(VkPhysicalDevice physicalDevice, VkDevice device, size_t size, Type type)
+    : m_type(type)
+    , m_physicalDevice(physicalDevice)
+    , m_device(device)
+    , m_size(size)
+    , m_mappedData(nullptr)
+    , m_primaryBuffer(VK_NULL_HANDLE)
+    , m_primaryMemory(VK_NULL_HANDLE)
+    , m_primaryMemoryFlags(0)
+    , m_stagingBuffer(VK_NULL_HANDLE)
+    , m_stagingMemory(VK_NULL_HANDLE)
+    , m_stagingMemoryFlags(0)
 {
     try {
-        createMemBuffer(m_primaryBuffer, primaryBufferUsage());
-        allocMemBuffer(m_primaryMemory, m_primaryBuffer, primaryMemoryProperties());
-
-        createMemBuffer(m_stagingBuffer, stagingBufferUsage());
-        allocMemBuffer(m_stagingMemory, m_stagingBuffer, stagingMemoryProperties());
-        mapMemBuffer(m_stagingMemory);
+        build();
 
     } catch (...) {
         destroy();
@@ -31,11 +30,54 @@ VulkanBuffer::~VulkanBuffer()
     destroy();
 }
 
+void VulkanBuffer::build()
+{
+    if (m_type == DeviceOnly) {
+        createMemBuffer(m_primaryBuffer, primaryBufferUsage());
+        allocMemBuffer(m_primaryMemory, m_primaryBuffer, primaryMemoryProperties(), m_primaryMemoryFlags);
+
+        if (m_primaryMemory == VK_NULL_HANDLE) {
+            throw std::runtime_error("failed to allocate memory for a buffer");
+        }
+
+        bindMemBuffer(m_primaryMemory, m_primaryBuffer);
+        return;
+    }
+
+    const bool isUniform = (m_type == Uniform);
+
+    createMemBuffer(m_primaryBuffer, isUniform ? uniformBufferUsage() : primaryBufferUsage());
+    allocMemBuffer(m_primaryMemory, m_primaryBuffer, sharedMemoryProperties(), m_primaryMemoryFlags);
+
+    if (m_primaryMemory != VK_NULL_HANDLE) {
+
+        bindMemBuffer(m_primaryMemory, m_primaryBuffer);
+        mapMemBuffer(m_primaryMemory);
+
+    } else {
+        allocMemBuffer(m_primaryMemory, m_primaryBuffer, primaryMemoryProperties(), m_primaryMemoryFlags);
+
+        if (m_primaryMemory == VK_NULL_HANDLE) {
+            throw std::runtime_error("failed to allocate memory for a buffer");
+        }
+
+        bindMemBuffer(m_primaryMemory, m_primaryBuffer);
+
+        createMemBuffer(m_stagingBuffer, stagingBufferUsage());
+        allocMemBuffer(m_stagingMemory, m_stagingBuffer, stagingMemoryProperties(), m_stagingMemoryFlags);
+        bindMemBuffer(m_stagingMemory, m_stagingBuffer);
+        mapMemBuffer(m_stagingMemory);
+    }
+}
+
 void VulkanBuffer::destroy()
 {
     if(m_stagingMemory != VK_NULL_HANDLE) {
         vkUnmapMemory(m_device, m_stagingMemory);
         vkFreeMemory(m_device, m_stagingMemory, nullptr);
+
+    } else if(m_primaryMemory != VK_NULL_HANDLE && m_type != DeviceOnly) {
+        vkUnmapMemory(m_device, m_primaryMemory);
     }
 
     if (m_stagingBuffer != VK_NULL_HANDLE) {
@@ -64,6 +106,20 @@ VkBufferUsageFlags VulkanBuffer::stagingBufferUsage() const
            VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 }
 
+VkBufferUsageFlags VulkanBuffer::uniformBufferUsage() const
+{
+    return VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+           VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+           VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+}
+
+VkMemoryPropertyFlagBits VulkanBuffer::sharedMemoryProperties() const
+{
+    return VkMemoryPropertyFlagBits(
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+}
+
 VkMemoryPropertyFlagBits VulkanBuffer::primaryMemoryProperties() const
 {
     return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
@@ -72,8 +128,7 @@ VkMemoryPropertyFlagBits VulkanBuffer::primaryMemoryProperties() const
 VkMemoryPropertyFlagBits VulkanBuffer::stagingMemoryProperties() const
 {
     return VkMemoryPropertyFlagBits(
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 }
 
 void VulkanBuffer::createMemBuffer(VkBuffer &buffer, VkBufferUsageFlags usage)
@@ -83,7 +138,7 @@ void VulkanBuffer::createMemBuffer(VkBuffer &buffer, VkBufferUsageFlags usage)
         VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         nullptr,
         0,
-        m_dataSize,
+        m_size,
         usage,
         VK_SHARING_MODE_EXCLUSIVE,
         0, nullptr
@@ -92,8 +147,11 @@ void VulkanBuffer::createMemBuffer(VkBuffer &buffer, VkBufferUsageFlags usage)
     vkCreateBuffer(m_device, &createInfo, nullptr, &buffer);
 }
 
-void VulkanBuffer::allocMemBuffer(VkDeviceMemory &memory, VkBuffer buffer,
-                                  VkMemoryPropertyFlagBits reqProperties)
+void VulkanBuffer::allocMemBuffer(
+    VkDeviceMemory           &memory,
+    VkBuffer                  buffer,
+    VkMemoryPropertyFlagBits  reqProperties,
+    VkMemoryPropertyFlags    &memoryFlags)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     VkMemoryRequirements bufferReqs;
@@ -103,9 +161,11 @@ void VulkanBuffer::allocMemBuffer(VkDeviceMemory &memory, VkBuffer buffer,
 
     for (uint32_t typeIndex = 0; typeIndex < memProperties.memoryTypeCount; ++typeIndex ) {
 
-        const uint32_t propertyTypeBit = (1 << typeIndex);
+        const uint32_t              propertyTypeBit = (1 << typeIndex);
+        const VkMemoryPropertyFlags propertyFlags = memProperties.memoryTypes[typeIndex].propertyFlags;
+
         const bool isFitType        = (bufferReqs.memoryTypeBits & propertyTypeBit);
-        const bool isFitProperities = ((memProperties.memoryTypes[typeIndex].propertyFlags & reqProperties) == reqProperties);
+        const bool isFitProperities = ((propertyFlags & reqProperties) == reqProperties);
 
         if (!isFitType || !isFitProperities) {
             continue;
@@ -121,14 +181,15 @@ void VulkanBuffer::allocMemBuffer(VkDeviceMemory &memory, VkBuffer buffer,
         VkResult result = vkAllocateMemory(m_device, &allocInfo, nullptr, &memory);
 
         if(result == VK_SUCCESS) {
+            memoryFlags = propertyFlags;
             break;
         }
     }
+}
 
-    if (memory == VK_NULL_HANDLE) {
-        throw std::runtime_error("failed to allocate memory for a buffer");
-    }
 
+void VulkanBuffer::bindMemBuffer(VkDeviceMemory memory, VkBuffer buffer)
+{
     VkResult result = vkBindBufferMemory(m_device, buffer, memory, 0);
 
     if(result != VK_SUCCESS) {
@@ -138,21 +199,25 @@ void VulkanBuffer::allocMemBuffer(VkDeviceMemory &memory, VkBuffer buffer,
 
 void VulkanBuffer::mapMemBuffer(VkDeviceMemory memory)
 {
-    VkResult result = vkMapMemory(m_device, memory, 0, m_dataSize, 0, &m_mappedData);
+    VkResult result = vkMapMemory(m_device, memory, 0, m_size, 0, &m_mappedData);
 
     if(result != VK_SUCCESS) {
         throw std::runtime_error("failed to map memory object");
     }
 }
 
-void VulkanBuffer::flushMemBuffer(VkDeviceMemory memory)
+void VulkanBuffer::flushMemBuffer(VkDeviceMemory memory, VkMemoryPropertyFlags memoryFlags)
 {
+    if ((memoryFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0) {
+        return;
+    }
+
     VkMappedMemoryRange memoryRange = {
         VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
         nullptr,
         memory,
         0,
-        m_dataSize
+        m_size
     };
 
     VkResult result = vkFlushMappedMemoryRanges(m_device, 1, &memoryRange);
@@ -162,22 +227,34 @@ void VulkanBuffer::flushMemBuffer(VkDeviceMemory memory)
     }
 }
 
-void VulkanBuffer::copyFromLocalBuffer()
+void VulkanBuffer::copyFromLocalBuffer(const void *data, size_t dataSize)
 {
-    std::memcpy(m_mappedData, m_data, m_dataSize);
+    assert(dataSize <= m_size);
 
-    flushMemBuffer(m_stagingMemory);
+    std::memcpy(m_mappedData, data, dataSize);
+
+    if (m_stagingMemory != VK_NULL_HANDLE) {
+        flushMemBuffer(m_stagingMemory, m_stagingMemoryFlags);
+    } else {
+        flushMemBuffer(m_primaryMemory, m_primaryMemoryFlags);
+    }
 }
 
-void VulkanBuffer::copyToLocalBuffer()
+void VulkanBuffer::copyToLocalBuffer(void *data, size_t dataSize)
 {
-    std::memcpy(m_data, m_mappedData, m_dataSize);
+    assert(dataSize <= m_size);
+
+    std::memcpy(data, m_mappedData, dataSize);
 }
 
 void VulkanBuffer::recordCopyToDevice(VkCommandBuffer commandBuffer)
 {
+    if (m_stagingBuffer == VK_NULL_HANDLE) {
+        return;
+    }
+
     VkBufferCopy copyInfo = {
-        0, 0, m_dataSize
+        0, 0, m_size
     };
 
     vkCmdCopyBuffer(commandBuffer, m_stagingBuffer, m_primaryBuffer, 1, &copyInfo);
@@ -185,11 +262,27 @@ void VulkanBuffer::recordCopyToDevice(VkCommandBuffer commandBuffer)
 
 void VulkanBuffer::recordCopyFromDevice(VkCommandBuffer commandBuffer)
 {
+    if (m_stagingBuffer == VK_NULL_HANDLE) {
+        return;
+    }
+
     VkBufferCopy copyInfo = {
-        0, 0, m_dataSize
+        0, 0, m_size
     };
 
     vkCmdCopyBuffer(commandBuffer, m_primaryBuffer, m_stagingBuffer, 1, &copyInfo);
+}
+
+void VulkanBuffer::fill(VkCommandBuffer commandBuffer, uint32_t data)
+{
+    vkCmdFillBuffer(commandBuffer, m_primaryBuffer, 0, VK_WHOLE_SIZE, data);
+}
+
+void VulkanBuffer::update(VkCommandBuffer commandBuffer, size_t size, void *data)
+{
+    assert(size <= 65536);
+
+    vkCmdUpdateBuffer(commandBuffer, m_primaryBuffer, 0, size, data);
 }
 
 void VulkanBuffer::recordMemoryBarrier(
@@ -230,6 +323,10 @@ VkWriteDescriptorSet VulkanBuffer::updateDescriptorSet(VkDescriptorSet descripto
 {
     m_bufferInfo = descriptorInfo();
 
+    const bool isUniform = (m_type == Uniform);
+    const VkDescriptorType descriptorType = isUniform ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+                                                      : VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
     VkWriteDescriptorSet writeDescriptors =  {
         VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
         nullptr,
@@ -237,7 +334,7 @@ VkWriteDescriptorSet VulkanBuffer::updateDescriptorSet(VkDescriptorSet descripto
         binding,
         0,
         1,
-        VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+        descriptorType,
         nullptr,
         &m_bufferInfo,
         nullptr

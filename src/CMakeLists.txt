@@ -170,6 +170,7 @@ if(Vulkan_FOUND)
     add_library(gpu_test SHARED
         gpu_test.cpp
         vulkan_manager.cpp
+        vulkan_pipeline.cpp
         vulkan_buffer.cpp)
 
     target_link_libraries(gpu_test Vulkan::Vulkan)
