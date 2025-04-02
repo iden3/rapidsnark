@@ -50,7 +50,7 @@ VulkanPipeline::VulkanPipeline(
         m_bufferA = createBuffer(memoryLayout.sizeA, VulkanBuffer::Storage);
         m_bufferB = createBuffer(memoryLayout.sizeB, VulkanBuffer::Storage);
         m_bufferR = createBuffer(memoryLayout.sizeR, VulkanBuffer::Storage);
-        m_bufferParams = createBuffer(memoryLayout.sizeParams, VulkanBuffer::Uniform);
+        m_bufferParams = createBuffer(memoryLayout.sizeParams, VulkanBuffer::Storage);
         m_bufferTemp = createBuffer(memoryLayout.sizeTemp, VulkanBuffer::DeviceOnly);
 
         updateDescriptorSet();

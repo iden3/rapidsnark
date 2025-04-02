@@ -22,9 +22,16 @@ const size_t IterNum = 10;
 
 struct Params
 {
-    uint32_t delta;
+    FrRawElement Fq_rawq;
+    uint32_t Fq_np;
     uint32_t iterNum;
 };
+
+Params CreateParams()
+{
+    return { {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029},
+             0xe4866389, IterNum };
+}
 
 struct Element
 {
@@ -70,6 +77,7 @@ void vecAdd(Element& c, const Element& a, const Element& b)
     c[2] = a[2] + b[2];
     c[3] = a[3] + b[3];
 }
+
 void vecMul(Element& c, const Element& a, const Element& b)
 {
     c[0] = a[0] * b[0];
@@ -87,10 +95,10 @@ void calcSingle(Vector& c, const Vector& a, const Vector& b)
 
     for (size_t i = 0; i < size; i++) {
         for (size_t k = 0; k < IterNum; k++) {
-                    vecAdd(c[i], a[i], b[i]);
+//                    vecAdd(c[i], a[i], b[i]);
 //                    vecMul(c[i], a[i], b[i]);
-//                    Fr_rawAdd(c[i], a[i], b[i]);
-//                    Fr_rawMMul(c[i], a[i], b[i]);
+//                    Fq_rawAdd(c[i], a[i], b[i]);
+                    Fq_rawMMul(c[i], a[i], b[i]);
         }
     }
 }
@@ -106,10 +114,10 @@ void calcParallel(ThreadPool &threadPool, Vector& c, const Vector& a, const Vect
 
         for (size_t i = begin; i < end; i++) {
             for (size_t k = 0; k < IterNum; k++) {
-                        vecAdd(c[i], a[i], b[i]);
+//                        vecAdd(c[i], a[i], b[i]);
 //                        vecMul(c[i], a[i], b[i]);
-//                        Fr_rawAdd(c[i], a[i], b[i]);
-//                        Fr_rawMMul(c[i], a[i], b[i]);
+//                        Fq_rawAdd(c[i], a[i], b[i]);
+                        Fq_rawMMul(c[i], a[i], b[i]);
             }
         }
     });
@@ -200,7 +208,7 @@ void test_gpu(Vector& r, Vector& a, Vector& b,
     VulkanBufferView   vR = Vector2View(r);
     VulkanBufferView   vA = Vector2View(a);
     VulkanBufferView   vB = Vector2View(b);
-    Params             params = {1, IterNum};
+    Params             params = CreateParams();
     VulkanBufferView   vParams = {&params, sizeof(params)};
     VulkanMemoryLayout memoryLayout = {vR.size, vA.size, vB.size, vParams.size, Count*4};
     const uint32_t     groupCount = Count/128;

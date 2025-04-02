@@ -2,27 +2,145 @@
 
 layout (local_size_x = 128) in;
 
-struct Params {
-    uint delta;
-    uint iterNum;
+const int N = 8;
+
+struct Element {
+    uint v[N];
 };
 
-layout(binding = 0) uniform bufParams { Params params; };
-layout(binding = 1) buffer  readonly bufA { uint a[]; };
-layout(binding = 2) buffer  readonly bufB { uint b[]; };
-layout(binding = 3) buffer  bufR      { uint r[]; };
+struct Params {
+    Element Fq_rawq;
+    uint    Fq_np;
+    uint    iterNum;
+};
+
+layout(binding = 0) buffer  bufParams { Params params; };
+layout(binding = 1) buffer  readonly bufA { Element a[]; };
+layout(binding = 2) buffer  readonly bufB { Element b[]; };
+layout(binding = 3) buffer  bufR      { Element r[]; };
 layout(binding = 4) buffer  bufTemp   { uint t[]; };
+
+int mp_cmp(Element a, Element b, int n)
+{
+    for (int i = n - 1; i >= 0; i--) {
+        if (a.v[i] > b.v[i]) return 1;
+        if (a.v[i] < b.v[i]) return -1;
+    }
+    return 0;
+}
+
+uint mp_add_n(out Element r, Element a, Element b, int n)
+{
+    uint carry = 0;
+
+    for (int i = 0; i < n; i++) {
+        uint next_carry = 0;
+
+        r.v[i] = uaddCarry(a.v[i], carry, next_carry);
+        carry = next_carry;
+
+        r.v[i] = uaddCarry(r.v[i], b.v[i], next_carry);
+        carry += next_carry;
+    }
+    return carry;
+}
+
+uint mp_add_n(out uint[N+2] r, uint[N+2] a, uint[N+2] b)
+{
+    uint carry = 0;
+
+    for (int i = 0; i < r.length(); i++) {
+        uint next_carry = 0;
+
+        r[i] = uaddCarry(a[i], carry, next_carry);
+        carry = next_carry;
+
+        r[i] = uaddCarry(r[i], b[i], next_carry);
+        carry += next_carry;
+    }
+    return carry;
+}
+
+uint mp_sub_n(out Element r, Element a, Element b, int n)
+{
+    uint borrow = 0;
+
+    for (int i = 0; i < n; i++) {
+        uint next_borrow = 0;
+
+        r.v[i] = usubBorrow(a.v[i], borrow, next_borrow);
+        borrow = next_borrow;
+
+        r.v[i] = usubBorrow(r.v[i], b.v[i], next_borrow);
+        borrow += next_borrow;
+    }
+    return borrow;
+}
+
+void mp_mul_1(out uint r[N+2], uint a[N], uint b)
+{
+    uint carry = 0;
+
+    for (int i = 0; i < a.length(); i++) {
+        uint hi, lo;
+
+        umulExtended(a[i], b, hi, lo);
+
+        r[i] = uaddCarry(lo, carry, carry);
+        carry += hi;
+    }
+
+    r[N] = carry;
+    r[N+1] = 0;
+}
+
+void Fq_rawAdd(out Element r, Element a, Element b)
+{
+    uint carry = mp_add_n(r, a, b, N);
+
+    if (carry != 0 || mp_cmp(r, params.Fq_rawq, N) >= 0) {
+
+        mp_sub_n(r, r, params.Fq_rawq, N);
+    }
+}
+
+void Fq_rawMMul(out Element r, Element a, Element b)
+{
+    uint product[N+2] = {0,0,0,0, 0,0,0,0, 0,0};
+    uint temp[N+2];
+
+    for (int i = 0; i < N; i++) {
+
+        mp_mul_1(temp, b.v, a.v[i]);
+
+        mp_add_n(product, product, temp);
+
+        uint np0 = product[0] * params.Fq_np;
+
+        mp_mul_1(temp, params.Fq_rawq.v, np0);
+        mp_add_n(product, product, temp);
+
+        for (int j = 0; j < N+1; j++) {
+            product[j] = product[j+1];
+        }
+        product[N+1] = 0;
+    }
+
+    for (int j = 0; j < N; j++) {
+        r.v[j] = product[j];
+    }
+
+    if (mp_cmp(r, params.Fq_rawq, N) >= 0) {
+
+        mp_sub_n(r, r, params.Fq_rawq, N);
+    }
+}
 
 void main() {
     uint x = gl_GlobalInvocationID.x;
-    uint i = x*8;
 
-    r[i+0] = a[i+0] + b[i+0];
-    r[i+1] = a[i+1] + b[i+1];
-    r[i+2] = a[i+2] + b[i+2];
-    r[i+3] = a[i+3] + b[i+3];
-    r[i+4] = a[i+4] + b[i+4];
-    r[i+5] = a[i+5] + b[i+5];
-    r[i+6] = a[i+6] + b[i+6];
-    r[i+7] = a[i+7] + b[i+7];
+    for (int i = 0; i < params.iterNum; i++) {
+//            Fq_rawAdd(r[x], a[x], b[x]);
+            Fq_rawMMul(r[x], a[x], b[x]);
+    }
 }
