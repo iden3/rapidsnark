@@ -35,6 +35,8 @@ public:
     void runAsync(const VulkanBufferView &a, const VulkanBufferView &b, const VulkanBufferView &params);
     void wait(VulkanBufferView &r);
 
+    size_t shaderSize() const { return m_shaderSize; }
+
 private:
     void initQueue();
     void initCommandPool();
@@ -76,6 +78,7 @@ private:
     VkDescriptorSet        m_descriptorSet;
     VkPipelineLayout       m_pipelineLayout;
     VkPipeline             m_pipeline;
+    size_t                 m_shaderSize;
     BufferPtr              m_bufferA;
     BufferPtr              m_bufferB;
     BufferPtr              m_bufferR;

@@ -34,6 +34,7 @@ VulkanPipeline::VulkanPipeline(
     , m_descriptorSet(VK_NULL_HANDLE)
     , m_pipelineLayout(VK_NULL_HANDLE)
     , m_pipeline(VK_NULL_HANDLE)
+    , m_shaderSize(0)
 {
     try {
         initQueue();
@@ -253,6 +254,8 @@ void VulkanPipeline::initShaderModule(const char *shaderPath)
     if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to create a shader module");
     }
+
+    m_shaderSize = shader.size();
 }
 
 void VulkanPipeline::initDescriptorSetLayout()

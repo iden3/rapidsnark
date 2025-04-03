@@ -11,7 +11,7 @@ struct Element {
 struct Params {
     Element Fq_rawq;
     uint    Fq_np;
-    uint    iterNum;
+    uint    iterCount;
 };
 
 layout(binding = 0) buffer  bufParams { Params params; };
@@ -139,8 +139,8 @@ void Fq_rawMMul(out Element r, Element a, Element b)
 void main() {
     uint x = gl_GlobalInvocationID.x;
 
-    for (int i = 0; i < params.iterNum; i++) {
-//            Fq_rawAdd(r[x], a[x], b[x]);
+    for (int i = 0; i < params.iterCount; i++) {
+            Fq_rawAdd(r[x], a[x], b[x]);
             Fq_rawMMul(r[x], a[x], b[x]);
     }
 }
