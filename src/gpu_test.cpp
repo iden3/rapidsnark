@@ -7,31 +7,28 @@
 #include <cstdint>
 #include <cstring>
 #include <limits>
-#include "fr.hpp"
-#include "fq.hpp"
 #include <thread>
 #include <memory>
 #include <vector>
 #include <chrono>
 #include <cassert>
+#include "fq.hpp"
 #include "misc.hpp"
 #include "vulkan_manager.h"
 
-const unsigned int maxPointCount = 1000*1024*1024;
-const unsigned int maxIterCount  = 1000*1000;
+const unsigned int MaxPointCount = 1000*1024*1024;
+const unsigned int MaxIterCount  = 1000*1000;
 const unsigned int WorkgroupSize = 128;
+static unsigned int LogLevel = 3;
 
 struct Params
 {
-    FrRawElement Fq_rawq;
-    uint32_t Fq_np;
     uint32_t iterNum;
 };
 
 Params CreateParams(unsigned int iter_count)
 {
-    return { {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029},
-             0xe4866389, iter_count };
+    return { iter_count };
 }
 
 struct Element
@@ -39,10 +36,10 @@ struct Element
     uint64_t& operator[](int i) { return val[i]; }
     const uint64_t& operator[](int i) const  { return val[i]; }
 
-    operator FrRawElement& () { return val; }
-    operator const FrRawElement& () const { return val; }
+    operator FqRawElement& () { return val; }
+    operator const FqRawElement& () const { return val; }
 
-    FrRawElement val;
+    FqRawElement val;
 };
 
 using Vector = std::vector<Element>;
@@ -50,6 +47,26 @@ using Vector = std::vector<Element>;
 VulkanBufferView Vector2View(Vector &v)
 {
     return {v.data(), v.size() * sizeof(Vector::value_type)};
+}
+
+void printMsg(std::ostream& os)
+{
+    os << std::endl;
+}
+
+template <typename T, typename... Args>
+void printMsg(std::ostream& os, T value, Args... args)
+{
+    os << value;
+    printMsg(os, args...);
+}
+
+template <typename... Args>
+void printMsg(unsigned int level, std::ostream& os, Args... args)
+{
+    if (level <= LogLevel) {
+        printMsg(os, args...);
+    }
 }
 
 std::string format(uint64_t val)
@@ -61,7 +78,7 @@ std::string format(uint64_t val)
     return oss.str();
 }
 
-std::ostream& operator<<(std::ostream& os, const FrRawElement val)
+std::ostream& operator<<(std::ostream& os, const FqRawElement val)
 {
     os << format(val[0]) << ","
        << format(val[1]) << ","
@@ -159,7 +176,7 @@ bool cmpVec(const Vector& a, const Vector& b)
     assert(a.size() == b.size());
 
     for (size_t i = 0; i < size; i++) {
-        if (!Fr_rawIsEq(a[i], b[i])) {
+        if (!Fq_rawIsEq(a[i], b[i])) {
             return false;
         }
     }
@@ -167,57 +184,59 @@ bool cmpVec(const Vector& a, const Vector& b)
     return true;
 }
 
-void printVec(std::ostringstream& oss, const Vector& r, const Vector& a, const Vector& b)
+void printVec(unsigned int level, std::ostream& oss, const Vector& r, const Vector& a, const Vector& b)
 {
-    oss << "a[0]: " << a[0] << std::endl;
-    oss << "b[0]: " << b[0] << std::endl;
-    oss << "r[0]: " << r[0] << std::endl;
-    oss << "r[M]: " << r[r.size()-1] << std::endl;
+    printMsg(level, oss, "a[0]: ", a[0]);
+    printMsg(level, oss, "b[0]: ", b[0]);
+    printMsg(level, oss, "r[0]: ", r[0]);
+    printMsg(level, oss, "r[M]: ", r[r.size()-1]);
 }
 
-void test_cpu(Vector& c2, const Vector& a, const Vector& b,
-              unsigned int  point_count,
-              unsigned int  iter_count,
-              char         *msg,
-              long          msg_max_size)
+void test_cpu(
+    Vector& r_par, const Vector& a, const Vector& b,
+    unsigned int  point_count,
+    unsigned int  iter_count,
+    unsigned int  test_level,
+    std::ostream& oss)
 {
-    std::ostringstream  oss;
-    Vector c1(point_count);
+    Vector r_sngl(point_count);
 
     ThreadPool &threadPool = ThreadPool::defaultPool();
 
-    oss << "threads: " << threadPool.getThreadCount() << std::endl;
-
     auto start = std::chrono::high_resolution_clock::now();
 
-    calcSingle(c1, a, b, iter_count);
+    calcParallel(threadPool, r_par, a, b, iter_count);
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    oss << "Single execution time: " << duration.count() << " ms" << std::endl;
+    printMsg(0, oss, "Parallel execution time: ", duration.count(), " ms");
 
-    start = std::chrono::high_resolution_clock::now();
+    if (test_level >= 2) {
+        start = std::chrono::high_resolution_clock::now();
 
-    calcParallel(threadPool, c2, a, b, iter_count);
+        calcSingle(r_sngl, a, b, iter_count);
 
-    end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        end = std::chrono::high_resolution_clock::now();
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    oss << "Parallel execution time: " << duration.count() << " ms" << std::endl;
-    oss << "CPU eq: " << std::boolalpha << cmpVec(c1, c2) << std::endl;
+        printMsg(0, oss, "Single   execution time: ", duration.count(), " ms");
+    }
 
-    strncat(msg, oss.str().c_str(), msg_max_size);
+    printMsg(0, oss, "threads: ", threadPool.getThreadCount());
+
+    if (test_level >= 2) {
+        printMsg(2, oss, "CPU eq: ", std::boolalpha, cmpVec(r_sngl, r_par));
+    }
 }
 
-void test_gpu(Vector& r, Vector& a, Vector& b,
-              unsigned int  point_count,
-              unsigned int  iter_count,
-              const char   *shader_path,
-              char         *msg,
-              long          msg_max_size)
+void test_gpu(
+    Vector& r, Vector& a, Vector& b,
+    unsigned int  point_count,
+    unsigned int  iter_count,
+    const char*   shader_path,
+    std::ostream& oss)
 {
-    std::ostringstream oss;
     VulkanBufferView   vR = Vector2View(r);
     VulkanBufferView   vA = Vector2View(a);
     VulkanBufferView   vB = Vector2View(b);
@@ -229,70 +248,78 @@ void test_gpu(Vector& r, Vector& a, Vector& b,
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    auto vkPipeline = vkMgr.createPipeline(shader_path, memoryLayout, groupCount);
+    auto vkPipeline = vkMgr.createPipeline(shader_path, memoryLayout, groupCount, vParams);
 
-    vkPipeline->run(vR, vA, vB, vParams);
+    vkPipeline->run(vR, vA, vB);
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    vkMgr.debugInfo(oss);
+    vkMgr.debugInfo(oss, LogLevel);
 
-    oss << "Shader size: " <<  vkPipeline->shaderSize() << " bytes" << std::endl;
-    oss << "GPU execution time: " << duration.count() << " ms" << std::endl;
-
-    strncat(msg, oss.str().c_str(), msg_max_size);
+    printMsg(1, oss, "Shader path: ",  shader_path);
+    printMsg(1, oss, "Shader size: ",  vkPipeline->shaderSize(), " bytes");
+    printMsg(0, oss, "GPU      execution time: ", duration.count(), " ms");
 }
 
 void test(
-    const char   *shader_path,
+    const char*   shader_path,
     unsigned int  point_count,
     unsigned int  iter_count,
-    char         *msg,
+    unsigned int  test_level,
+    char*         msg,
     long          msg_max_size)
 {
     std::ostringstream oss;
     Vector a(point_count);
     Vector b(point_count);
-    Vector rc(point_count);
-    Vector rv(point_count);
+    Vector r_cpu(point_count);
+    Vector r_vk(point_count);
     Vector temp(point_count);
-    const size_t elementSize = sizeof(Vector::value_type);
+    const size_t pointSize = sizeof(Vector::value_type);
 
-    initVecVal(a, 1);
-    initVecVal(b, 2);
-    initVecVal(rc);
-    initVecVal(rv);
+    printMsg(0, oss, "LogLevel: ", LogLevel);
+    printMsg(0, oss, "TestLevel: ", test_level);
+
+    initVecInc(a, 1);
+    initVecInc(b, 2);
+    initVecVal(r_cpu);
+    initVecVal(r_vk);
 
     calcIdle(temp, a, b);
 
-    test_gpu(rv, a, b, point_count, iter_count, shader_path, msg, msg_max_size);
-    test_cpu(rc, a, b, point_count, iter_count, msg, msg_max_size);
+    test_gpu(r_vk, a, b, point_count, iter_count, shader_path, oss);
 
-    oss << "Vulkan eq: " << std::boolalpha << cmpVec(rc, rv) << std::endl;
+    if (test_level >= 1) {
+        test_cpu(r_cpu, a, b, point_count, iter_count, test_level, oss);
 
-    oss << "ElementSize: " << elementSize << std::endl;
-    oss << "PointCount: " << point_count << std::endl;
-    oss << "IterCount: " << iter_count << std::endl;
-    oss << "Work: Fq_rawAdd + Fq_rawMMul" << std::endl;
+        printMsg(0, oss, "Vulkan eq: ", std::boolalpha, cmpVec(r_cpu, r_vk));
+    }
 
-    printVec(oss, rv, a, b);
+    printMsg(1, oss, "PointSize: ",  pointSize, " bytes");
+    printMsg(0, oss, "PointCount: ", point_count);
+    printMsg(0, oss, "IterCount: ",  iter_count);
+
+    printVec(2, oss, r_vk, a, b);
+    printMsg(2, oss, "Work: Fq_rawAdd + Fq_rawMMul");
 
     strncat(msg, oss.str().c_str(), msg_max_size);
 }
 
 void gpu_test_params(
-    const char   *shader_path,
+    const char*   shader_path,
     unsigned int  point_count,
     unsigned int  iter_count,
-    char         *msg,
+    unsigned int  log_level,
+    unsigned int  test_level,
+    char*         msg,
     long          msg_max_size)
 {
     if (point_count < WorkgroupSize) {
         point_count = WorkgroupSize;
 
-    } else if (point_count > maxPointCount) {
-        point_count = maxPointCount;
+    } else if (point_count > MaxPointCount) {
+        point_count = MaxPointCount;
     }
 
     point_count = ((point_count + WorkgroupSize - 1) / WorkgroupSize) * WorkgroupSize;
@@ -300,16 +327,18 @@ void gpu_test_params(
     if (iter_count < 1) {
         iter_count = 1;
 
-    } else if (iter_count > maxIterCount) {
-        iter_count = maxIterCount;
+    } else if (iter_count > MaxIterCount) {
+        iter_count = MaxIterCount;
     }
+
+    LogLevel = log_level;
 
     std::string result;
 
     msg[0] = 0;
 
     try {
-        test(shader_path, point_count, iter_count, msg, msg_max_size);
+        test(shader_path, point_count, iter_count, test_level, msg, msg_max_size);
         return;
 
     } catch (std::exception& e) {
@@ -323,14 +352,15 @@ void gpu_test_params(
     strncat(msg, result.c_str(), msg_max_size);
 }
 
-
 void gpu_test(
-    const char *shader_path,
-    char       *msg,
+    const char* shader_path,
+    char*       msg,
     long        msg_max_size)
 {
     const unsigned int point_count = 500*1024;
     const unsigned int iter_count = 160;
+    const unsigned int log_level = 0;
+    const unsigned int test_level = 1;
 
-    gpu_test_params(shader_path, point_count, iter_count, msg, msg_max_size);
+    gpu_test_params(shader_path, point_count, iter_count, log_level, test_level, msg, msg_max_size);
 }

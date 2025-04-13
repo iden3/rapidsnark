@@ -7,10 +7,10 @@
 class VulkanBuffer
 {
 public:
-    enum Type {Storage, Uniform, DeviceOnly};
+    enum {Uniform = 0x1, DeviceOnly = 0x2};
 
 public:
-    VulkanBuffer(VkPhysicalDevice physicalDevice, VkDevice device, size_t size, Type type);
+    VulkanBuffer(VkPhysicalDevice physicalDevice, VkDevice device, size_t size, unsigned typeFlags = 0);
     ~VulkanBuffer();
 
     VkWriteDescriptorSet updateDescriptorSet(VkDescriptorSet descriptorSet, uint32_t binding);
@@ -19,7 +19,7 @@ public:
     void recordCopyFromDevice(VkCommandBuffer commandBuffer);
 
     void fill(VkCommandBuffer commandBuffer, uint32_t data);
-    void update(VkCommandBuffer commandBuffer, size_t size, void *data);
+    void update(VkCommandBuffer commandBuffer, const void *data, size_t size);
 
     void recordMemoryBarrier(
       VkCommandBuffer commandBuffer,
@@ -53,7 +53,7 @@ private:
     VkDescriptorBufferInfo descriptorInfo() const;
 
 private:
-    Type             m_type;
+    int              m_typeFlags;
     VkPhysicalDevice m_physicalDevice;
     VkDevice         m_device;
     size_t           m_size;

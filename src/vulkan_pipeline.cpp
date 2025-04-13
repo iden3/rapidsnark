@@ -21,7 +21,7 @@ loadSource(const char *shader_path)
 
 VulkanPipeline::VulkanPipeline(
         VkPhysicalDevice physicalDevice, VkDevice device, uint32_t queueFamilyIndex,
-        const char *shaderPath, const VulkanMemoryLayout &memoryLayout, uint32_t groupCount)
+        const char *shaderPath, const VulkanMemoryLayout &memoryLayout, uint32_t groupCount, const VulkanBufferView &params)
     : m_physicalDevice(physicalDevice)
     , m_queueFamilyIndex(queueFamilyIndex)
     , m_device(device)
@@ -48,15 +48,15 @@ VulkanPipeline::VulkanPipeline(
         initPipelineLayout();
         initPipeline();
 
-        m_bufferA = createBuffer(memoryLayout.sizeA, VulkanBuffer::Storage);
-        m_bufferB = createBuffer(memoryLayout.sizeB, VulkanBuffer::Storage);
-        m_bufferR = createBuffer(memoryLayout.sizeR, VulkanBuffer::Storage);
-        m_bufferParams = createBuffer(memoryLayout.sizeParams, VulkanBuffer::Storage);
+        m_bufferA = createBuffer(memoryLayout.sizeA);
+        m_bufferB = createBuffer(memoryLayout.sizeB);
+        m_bufferR = createBuffer(memoryLayout.sizeR);
+        m_bufferParams = createBuffer(memoryLayout.sizeParams, VulkanBuffer::Uniform | VulkanBuffer::DeviceOnly);
         m_bufferTemp = createBuffer(memoryLayout.sizeTemp, VulkanBuffer::DeviceOnly);
 
         updateDescriptorSet();
 
-        buildCommandBuffer(groupCount);
+        buildCommandBuffer(groupCount, params);
 
     } catch (...) {
         destroy();
@@ -69,13 +69,12 @@ VulkanPipeline::~VulkanPipeline()
     destroy();
 }
 
-void VulkanPipeline::buildCommandBuffer(uint32_t groupCount)
+void VulkanPipeline::buildCommandBuffer(uint32_t groupCount, const VulkanBufferView &params)
 {
     beginCommandBuffer();
 
     m_bufferA->recordCopyToDevice(m_commandBuffer);
     m_bufferB->recordCopyToDevice(m_commandBuffer);
-    m_bufferParams->recordCopyToDevice(m_commandBuffer);
 
     m_bufferA->recordMemoryBarrier(m_commandBuffer,
                                    VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -89,12 +88,7 @@ void VulkanPipeline::buildCommandBuffer(uint32_t groupCount)
                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 
-    m_bufferParams->recordMemoryBarrier(m_commandBuffer,
-                                   VK_ACCESS_TRANSFER_WRITE_BIT,
-                                   VK_ACCESS_SHADER_READ_BIT,
-                                   VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                   VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
-
+    m_bufferParams->update(m_commandBuffer, params.data, params.size);
     m_bufferTemp->fill(m_commandBuffer, 0);
 
     bindPipeline();
@@ -118,17 +112,16 @@ void VulkanPipeline::buildCommandBuffer(uint32_t groupCount)
     endCommandBuffer();
 }
 
-void VulkanPipeline::run(VulkanBufferView &r, const VulkanBufferView &a, const VulkanBufferView &b, const VulkanBufferView &params)
+void VulkanPipeline::run(VulkanBufferView &r, const VulkanBufferView &a, const VulkanBufferView &b)
 {
-    runAsync(a, b, params);
+    runAsync(a, b);
     wait(r);
 }
 
-void VulkanPipeline::runAsync(const VulkanBufferView &a, const VulkanBufferView &b, const VulkanBufferView &params)
+void VulkanPipeline::runAsync(const VulkanBufferView &a, const VulkanBufferView &b)
 {
     m_bufferA->copyFromLocalBuffer(a.data, a.size);
     m_bufferB->copyFromLocalBuffer(b.data, b.size);
-    m_bufferParams->copyFromLocalBuffer(params.data, params.size);
 
     resetFence();
     submitCommandBuffer();
@@ -157,7 +150,7 @@ void VulkanPipeline::destroy()
         vkDestroyPipeline(m_device, m_pipeline, nullptr );
     }
 
-    if (m_descriptorSet != VK_NULL_HANDLE) {
+    if (m_descriptorPool != VK_NULL_HANDLE) {
         vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
     }
 
@@ -476,7 +469,7 @@ void VulkanPipeline::dispatchCommandBuffer(uint32_t groupCount)
     vkCmdDispatch(m_commandBuffer, groupCount, 1, 1);
 }
 
-VulkanPipeline::BufferPtr VulkanPipeline::createBuffer(size_t dataSize, VulkanBuffer::Type type)
+VulkanPipeline::BufferPtr VulkanPipeline::createBuffer(size_t dataSize, unsigned typeFlags)
 {
-    return std::make_shared<VulkanBuffer>(m_physicalDevice, m_device, dataSize, type);
+    return std::make_shared<VulkanBuffer>(m_physicalDevice, m_device, dataSize, typeFlags);
 }

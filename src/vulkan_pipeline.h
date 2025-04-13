@@ -28,11 +28,12 @@ class VulkanPipeline
 
 public:
     VulkanPipeline(VkPhysicalDevice physicalDevice, VkDevice device, uint32_t queueFamilyIndex,
-                   const char *shaderPath, const VulkanMemoryLayout& memoryLayout, uint32_t groupCount);
+                   const char *shaderPath, const VulkanMemoryLayout& memoryLayout, uint32_t groupCount,
+                   const VulkanBufferView &params);
     ~VulkanPipeline();
 
-    void run(VulkanBufferView &r, const VulkanBufferView &a, const VulkanBufferView &b, const VulkanBufferView &params);
-    void runAsync(const VulkanBufferView &a, const VulkanBufferView &b, const VulkanBufferView &params);
+    void run(VulkanBufferView &r, const VulkanBufferView &a, const VulkanBufferView &b);
+    void runAsync(const VulkanBufferView &a, const VulkanBufferView &b);
     void wait(VulkanBufferView &r);
 
     size_t shaderSize() const { return m_shaderSize; }
@@ -52,7 +53,7 @@ private:
 
     void destroy();
 
-    void buildCommandBuffer(uint32_t groupCount);
+    void buildCommandBuffer(uint32_t groupCount, const VulkanBufferView &params);
     void beginCommandBuffer();
     void endCommandBuffer();
     void submitCommandBuffer();
@@ -62,7 +63,7 @@ private:
     void bindDescriptorSet();
     void dispatchCommandBuffer(uint32_t groupCount);
 
-    BufferPtr createBuffer(size_t dataSize, VulkanBuffer::Type type);
+    BufferPtr createBuffer(size_t dataSize, unsigned typeFlags = 0);
 
 private:
     VkPhysicalDevice       m_physicalDevice;

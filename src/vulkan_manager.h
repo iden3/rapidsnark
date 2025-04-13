@@ -18,9 +18,9 @@ public:
 
     PipelinePtr createPipeline(const char *shaderPath,
                                const VulkanMemoryLayout &memoryLayout,
-                               uint32_t groupCount);
+                               uint32_t groupCount, const VulkanBufferView &params);
 
-    void debugInfo(std::ostream& os);
+    void debugInfo(std::ostream& os, unsigned int logLevel);
 
 private:
     void initInstance();

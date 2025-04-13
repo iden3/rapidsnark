@@ -164,7 +164,8 @@ void VulkanManager::initDevice()
 VulkanManager::PipelinePtr VulkanManager::createPipeline(
     const char               *shaderPath,
     const VulkanMemoryLayout &memoryLayout,
-    uint32_t                  groupCount)
+    uint32_t                  groupCount,
+    const VulkanBufferView   &params)
 {
     if (!m_isValid) {
         return std::shared_ptr<VulkanPipeline>(nullptr);
@@ -172,7 +173,7 @@ VulkanManager::PipelinePtr VulkanManager::createPipeline(
 
     try {
         return std::make_shared<VulkanPipeline>(m_physicalDevice, m_device, m_queueFamilyIndex,
-                                                shaderPath, memoryLayout, groupCount);
+                                                shaderPath, memoryLayout, groupCount, params);
 
     } catch (...) {
         if (m_enableExceptions) {
@@ -183,10 +184,13 @@ VulkanManager::PipelinePtr VulkanManager::createPipeline(
     return std::shared_ptr<VulkanPipeline>(nullptr);
 }
 
-#define printStr(value) os << #value " = " << value << std::endl
-#define printHex(value) os << std::hex << #value " = 0x" << value << std::dec << std::endl
+#define printStrLevel(l, value) if (l <= logLevel) os << #value " = " << value << std::endl
+#define printHexLevel(l, value) if (l <= logLevel) os << std::hex << #value " = 0x" << value << std::dec << std::endl
+#define printStr(value) printStrLevel(3, value)
+#define printStr0(value) printStrLevel(0, value)
+#define printHex(value) printHexLevel(3, value)
 
-void VulkanManager::debugInfo(std::ostream &os)
+void VulkanManager::debugInfo(std::ostream &os, unsigned int logLevel)
 {
     VkResult result = VK_SUCCESS;
 
@@ -258,7 +262,7 @@ void VulkanManager::debugInfo(std::ostream &os)
     printHex(deviceProperties.vendorID);
     printHex(deviceProperties.deviceID);
     printHex(deviceProperties.deviceType);
-    printStr(deviceProperties.deviceName);
+    printStr0(deviceProperties.deviceName);
     printStr(deviceProperties.limits.maxStorageBufferRange);
     printStr(deviceProperties.limits.maxUniformBufferRange);
     printStr(deviceProperties.limits.maxPushConstantsSize);

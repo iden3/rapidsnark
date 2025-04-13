@@ -8,7 +8,7 @@ set(USE_VULKAN OFF CACHE BOOL "Use Vulkan accelaration")
 
 project(rapidsnark LANGUAGES CXX C ASM)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message("BITS_PER_CHUNK=" ${BITS_PER_CHUNK})
@@ -63,6 +63,12 @@ if(USE_VULKAN)
             message("glslangValidator is not found")
         endif()
 
+        if(Vulkan_glslc_FOUND)
+            message("glslc=${Vulkan_GLSLC_EXECUTABLE}")
+        else()
+            message("glslc is not found")
+        endif()
+
     else()
         message("Vulkan is not used")
     endif()
@@ -86,7 +92,7 @@ if(Vulkan_FOUND)
     install(FILES src/prover.h src/gpu_test.h
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 
-    install(FILES ${CMAKE_BINARY_DIR}/src/shader.spv
+    install(FILES ${CMAKE_BINARY_DIR}/src/shader.spv src/shader.comp
         DESTINATION ${CMAKE_INSTALL_PREFIX}/shader)
 endif()
 

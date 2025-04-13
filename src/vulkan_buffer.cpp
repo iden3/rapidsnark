@@ -3,8 +3,8 @@
 #include <stdexcept>
 #include <cassert>
 
-VulkanBuffer::VulkanBuffer(VkPhysicalDevice physicalDevice, VkDevice device, size_t size, Type type)
-    : m_type(type)
+VulkanBuffer::VulkanBuffer(VkPhysicalDevice physicalDevice, VkDevice device, size_t size, unsigned typeFlags)
+    : m_typeFlags(typeFlags)
     , m_physicalDevice(physicalDevice)
     , m_device(device)
     , m_size(size)
@@ -32,8 +32,10 @@ VulkanBuffer::~VulkanBuffer()
 
 void VulkanBuffer::build()
 {
-    if (m_type == DeviceOnly) {
-        createMemBuffer(m_primaryBuffer, primaryBufferUsage());
+    const VkBufferUsageFlags primaryUsage = (m_typeFlags & Uniform) ? uniformBufferUsage() : primaryBufferUsage();
+
+    if (m_typeFlags & DeviceOnly) {
+        createMemBuffer(m_primaryBuffer, primaryUsage);
         allocMemBuffer(m_primaryMemory, m_primaryBuffer, primaryMemoryProperties(), m_primaryMemoryFlags);
 
         if (m_primaryMemory == VK_NULL_HANDLE) {
@@ -44,9 +46,7 @@ void VulkanBuffer::build()
         return;
     }
 
-    const bool isUniform = (m_type == Uniform);
-
-    createMemBuffer(m_primaryBuffer, isUniform ? uniformBufferUsage() : primaryBufferUsage());
+    createMemBuffer(m_primaryBuffer, primaryUsage);
     allocMemBuffer(m_primaryMemory, m_primaryBuffer, sharedMemoryProperties(), m_primaryMemoryFlags);
 
     if (m_primaryMemory != VK_NULL_HANDLE) {
@@ -76,7 +76,7 @@ void VulkanBuffer::destroy()
         vkUnmapMemory(m_device, m_stagingMemory);
         vkFreeMemory(m_device, m_stagingMemory, nullptr);
 
-    } else if(m_primaryMemory != VK_NULL_HANDLE && m_type != DeviceOnly) {
+    } else if(m_primaryMemory != VK_NULL_HANDLE && !(m_typeFlags & DeviceOnly)) {
         vkUnmapMemory(m_device, m_primaryMemory);
     }
 
@@ -278,7 +278,7 @@ void VulkanBuffer::fill(VkCommandBuffer commandBuffer, uint32_t data)
     vkCmdFillBuffer(commandBuffer, m_primaryBuffer, 0, VK_WHOLE_SIZE, data);
 }
 
-void VulkanBuffer::update(VkCommandBuffer commandBuffer, size_t size, void *data)
+void VulkanBuffer::update(VkCommandBuffer commandBuffer, const void *data, size_t size)
 {
     assert(size <= 65536);
 
@@ -323,7 +323,7 @@ VkWriteDescriptorSet VulkanBuffer::updateDescriptorSet(VkDescriptorSet descripto
 {
     m_bufferInfo = descriptorInfo();
 
-    const bool isUniform = (m_type == Uniform);
+    const bool isUniform = (m_typeFlags & Uniform);
     const VkDescriptorType descriptorType = isUniform ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
                                                       : VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 

@@ -1,146 +1,123 @@
-#version 450
+#version 430
 
 layout (local_size_x = 128) in;
 
 const int N = 8;
 
-struct Element {
-    uint v[N];
+#define Element uint[N]
+
+layout(binding = 0) uniform bufParams {
+    uint IterCount;
 };
 
-struct Params {
-    Element Fq_rawq;
-    uint    Fq_np;
-    uint    iterCount;
-};
+layout(binding = 1) buffer  readonly bufA { Element A[]; };
+layout(binding = 2) buffer  readonly bufB { Element B[]; };
+layout(binding = 3) buffer  bufR          { Element R[]; };
+layout(binding = 4) buffer  bufTemp       { uint    t[]; };
 
-layout(binding = 0) buffer  bufParams { Params params; };
-layout(binding = 1) buffer  readonly bufA { Element a[]; };
-layout(binding = 2) buffer  readonly bufB { Element b[]; };
-layout(binding = 3) buffer  bufR      { Element r[]; };
-layout(binding = 4) buffer  bufTemp   { uint t[]; };
+const Element Fq_rawq = {0xd87cfd47,0x3c208c16,0x6871ca8d,0x97816a91,0x8181585d,0xb85045b6,0xe131a029,0x30644e72};
+const uint    Fq_np = 0xe4866389;
 
-int mp_cmp(Element a, Element b, int n)
+#define AssignElement(res, arg, size)     \
+    for (int i = 0; i < size; i++) {res[i] = arg[i];}
+
+int mp_cmp(Element a, Element b)
 {
-    for (int i = n - 1; i >= 0; i--) {
-        if (a.v[i] > b.v[i]) return 1;
-        if (a.v[i] < b.v[i]) return -1;
+    for (int i = N - 1; i >= 0; i--) {
+        if (a[i] > b[i]) return 1;
+        if (a[i] < b[i]) return -1;
     }
     return 0;
 }
 
-uint mp_add_n(out Element r, Element a, Element b, int n)
-{
-    uint carry = 0;
-
-    for (int i = 0; i < n; i++) {
-        uint next_carry = 0;
-
-        r.v[i] = uaddCarry(a.v[i], carry, next_carry);
-        carry = next_carry;
-
-        r.v[i] = uaddCarry(r.v[i], b.v[i], next_carry);
-        carry += next_carry;
-    }
-    return carry;
-}
-
-uint mp_add_n(out uint[N+2] r, uint[N+2] a, uint[N+2] b)
-{
-    uint carry = 0;
-
-    for (int i = 0; i < r.length(); i++) {
-        uint next_carry = 0;
-
-        r[i] = uaddCarry(a[i], carry, next_carry);
-        carry = next_carry;
-
-        r[i] = uaddCarry(r[i], b[i], next_carry);
-        carry += next_carry;
-    }
-    return carry;
-}
-
-uint mp_sub_n(out Element r, Element a, Element b, int n)
+uint mp_sub_n(out Element r, Element a, Element b)
 {
     uint borrow = 0;
 
-    for (int i = 0; i < n; i++) {
-        uint next_borrow = 0;
+    for (int i = 0; i < N; i++) {
+        uint borrow2 = 0;
 
-        r.v[i] = usubBorrow(a.v[i], borrow, next_borrow);
-        borrow = next_borrow;
-
-        r.v[i] = usubBorrow(r.v[i], b.v[i], next_borrow);
-        borrow += next_borrow;
+        r[i] = usubBorrow(a[i], borrow, borrow);
+        r[i] = usubBorrow(r[i], b[i], borrow2);
+        borrow += borrow2;
     }
     return borrow;
 }
 
-void mp_mul_1(out uint r[N+2], uint a[N], uint b)
+uint mp_add_n(out Element r, Element a, Element b)
 {
     uint carry = 0;
 
-    for (int i = 0; i < a.length(); i++) {
+    for (int i = 0; i < N; i++) {
+        uint carry2 = 0;
+
+        r[i] = uaddCarry(a[i], carry, carry);
+        r[i] = uaddCarry(r[i], b[i], carry2);
+        carry += carry2;
+    }
+    return carry;
+}
+
+void mp_addmul_1(inout Element r, Element a, uint b, inout uint last)
+{
+    uint carry = 0;
+
+    for (int i = 0; i < N; i++) {
         uint hi, lo;
 
         umulExtended(a[i], b, hi, lo);
 
-        r[i] = uaddCarry(lo, carry, carry);
-        carry += hi;
+        lo   = uaddCarry(lo, carry, carry);
+        r[i] = uaddCarry(r[i], lo, lo);
+
+        carry += lo + hi;
     }
 
-    r[N] = carry;
-    r[N+1] = 0;
+    last = uaddCarry(last, carry, carry);
 }
 
 void Fq_rawAdd(out Element r, Element a, Element b)
 {
-    uint carry = mp_add_n(r, a, b, N);
+    uint carry = mp_add_n(r, a, b);
 
-    if (carry != 0 || mp_cmp(r, params.Fq_rawq, N) >= 0) {
-
-        mp_sub_n(r, r, params.Fq_rawq, N);
+    if (carry != 0 || mp_cmp(r, Fq_rawq) >= 0) {
+        mp_sub_n(r, r, Fq_rawq);
     }
 }
 
 void Fq_rawMMul(out Element r, Element a, Element b)
 {
-    uint product[N+2] = {0,0,0,0, 0,0,0,0, 0,0};
-    uint temp[N+2];
+    r = Element(0,0,0,0,0,0,0,0);
 
     for (int i = 0; i < N; i++) {
+        uint last = 0;
 
-        mp_mul_1(temp, b.v, a.v[i]);
+        mp_addmul_1(r, b, a[i], last);
+        mp_addmul_1(r, Fq_rawq, r[0] * Fq_np, last);
 
-        mp_add_n(product, product, temp);
-
-        uint np0 = product[0] * params.Fq_np;
-
-        mp_mul_1(temp, params.Fq_rawq.v, np0);
-        mp_add_n(product, product, temp);
-
-        for (int j = 0; j < N+1; j++) {
-            product[j] = product[j+1];
+        for (int j = 0; j < N-1; j++) {
+            r[j] = r[j+1];
         }
-        product[N+1] = 0;
+        r[N-1] = last;
+        last = 0;
     }
 
-    for (int j = 0; j < N; j++) {
-        r.v[j] = product[j];
-    }
-
-    if (mp_cmp(r, params.Fq_rawq, N) >= 0) {
-
-        mp_sub_n(r, r, params.Fq_rawq, N);
+    if (mp_cmp(r, Fq_rawq) >= 0) {
+        mp_sub_n(r, r, Fq_rawq);
     }
 }
 
 void main() {
     uint x = gl_GlobalInvocationID.x;
 
-    for (int i = 0; i < params.iterCount; i++) {
-            Fq_rawAdd(r[x], a[x], b[x]);
-            Fq_rawMMul(r[x], a[x], b[x]);
+    const Element a = A[x];
+    const Element b = B[x];
+    Element r;
+
+    for (int i = 0; i < IterCount; i++) {
+        Fq_rawAdd(r, a, b);
+        Fq_rawMMul(r, a, b);
     }
+
+    AssignElement(R[x], r, N);
 }

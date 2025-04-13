@@ -182,9 +182,8 @@ if(Vulkan_FOUND)
     add_executable(test_perf test_perf.cpp)
     target_link_libraries(test_perf gpu_test)
 
-
     add_custom_command(OUTPUT shader.spv
-        COMMAND ${Vulkan_GLSLANG_VALIDATOR_EXECUTABLE} -V ${CMAKE_SOURCE_DIR}/src/shader.comp -o shader.spv
+        COMMAND ${Vulkan_GLSLC_EXECUTABLE} ${CMAKE_SOURCE_DIR}/src/shader.comp -o shader.spv
         MAIN_DEPENDENCY ${CMAKE_SOURCE_DIR}/src/shader.comp
         )
 
