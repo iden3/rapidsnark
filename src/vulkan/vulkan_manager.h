@@ -3,6 +3,7 @@
 
 #include <vulkan/vulkan.h>
 #include <memory>
+#include <string>
 #include "vulkan_pipeline.h"
 
 class VulkanManager
@@ -16,9 +17,9 @@ public:
 
     bool isValid() const { return m_isValid; }
 
-    PipelinePtr createPipeline(const char *shaderPath,
+    PipelinePtr createPipeline(const std::string        &shaderPath,
                                const VulkanMemoryLayout &memoryLayout,
-                               uint32_t groupCount, const VulkanBufferView &params);
+                               const ShaderParams       &params);
 
     void debugInfo(std::ostream& os, unsigned int logLevel);
 

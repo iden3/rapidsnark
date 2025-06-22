@@ -3,13 +3,12 @@
 #include <vector>
 
 static std::vector<char>
-loadSource(const char *shader_path)
+loadSource(const std::string& shader_path)
 {
     std::ifstream fileStream(shader_path, std::ios::binary);
 
     if (!fileStream) {
-        throw std::runtime_error(std::string("failed to open shader file: ")
-                                 + shader_path);
+        throw InvalidPathException("failed to open shader file", shader_path);
     }
 
     std::vector<char> buffer;
@@ -19,21 +18,25 @@ loadSource(const char *shader_path)
     return buffer;
 }
 
-VulkanPipeline::VulkanPipeline(
-        VkPhysicalDevice physicalDevice, VkDevice device, uint32_t queueFamilyIndex,
-        const char *shaderPath, const VulkanMemoryLayout &memoryLayout, uint32_t groupCount, const VulkanBufferView &params)
+VulkanPipeline::VulkanPipeline(VkPhysicalDevice physicalDevice,
+        VkDevice                  device,
+        uint32_t                  queueFamilyIndex,
+        const std::string        &shaderDir,
+        const VulkanMemoryLayout &memoryLayout,
+        const ShaderParams       &params)
+
     : m_physicalDevice(physicalDevice)
     , m_queueFamilyIndex(queueFamilyIndex)
     , m_device(device)
     , m_commandPool(VK_NULL_HANDLE)
     , m_commandBuffer(VK_NULL_HANDLE)
     , m_fence(VK_NULL_HANDLE)
-    , m_shaderModule(VK_NULL_HANDLE)
+    , m_shaderModules{VK_NULL_HANDLE, VK_NULL_HANDLE}
     , m_descriptorSetLayout(VK_NULL_HANDLE)
     , m_descriptorPool(VK_NULL_HANDLE)
     , m_descriptorSet(VK_NULL_HANDLE)
     , m_pipelineLayout(VK_NULL_HANDLE)
-    , m_pipeline(VK_NULL_HANDLE)
+    , m_pipelines{VK_NULL_HANDLE, VK_NULL_HANDLE}
     , m_shaderSize(0)
 {
     try {
@@ -41,22 +44,22 @@ VulkanPipeline::VulkanPipeline(
         initCommandPool();
         initCommandBuffer();
         initFence();
-        initShaderModule(shaderPath);
+        initShaderModules(shaderDir);
         initDescriptorPool();
         initDescriptorSetLayout();
         initDescriptorSet();
         initPipelineLayout();
-        initPipeline();
+        initPipelines();
 
         m_bufferA = createBuffer(memoryLayout.sizeA);
         m_bufferB = createBuffer(memoryLayout.sizeB);
         m_bufferR = createBuffer(memoryLayout.sizeR);
-        m_bufferParams = createBuffer(memoryLayout.sizeParams, VulkanBuffer::Uniform | VulkanBuffer::DeviceOnly);
+        m_bufferParams = createBuffer(sizeof(ShaderParams), VulkanBuffer::Uniform | VulkanBuffer::DeviceOnly);
         m_bufferTemp = createBuffer(memoryLayout.sizeTemp, VulkanBuffer::DeviceOnly);
 
         updateDescriptorSet();
 
-        buildCommandBuffer(groupCount, params);
+        buildCommandBuffer(params);
 
     } catch (...) {
         destroy();
@@ -69,8 +72,13 @@ VulkanPipeline::~VulkanPipeline()
     destroy();
 }
 
-void VulkanPipeline::buildCommandBuffer(uint32_t groupCount, const VulkanBufferView &params)
+void VulkanPipeline::buildCommandBuffer(const ShaderParams &params)
 {
+    GroupCounts groupCounts = {
+        (params.nPoints + params.workgroupSize - 1) / params.workgroupSize,
+        params.nChunks
+    };
+
     beginCommandBuffer();
 
     m_bufferA->recordCopyToDevice(m_commandBuffer);
@@ -88,13 +96,15 @@ void VulkanPipeline::buildCommandBuffer(uint32_t groupCount, const VulkanBufferV
                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 
-    m_bufferParams->update(m_commandBuffer, params.data, params.size);
+    m_bufferParams->update(m_commandBuffer, &params, sizeof(params));
     m_bufferTemp->fill(m_commandBuffer, 0);
 
-    bindPipeline();
     bindDescriptorSet();
 
-    dispatchCommandBuffer(groupCount);
+    for (int i = 0; i < groupCounts.size(); i++) {
+        bindPipeline(i);
+        dispatchCommandBuffer(groupCounts[i]);
+    }
 
     m_bufferR->recordMemoryBarrier(m_commandBuffer,
                                    VK_ACCESS_SHADER_WRITE_BIT,
@@ -146,8 +156,10 @@ void VulkanPipeline::destroy()
         vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
     }
 
-    if (m_pipeline != VK_NULL_HANDLE) {
-        vkDestroyPipeline(m_device, m_pipeline, nullptr );
+    for (int i = 0; i < m_pipelines.size(); i++) {
+        if (m_pipelines[i] != VK_NULL_HANDLE) {
+            vkDestroyPipeline(m_device, m_pipelines[i], nullptr );
+        }
     }
 
     if (m_descriptorPool != VK_NULL_HANDLE) {
@@ -158,8 +170,10 @@ void VulkanPipeline::destroy()
         vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
     }
 
-    if (m_shaderModule != VK_NULL_HANDLE) {
-        vkDestroyShaderModule(m_device, m_shaderModule, nullptr);
+    for (int i = 0; i < m_shaderModules.size(); i++) {
+        if (m_shaderModules[i] != VK_NULL_HANDLE) {
+            vkDestroyShaderModule(m_device, m_shaderModules[i], nullptr);
+        }
     }
 
     if (m_fence != VK_NULL_HANDLE) {
@@ -230,9 +244,13 @@ void VulkanPipeline::initFence()
     }
 }
 
-void VulkanPipeline::initShaderModule(const char *shaderPath)
+size_t VulkanPipeline::initShaderModule(const std::string& shaderPath, VkShaderModule &shaderModule)
 {
     std::vector<char> shader = loadSource(shaderPath);
+
+    if (shader.empty()) {
+        return 0;
+    }
 
     VkShaderModuleCreateInfo createInfo = {
         VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -242,13 +260,37 @@ void VulkanPipeline::initShaderModule(const char *shaderPath)
         reinterpret_cast<uint32_t const *>(shader.data())
     };
 
-    VkResult result = vkCreateShaderModule(m_device,  &createInfo, nullptr, &m_shaderModule);
+    VkResult result = vkCreateShaderModule(m_device, &createInfo, nullptr, &shaderModule);
 
     if (result != VK_SUCCESS) {
-        throw std::runtime_error("failed to create a shader module");
+        throw InvalidShaderException("failed to create a shader module from " + shaderPath);
     }
 
-    m_shaderSize = shader.size();
+    return shader.size();
+}
+
+static inline std::string buildShaderPath(const std::string& shaderDir, unsigned stageNumber)
+{
+    std::string shaderName = "stage" + std::to_string(stageNumber) + ".spv";
+
+    if (shaderDir.empty()) {
+        return shaderName;
+    }
+
+    return shaderDir + "/" + shaderName;
+}
+
+void VulkanPipeline::initShaderModules(const std::string& shaderDir)
+{
+    for (int i = 0; i < m_shaderModules.size(); i++) {
+        const auto shaderPath = buildShaderPath(shaderDir, i);
+
+        m_shaderSize += initShaderModule(shaderPath, m_shaderModules[i]);
+    }
+
+    if (m_shaderSize == 0) {
+        throw InvalidShaderException("all shaders are empty in " + shaderDir);
+    }
 }
 
 void VulkanPipeline::initDescriptorSetLayout()
@@ -360,32 +402,39 @@ void VulkanPipeline::initPipelineLayout()
     }
 }
 
-void VulkanPipeline::initPipeline()
+void VulkanPipeline::initPipelines()
 {
-    VkPipelineShaderStageCreateInfo shaderStage = {
-        VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-        nullptr,
-        0,
-        VK_SHADER_STAGE_COMPUTE_BIT,
-        m_shaderModule,
-        "main",
-        nullptr
-    };
+    for (int i = 0; i < m_pipelines.size(); i++) {
 
-    VkComputePipelineCreateInfo createInfo = {
-        VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
-        nullptr,
-        0,
-        shaderStage,
-        m_pipelineLayout,
-        VK_NULL_HANDLE,
-        -1
-    };
+        if (m_shaderModules[i] == VK_NULL_HANDLE) {
+            continue;
+        }
 
-    VkResult result = vkCreateComputePipelines(m_device, nullptr, 1, &createInfo, nullptr, &m_pipeline);
+        VkPipelineShaderStageCreateInfo shaderStage = {
+            VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+            nullptr,
+            0,
+            VK_SHADER_STAGE_COMPUTE_BIT,
+            m_shaderModules[i],
+            "main",
+            nullptr
+        };
 
-    if (result != VK_SUCCESS) {
-        throw std::runtime_error("failed to create a compute pipeline");
+        VkComputePipelineCreateInfo createInfo = {
+            VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+            nullptr,
+            0,
+            shaderStage,
+            m_pipelineLayout,
+            VK_NULL_HANDLE,
+            -1
+        };
+
+        VkResult result = vkCreateComputePipelines(m_device, nullptr, 1, &createInfo, nullptr, &m_pipelines[i]);
+
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("failed to create a compute pipeline for NAF shader");
+        }
     }
 }
 
@@ -440,7 +489,7 @@ void VulkanPipeline::waitFence()
     VkResult result = vkWaitForFences(m_device, 1, &m_fence, VK_TRUE, computeTimeout);
 
     if (result != VK_SUCCESS) {
-        throw std::runtime_error("compute pipeline timed out");
+        throw TimeoutException("compute pipeline timed out");
     }
 }
 
@@ -453,9 +502,15 @@ void VulkanPipeline::resetFence()
     }
 }
 
-void VulkanPipeline::bindPipeline()
+bool VulkanPipeline::bindPipeline(unsigned stageNumber)
 {
-    vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_pipeline);
+    if (m_pipelines[stageNumber] != VK_NULL_HANDLE) {
+
+        vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_pipelines[stageNumber]);
+        return true;
+    }
+
+    return false;
 }
 
 void VulkanPipeline::bindDescriptorSet()
@@ -464,9 +519,9 @@ void VulkanPipeline::bindDescriptorSet()
                             0, 1, &m_descriptorSet, 0, nullptr);
 }
 
-void VulkanPipeline::dispatchCommandBuffer(uint32_t groupCount)
+void VulkanPipeline::dispatchCommandBuffer(uint32_t groupCountX, uint32_t groupCountY)
 {
-    vkCmdDispatch(m_commandBuffer, groupCount, 1, 1);
+    vkCmdDispatch(m_commandBuffer, groupCountX, groupCountY, 1);
 }
 
 VulkanPipeline::BufferPtr VulkanPipeline::createBuffer(size_t dataSize, unsigned typeFlags)

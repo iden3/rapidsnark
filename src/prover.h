@@ -12,6 +12,23 @@ extern "C" {
 #define PROVER_INVALID_WITNESS_LENGTH 0x3
 
 /**
+ * Parameters to tune prover performance.
+ *
+ * the directory by 'shader_dir' should contain:
+ *  msm_g1/
+ *      stage0.spv
+ *      stage1.spv
+ *  msm_g2/
+ *      stage0.spv
+ *      stage1.spv
+ */
+struct prover_params {
+    const char         *shader_dir;
+    unsigned long long  cpu_msm_time;
+    unsigned long long  gpu_msm_time;
+};
+
+/**
  * Calculates buffer size to output public signals as json string
  * @returns PROVER_OK in case of success, and the size of public buffer is written to public_size
  */
@@ -48,6 +65,8 @@ groth16_proof_size(
 
 /**
  * Initializes 'prover_object' with a pointer to a new prover object.
+ * 'params' can be NULL.
+ *
  * @return error code:
  *         PROVER_OK - in case of success
  *         PPOVER_ERROR - in case of an error
@@ -55,13 +74,16 @@ groth16_proof_size(
 int
 groth16_prover_create(
     void                **prover_object,
-    const void          *zkey_buffer,
-    unsigned long long   zkey_size,
-    char                *error_msg,
-    unsigned long long   error_msg_maxsize);
+    const void           *zkey_buffer,
+    unsigned long long    zkey_size,
+    struct prover_params *params,
+    char                 *error_msg,
+    unsigned long long    error_msg_maxsize);
 
 /**
  * Initializes 'prover_object' with a pointer to a new prover object.
+ * 'params' can be NULL.
+ *
  * @return error code:
  *         PROVER_OK - in case of success
  *         PPOVER_ERROR - in case of an error
@@ -69,9 +91,10 @@ groth16_prover_create(
 int
 groth16_prover_create_zkey_file(
     void                **prover_object,
-    const char          *zkey_file_path,
-    char                *error_msg,
-    unsigned long long   error_msg_maxsize);
+    const char           *zkey_file_path,
+    struct prover_params *params,
+    char                 *error_msg,
+    unsigned long long    error_msg_maxsize);
 
 /**
  * Proves 'wtns_buffer' and saves results to 'proof_buffer' and 'public_buffer'.
@@ -100,6 +123,9 @@ groth16_prover_destroy(void *prover_object);
 
 /**
  * groth16_prover
+ *
+ * 'params' can be NULL.
+ *
  * @return error code:
  *         PROVER_OK - in case of success
  *         PPOVER_ERROR - in case of an error
@@ -107,19 +133,23 @@ groth16_prover_destroy(void *prover_object);
  */
 int
 groth16_prover(
-    const void          *zkey_buffer,
-    unsigned long long   zkey_size,
-    const void          *wtns_buffer,
-    unsigned long long   wtns_size,
-    char                *proof_buffer,
-    unsigned long long  *proof_size,
-    char                *public_buffer,
-    unsigned long long  *public_size,
-    char                *error_msg,
-    unsigned long long   error_msg_maxsize);
+    const void           *zkey_buffer,
+    unsigned long long    zkey_size,
+    const void           *wtns_buffer,
+    unsigned long long    wtns_size,
+    char                 *proof_buffer,
+    unsigned long long   *proof_size,
+    char                 *public_buffer,
+    unsigned long long   *public_size,
+    struct prover_params *params,
+    char                 *error_msg,
+    unsigned long long    error_msg_maxsize);
 
 /**
  * groth16_prover_zkey_file
+ *
+ * 'params' can be NULL.
+ *
  * @return error code:
  *         PROVER_OK - in case of success
  *         PPOVER_ERROR - in case of an error
@@ -127,15 +157,16 @@ groth16_prover(
  */
 int
 groth16_prover_zkey_file(
-    const char          *zkey_file_path,
-    const void          *wtns_buffer,
-    unsigned long long   wtns_size,
-    char                *proof_buffer,
-    unsigned long long  *proof_size,
-    char                *public_buffer,
-    unsigned long long  *public_size,
-    char                *error_msg,
-    unsigned long long   error_msg_maxsize);
+    const char           *zkey_file_path,
+    const void           *wtns_buffer,
+    unsigned long long    wtns_size,
+    char                 *proof_buffer,
+    unsigned long long   *proof_size,
+    char                 *public_buffer,
+    unsigned long long   *public_size,
+    struct prover_params *params,
+    char                 *error_msg,
+    unsigned long long    error_msg_maxsize);
 
 #ifdef __cplusplus
 }

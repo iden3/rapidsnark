@@ -74,6 +74,13 @@ set_target_properties(fq PROPERTIES POSITION_INDEPENDENT_CODE ON)
 link_libraries(fq)
 
 
+if(Vulkan_FOUND)
+    add_subdirectory(vulkan)
+
+    add_compile_definitions(USE_VULKAN)
+endif()
+
+
 if(OpenMP_CXX_FOUND)
     add_compile_definitions(USE_OPENMP)
 
@@ -143,12 +150,12 @@ if(BUILD_TESTS)
     enable_testing()
     add_executable(test_public_size test_public_size.c)
     target_link_libraries(test_public_size rapidsnarkStaticFrFq pthread)
+
     add_test(NAME test_public_size COMMAND test_public_size circuit_final.zkey 86
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testdata)
 endif()
 
 if(OpenMP_CXX_FOUND)
-
     if(TARGET_PLATFORM MATCHES "android")
         target_link_libraries(prover -static-openmp -fopenmp)
         target_link_libraries(verifier -static-openmp -fopenmp)
@@ -162,33 +169,13 @@ if(OpenMP_CXX_FOUND)
 
 endif()
 
+if(Vulkan_FOUND)
+    target_link_libraries(rapidsnark vulkan_test)
+    target_link_libraries(prover vulkan_test)
+
+    if(BUILD_TESTS)
+        target_link_libraries(test_public_size vulkan_test)
+    endif()
+endif()
 
 add_executable(test_prover test_prover.cpp)
-
-
-if(Vulkan_FOUND)
-    add_library(gpu_test SHARED
-        gpu_test.cpp
-        vulkan_manager.cpp
-        vulkan_pipeline.cpp
-        vulkan_buffer.cpp)
-
-    target_link_libraries(gpu_test Vulkan::Vulkan)
-
-    if(NOT TARGET_PLATFORM MATCHES "android")
-        target_link_libraries(gpu_test pthread)
-    endif()
-
-    add_executable(test_perf test_perf.cpp)
-    target_link_libraries(test_perf gpu_test)
-
-    add_custom_command(OUTPUT shader.spv
-        COMMAND ${Vulkan_GLSLC_EXECUTABLE} ${CMAKE_SOURCE_DIR}/src/shader.comp -o shader.spv
-        MAIN_DEPENDENCY ${CMAKE_SOURCE_DIR}/src/shader.comp
-        )
-
-    add_custom_target(shader
-        DEPENDS shader.spv)
-
-    add_dependencies(test_perf shader)
-endif()

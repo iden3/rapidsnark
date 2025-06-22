@@ -122,10 +122,12 @@ class Groth16Prover
     BinFileUtils::BinFile zkey;
     std::unique_ptr<ZKeyUtils::Header> zkeyHeader;
     std::unique_ptr<Groth16::Prover<AltBn128::Engine>> prover;
+    Groth16::ProverParams perfParams = {};
 
 public:
-    Groth16Prover(const void         *zkey_buffer,
-                  unsigned long long  zkey_size)
+    Groth16Prover(const void          *zkey_buffer,
+                  unsigned long long   zkey_size,
+                  const prover_params *params)
 
         : zkey(zkey_buffer, zkey_size, "zkey", 1),
           zkeyHeader(ZKeyUtils::loadHeader(&zkey))
@@ -133,6 +135,8 @@ public:
         if (!PrimeIsValid(zkeyHeader->rPrime)) {
             throw std::invalid_argument("zkey curve not supported");
         }
+
+        initPerfParams(params);
 
         prover = Groth16::makeProver<AltBn128::Engine>(
             zkeyHeader->nVars,
@@ -149,7 +153,8 @@ public:
             zkey.getSectionData(6),    // pointsB1
             zkey.getSectionData(7),    // pointsB2
             zkey.getSectionData(8),    // pointsC
-            zkey.getSectionData(9)     // pointsH1
+            zkey.getSectionData(9),    // pointsH1
+            &perfParams
         );
     }
 
@@ -188,6 +193,30 @@ public:
     unsigned long long publicBufferMinSize() const
     {
         return PublicBufferMinSize(zkeyHeader->nPublic);
+    }
+
+    std::string getShaderPath(const std::string &shaderDir, const std::string &shaderSubdir)
+    {
+        std::string shaderPath;
+
+        if (!shaderDir.empty()) {
+            shaderPath = shaderDir + "/";
+        }
+
+        return shaderPath + shaderSubdir;
+    }
+
+    void initPerfParams(const prover_params *params)
+    {
+        if (params) {
+            if (params->shader_dir) {
+                perfParams.shaderDirMsmG1 = getShaderPath(params->shader_dir, "msm_g1");
+                perfParams.shaderDirMsmG2 = getShaderPath(params->shader_dir, "msm_g2");
+            }
+
+            perfParams.cpuMsmTime = params->cpu_msm_time;
+            perfParams.gpuMsmTime = params->gpu_msm_time;
+        }
     }
 };
 
@@ -251,9 +280,10 @@ groth16_proof_size(
 
 int
 groth16_prover_create(
-    void                **prover_object,
+    void               **prover_object,
     const void          *zkey_buffer,
     unsigned long long   zkey_size,
+    prover_params       *params,
     char                *error_msg,
     unsigned long long   error_msg_maxsize)
 {
@@ -266,7 +296,7 @@ groth16_prover_create(
             throw std::invalid_argument("Null zkey buffer");
         }
 
-        Groth16Prover *prover = new Groth16Prover(zkey_buffer, zkey_size);
+        Groth16Prover *prover = new Groth16Prover(zkey_buffer, zkey_size, params);
 
         *prover_object = prover;
 
@@ -289,8 +319,9 @@ groth16_prover_create(
 
 int
 groth16_prover_create_zkey_file(
-    void                **prover_object,
+    void               **prover_object,
     const char          *zkey_file_path,
+    prover_params       *params,
     char                *error_msg,
     unsigned long long   error_msg_maxsize)
 {
@@ -308,6 +339,7 @@ groth16_prover_create_zkey_file(
                 prover_object,
                 fileLoader.dataBuffer(),
                 fileLoader.dataSize(),
+                params,
                 error_msg,
                 error_msg_maxsize);
 }
@@ -404,16 +436,17 @@ groth16_prover_destroy(void *prover_object)
 
 int
 groth16_prover(
-    const void          *zkey_buffer,
-    unsigned long long   zkey_size,
-    const void          *wtns_buffer,
-    unsigned long long   wtns_size,
-    char                *proof_buffer,
-    unsigned long long  *proof_size,
-    char                *public_buffer,
-    unsigned long long  *public_size,
-    char                *error_msg,
-    unsigned long long   error_msg_maxsize)
+    const void           *zkey_buffer,
+    unsigned long long    zkey_size,
+    const void           *wtns_buffer,
+    unsigned long long    wtns_size,
+    char                 *proof_buffer,
+    unsigned long long   *proof_size,
+    char                 *public_buffer,
+    unsigned long long   *public_size,
+    struct prover_params *params,
+    char                 *error_msg,
+    unsigned long long    error_msg_maxsize)
 {
     void *prover = NULL;
 
@@ -421,6 +454,7 @@ groth16_prover(
                     &prover,
                     zkey_buffer,
                     zkey_size,
+                    params,
                     error_msg,
                     error_msg_maxsize);
 
@@ -446,15 +480,16 @@ groth16_prover(
 
 int
 groth16_prover_zkey_file(
-    const char          *zkey_file_path,
-    const void          *wtns_buffer,
-    unsigned long long   wtns_size,
-    char                *proof_buffer,
-    unsigned long long  *proof_size,
-    char                *public_buffer,
-    unsigned long long  *public_size,
-    char                *error_msg,
-    unsigned long long   error_msg_maxsize)
+    const char           *zkey_file_path,
+    const void           *wtns_buffer,
+    unsigned long long    wtns_size,
+    char                 *proof_buffer,
+    unsigned long long   *proof_size,
+    char                 *public_buffer,
+    unsigned long long   *public_size,
+    struct prover_params *params,
+    char                 *error_msg,
+    unsigned long long    error_msg_maxsize)
 {
     BinFileUtils::FileLoader fileLoader;
 
@@ -475,6 +510,7 @@ groth16_prover_zkey_file(
             proof_size,
             public_buffer,
             public_size,
+            params,
             error_msg,
             error_msg_maxsize);
 }

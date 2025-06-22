@@ -1,3 +1,4 @@
+#include "groth16.hpp"
 #include "random_generator.hpp"
 #include "logging.hpp"
 #include "misc.hpp"
@@ -9,22 +10,23 @@ namespace Groth16 {
 
 template <typename Engine>
 std::unique_ptr<Prover<Engine>> makeProver(
-    u_int32_t nVars, 
-    u_int32_t nPublic, 
-    u_int32_t domainSize, 
-    u_int64_t nCoeffs, 
+    u_int32_t nVars,
+    u_int32_t nPublic,
+    u_int32_t domainSize,
+    u_int64_t nCoeffs,
     void *vk_alpha1,
     void *vk_beta_1,
     void *vk_beta_2,
     void *vk_delta_1,
     void *vk_delta_2,
-    void *coefs, 
-    void *pointsA, 
-    void *pointsB1, 
-    void *pointsB2, 
-    void *pointsC, 
-    void *pointsH
-) {
+    void *coefs,
+    void *pointsA,
+    void *pointsB1,
+    void *pointsB2,
+    void *pointsC,
+    void *pointsH,
+    const Groth16::ProverParams *params)
+{
     Prover<Engine> *p = new Prover<Engine>(
         Engine::engine, 
         nVars, 
@@ -41,47 +43,18 @@ std::unique_ptr<Prover<Engine>> makeProver(
         (typename Engine::G1PointAffine *)pointsB1,
         (typename Engine::G2PointAffine *)pointsB2,
         (typename Engine::G1PointAffine *)pointsC,
-        (typename Engine::G1PointAffine *)pointsH
+        (typename Engine::G1PointAffine *)pointsH,
+        params
     );
     return std::unique_ptr< Prover<Engine> >(p);
 }
 
 template <typename Engine>
-std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement *wtns) {
-
+void Prover<Engine>::computeCoefs(typename Engine::FrElement *a, typename Engine::FrElement *wtns)
+{
     ThreadPool &threadPool = ThreadPool::defaultPool();
 
-    LOG_TRACE("Start Multiexp A");
-    uint32_t sW = sizeof(wtns[0]);
-    typename Engine::G1Point pi_a;
-    E.g1.multiMulByScalarMSM(pi_a, pointsA, (uint8_t *)wtns, sW, nVars);
-    std::ostringstream ss2;
-    ss2 << "pi_a: " << E.g1.toString(pi_a);
-    LOG_DEBUG(ss2);
-
-    LOG_TRACE("Start Multiexp B1");
-    typename Engine::G1Point pib1;
-    E.g1.multiMulByScalarMSM(pib1, pointsB1, (uint8_t *)wtns, sW, nVars);
-    std::ostringstream ss3;
-    ss3 << "pib1: " << E.g1.toString(pib1);
-    LOG_DEBUG(ss3);
-
-    LOG_TRACE("Start Multiexp B2");
-    typename Engine::G2Point pi_b;
-    E.g2.multiMulByScalarMSM(pi_b, pointsB2, (uint8_t *)wtns, sW, nVars);
-    std::ostringstream ss4;
-    ss4 << "pi_b: " << E.g2.toString(pi_b);
-    LOG_DEBUG(ss4);
-
-    LOG_TRACE("Start Multiexp C");
-    typename Engine::G1Point pi_c;
-    E.g1.multiMulByScalarMSM(pi_c, pointsC, (uint8_t *)((uint64_t)wtns + (nPublic +1)*sW), sW, nVars-nPublic-1);
-    std::ostringstream ss5;
-    ss5 << "pi_c: " << E.g1.toString(pi_c);
-    LOG_DEBUG(ss5);
-
     LOG_TRACE("Start Initializing a b c A");
-    auto a = new typename Engine::FrElement[domainSize];
     auto b = new typename Engine::FrElement[domainSize];
     auto c = new typename Engine::FrElement[domainSize];
 
@@ -206,13 +179,116 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
 
     delete [] b;
     delete [] c;
+}
 
-    LOG_TRACE("Start Multiexp H");
+template <typename Engine>
+template <typename Curve>
+void Prover<Engine>::computeMsm(Curve                       &g,
+                                typename Curve::Point       &result,
+                                typename Curve::PointAffine *bases,
+                                typename Engine::FrElement  *scalars,
+                                u_int32_t                    nPoints,
+                                const std::string           &pointName,
+                                const std::string           &varName,
+                                Device                       device)
+{
+    if (device == GpuDevice) {
+#ifdef USE_VULKAN
+        LOG_TRACE("Start Multiexp " + pointName + " on GPU");
+
+        vkMSM.run(shaderPath(g), bases, scalars, sizeof(bases[0]), sizeof(scalars[0]), nPoints);
+        vkMSM.computeResult(g, &result);
+#endif
+    } else {
+        LOG_TRACE("Start Multiexp " + pointName);
+
+        g.multiMulByScalarMSM(result, bases, (uint8_t *)scalars, sizeof(scalars[0]), nPoints);
+    }
+
+    LOG_DEBUG(varName + ": " + g.toString(result));
+}
+
+#ifdef USE_VULKAN
+template <typename Engine>
+void Prover<Engine>::computePointsOnDevice(const JobSizes &jobSizes, const Jobs &jobs)
+{
+    Dispatcher dispatcher(params.cpuMsmTime, params.gpuMsmTime, 16000);
+
+    dispatcher.schedule(jobSizes);
+
+    bool gpuFailed = false;
+
+    if (dispatcher.hasGpuJobs()) {
+        gpuWorker.submit([&] {
+            try {
+                dispatcher.run(jobs, Dispatcher::GpuJob, GpuDevice);
+
+            } catch (...) {
+                gpuFailed = true;
+            }
+        });
+    }
+
+    dispatcher.run(jobs, Dispatcher::CpuJob, CpuDevice);
+
+    if (dispatcher.hasGpuJobs()) {
+        gpuWorker.wait();
+
+        if (gpuFailed) {
+            dispatcher.run(jobs, Dispatcher::GpuJob, CpuDevice);
+        }
+    }
+}
+#endif
+
+template <typename Engine>
+std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement *wtns)
+{
+    auto a = new typename Engine::FrElement[domainSize];
+
+    computeCoefs(a, wtns);
+
+    typename Engine::G1Point pi_a;
+    typename Engine::G1Point pib1;
+    typename Engine::G2Point pi_b;
+    typename Engine::G1Point pi_c;
     typename Engine::G1Point pih;
-    E.g1.multiMulByScalarMSM(pih, pointsH, (uint8_t *)a, sizeof(a[0]), domainSize);
-    std::ostringstream ss1;
-    ss1 << "pih: " << E.g1.toString(pih);
-    LOG_DEBUG(ss1);
+
+    const u_int32_t nPointsA  = nVars;
+    const u_int32_t nPointsB1 = nVars;
+    const u_int32_t nPointsB2 = nVars;
+    const u_int32_t nPointsC  = nVars-nPublic-1;
+    const u_int32_t nPointsH  = domainSize;
+
+    auto *scalars  = wtns;
+    auto *scalarsC = (typename Engine::FrElement *)((uint64_t)wtns + (nPublic +1)*sizeof(wtns[0]));
+    auto *scalarsH = a;
+
+    auto computeA  = [&] (Device device = CpuDevice) {
+        computeMsm(E.g1, pi_a, pointsA,  scalars,  nPointsA,  "A",  "pi_a", device); };
+
+    auto computeB1 = [&] (Device device = CpuDevice) {
+        computeMsm(E.g1, pib1, pointsB1, scalars,  nPointsB1, "B1", "pib1", device); };
+
+    auto computeB2 = [&] (Device device = CpuDevice) {
+        computeMsm(E.g2, pi_b, pointsB2, scalars,  nPointsB2, "B2", "pi_b", device); };
+
+    auto computeC  = [&] (Device device = CpuDevice) {
+        computeMsm(E.g1, pi_c, pointsC,  scalarsC, nPointsC,  "C",  "pi_c", device); };
+
+    auto computeH  = [&] (Device device = CpuDevice) {
+        computeMsm(E.g1, pih,  pointsH,  scalarsH, nPointsH,  "H",  "pih",  device); };
+
+#ifdef USE_VULKAN
+    computePointsOnDevice({nPointsA, nPointsB1, nPointsB2, nPointsC, nPointsH},
+                          {computeA, computeB1, computeB2, computeC, computeH});
+#else
+    computeA();
+    computeB1();
+    computeB2();
+    computeC();
+    computeH();
+#endif
 
     delete [] a;
 

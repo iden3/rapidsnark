@@ -162,10 +162,9 @@ void VulkanManager::initDevice()
 }
 
 VulkanManager::PipelinePtr VulkanManager::createPipeline(
-    const char               *shaderPath,
+    const std::string        &shaderPath,
     const VulkanMemoryLayout &memoryLayout,
-    uint32_t                  groupCount,
-    const VulkanBufferView   &params)
+    const ShaderParams       &params)
 {
     if (!m_isValid) {
         return std::shared_ptr<VulkanPipeline>(nullptr);
@@ -173,8 +172,7 @@ VulkanManager::PipelinePtr VulkanManager::createPipeline(
 
     try {
         return std::make_shared<VulkanPipeline>(m_physicalDevice, m_device, m_queueFamilyIndex,
-                                                shaderPath, memoryLayout, groupCount, params);
-
+                                                shaderPath, memoryLayout, params);
     } catch (...) {
         if (m_enableExceptions) {
             throw;
@@ -288,6 +286,9 @@ void VulkanManager::debugInfo(std::ostream &os, unsigned int logLevel)
     printStr(deviceProperties.limits.minUniformBufferOffsetAlignment);
     printStr(deviceProperties.limits.optimalBufferCopyOffsetAlignment);
     printStr(deviceProperties.limits.nonCoherentAtomSize);
+    printStr(deviceProperties.limits.timestampComputeAndGraphics);
+    printStr(deviceProperties.limits.timestampPeriod);
+    printStr(deviceProperties.limits.discreteQueuePriorities);
 
     VkPhysicalDeviceFeatures supportedFeatures;
     vkGetPhysicalDeviceFeatures(m_physicalDevice, &supportedFeatures);

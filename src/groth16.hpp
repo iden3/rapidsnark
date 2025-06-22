@@ -3,7 +3,15 @@
 
 #include <string>
 #include <array>
+#include <vector>
+#include <functional>
 #include <nlohmann/json.hpp>
+
+#ifdef USE_VULKAN
+#include "vulkan/vulkan_msm.h"
+#include "vulkan/msm_dispatcher.h"
+#endif
+
 using json = nlohmann::json;
 
 #include "fft.hpp"
@@ -48,8 +56,17 @@ namespace Groth16 {
     };
 #pragma pack(pop)
 
+    struct ProverParams {
+        std::string shaderDirMsmG1;
+        std::string shaderDirMsmG2;
+        u_int64_t   cpuMsmTime;
+        u_int64_t   gpuMsmTime;
+    };
+
     template <typename Engine>
     class Prover {
+
+        enum Device { CpuDevice, GpuDevice };
 
         Engine &E;
         u_int32_t nVars;
@@ -67,8 +84,20 @@ namespace Groth16 {
         typename Engine::G2PointAffine *pointsB2;
         typename Engine::G1PointAffine *pointsC;
         typename Engine::G1PointAffine *pointsH;
-
         FFT<typename Engine::Fr> *fft;
+        ProverParams params = {};
+
+#ifdef USE_VULKAN
+        static const unsigned MsmJobCount = 5;
+
+        using Dispatcher = MsmDispatcher<MsmJobCount>;
+        using Jobs = Dispatcher::Jobs<Device>;
+        using JobSizes = Dispatcher::JobSizes;
+
+        ThreadWorker gpuWorker;
+        VulkanMSM vkMSM;
+#endif
+
     public:
         Prover(
             Engine &_E, 
@@ -86,7 +115,8 @@ namespace Groth16 {
             typename Engine::G1PointAffine *_pointsB1,
             typename Engine::G2PointAffine *_pointsB2,
             typename Engine::G1PointAffine *_pointsC,
-            typename Engine::G1PointAffine *_pointsH
+            typename Engine::G1PointAffine *_pointsH,
+            const ProverParams *proverParams
         ) : 
             E(_E), 
             nVars(_nVars),
@@ -106,6 +136,8 @@ namespace Groth16 {
             pointsH(_pointsH)
         { 
             fft = new FFT<typename Engine::Fr>(domainSize*2);
+
+            initProverParams(proverParams);
         }
 
         ~Prover() {
@@ -113,6 +145,34 @@ namespace Groth16 {
         }
 
         std::unique_ptr<Proof<Engine>> prove(typename Engine::FrElement *wtns);
+
+    private:
+        void initProverParams(const ProverParams *proverParams)
+        {
+        #ifdef USE_VULKAN
+            if (proverParams && vkMSM.isValid()) {
+                params = *proverParams;
+            }
+        #endif
+        }
+
+        void computeCoefs(typename Engine::FrElement *a, typename Engine::FrElement *wtns);
+
+        template <typename Curve>
+        void computeMsm(Curve                       &g,
+                        typename Curve::Point       &result,
+                        typename Curve::PointAffine *bases,
+                        typename Engine::FrElement  *scalars,
+                        u_int32_t                    nPoints,
+                        const std::string           &pointName,
+                        const std::string           &varName,
+                        Device                       device = CpuDevice);
+#ifdef USE_VULKAN
+        void computePointsOnDevice(const JobSizes &jobSizes, const Jobs &jobs);
+
+        std::string shaderPath(typename Engine::G1&) const { return params.shaderDirMsmG1; }
+        std::string shaderPath(typename Engine::G2&) const { return params.shaderDirMsmG2; }
+#endif
     };
 
     template <typename Engine>
@@ -131,7 +191,8 @@ namespace Groth16 {
         void *pointsB1,
         void *pointsB2,
         void *pointsC,
-        void *pointsH
+        void *pointsH,
+        const ProverParams *params
     );
 
     template <typename Engine>

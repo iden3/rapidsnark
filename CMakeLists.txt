@@ -87,13 +87,22 @@ install(FILES src/prover.h src/verifier.h
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 
 if(Vulkan_FOUND)
-    install(TARGETS test_perf gpu_test)
+    install(TARGETS test_vulkan vulkan_test)
 
-    install(FILES src/prover.h src/gpu_test.h
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+    install(FILES src/vulkan/vulkan_test.h
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/vulkan)
 
-    install(FILES ${CMAKE_BINARY_DIR}/src/shader.spv src/shader.comp
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/shader)
+    install(FILES ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm/stage0.spv src/vulkan/shaders/msm/stage0.glsl
+                  ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm/stage1.spv src/vulkan/shaders/msm/stage1.glsl
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/shaders/msm)
+
+    install(FILES ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm_g1/stage0.spv src/vulkan/shaders/msm_g1/stage0.glsl
+                  ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm_g1/stage1.spv src/vulkan/shaders/msm_g1/stage1.glsl
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/shaders/msm_g1)
+
+    install(FILES ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm_g2/stage0.spv src/vulkan/shaders/msm_g2/stage0.glsl
+                  ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm_g2/stage1.spv src/vulkan/shaders/msm_g2/stage1.glsl
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/shaders/msm_g2)
 endif()
 
 enable_testing()

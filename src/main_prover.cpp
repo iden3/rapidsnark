@@ -6,11 +6,64 @@
 #include "prover.h"
 #include "fileloader.hpp"
 
+#ifdef USE_VULKAN
+#include "vulkan/vulkan_test.h"
+
+bool measureMsmTime(const char *shaderDir, prover_params &params)
+{
+    vulkan_msm_time msmTime;
+    int             curveId = VULKAN_TEST_CURVE_G1;
+    unsigned int    pointCount = 1000;
+    char            errorMsg[1024];
+
+    int error = vulkan_measure_msm_time(
+        shaderDir,
+        curveId,
+        pointCount,
+        &msmTime,
+        errorMsg, sizeof(errorMsg));
+
+
+    if (error != VULKAN_TEST_RESULT_OK) {
+        std::cerr << "Error: " << errorMsg << std::endl;
+
+        return false;
+    }
+
+    params.shader_dir = shaderDir;
+    params.cpu_msm_time = msmTime.cpu;
+    params.gpu_msm_time = msmTime.gpu;
+
+    return true;
+}
+#endif
+
+bool calcProverParams(int argc, char **argv, prover_params &params)
+{
+    if (argc < 6) {
+        return true;
+    }
+
+    const char *shaderDir = argv[5];
+
+#ifdef USE_VULKAN
+    return measureMsmTime(shaderDir, params);
+#endif
+
+    return true;
+}
+
 int main(int argc, char **argv)
 {
-    if (argc != 5) {
+    if (argc != 5 && argc != 6) {
         std::cerr << "Invalid number of parameters" << std::endl;
-        std::cerr << "Usage: prover <circuit.zkey> <witness.wtns> <proof.json> <public.json>" << std::endl;
+        std::cerr << "Usage: prover <circuit.zkey> <witness.wtns> <proof.json> <public.json> [shader_dir]" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    prover_params params = {};
+
+    if (!calcProverParams(argc, argv, params)) {
         return EXIT_FAILURE;
     }
 
@@ -53,6 +106,7 @@ int main(int argc, char **argv)
                    &proofSize,
                    publicBuffer.data(),
                    &publicSize,
+                   &params,
                    errorMsg,
                    sizeof(errorMsg));
 
