@@ -93,3 +93,44 @@ set(GMP_LIB ${GMP_LIB_FILE_FULLPATH})
 message("CMAKE_HOST_SYSTEM_NAME=" ${CMAKE_HOST_SYSTEM_NAME})
 message("CMAKE_SYSTEM_NAME=" ${CMAKE_SYSTEM_NAME})
 message("ARCH=" ${ARCH})
+
+if(USE_OPENMP)
+    find_package(OpenMP)
+
+    if(OpenMP_CXX_FOUND)
+        if(TARGET_PLATFORM MATCHES "android")
+            message("OpenMP is used")
+
+        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+            message("OpenMP is used")
+
+        else()
+            set(OpenMP_CXX_FOUND FALSE)
+            message("OpenMP is not used")
+
+        endif()
+    endif()
+endif()
+
+if(USE_VULKAN)
+    find_package(Vulkan REQUIRED COMPONENTS glslangValidator)
+
+    if(Vulkan_FOUND)
+        message("Vulkan is used")
+
+        if(Vulkan_glslangValidator_FOUND)
+            message("glslangValidator=${Vulkan_GLSLANG_VALIDATOR_EXECUTABLE}")
+        else()
+            message("glslangValidator is not found")
+        endif()
+
+        if(Vulkan_glslc_FOUND)
+            message("glslc=${Vulkan_GLSLC_EXECUTABLE}")
+        else()
+            message("glslc is not found")
+        endif()
+
+    else()
+        message("Vulkan is not used")
+    endif()
+endif()

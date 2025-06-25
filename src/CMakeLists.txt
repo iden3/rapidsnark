@@ -74,17 +74,16 @@ set_target_properties(fq PROPERTIES POSITION_INDEPENDENT_CODE ON)
 link_libraries(fq)
 
 
-if(Vulkan_FOUND)
-    add_subdirectory(vulkan)
-
-    add_compile_definitions(USE_VULKAN)
-endif()
-
-
 if(OpenMP_CXX_FOUND)
     add_compile_definitions(USE_OPENMP)
 
     add_compile_options(${OpenMP_CXX_FLAGS})
+endif()
+
+if(Vulkan_FOUND)
+    add_subdirectory(vulkan)
+
+    add_compile_definitions(USE_VULKAN)
 endif()
 
 set(LIB_SOURCES

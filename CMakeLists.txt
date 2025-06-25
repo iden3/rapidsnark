@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.24)
 
-include(cmake/platform.cmake)
+project(rapidsnark LANGUAGES CXX C ASM)
 
 set(USE_ASM    ON  CACHE BOOL "Use asm implementation for Fr and Fq")
 set(USE_OPENMP ON  CACHE BOOL "Use OpenMP")
 set(USE_VULKAN OFF CACHE BOOL "Use Vulkan accelaration")
 
-project(rapidsnark LANGUAGES CXX C ASM)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(cmake/platform.cmake)
 
 message("BITS_PER_CHUNK=" ${BITS_PER_CHUNK})
 message("USE_ASM=" ${USE_ASM})
@@ -33,48 +33,6 @@ endif()
 
 include_directories(BEFORE ${GMP_INCLUDE_DIR})
 
-if(USE_OPENMP)
-    find_package(OpenMP)
-
-    if(OpenMP_CXX_FOUND)
-        if(TARGET_PLATFORM MATCHES "android")
-            message("OpenMP is used")
-
-        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-            message("OpenMP is used")
-
-        else()
-            set(OpenMP_CXX_FOUND FALSE)
-            message("OpenMP is not used")
-
-        endif()
-    endif()
-endif()
-
-if(USE_VULKAN)
-    find_package(Vulkan REQUIRED COMPONENTS glslangValidator)
-
-    if(Vulkan_FOUND)
-        message("Vulkan is used")
-
-        if(Vulkan_glslangValidator_FOUND)
-            message("glslangValidator=${Vulkan_GLSLANG_VALIDATOR_EXECUTABLE}")
-        else()
-            message("glslangValidator is not found")
-        endif()
-
-        if(Vulkan_glslc_FOUND)
-            message("glslc=${Vulkan_GLSLC_EXECUTABLE}")
-        else()
-            message("glslc is not found")
-        endif()
-
-    else()
-        message("Vulkan is not used")
-    endif()
-endif()
-
-
 add_subdirectory(src)
 
 
@@ -92,17 +50,21 @@ if(Vulkan_FOUND)
     install(FILES src/vulkan/vulkan_test.h
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/vulkan)
 
-    install(FILES ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm/stage0.spv src/vulkan/shaders/msm/stage0.glsl
-                  ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm/stage1.spv src/vulkan/shaders/msm/stage1.glsl
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/shaders/msm)
+    set(SHADER_BIN_DIR ${CMAKE_BINARY_DIR}/src/vulkan/shaders)
+    set(SHADER_SRC_DIR src/vulkan/shaders)
 
-    install(FILES ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm_g1/stage0.spv src/vulkan/shaders/msm_g1/stage0.glsl
-                  ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm_g1/stage1.spv src/vulkan/shaders/msm_g1/stage1.glsl
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/shaders/msm_g1)
+    macro(install_shader dir name)
+        install(FILES ${SHADER_BIN_DIR}/${dir}/${name}.spv
+                      ${SHADER_SRC_DIR}/${dir}/${name}.glsl
+                DESTINATION ${CMAKE_INSTALL_PREFIX}/shaders/${dir})
+    endmacro()
 
-    install(FILES ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm_g2/stage0.spv src/vulkan/shaders/msm_g2/stage0.glsl
-                  ${CMAKE_BINARY_DIR}/src/vulkan/shaders/msm_g2/stage1.spv src/vulkan/shaders/msm_g2/stage1.glsl
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/shaders/msm_g2)
+    install_shader(msm    stage0)
+    install_shader(msm    stage1)
+    install_shader(msm_g1 stage0)
+    install_shader(msm_g1 stage1)
+    install_shader(msm_g2 stage0)
+    install_shader(msm_g2 stage1)
 endif()
 
 enable_testing()
