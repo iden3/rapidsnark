@@ -12,32 +12,40 @@ class VulkanMSM
     static const uint32_t workgroupSize = 128;
 
 public:
-    bool isValid() const {
-        m_vkMgr.isValid();
-    }
+    VulkanMSM(bool enableMgrExceptions = true)
+        : m_vkMgr(enableMgrExceptions)
+        , m_shaderSize(0)
+    {}
+
+    bool isValid() const { m_vkMgr.isValid(); }
 
     void run(const std::string &shaderPath,
              void              *bases,
              void              *scalars,
              uint32_t           pointSize,
+             uint32_t           affinePointSize,
              uint32_t           scalarSize,
              uint32_t           nPoints)
     {
         if (!m_vkMgr.isValid()) {
-            throw std::runtime_error("Invalid Vulkan manager");
+            throw std::runtime_error("invalid Vulkan manager");
         }
 
-        m_params = createParams(nPoints, pointSize, scalarSize);
+        m_params = createParams(nPoints, scalarSize);
         m_chunks.clear();
         m_chunks.resize(m_params.nChunks * pointSize);
 
         const uint32_t     slicedScalarsSize = nPoints * m_params.nChunks * sizeof(uint32_t);
         VulkanBufferView   vR = {m_chunks.data(), m_chunks.size()};
         VulkanBufferView   vA = {scalars, scalarSize * nPoints};
-        VulkanBufferView   vB = {bases, pointSize * nPoints};
+        VulkanBufferView   vB = {bases, affinePointSize * nPoints};
         VulkanMemoryLayout memoryLayout = {vR.size, vA.size, vB.size, slicedScalarsSize};
 
         auto vkPipeline = m_vkMgr.createPipeline(shaderPath, memoryLayout, m_params);
+
+        if (!vkPipeline) {
+            throw std::runtime_error("failed to create vulkan pipeline");
+        }
 
         m_shaderSize = vkPipeline->shaderSize();
 
@@ -71,12 +79,11 @@ private:
         std::memcpy(result, &r, sizeof(r));
     }
 
-    ShaderParams createParams(uint32_t nPoints, uint32_t pointSize, uint32_t scalarSize)
+    ShaderParams createParams(uint32_t nPoints, uint32_t scalarSize)
     {
         MSMParams msmParams(nPoints, scalarSize, bitsPerChunk);
 
         return { nPoints,
-                 pointSize,
                  scalarSize,
                  (uint32_t)msmParams.getBitsPerChunk(),
                  (uint32_t)msmParams.getChunkCount(),
@@ -86,9 +93,9 @@ private:
     }
 
 private:
-    VulkanManager     m_vkMgr{false};
+    VulkanManager     m_vkMgr;
     ShaderParams      m_params;
-    size_t            m_shaderSize = 0;
+    size_t            m_shaderSize;
     std::vector<char> m_chunks;
 };
 

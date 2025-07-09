@@ -53,21 +53,28 @@ int main(int argc, char **argv)
         test_level = std::atoi(argv[4]);
     }
 
-    point_count = std::max(point_count, 1);
+    point_count = std::max(point_count, 4);
     log_level   = std::max(log_level,   0);
     test_level  = std::max(test_level,  0);
 
-    vulkan_test_params(shader_path, point_count, log_level, test_level, msg, sizeof(msg));
-
-    std::cout << msg << std::endl;
-
-    vulkan_msm_time msm_time;
-
-    const int error = vulkan_measure_msm_time(shader_path, VULKAN_TEST_CURVE_G1, point_count,
-                                        &msm_time, msg, sizeof(msg));
+    int error = vulkan_test_params(shader_path, point_count, log_level, test_level, msg, sizeof(msg));
 
     if (error == VULKAN_TEST_RESULT_OK) {
-        std::cout << "MSM measurement results" << std::endl;
+        std::cout << msg << std::endl;
+
+    } else {
+        std::cout << "Error: " << msg << std::endl;
+        return EXIT_FAILURE;
+    }
+
+#if 0
+    vulkan_msm_time msm_time;
+
+    error = vulkan_measure_msm_time(shader_path, VULKAN_TEST_CURVE_G2, point_count,
+                                    &msm_time, msg, sizeof(msg));
+
+    if (error == VULKAN_TEST_RESULT_OK) {
+        std::cout << "MSM measurement results for G2" << std::endl;
         std::cout << "GPU time: " << msm_time.gpu << " ms" << std::endl;
         std::cout << "CPU time: " << msm_time.cpu << " ms" << std::endl;
 
@@ -75,6 +82,7 @@ int main(int argc, char **argv)
         std::cout << "Error: " << msg << std::endl;
         return EXIT_FAILURE;
     }
+#endif
 
     return EXIT_SUCCESS;
 }

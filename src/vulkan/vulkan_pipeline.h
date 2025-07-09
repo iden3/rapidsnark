@@ -10,7 +10,6 @@
 struct ShaderParams
 {
     uint32_t nPoints;
-    uint32_t pointSize;
     uint32_t scalarSize;
     uint32_t bitsPerChunk;
     uint32_t nChunks;

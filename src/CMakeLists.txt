@@ -165,7 +165,6 @@ if(OpenMP_CXX_FOUND)
         target_link_libraries(verifier OpenMP::OpenMP_CXX)
         target_link_libraries(test_public_size OpenMP::OpenMP_CXX)
     endif()
-
 endif()
 
 if(Vulkan_FOUND)

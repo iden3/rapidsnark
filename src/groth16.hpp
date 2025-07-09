@@ -95,7 +95,7 @@ namespace Groth16 {
         using JobSizes = Dispatcher::JobSizes;
 
         ThreadWorker gpuWorker;
-        VulkanMSM vkMSM;
+        VulkanMSM vkMSM{false};
 #endif
 
     public:

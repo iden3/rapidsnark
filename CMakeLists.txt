@@ -59,8 +59,6 @@ if(Vulkan_FOUND)
                 DESTINATION ${CMAKE_INSTALL_PREFIX}/shaders/${dir})
     endmacro()
 
-    install_shader(msm    stage0)
-    install_shader(msm    stage1)
     install_shader(msm_g1 stage0)
     install_shader(msm_g1 stage1)
     install_shader(msm_g2 stage0)

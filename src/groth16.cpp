@@ -196,7 +196,7 @@ void Prover<Engine>::computeMsm(Curve                       &g,
 #ifdef USE_VULKAN
         LOG_TRACE("Start Multiexp " + pointName + " on GPU");
 
-        vkMSM.run(shaderPath(g), bases, scalars, sizeof(bases[0]), sizeof(scalars[0]), nPoints);
+        vkMSM.run(shaderPath(g), bases, scalars, sizeof(result), sizeof(bases[0]), sizeof(scalars[0]), nPoints);
         vkMSM.computeResult(g, &result);
 #endif
     } else {

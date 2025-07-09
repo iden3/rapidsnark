@@ -6,7 +6,6 @@ const int N = 8;
 
 layout(binding = 0) uniform bufParams {
     uint nPoints;
-    uint pointSize;
     uint scalarSize;
     uint bitsPerChunk;
     uint nChunks;

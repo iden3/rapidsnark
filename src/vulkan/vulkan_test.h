@@ -6,7 +6,19 @@
 extern "C" {
 #endif
 
+#define VULKAN_TEST_RESULT_OK                  0
+#define VULKAN_TEST_RESULT_INVALID_PATH        1
+#define VULKAN_TEST_RESULT_INVALID_SHADER      2
+#define VULKAN_TEST_RESULT_INVALID_CURVE_ID    3
+#define VULKAN_TEST_RESULT_TOO_BIG_POINT_COUNT 4
+#define VULKAN_TEST_RESULT_TIMEOUT             5
+#define VULKAN_TEST_RESULT_COMP_NOT_EQUAL      6
+#define VULKAN_TEST_RESULT_OTHER_ERROR         7
+
 /**
+ * 'shader_path' should point to the directory with
+ *  MSM shaders for G1 curve.
+ *
  * log_level is in range [0 - 3].
  * The higher log_level the more logging is provided.
  *
@@ -15,7 +27,7 @@ extern "C" {
     1 - test GPU + ParallelCPU
     2 - test GPU + ParallelCPU + SingleCPU
  */
-void vulkan_test_params(
+int vulkan_test_params(
     const char   *shader_path,
     unsigned int  point_count,
     unsigned int  log_level,
@@ -27,7 +39,7 @@ void vulkan_test_params(
  * The default log_level is 0.
  * The default test_level is 1.
  */
-void vulkan_test(
+int vulkan_test(
     const char *shader_path,
     char       *msg,
     long        msg_max_size);
@@ -35,15 +47,6 @@ void vulkan_test(
 
 #define VULKAN_TEST_CURVE_G1 1
 #define VULKAN_TEST_CURVE_G2 2
-
-#define VULKAN_TEST_RESULT_OK                  0
-#define VULKAN_TEST_RESULT_INVALID_PATH        1
-#define VULKAN_TEST_RESULT_INVALID_SHADER      2
-#define VULKAN_TEST_RESULT_INVALID_CURVE_ID    3
-#define VULKAN_TEST_RESULT_TOO_BIG_POINT_COUNT 4
-#define VULKAN_TEST_RESULT_TIMEOUT             5
-#define VULKAN_TEST_RESULT_COMP_NOT_EQUAL      6
-#define VULKAN_TEST_RESULT_OTHER_ERROR         7
 
 struct vulkan_msm_time {
     unsigned long long gpu;

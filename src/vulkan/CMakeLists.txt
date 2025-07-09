@@ -36,6 +36,8 @@ if(Vulkan_FOUND)
         vulkan_buffer.cpp
         ../../depends/ffiasm/c/misc.cpp
         ../../depends/ffiasm/c/naf.cpp
+        ../../depends/ffiasm/c/splitparstr.cpp
+        ../../depends/ffiasm/c/alt_bn128.cpp
         )
 
     target_link_libraries(vulkan_test Vulkan::Vulkan)
@@ -49,26 +51,24 @@ if(Vulkan_FOUND)
 
     set(SHADER_SRC_DIR ${CMAKE_SOURCE_DIR}/src/vulkan/shaders)
 
-    macro(build_shader dir name)
+    macro(build_shader dir name opts)
         add_custom_command(OUTPUT shaders/${dir}/${name}.spv
             COMMAND mkdir -p shaders/${dir}
-            COMMAND ${Vulkan_GLSLC_EXECUTABLE} -fshader-stage=comp ${SHADER_SRC_DIR}/${dir}/${name}.glsl
-                                                                          -o shaders/${dir}/${name}.spv
+            COMMAND ${Vulkan_GLSLC_EXECUTABLE} -fshader-stage=comp ${opts}
+                                               ${SHADER_SRC_DIR}/${dir}/${name}.glsl
+                                                      -o shaders/${dir}/${name}.spv
             MAIN_DEPENDENCY ${SHADER_SRC_DIR}/${dir}/${name}.glsl
             )
     endmacro()
 
-    build_shader(msm    stage0)
-    build_shader(msm    stage1)
-    build_shader(msm_g1 stage0)
-    build_shader(msm_g1 stage1)
-    build_shader(msm_g2 stage0)
-    build_shader(msm_g2 stage1)
+    build_shader(msm_g1 stage0 "")
+    build_shader(msm_g1 stage1 "")
+    build_shader(msm_g2 stage0 "")
+    build_shader(msm_g2 stage1 "")
 
-    add_custom_target(shaders_msm    DEPENDS shaders/msm/stage0.spv    shaders/msm/stage1.spv)
     add_custom_target(shaders_msm_g1 DEPENDS shaders/msm_g1/stage0.spv shaders/msm_g1/stage1.spv)
     add_custom_target(shaders_msm_g2 DEPENDS shaders/msm_g2/stage0.spv shaders/msm_g2/stage1.spv)
 
-    add_dependencies(test_vulkan shaders_msm shaders_msm_g1 shaders_msm_g2)
+    add_dependencies(test_vulkan shaders_msm_g1 shaders_msm_g2)
 
 endif()
