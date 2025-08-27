@@ -6,6 +6,8 @@
 #include <vector>
 #include <functional>
 #include <nlohmann/json.hpp>
+#include "fft.hpp"
+#include "misc.hpp"
 
 #ifdef USE_VULKAN
 #include "vulkan/vulkan_msm.h"
@@ -13,8 +15,6 @@
 #endif
 
 using json = nlohmann::json;
-
-#include "fft.hpp"
 
 namespace Groth16 {
 
@@ -85,6 +85,7 @@ namespace Groth16 {
         typename Engine::G1PointAffine *pointsC;
         typename Engine::G1PointAffine *pointsH;
         FFT<typename Engine::Fr> *fft;
+        ThreadPool &threadPool;
         ProverParams params = {};
 
 #ifdef USE_VULKAN
@@ -133,7 +134,8 @@ namespace Groth16 {
             pointsB1(_pointsB1),
             pointsB2(_pointsB2),
             pointsC(_pointsC),
-            pointsH(_pointsH)
+            pointsH(_pointsH),
+            threadPool(ThreadPool::defaultPool())
         { 
             fft = new FFT<typename Engine::Fr>(domainSize*2);
 

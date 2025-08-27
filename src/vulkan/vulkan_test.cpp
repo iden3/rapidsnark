@@ -21,9 +21,16 @@
 
 namespace {
 
+const unsigned int IterCount = 1;
 const unsigned int MinPointCount = 4;
 const unsigned int MaxPointCount = 1000*1024*1024;
-static unsigned int LogLevel = 3;
+unsigned int LogLevel = 3;
+
+struct CurveShaderParams
+{
+    uint32_t iterCount;
+    uint32_t pointCount;
+};
 
 struct Element
 {
@@ -58,7 +65,9 @@ struct Element
 };
 
 using Vector = std::vector<Element>;
-using CalcFunc = std::function<void(ThreadPool&, Vector&, const Vector&, const Vector&)>;
+
+template <typename CurveT>
+using CalcFunc = std::function<void(ThreadPool&, CurveT &g, Vector&, const Vector&, const Vector&)>;
 
 void printMsg(std::ostream &os)
 {
@@ -121,6 +130,12 @@ void printVec(unsigned int level, std::ostream &oss,
     printMsg(level, oss, "b[0]: ", b[0]);
     printMsg(level, oss, "c[0]: ", c[0]);
     printMsg(level, oss, "r[0]: ", r[0]);
+    printMsg(level, oss, "c[1]: ", c[1]);
+    printMsg(level, oss, "r[1]: ", r[1]);
+    printMsg(level, oss, "c[2]: ", c[2]);
+    printMsg(level, oss, "r[2]: ", r[2]);
+    printMsg(level, oss, "c[3]: ", c[3]);
+    printMsg(level, oss, "r[3]: ", r[3]);
     printMsg(level, oss, "a[M]: ", a[a.size()-1]);
     printMsg(level, oss, "b[M]: ", b[b.size()-1]);
     printMsg(level, oss, "c[M]: ", c[c.size()-1]);
@@ -144,6 +159,16 @@ void initVecVal(Vector &a, size_t initVal = 0)
         a[i][1] = initVal;
         a[i][2] = initVal;
         a[i][3] = initVal;
+    }
+}
+
+void initVecVal1(Vector &a, size_t initVal = 0)
+{
+    for (size_t i = 0; i < a.size(); i++) {
+        a[i][0] = initVal;
+        a[i][1] = 0;
+        a[i][2] = 0;
+        a[i][3] = 0;
     }
 }
 
@@ -186,48 +211,88 @@ void calcIdle(Vector &c, const Vector &a, const Vector &b)
     }
 }
 
-void calcMSM_Mock(ThreadPool &threadPool, Vector &c, const Vector &a, const Vector &b)
+template <typename CurveT>
+uint64_t curvePointCount(uint64_t vectorSize)
 {
-    TestCurve        g;
-    TestCurve::Point r;
-    uint64_t         n = a.size();
-    auto             bases = (TestCurve::PointAffine*)a.data();
-    uint8_t*         scalars = (uint8_t*)b.data();
-    uint64_t         scalarSize = sizeof(Vector::value_type);
+    const uint64_t elementSize = sizeof(Vector::value_type);
+    const uint64_t pointSize = sizeof(typename CurveT::Point);
 
-    MSM_Mock<TestCurve> msm(g, bases, scalars, scalarSize, n, threadPool);
+    assert(elementSize <= pointSize);
 
-    msm.run(r);
-
-    c[0] = r.v;
+    return vectorSize / (pointSize / elementSize);
 }
 
-void calcMSM_G1(ThreadPool &threadPool, Vector &c, const Vector &a, const Vector &b)
+template <typename CurveT>
+void calcMSM_gpu(VulkanMSM &vkMSM, CurveT &curve, Vector &r, Vector &a, Vector &b,
+                 const std::string &shaderPath)
 {
-    AltBn128::Engine          E;
-    AltBn128::Engine::G1Point result;
-    uint64_t                  nPoints = a.size() / 2;
-    auto                      bases = (AltBn128::Engine::G1PointAffine*)a.data();
-    uint8_t*                  scalars = (uint8_t*)b.data();
-    uint64_t                  scalarSize = sizeof(Vector::value_type);
+    const uint64_t nPoints         = curvePointCount<CurveT>(a.size());
+    const uint64_t pointSize       = sizeof(typename CurveT::Point);
+    const uint32_t affinePointSize = sizeof(typename CurveT::PointAffine);
+    const uint32_t scalarSize      = sizeof(Vector::value_type);
 
-    E.g1.multiMulByScalarMSM(result, bases, scalars, scalarSize, nPoints);
-
-    std::memcpy(c.data(), &result, sizeof(result));
+    vkMSM.run(shaderPath, a.data(), b.data(), pointSize, affinePointSize, scalarSize, nPoints);
+    vkMSM.computeResult(curve, r.data());
 }
 
-void calcMSM_G2(ThreadPool &threadPool, Vector &c, const Vector &a, const Vector &b)
+template <typename CurveT>
+void calcMSM_cpu(ThreadPool &threadPool, CurveT &curve, Vector &r, const Vector &a, const Vector &b)
 {
-    AltBn128::Engine          E;
-    AltBn128::Engine::G2Point result;
-    uint64_t                  nPoints = a.size() / 4;
-    auto                      bases = (AltBn128::Engine::G2PointAffine*)a.data();
-    uint8_t*                  scalars = (uint8_t*)b.data();
-    uint64_t                  scalarSize = sizeof(Vector::value_type);
+    typename CurveT::Point result;
+    const uint64_t         nPoints    = curvePointCount<CurveT>(a.size());
+    const uint64_t         scalarSize = sizeof(Vector::value_type);
+    auto                   bases      = (typename CurveT::PointAffine*)a.data();
+    uint8_t*               scalars    = (uint8_t*)b.data();
 
-    E.g2.multiMulByScalarMSM(result, bases, scalars, scalarSize, nPoints);
+    curve.multiMulByScalarMSM(result, bases, scalars, scalarSize, nPoints, threadPool);
 
-    std::memcpy(c.data(), &result, sizeof(result));
+    std::memcpy(r.data(), &result, sizeof(result));
+}
+
+template <typename CurveT>
+void calcCurve_cpu(ThreadPool &threadPool, CurveT &curve, Vector& r, const Vector& a, const Vector& b)
+{
+    const uint64_t nPoints = curvePointCount<CurveT>(a.size());
+
+    auto pa = (typename CurveT::Point*)a.data();
+    auto pb = (typename CurveT::Point*)b.data();
+    auto pr = (typename CurveT::Point*)r.data();
+
+    threadPool.parallelFor(0, nPoints, [&] (int begin, int end, int numThread) {
+
+        for (size_t i = begin; i < end; i++) {
+            for (size_t k = 0; k < IterCount; k++) {
+                curve.add(pr[i], pa[i], pb[i]);
+            }
+        }
+    });
+}
+
+template <typename CurveT>
+size_t calcCurve_gpu(VulkanManager &vkMgr, CurveT &curve, Vector &r, Vector &a, Vector &b,
+                 const std::string &shaderPath)
+{
+    assert(r.size() >= a.size());
+    assert(a.size() == b.size());
+
+    const uint64_t nPoints = curvePointCount<CurveT>(a.size());
+    const uint64_t pointSize = sizeof(typename CurveT::Point);
+    const size_t   sizeTemp  = 16;
+    const uint32_t workgroupSize = 64;
+
+    CurveShaderParams params     = { IterCount, (uint32_t)nPoints };
+    VulkanWorkgroups  workgroups = { (uint32_t)div_ceil(nPoints, workgroupSize) };
+
+    VulkanBufferView   vR = { r.data(), nPoints * pointSize };
+    VulkanBufferView   vA = { a.data(), nPoints * pointSize };
+    VulkanBufferView   vB = { b.data(), nPoints * pointSize };
+    VulkanMemoryLayout memoryLayout = {sizeof(params), vR.size, vA.size, vB.size, sizeTemp, sizeTemp};
+
+    auto vkPipeline = vkMgr.createPipeline(shaderPath, workgroups, memoryLayout, &params);
+
+    vkPipeline->run(vR, vA, vB);
+
+    return vkPipeline->shaderSize();
 }
 
 long measureTime(std::function<void()> func)
@@ -242,19 +307,20 @@ long measureTime(std::function<void()> func)
     return duration.count();
 }
 
+template <typename CurveT, typename FuncT>
 void test_cpu(
-    Vector &r_par, const Vector &a, const Vector &b,
+    CurveT &curve, Vector &r_par, const Vector &a, const Vector &b,
     unsigned int  testLevel,
-    CalcFunc      calcFunc,
+    FuncT         calcFunc,
     std::ostream &oss)
 {
     Vector r_sngl(r_par.size());
 
-    ThreadPool &threadPoolDef = ThreadPool::defaultPool();
+    ThreadPool &threadPoolDefault = ThreadPool::defaultPool();
 
     const auto parallelTime = measureTime([&] {
 
-        calcFunc(threadPoolDef, r_par, a, b);
+        calcFunc(threadPoolDefault, curve, r_par, a, b);
     });
 
     printMsg(0, oss, "Parallel execution time: ", parallelTime, " ms");
@@ -264,50 +330,74 @@ void test_cpu(
 
         const auto singleTime = measureTime([&] {
 
-            calcFunc(threadPool1, r_sngl, a, b);
+            calcFunc(threadPool1, curve, r_sngl, a, b);
         });
 
         printMsg(0, oss, "Single   execution time: ", singleTime, " ms");
     }
 
-    printMsg(0, oss, "Threads: ", threadPoolDef.getThreadCount());
+    printMsg(0, oss, "Threads: ", threadPoolDefault.getThreadCount());
 
     if (testLevel >= 2) {
         printMsg(2, oss, "CPU eq: ", std::boolalpha, cmpVec(r_sngl, r_par));
     }
 }
 
+template <typename CurveT>
 void test_cpu_msm(
-    Vector &r, const Vector &a, const Vector &b,
+    CurveT &curve, Vector &r, const Vector &a, const Vector &b,
     unsigned int  testLevel,
     std::ostream &oss)
 {
-    test_cpu(r, a, b, testLevel, calcMSM_G1, oss);
+    test_cpu(curve, r, a, b, testLevel, calcMSM_cpu<CurveT>, oss);
 }
 
+template <typename CurveT>
 void test_gpu_msm(
-    Vector &r, Vector &a, Vector &b,
+    CurveT &curve, Vector &r, Vector &a, Vector &b,
     const std::string &shaderPath,
     std::ostream      &oss)
 {
-    AltBn128::Engine E;
-    const uint32_t   pointCount      = a.size() / 2;
-    const uint32_t   pointSize       = sizeof(AltBn128::Engine::G1Point);
-    const uint32_t   affinePointSize = sizeof(AltBn128::Engine::G1PointAffine);
-    const uint32_t   scalarSize      = sizeof(Vector::value_type);
-
     VulkanMSM vkMSM;
 
     auto gpuTime = measureTime([&] {
 
-        vkMSM.run(shaderPath, a.data(), b.data(), pointSize, affinePointSize, scalarSize, pointCount);
-
-        vkMSM.computeResult(E.g1, r.data());
+        calcMSM_gpu(vkMSM, curve, r, a, b, shaderPath);
     });
 
-    const size_t shaderSize = vkMSM.getLastShaderSize();
+    const size_t shaderSize = vkMSM.getShaderSize();
 
     VulkanManager vkMgr;
+    vkMgr.debugInfo(oss, LogLevel);
+
+    printMsg(1, oss, "Shader path: ", shaderPath);
+    printMsg(1, oss, "Shader size: ", shaderSize, " bytes");
+    printMsg(0, oss, "GPU      execution time: ", gpuTime, " ms");
+}
+
+template <typename CurveT>
+void test_cpu_curve(
+    CurveT &curve, Vector &r, const Vector &a, const Vector &b,
+    unsigned int  testLevel,
+    std::ostream &oss)
+{
+    test_cpu(curve, r, a, b, testLevel, calcCurve_cpu<CurveT>, oss);
+}
+
+template <typename CurveT>
+void test_gpu_curve(
+    CurveT &curve, Vector &r, Vector &a, Vector &b,
+    const std::string &shaderPath,
+    std::ostream      &oss)
+{
+    VulkanManager vkMgr;
+    size_t shaderSize = 0;
+
+    auto gpuTime = measureTime([&] {
+
+        shaderSize = calcCurve_gpu(vkMgr, curve, r, a, b, shaderPath);
+    });
+
     vkMgr.debugInfo(oss, LogLevel);
 
     printMsg(1, oss, "Shader path: ", shaderPath);
@@ -325,22 +415,28 @@ void test(
     std::ostringstream oss;
     Vector a(pointCount);
     Vector b(pointCount);
+//    Vector r_cpu(pointCount);
+//    Vector r_vk(pointCount);
     Vector r_cpu(4);
     Vector r_vk(4);
     Vector r_idle(pointCount);
     const size_t pointSize = sizeof(Vector::value_type);
 
+    AltBn128::Engine E;
+    CurveMock g;
+    auto &curve = E.g1;
+
     printMsg(0, oss, "LogLevel: ", LogLevel, " TestLevel: ", testLevel);
 
-    initVecInc(a, 0xccbbaa998877);
-    initVecInc(b, 0xeeddccbbaa99);
+    initVecVal(a, 1);
+    initVecVal1(b, 4);
 
     calcIdle(r_idle, a, b);
 
-    test_gpu_msm(r_vk, a, b, shaderPath, oss);
+    test_gpu_msm(curve, r_vk, a, b, shaderPath, oss);
 
     if (testLevel >= 1) {
-        test_cpu_msm(r_cpu, a, b, testLevel, oss);
+        test_cpu_msm(curve, r_cpu, a, b, testLevel, oss);
 
         printMsg(0, oss, "Vulkan eq: ", std::boolalpha, cmpVec(r_cpu, r_vk));
     }
@@ -354,71 +450,30 @@ void test(
     strncat(msg, oss.str().c_str(), msgMaxSize);
 }
 
-long measure_msm_time_cpu_g1(
-    Vector &r, const Vector &a, const Vector &b)
+template <typename CurveT>
+long measure_msm_time_cpu(
+    CurveT &curve, Vector &r, const Vector &a, const Vector &b)
 {
     ThreadPool &threadPool = ThreadPool::defaultPool();
 
     const auto cpuTime = measureTime([&] {
 
-        calcMSM_G1(threadPool, r, a, b);
+        calcMSM_cpu(threadPool, curve, r, a, b);
     });
 
     return cpuTime;
 }
 
-long measure_msm_time_cpu_g2(
-    Vector &r, const Vector &a, const Vector &b)
-{
-    ThreadPool &threadPool = ThreadPool::defaultPool();
-
-    const auto cpuTime = measureTime([&] {
-
-        calcMSM_G2(threadPool, r, a, b);
-    });
-
-    return cpuTime;
-}
-
-long measure_msm_time_gpu_g1(
-    Vector &r, Vector &a, Vector &b,
+template <typename CurveT>
+long measure_msm_time_gpu(
+    CurveT &curve, Vector &r, Vector &a, Vector &b,
     const std::string &shaderPath)
 {
-    const uint32_t   pointCount      = a.size() / 2;
-    const uint32_t   pointSize       = sizeof(AltBn128::Engine::G1Point);
-    const uint32_t   affinePointSize = sizeof(AltBn128::Engine::G1PointAffine);
-    const uint32_t   scalarSize      = sizeof(Vector::value_type);
-    AltBn128::Engine E;
-
     VulkanMSM vkMSM;
 
     auto gpuTime = measureTime([&] {
 
-        vkMSM.run(shaderPath, a.data(), b.data(), pointSize, affinePointSize, scalarSize, pointCount);
-
-        vkMSM.computeResult(E.g1, r.data());
-    });
-
-    return gpuTime;
-}
-
-long measure_msm_time_gpu_g2(
-    Vector &r, Vector &a, Vector &b,
-    const std::string &shaderPath)
-{
-    const uint32_t   pointCount      = a.size() / 4;
-    const uint32_t   pointSize       = sizeof(AltBn128::Engine::G2Point);
-    const uint32_t   affinePointSize = sizeof(AltBn128::Engine::G2PointAffine);
-    const uint32_t   scalarSize      = sizeof(Vector::value_type);
-    AltBn128::Engine E;
-
-    VulkanMSM vkMSM;
-
-    auto gpuTime = measureTime([&] {
-
-        vkMSM.run(shaderPath, a.data(), b.data(), pointSize, affinePointSize, scalarSize, pointCount);
-
-        vkMSM.computeResult(E.g2, r.data());
+        calcMSM_gpu(vkMSM, curve, r, a, b, shaderPath);
     });
 
     return gpuTime;
@@ -426,7 +481,7 @@ long measure_msm_time_gpu_g2(
 
 bool measure_msm_time(
     const std::string &shaderPath,
-    int                curve_id,
+    int                curveId,
     unsigned int       pointCount,
     vulkan_msm_time   *msmTime)
 {
@@ -443,13 +498,15 @@ bool measure_msm_time(
 
     calcIdle(r_idle, a, b);
 
-    if (curve_id == VULKAN_TEST_CURVE_G1) {
-        msmTime->gpu = measure_msm_time_gpu_g1(r_vk, a, b, shaderPath);
-        msmTime->cpu = measure_msm_time_cpu_g1(r_cpu, a, b);
+    AltBn128::Engine E;
 
-    } else if (curve_id == VULKAN_TEST_CURVE_G2) {
-        msmTime->gpu = measure_msm_time_gpu_g2(r_vk, a, b, shaderPath);
-        msmTime->cpu = measure_msm_time_cpu_g2(r_cpu, a, b);
+    if (curveId == VULKAN_TEST_CURVE_G1) {
+        msmTime->gpu = measure_msm_time_gpu(E.g1, r_vk, a, b, shaderPath);
+        msmTime->cpu = measure_msm_time_cpu(E.g1, r_cpu, a, b);
+
+    } else if (curveId == VULKAN_TEST_CURVE_G2) {
+        msmTime->gpu = measure_msm_time_gpu(E.g2, r_vk, a, b, shaderPath);
+        msmTime->cpu = measure_msm_time_cpu(E.g2, r_cpu, a, b);
     }
 
     return cmpVec(r_cpu, r_vk);

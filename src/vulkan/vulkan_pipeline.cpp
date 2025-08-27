@@ -1,6 +1,7 @@
 #include "vulkan_pipeline.h"
 #include <fstream>
 #include <vector>
+#include <cassert>
 
 static std::vector<char>
 loadSource(const std::string& shader_path)
@@ -22,8 +23,9 @@ VulkanPipeline::VulkanPipeline(VkPhysicalDevice physicalDevice,
         VkDevice                  device,
         uint32_t                  queueFamilyIndex,
         const std::string        &shaderDir,
+        const VulkanWorkgroups   &workgroups,
         const VulkanMemoryLayout &memoryLayout,
-        const ShaderParams       &params)
+        const void               *params)
 
     : m_physicalDevice(physicalDevice)
     , m_queueFamilyIndex(queueFamilyIndex)
@@ -31,14 +33,17 @@ VulkanPipeline::VulkanPipeline(VkPhysicalDevice physicalDevice,
     , m_commandPool(VK_NULL_HANDLE)
     , m_commandBuffer(VK_NULL_HANDLE)
     , m_fence(VK_NULL_HANDLE)
-    , m_shaderModules{VK_NULL_HANDLE, VK_NULL_HANDLE}
+    , m_shaderModules(workgroups.size(), VK_NULL_HANDLE)
     , m_descriptorSetLayout(VK_NULL_HANDLE)
     , m_descriptorPool(VK_NULL_HANDLE)
     , m_descriptorSet(VK_NULL_HANDLE)
     , m_pipelineLayout(VK_NULL_HANDLE)
-    , m_pipelines{VK_NULL_HANDLE, VK_NULL_HANDLE}
+    , m_pipelines(workgroups.size(), VK_NULL_HANDLE)
+    , m_workgroups(workgroups)
     , m_shaderSize(0)
 {
+    assert(workgroups.size() > 0);
+
     try {
         initQueue();
         initCommandPool();
@@ -54,8 +59,9 @@ VulkanPipeline::VulkanPipeline(VkPhysicalDevice physicalDevice,
         m_bufferA = createBuffer(memoryLayout.sizeA);
         m_bufferB = createBuffer(memoryLayout.sizeB);
         m_bufferR = createBuffer(memoryLayout.sizeR);
-        m_bufferParams = createBuffer(sizeof(ShaderParams), VulkanBuffer::Uniform | VulkanBuffer::DeviceOnly);
-        m_bufferTemp = createBuffer(memoryLayout.sizeTemp, VulkanBuffer::DeviceOnly);
+        m_bufferParams = createBuffer(memoryLayout.sizeParams, VulkanBuffer::Uniform | VulkanBuffer::DeviceOnly);
+        m_bufferTemp   = createBuffer(memoryLayout.sizeTemp, VulkanBuffer::DeviceOnly);
+        m_bufferTemp2  = createBuffer(memoryLayout.sizeTemp2, VulkanBuffer::DeviceOnly);
 
         updateDescriptorSet();
 
@@ -72,13 +78,8 @@ VulkanPipeline::~VulkanPipeline()
     destroy();
 }
 
-void VulkanPipeline::buildCommandBuffer(const ShaderParams &params)
+void VulkanPipeline::buildCommandBuffer(const void *params)
 {
-    GroupCounts groupCounts = {
-        (params.nPoints + params.workgroupSize - 1) / params.workgroupSize,
-        params.nChunks
-    };
-
     beginCommandBuffer();
 
     m_bufferA->recordCopyToDevice(m_commandBuffer);
@@ -96,14 +97,15 @@ void VulkanPipeline::buildCommandBuffer(const ShaderParams &params)
                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
                                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 
-    m_bufferParams->update(m_commandBuffer, &params, sizeof(params));
+    m_bufferParams->update(m_commandBuffer, params, m_bufferParams->size());
     m_bufferTemp->fill(m_commandBuffer, 0);
+    m_bufferTemp2->fill(m_commandBuffer, 0);
 
     bindDescriptorSet();
 
-    for (int i = 0; i < groupCounts.size(); i++) {
+    for (int i = 0; i < m_workgroups.size(); i++) {
         bindPipeline(i);
-        dispatchCommandBuffer(groupCounts[i]);
+        dispatchCommandBuffer(m_workgroups[i]);
     }
 
     m_bufferR->recordMemoryBarrier(m_commandBuffer,
@@ -151,6 +153,7 @@ void VulkanPipeline::destroy()
     m_bufferR.reset();
     m_bufferParams.reset();
     m_bufferTemp.reset();
+    m_bufferTemp2.reset();
 
     if (m_pipelineLayout != VK_NULL_HANDLE) {
         vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
@@ -299,7 +302,7 @@ void VulkanPipeline::initDescriptorSetLayout()
 
     uint32_t num = 0;
 
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < uniformBufferCount; i++) {
         bindings.push_back({num++,
                             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                             1,
@@ -307,7 +310,7 @@ void VulkanPipeline::initDescriptorSetLayout()
                             nullptr});
     }
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < storageBufferCount; i++) {
         bindings.push_back({num++,
                             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
                             1,
@@ -333,8 +336,8 @@ void VulkanPipeline::initDescriptorSetLayout()
 void VulkanPipeline::initDescriptorPool()
 {
     std::vector<VkDescriptorPoolSize> descriptorPoolSizes = {
-        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1},
-        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 4}
+        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uniformBufferCount},
+        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, storageBufferCount}
     };
 
     VkDescriptorPoolCreateInfo createInfo = {
@@ -377,8 +380,9 @@ void VulkanPipeline::updateDescriptorSet()
         m_bufferA->updateDescriptorSet(m_descriptorSet, 1),
         m_bufferB->updateDescriptorSet(m_descriptorSet, 2),
         m_bufferR->updateDescriptorSet(m_descriptorSet, 3),
-        m_bufferTemp->updateDescriptorSet(m_descriptorSet, 4)
-      };
+        m_bufferTemp->updateDescriptorSet(m_descriptorSet, 4),
+        m_bufferTemp2->updateDescriptorSet(m_descriptorSet, 5)
+    };
 
     vkUpdateDescriptorSets(m_device, writeDescriptors.size(), writeDescriptors.data(), 0, nullptr);
 }
@@ -433,7 +437,7 @@ void VulkanPipeline::initPipelines()
         VkResult result = vkCreateComputePipelines(m_device, nullptr, 1, &createInfo, nullptr, &m_pipelines[i]);
 
         if (result != VK_SUCCESS) {
-            throw std::runtime_error("failed to create a compute pipeline for NAF shader");
+            throw std::runtime_error("failed to create a compute pipeline");
         }
     }
 }

@@ -1,11 +1,11 @@
 #version 460
 #extension GL_GOOGLE_include_directive : require
 
-#include "math/g1.glsl"
+#include "math/fq.glsl"
 
-#define Point       CurvePoint
-#define PointAffine CurvePointAffine
-#define PointZero   CurvePointZero
+#define Point       Element
+#define PointAffine Element
+#define PointZero   ElementZero
 
 layout (local_size_x = 256) in;
 

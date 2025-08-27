@@ -18,8 +18,9 @@ public:
     bool isValid() const { return m_isValid; }
 
     PipelinePtr createPipeline(const std::string        &shaderPath,
+                               const VulkanWorkgroups   &workgroups,
                                const VulkanMemoryLayout &memoryLayout,
-                               const ShaderParams       &params);
+                               const void               *params);
 
     void debugInfo(std::ostream& os, unsigned int logLevel);
 

@@ -52,8 +52,6 @@ std::unique_ptr<Prover<Engine>> makeProver(
 template <typename Engine>
 void Prover<Engine>::computeCoefs(typename Engine::FrElement *a, typename Engine::FrElement *wtns)
 {
-    ThreadPool &threadPool = ThreadPool::defaultPool();
-
     LOG_TRACE("Start Initializing a b c A");
     auto b = new typename Engine::FrElement[domainSize];
     auto c = new typename Engine::FrElement[domainSize];
@@ -202,7 +200,7 @@ void Prover<Engine>::computeMsm(Curve                       &g,
     } else {
         LOG_TRACE("Start Multiexp " + pointName);
 
-        g.multiMulByScalarMSM(result, bases, (uint8_t *)scalars, sizeof(scalars[0]), nPoints);
+        g.multiMulByScalarMSM(result, bases, (uint8_t *)scalars, sizeof(scalars[0]), nPoints, threadPool);
     }
 
     LOG_DEBUG(varName + ": " + g.toString(result));

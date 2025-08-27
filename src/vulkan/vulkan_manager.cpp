@@ -163,8 +163,9 @@ void VulkanManager::initDevice()
 
 VulkanManager::PipelinePtr VulkanManager::createPipeline(
     const std::string        &shaderPath,
+    const VulkanWorkgroups   &workgroups,
     const VulkanMemoryLayout &memoryLayout,
-    const ShaderParams       &params)
+    const void               *params)
 {
     if (!m_isValid) {
         return std::shared_ptr<VulkanPipeline>(nullptr);
@@ -172,7 +173,8 @@ VulkanManager::PipelinePtr VulkanManager::createPipeline(
 
     try {
         return std::make_shared<VulkanPipeline>(m_physicalDevice, m_device, m_queueFamilyIndex,
-                                                shaderPath, memoryLayout, params);
+                                                shaderPath, workgroups, memoryLayout, params);
+
     } catch (...) {
         if (m_enableExceptions) {
             throw;

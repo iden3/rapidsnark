@@ -53,14 +53,27 @@ if(Vulkan_FOUND)
     set(SHADER_BIN_DIR ${CMAKE_BINARY_DIR}/src/vulkan/shaders)
     set(SHADER_SRC_DIR src/vulkan/shaders)
 
-    macro(install_shader dir name)
+    function(install_shader dir name)
         install(FILES ${SHADER_BIN_DIR}/${dir}/${name}.spv
                       ${SHADER_SRC_DIR}/${dir}/${name}.glsl
                 DESTINATION ${CMAKE_INSTALL_PREFIX}/shaders/${dir})
-    endmacro()
+    endfunction()
+
+    install_shader(curve_mock stage0)
+    install_shader(curve_g1 stage0)
+
+    install_shader(msm_mock stage0)
+    install_shader(msm_mock stage1)
+    install_shader(msm_mock stage2)
+    install_shader(msm_mock stage3)
+    install_shader(msm_mock stage4)
 
     install_shader(msm_g1 stage0)
     install_shader(msm_g1 stage1)
+    install_shader(msm_g1 stage2)
+    install_shader(msm_g1 stage3)
+    install_shader(msm_g1 stage4)
+
     install_shader(msm_g2 stage0)
     install_shader(msm_g2 stage1)
 endif()

@@ -113,7 +113,7 @@ if(USE_OPENMP)
 endif()
 
 if(USE_VULKAN)
-    find_package(Vulkan REQUIRED COMPONENTS glslangValidator)
+    find_package(Vulkan REQUIRED COMPONENTS glslangValidator glslc)
 
     if(Vulkan_FOUND)
         message("Vulkan is used")

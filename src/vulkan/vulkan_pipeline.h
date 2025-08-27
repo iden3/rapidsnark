@@ -5,24 +5,18 @@
 #include <vulkan/vulkan.h>
 #include <string>
 #include <memory>
-#include <array>
+#include <vector>
 
-struct ShaderParams
-{
-    uint32_t nPoints;
-    uint32_t scalarSize;
-    uint32_t bitsPerChunk;
-    uint32_t nChunks;
-    uint32_t nBuckets;
-    uint32_t workgroupSize;
-};
+using VulkanWorkgroups = std::vector<uint32_t>;
 
 struct VulkanMemoryLayout
 {
+    size_t sizeParams;
     size_t sizeR;
     size_t sizeA;
     size_t sizeB;
     size_t sizeTemp;
+    size_t sizeTemp2;
 };
 
 struct VulkanBufferView
@@ -54,21 +48,22 @@ public:
 
 class VulkanPipeline
 {
-    static const unsigned shaderStageCount = 2;
-    static const uint64_t computeTimeout = 10*1000*1000*1000LL; // 10 second in ns
+    static const unsigned uniformBufferCount = 1;
+    static const unsigned storageBufferCount = 5;
+    static const uint64_t computeTimeout = 15*1000*1000*1000LL; // 15 second in ns
 
     using BufferPtr     = std::shared_ptr<VulkanBuffer>;
-    using ShaderModules = std::array<VkShaderModule, shaderStageCount>;
-    using Pipelines     = std::array<VkPipeline, shaderStageCount>;
-    using GroupCounts   = std::array<uint32_t, shaderStageCount>;
+    using ShaderModules = std::vector<VkShaderModule>;
+    using Pipelines     = std::vector<VkPipeline>;
 
 public:
     VulkanPipeline(VkPhysicalDevice          physicalDevice,
                    VkDevice                  device,
                    uint32_t                  queueFamilyIndex,
                    const std::string        &shaderDir,
+                   const VulkanWorkgroups   &workgroups,
                    const VulkanMemoryLayout &memoryLayout,
-                   const ShaderParams       &params);
+                   const void               *params);
     ~VulkanPipeline();
 
     void run(VulkanBufferView &r, const VulkanBufferView &a, const VulkanBufferView &b);
@@ -93,7 +88,7 @@ private:
 
     void destroy();
 
-    void buildCommandBuffer(const ShaderParams &params);
+    void buildCommandBuffer(const void *params);
     void beginCommandBuffer();
     void endCommandBuffer();
     void submitCommandBuffer();
@@ -119,12 +114,14 @@ private:
     VkDescriptorSet        m_descriptorSet;
     VkPipelineLayout       m_pipelineLayout;
     Pipelines              m_pipelines;
+    VulkanWorkgroups       m_workgroups;
     size_t                 m_shaderSize;
     BufferPtr              m_bufferA;
     BufferPtr              m_bufferB;
     BufferPtr              m_bufferR;
     BufferPtr              m_bufferParams;
     BufferPtr              m_bufferTemp;
+    BufferPtr              m_bufferTemp2;
 };
 
 #endif // VULKAN_PIPELINE_H

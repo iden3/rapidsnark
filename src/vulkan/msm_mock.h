@@ -9,26 +9,6 @@
 
 class ThreadPool;
 
-struct TestCurve
-{
-    struct Element {
-        FqRawElement v;
-    };
-
-    typedef Element Point;
-    typedef Element PointAffine;
-
-    Element zero() { return {0}; }
-    void copy(Element &r, const Element &a) { Fq_rawCopy(r.v, a.v); }
-    void add(Element &r, const Element &a, const Element &b) { Fq_rawAdd(r.v, a.v, b.v); }
-    void sub(Element &r, const Element &a, const Element &b) { Fq_rawSub(r.v, a.v, b.v); }
-    void dbl(Element &r, const Element &a) { Fq_rawAdd(r.v, a.v, a.v); }
-
-    void mulByScalar(Point &r, Point &base, uint8_t* scalar, unsigned int scalarSize) {
-        nafMulByScalar<TestCurve, Point, Point>(*this, r, base, scalar, scalarSize);
-    }
-};
-
 template <typename Curve>
 class MSM_Mock {
 
@@ -133,6 +113,33 @@ public:
     void computeSlices(int32_t* slicedScalars);
     void computeChunks(int32_t* slicedScalars, typename Curve::Point* bucketMatrix, typename Curve::Point* chunks);
     void computeResult(typename Curve::Point &r, typename Curve::Point* chunks);
+};
+
+struct CurveMock
+{
+    struct Element {
+        FqRawElement v;
+    };
+
+    typedef Element Point;
+    typedef Element PointAffine;
+
+    Element zero() { return {0}; }
+    void copy(Element &r, const Element &a) { Fq_rawCopy(r.v, a.v); }
+    void add(Element &r, const Element &a, const Element &b) { Fq_rawAdd(r.v, a.v, b.v); }
+    void sub(Element &r, const Element &a, const Element &b) { Fq_rawSub(r.v, a.v, b.v); }
+    void dbl(Element &r, const Element &a) { Fq_rawAdd(r.v, a.v, a.v); }
+
+    void mulByScalar(Point &r, Point &base, uint8_t* scalar, unsigned int scalarSize) {
+        nafMulByScalar<CurveMock, Point, Point>(*this, r, base, scalar, scalarSize);
+    }
+
+    void multiMulByScalarMSM(Point &r, PointAffine *bases, uint8_t* scalars, unsigned int scalarSize,
+                             unsigned int n, ThreadPool &threadPool) {
+
+        MSM_Mock<CurveMock> msm(*this, bases, scalars, scalarSize, n, threadPool, 8);
+        msm.run(r);
+    }
 };
 
 #include "msm_mock.cpp"

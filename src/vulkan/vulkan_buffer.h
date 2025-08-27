@@ -31,6 +31,8 @@ public:
     void copyFromLocalBuffer(const void *data, size_t dataSize);
     void copyToLocalBuffer(void *data, size_t dataSize);
 
+    size_t size() const { return m_size; }
+
 private:
    void build();
    void destroy();
