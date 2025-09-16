@@ -8,7 +8,6 @@
 #include <limits>
 #include <memory>
 #include <vector>
-#include <chrono>
 #include <cassert>
 #include <algorithm>
 #include <functional>
@@ -18,11 +17,12 @@
 #include "vulkan_manager.h"
 #include "vulkan_msm.h"
 #include "msm_mock.h"
+#include "utils.h"
 
 namespace {
 
 const unsigned int IterCount = 1;
-const unsigned int MinPointCount = 4;
+const unsigned int MinPointCount = 1;
 const unsigned int MaxPointCount = 1000*1024*1024;
 unsigned int LogLevel = 3;
 
@@ -66,8 +66,21 @@ struct Element
 
 using Vector = std::vector<Element>;
 
-template <typename CurveT>
-using CalcFunc = std::function<void(ThreadPool&, CurveT &g, Vector&, const Vector&, const Vector&)>;
+
+std::string curveName(const CurveMock&)
+{
+    return "Mock";
+}
+
+std::string curveName(const typename AltBn128::Engine::G1&)
+{
+    return "G1";
+}
+
+std::string curveName(const typename AltBn128::Engine::G2&)
+{
+    return "G2";
+}
 
 void printMsg(std::ostream &os)
 {
@@ -108,6 +121,16 @@ std::ostream& operator<<(std::ostream &os, const FqRawElement val)
     return os;
 }
 
+std::ostream& operator<<(std::ostream &os, const typename RawFq::Element val)
+{
+    os << format(val.v[0]) << ","
+       << format(val.v[1]) << ","
+       << format(val.v[2]) << ","
+       << format(val.v[3]);
+
+    return os;
+}
+
 void printVec(unsigned int level, std::ostream &oss, const std::string &msg, const Vector &a, size_t count = 0)
 {
     size_t size = a.size();
@@ -130,12 +153,6 @@ void printVec(unsigned int level, std::ostream &oss,
     printMsg(level, oss, "b[0]: ", b[0]);
     printMsg(level, oss, "c[0]: ", c[0]);
     printMsg(level, oss, "r[0]: ", r[0]);
-    printMsg(level, oss, "c[1]: ", c[1]);
-    printMsg(level, oss, "r[1]: ", r[1]);
-    printMsg(level, oss, "c[2]: ", c[2]);
-    printMsg(level, oss, "r[2]: ", r[2]);
-    printMsg(level, oss, "c[3]: ", c[3]);
-    printMsg(level, oss, "r[3]: ", r[3]);
     printMsg(level, oss, "a[M]: ", a[a.size()-1]);
     printMsg(level, oss, "b[M]: ", b[b.size()-1]);
     printMsg(level, oss, "c[M]: ", c[c.size()-1]);
@@ -191,24 +208,15 @@ bool cmpVec(const Vector &a, const Vector &b, size_t count = 0)
     return true;
 }
 
-void vecAdd(Element &c, const Element &a, const Element &b)
+template <typename CurveT>
+uint64_t pointSizeInElements(CurveT &g)
 {
-    c[0] = a[0] + b[0];
-    c[1] = a[1] + b[1];
-    c[2] = a[2] + b[2];
-    c[3] = a[3] + b[3];
-}
+    const uint64_t elementSize = sizeof(Vector::value_type);
+    const uint64_t pointSize = sizeof(typename CurveT::Point);
 
-void calcIdle(Vector &c, const Vector &a, const Vector &b)
-{
-    assert(c.size() >= a.size());
-    assert(a.size() == b.size());
+    assert(elementSize <= pointSize);
 
-    const int size = a.size();
-
-    for (size_t i = 0; i < size; i++) {
-        vecAdd(c[i], a[i], b[i]);
-    }
+    return (pointSize / elementSize);
 }
 
 template <typename CurveT>
@@ -223,7 +231,31 @@ uint64_t curvePointCount(uint64_t vectorSize)
 }
 
 template <typename CurveT>
-void calcMSM_gpu(VulkanMSM &vkMSM, CurveT &curve, Vector &r, Vector &a, Vector &b,
+void initPoints(CurveT &curve, Vector &a)
+{
+    auto points = (typename CurveT::PointAffine *)a.data();
+
+    const int nPoints = curvePointCount<CurveT>(a.size());
+    const int maxGenPoints = std::min(nPoints, 1000);
+
+    assert(nPoints > 0);
+
+    curve.copy(points[0], curve.oneAffine());
+
+    int i = 1;
+    for (; i < maxGenPoints; i++) {
+        curve.add(points[i], points[i-1], curve.oneAffine());
+    }
+
+    for (; i < nPoints; i++) {
+        auto idx = i % maxGenPoints;
+
+        curve.copy(points[i], points[idx]);
+    }
+}
+
+template <typename CurveT>
+auto calcMSM_gpu(VulkanMSM &vkMSM, CurveT &curve, Vector &r, Vector &a, Vector &b,
                  const std::string &shaderPath)
 {
     const uint64_t nPoints         = curvePointCount<CurveT>(a.size());
@@ -231,8 +263,11 @@ void calcMSM_gpu(VulkanMSM &vkMSM, CurveT &curve, Vector &r, Vector &a, Vector &
     const uint32_t affinePointSize = sizeof(typename CurveT::PointAffine);
     const uint32_t scalarSize      = sizeof(Vector::value_type);
 
-    vkMSM.run(shaderPath, a.data(), b.data(), pointSize, affinePointSize, scalarSize, nPoints);
-    vkMSM.computeResult(curve, r.data());
+    vkMSM.init(shaderPath, a.data(), b.data(), pointSize, affinePointSize, scalarSize, nPoints);
+    vkMSM.run();
+    vkMSM.computeResultAffine(curve, r.data());
+
+    return vkMSM.getPerf();
 }
 
 template <typename CurveT>
@@ -246,7 +281,48 @@ void calcMSM_cpu(ThreadPool &threadPool, CurveT &curve, Vector &r, const Vector 
 
     curve.multiMulByScalarMSM(result, bases, scalars, scalarSize, nPoints, threadPool);
 
-    std::memcpy(r.data(), &result, sizeof(result));
+    typename CurveT::PointAffine resultAffine;
+
+    curve.copy(resultAffine, result);
+
+    std::memcpy(r.data(), &resultAffine, sizeof(resultAffine));
+}
+
+template <typename CurveT>
+void calcMSM_cpu_old(ThreadPool &threadPool, CurveT &curve, Vector &r, const Vector &a, const Vector &b)
+{
+    typename CurveT::Point result;
+    const uint64_t         nPoints    = curvePointCount<CurveT>(a.size());
+    const uint64_t         scalarSize = sizeof(Vector::value_type);
+    auto                   bases      = (typename CurveT::PointAffine*)a.data();
+    uint8_t*               scalars    = (uint8_t*)b.data();
+
+    curve.multiMulByScalar(result, bases, scalars, scalarSize, nPoints);
+
+    typename CurveT::PointAffine resultAffine;
+
+    curve.copy(resultAffine, result);
+
+    std::memcpy(r.data(), &resultAffine, sizeof(resultAffine));
+}
+
+template <typename CurveT>
+void calcMSM_Mock_cpu(ThreadPool &threadPool, CurveT &curve, Vector &r, const Vector &a, const Vector &b)
+{
+    typename CurveT::Point result;
+    const uint64_t         nPoints    = curvePointCount<CurveT>(a.size());
+    const uint64_t         scalarSize = sizeof(Vector::value_type);
+    auto                   bases      = (typename CurveT::PointAffine*)a.data();
+    uint8_t*               scalars    = (uint8_t*)b.data();
+
+    MSM_Mock<CurveT> msm(curve, bases, scalars, scalarSize, nPoints, threadPool, 8);
+    msm.run(result);
+
+    typename CurveT::PointAffine resultAffine;
+
+    curve.copy(resultAffine, result);
+
+    std::memcpy(r.data(), &resultAffine, sizeof(resultAffine));
 }
 
 template <typename CurveT>
@@ -269,7 +345,7 @@ void calcCurve_cpu(ThreadPool &threadPool, CurveT &curve, Vector& r, const Vecto
 }
 
 template <typename CurveT>
-size_t calcCurve_gpu(VulkanManager &vkMgr, CurveT &curve, Vector &r, Vector &a, Vector &b,
+auto calcCurve_gpu(VulkanManager &vkMgr, CurveT &curve, Vector &r, Vector &a, Vector &b,
                  const std::string &shaderPath)
 {
     assert(r.size() >= a.size());
@@ -292,19 +368,7 @@ size_t calcCurve_gpu(VulkanManager &vkMgr, CurveT &curve, Vector &r, Vector &a, 
 
     vkPipeline->run(vR, vA, vB);
 
-    return vkPipeline->shaderSize();
-}
-
-long measureTime(std::function<void()> func)
-{
-    auto start = std::chrono::high_resolution_clock::now();
-
-    func();
-
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-    return duration.count();
+    return vkPipeline->getPerf();
 }
 
 template <typename CurveT, typename FuncT>
@@ -353,6 +417,24 @@ void test_cpu_msm(
 }
 
 template <typename CurveT>
+void test_cpu_msm_old(
+    CurveT &curve, Vector &r, const Vector &a, const Vector &b,
+    unsigned int  testLevel,
+    std::ostream &oss)
+{
+    test_cpu(curve, r, a, b, testLevel, calcMSM_cpu_old<CurveT>, oss);
+}
+
+template <typename CurveT>
+void test_cpu_msm_mock(
+    CurveT &curve, Vector &r, const Vector &a, const Vector &b,
+    unsigned int  testLevel,
+    std::ostream &oss)
+{
+    test_cpu(curve, r, a, b, testLevel, calcMSM_Mock_cpu<CurveT>, oss);
+}
+
+template <typename CurveT>
 void test_gpu_msm(
     CurveT &curve, Vector &r, Vector &a, Vector &b,
     const std::string &shaderPath,
@@ -360,18 +442,21 @@ void test_gpu_msm(
 {
     VulkanMSM vkMSM;
 
-    auto gpuTime = measureTime([&] {
+    calcMSM_gpu(vkMSM, curve, r, a, b, shaderPath);
 
-        calcMSM_gpu(vkMSM, curve, r, a, b, shaderPath);
-    });
-
-    const size_t shaderSize = vkMSM.getShaderSize();
+    const auto perf = vkMSM.getPerf();
+    const size_t shaderSize = perf.shaderSize;
+    const auto compileTime = perf.compileTime;
+    const auto computeTime = perf.computeTime;
+    const auto gpuTime = compileTime + computeTime;
 
     VulkanManager vkMgr;
     vkMgr.debugInfo(oss, LogLevel);
 
     printMsg(1, oss, "Shader path: ", shaderPath);
     printMsg(1, oss, "Shader size: ", shaderSize, " bytes");
+    printMsg(1, oss, "GPU        compile time: ", compileTime, " ms");
+    printMsg(1, oss, "GPU        compute time: ", computeTime, " ms");
     printMsg(0, oss, "GPU      execution time: ", gpuTime, " ms");
 }
 
@@ -391,21 +476,26 @@ void test_gpu_curve(
     std::ostream      &oss)
 {
     VulkanManager vkMgr;
-    size_t shaderSize = 0;
 
-    auto gpuTime = measureTime([&] {
-
-        shaderSize = calcCurve_gpu(vkMgr, curve, r, a, b, shaderPath);
-    });
+    auto perf = calcCurve_gpu(vkMgr, curve, r, a, b, shaderPath);
 
     vkMgr.debugInfo(oss, LogLevel);
 
+    const size_t shaderSize = perf.shaderSize;
+    const auto compileTime = perf.compileTime;
+    const auto computeTime = perf.computeTime;
+    const auto gpuTime = compileTime + computeTime;
+
     printMsg(1, oss, "Shader path: ", shaderPath);
     printMsg(1, oss, "Shader size: ", shaderSize, " bytes");
+    printMsg(1, oss, "GPU        compile time: ", compileTime, " ms");
+    printMsg(1, oss, "GPU        compute time: ", computeTime, " ms");
     printMsg(0, oss, "GPU      execution time: ", gpuTime, " ms");
 }
 
-void test(
+template <typename CurveT>
+void test_msm(
+    CurveT            &curve,
     const std::string &shaderPath,
     unsigned int       pointCount,
     unsigned int       testLevel,
@@ -413,26 +503,20 @@ void test(
     long               msgMaxSize)
 {
     std::ostringstream oss;
-    Vector a(pointCount);
-    Vector b(pointCount);
-//    Vector r_cpu(pointCount);
-//    Vector r_vk(pointCount);
-    Vector r_cpu(4);
-    Vector r_vk(4);
-    Vector r_idle(pointCount);
-    const size_t pointSize = sizeof(Vector::value_type);
+    const size_t pointSize     = sizeof(typename CurveT::Point);
+    const size_t factor        = pointSizeInElements(curve);
+    const size_t inVectorSize  = pointCount * factor;
+    const size_t outVectorSize = 1 * factor;
 
-    AltBn128::Engine E;
-    CurveMock g;
-    auto &curve = E.g1;
+    Vector a(inVectorSize);
+    Vector b(inVectorSize);
+    Vector r_cpu(outVectorSize);
+    Vector r_vk(outVectorSize);
 
     printMsg(0, oss, "LogLevel: ", LogLevel, " TestLevel: ", testLevel);
 
-    initVecVal(a, 1);
-    initVecVal1(b, 4);
-
-    calcIdle(r_idle, a, b);
-
+    initPoints(curve, a);
+    initVecInc(b, 2);
     test_gpu_msm(curve, r_vk, a, b, shaderPath, oss);
 
     if (testLevel >= 1) {
@@ -445,9 +529,81 @@ void test(
     printMsg(0, oss, "PointCount: ", pointCount);
 
     printVec(2, oss, a, b, r_cpu, r_vk);
-    printMsg(2, oss, "Work: MSM_G1");
+    printMsg(2, oss, "Work: MSM_" + curveName(curve));
 
     strncat(msg, oss.str().c_str(), msgMaxSize);
+}
+
+template <typename CurveT>
+void test_curve(
+    CurveT            &curve,
+    const std::string &shaderPath,
+    unsigned int       pointCount,
+    unsigned int       testLevel,
+    char              *msg,
+    long               msgMaxSize)
+{
+    std::ostringstream oss;
+    const size_t pointSize  = sizeof(typename CurveT::Point);
+    const size_t vectorSize = pointCount * pointSizeInElements(curve);
+
+    Vector a(vectorSize);
+    Vector b(vectorSize);
+    Vector r_cpu(vectorSize);
+    Vector r_vk(vectorSize);
+
+    printMsg(0, oss, "LogLevel: ", LogLevel, " TestLevel: ", testLevel);
+
+    initVecInc(a, 0xccbbaa998877);
+    initVecInc(b, 0xeeddccbbaa99);
+
+    test_gpu_curve(curve, r_vk, a, b, shaderPath, oss);
+
+    if (testLevel >= 1) {
+        test_cpu_curve(curve, r_cpu, a, b, testLevel, oss);
+
+        printMsg(0, oss, "Vulkan eq: ", std::boolalpha, cmpVec(r_cpu, r_vk));
+    }
+
+    printMsg(1, oss, "PointSize: ",  pointSize, " bytes");
+    printMsg(0, oss, "PointCount: ", pointCount);
+
+    printVec(2, oss, a, b, r_cpu, r_vk);
+    printMsg(2, oss, "Work: Curve_" + curveName(curve));
+
+    strncat(msg, oss.str().c_str(), msgMaxSize);
+}
+
+void test(
+    const std::string &shaderPath,
+    const std::string &testType,
+    unsigned int       pointCount,
+    unsigned int       testLevel,
+    char              *msg,
+    long               msgMaxSize)
+{
+    const std::string fullShaderPath = shaderPath + "/" + testType;
+
+    AltBn128::Engine E;
+    CurveMock mock;
+
+    if (testType == "msm_mock") {
+        test_msm(mock, fullShaderPath, pointCount, testLevel, msg, msgMaxSize);
+
+    } else if (testType == "msm_g1") {
+        test_msm(E.g1, fullShaderPath, pointCount, testLevel, msg, msgMaxSize);
+
+    } else if (testType == "curve_mock") {
+        test_curve(mock, fullShaderPath, pointCount, testLevel, msg, msgMaxSize);
+
+    } else if (testType == "curve_g1") {
+        test_curve(E.g1, fullShaderPath, pointCount, testLevel, msg, msgMaxSize);
+
+    } else {
+        const auto error = std::string("Unknown test type: ") + testType;
+
+        strncat(msg, error.c_str(), msgMaxSize);
+    }
 }
 
 template <typename CurveT>
@@ -465,48 +621,73 @@ long measure_msm_time_cpu(
 }
 
 template <typename CurveT>
-long measure_msm_time_gpu(
+auto measure_msm_time_gpu(
     CurveT &curve, Vector &r, Vector &a, Vector &b,
     const std::string &shaderPath)
 {
     VulkanMSM vkMSM;
 
-    auto gpuTime = measureTime([&] {
+    return calcMSM_gpu(vkMSM, curve, r, a, b, shaderPath);
+}
 
-        calcMSM_gpu(vkMSM, curve, r, a, b, shaderPath);
-    });
+size_t calcSizeFactor(AltBn128::Engine &E, int curveId)
+{
+    if (curveId == VULKAN_TEST_CURVE_G1) {
+        return pointSizeInElements(E.g1);
 
-    return gpuTime;
+    } else if (curveId == VULKAN_TEST_CURVE_G2) {
+        return pointSizeInElements(E.g2);
+
+    } else {
+        assert(0 && "Invalid curveId");
+    }
+}
+
+void initPoints(AltBn128::Engine &E, int curveId, Vector &a)
+{
+    if (curveId == VULKAN_TEST_CURVE_G1) {
+        initPoints(E.g1, a);
+
+    } else if (curveId == VULKAN_TEST_CURVE_G2) {
+        initPoints(E.g2, a);
+
+    } else {
+        assert(0 && "Invalid curveId");
+    }
 }
 
 bool measure_msm_time(
-    const std::string &shaderPath,
     int                curveId,
+    const std::string &shaderPath,
     unsigned int       pointCount,
     vulkan_msm_time   *msmTime)
 {
-    Vector a(pointCount);
-    Vector b(pointCount);
-    Vector r_cpu(8);
-    Vector r_vk(8);
-    Vector r_idle(pointCount);
-
-    initVecInc(a, 0xccbbaa998877);
-    initVecInc(b, 0xeeddccbbaa99);
-    initVecVal(r_cpu);
-    initVecVal(r_vk);
-
-    calcIdle(r_idle, a, b);
-
     AltBn128::Engine E;
 
+    const auto factor = calcSizeFactor(E, curveId);
+    const size_t inVectorSize  = pointCount * factor;
+    const size_t outVectorSize = 1 * factor;
+
+    Vector a(inVectorSize);
+    Vector b(inVectorSize);
+    Vector r_cpu(outVectorSize);
+    Vector r_vk(outVectorSize);
+
+    initPoints(E, curveId, a);
+    initVecInc(b, 2);
+
     if (curveId == VULKAN_TEST_CURVE_G1) {
-        msmTime->gpu = measure_msm_time_gpu(E.g1, r_vk, a, b, shaderPath);
-        msmTime->cpu = measure_msm_time_cpu(E.g1, r_cpu, a, b);
+        const auto perf  = measure_msm_time_gpu(E.g1, r_vk, a, b, shaderPath);
+        msmTime->cpu     = measure_msm_time_cpu(E.g1, r_cpu, a, b);
+        msmTime->gpu     = perf.compileTime + perf.computeTime;
+        msmTime->compile = perf.compileTime;
 
     } else if (curveId == VULKAN_TEST_CURVE_G2) {
-        msmTime->gpu = measure_msm_time_gpu(E.g2, r_vk, a, b, shaderPath);
-        msmTime->cpu = measure_msm_time_cpu(E.g2, r_cpu, a, b);
+        msmTime->cpu     = measure_msm_time_cpu(E.g2, r_cpu, a, b);
+        msmTime->gpu     = -1;
+        msmTime->compile = 0;
+
+        initVecVal(r_cpu, 0);
     }
 
     return cmpVec(r_cpu, r_vk);
@@ -516,6 +697,7 @@ bool measure_msm_time(
 
 int vulkan_test_params(
     const char   *shader_path,
+    const char   *test_type,
     unsigned int  point_count,
     unsigned int  log_level,
     unsigned int  test_level,
@@ -532,7 +714,7 @@ int vulkan_test_params(
     msg[0] = '\0';
 
     try {
-        test(shader_path, point_count, test_level, msg, msg_max_size);
+        test(shader_path, test_type, point_count, test_level, msg, msg_max_size);
 
         return error;
 
@@ -555,11 +737,13 @@ int vulkan_test(
     char       *msg,
     long        msg_max_size)
 {
-    const unsigned int point_count = 500*1024;
-    const unsigned int log_level = 0;
-    const unsigned int test_level = 1;
+    const char         *test_type = "msm_g1";
+    const unsigned int  point_count = 500*1024;
+    const unsigned int  log_level = 0;
+    const unsigned int  test_level = 1;
 
-    return vulkan_test_params(shader_path, point_count, log_level, test_level, msg, msg_max_size);
+    return vulkan_test_params(shader_path, test_type, point_count,
+                              log_level, test_level, msg, msg_max_size);
 }
 
 int vulkan_measure_msm_time(
@@ -588,14 +772,15 @@ int vulkan_measure_msm_time(
     }
 
     try {
-        const bool comp_eq = measure_msm_time(shader_path, curve_id, point_count, msm_time);
+        const bool comp_eq = measure_msm_time(curve_id, shader_path, point_count, msm_time);
 
         if (comp_eq) {
             return VULKAN_TEST_RESULT_OK;
-        }
 
-        result = "GPU and CPU computation results are not equal";
-        error  = VULKAN_TEST_RESULT_COMP_NOT_EQUAL;
+        } else {
+            result = "GPU and CPU computation results are not equal";
+            error  = VULKAN_TEST_RESULT_COMP_NOT_EQUAL;
+        }
 
     } catch (InvalidPathException& e) {
         result = e.what();

@@ -3,14 +3,9 @@
 
 #include "vulkan_manager.h"
 #include "msm.hpp"
+#include "utils.h"
 #include <cstdint>
 #include <cstring>
-
-template <typename T1, typename T2>
-auto div_ceil(T1 a, T2 b)
-{
-    return (a + b - 1) / b;
-}
 
 struct MsmShaderParams
 {
@@ -30,12 +25,11 @@ class VulkanMSM
 public:
     VulkanMSM(bool enableMgrExceptions = true)
         : m_vkMgr(enableMgrExceptions)
-        , m_shaderSize(0)
     {}
 
     bool isValid() const { return m_vkMgr.isValid(); }
 
-    void run(const std::string &shaderPath,
+    void init(const std::string &shaderPath,
              void              *bases,
              void              *scalars,
              uint32_t           pointSize,
@@ -51,43 +45,62 @@ public:
         m_chunks.clear();
         m_chunks.resize(m_params.nChunks * pointSize);
 
+        m_vR = { m_chunks.data(), m_chunks.size() };
+        m_vA = { scalars, scalarSize * nPoints };
+        m_vB = { bases, affinePointSize * nPoints };
+
         VulkanWorkgroups workgroups = { div_ceil(nPoints, workgroupSize),
                                         m_params.nChunks,
-                                        m_params.nChunks,
-                                        m_params.nChunks,
+//                                        m_params.nChunks,
+//                                        m_params.nChunks,
                                         m_params.nChunks };
 
-        const uint32_t     slicedScalarsSize = nPoints * m_params.nChunks * sizeof(uint32_t);
-        const uint32_t     bucketsSize = (workgroupSize + 1) * m_params.nChunks * pointSize;
-        VulkanBufferView   vR = { m_chunks.data(), m_chunks.size() };
-        VulkanBufferView   vA = { scalars, scalarSize * nPoints };
-        VulkanBufferView   vB = { bases, affinePointSize * nPoints };
-        VulkanMemoryLayout memoryLayout = {sizeof(m_params), vR.size, vA.size, vB.size, slicedScalarsSize, bucketsSize};
+        const uint32_t slicedScalarsSize = nPoints * m_params.nChunks * sizeof(uint32_t);
+        const uint32_t bucketsSize = (workgroupSize + 1) * m_params.nChunks * pointSize;
 
-        auto vkPipeline = m_vkMgr.createPipeline(shaderPath, workgroups, memoryLayout, &m_params);
+        VulkanMemoryLayout memoryLayout = {sizeof(m_params), m_vR.size, m_vA.size, m_vB.size, slicedScalarsSize, bucketsSize};
 
-        if (!vkPipeline) {
+        m_pipeline = m_vkMgr.createPipeline(shaderPath, workgroups, memoryLayout, &m_params);
+
+        if (!m_pipeline) {
             throw std::runtime_error("failed to create vulkan pipeline");
         }
+    }
 
-        m_shaderSize = vkPipeline->shaderSize();
-
-        vkPipeline->run(vR, vA, vB);
+    void run()
+    {
+        m_pipeline->run(m_vR, m_vA, m_vB);
     }
 
     template<typename Curve>
     void computeResult(Curve &g, void *result)
     {
-        reduceChunks(g, result, m_chunks.data(), m_params.nChunks, m_params.bitsPerChunk);
+        typename Curve::Point r;
+
+        reduceChunks(g, r, m_chunks.data(), m_params.nChunks, m_params.bitsPerChunk);
+
+        std::memcpy(result, &r, sizeof(r));
     }
 
-    size_t getShaderSize() const { return m_shaderSize; }
+    template<typename Curve>
+    void computeResultAffine(Curve &g, void *result)
+    {
+        typename Curve::Point r;
+        typename Curve::PointAffine rAffine;
+
+        reduceChunks(g, r, m_chunks.data(), m_params.nChunks, m_params.bitsPerChunk);
+
+        g.copy(rAffine, r);
+
+        std::memcpy(result, &rAffine, sizeof(rAffine));
+    }
+
+    VulkanPipeline::Perf getPerf() const { return m_pipeline->getPerf(); }
 
 private:
     template<typename Curve>
-    void reduceChunks(Curve &g, void *result, void *chunksData, uint32_t nChunks, uint32_t bitsPerChunk)
+    void reduceChunks(Curve &g, typename Curve::Point &r, void *chunksData, uint32_t nChunks, uint32_t bitsPerChunk)
     {
-        typename Curve::Point r;
         auto chunks = (typename Curve::Point*)chunksData;
 
         g.copy(r, chunks[nChunks - 1]);
@@ -98,8 +111,6 @@ private:
             }
             g.add(r, r, chunks[j]);
         }
-
-        std::memcpy(result, &r, sizeof(r));
     }
 
     MsmShaderParams createShaderParams(uint32_t nPoints, uint32_t scalarSize)
@@ -116,10 +127,15 @@ private:
     }
 
 private:
-    VulkanManager     m_vkMgr;
-    MsmShaderParams   m_params;
-    size_t            m_shaderSize;
-    std::vector<char> m_chunks;
+    VulkanManager              m_vkMgr;
+    VulkanManager::PipelinePtr m_pipeline;
+    MsmShaderParams            m_params;
+    std::vector<char>          m_chunks;
+    VulkanBufferView           m_vA;
+    VulkanBufferView           m_vB;
+    VulkanBufferView           m_vR;
+    long                       m_timeCompile;
+    long                       m_timeCompute;
 };
 
 #endif // VULKAN_MSM_H

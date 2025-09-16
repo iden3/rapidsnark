@@ -1,11 +1,11 @@
 #version 460
 #extension GL_GOOGLE_include_directive : require
 
-#include "math/fq.glsl"
+#include "math/g2.glsl"
 
-#define Point       Element
-#define PointZero   ElementZero
-#define AssignPoint AssignElement
+#define Point       CurvePoint
+#define PointZero   CurvePointZero
+#define AssignPoint AssignCurvePoint
 
 layout (local_size_x = 1) in;
 
@@ -27,15 +27,15 @@ layout(binding = 5) buffer bufTemp2 { Point  buckets[]; };
 
 void main()
 {
-    const uint s = chunkIdx * workgroupSize;
+    const uint s = chunkIdx * nBuckets;
 
     Point t = buckets[s + nBuckets - 1];
     Point tmp = t;
 
     for (int i = nBuckets - 2; i >= 1 ; i--) {
-        add(tmp, tmp, buckets[s+i]);
+        add(tmp, tmp, buckets[s + i]);
         add(t, t, tmp);
     }
 
-    AssignPoint(chunks[chunkIdx], t);
+    chunks[chunkIdx] = t;
 }

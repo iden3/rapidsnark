@@ -19,4 +19,42 @@ using namespace CPlusPlusLogging;
 
 #endif // USE_LOGGER
 
+inline void InitLogging(int logLevel)
+{
+#ifdef USE_LOGGER
+    switch (logLevel) {
+    case 1:
+        Logger::getInstance()->enableFileLogging();
+        break;
+
+    case 2:
+        Logger::getInstance()->enableFileLogging();
+        Logger::getInstance()->enaleLog();
+        break;
+
+    case 3:
+        Logger::getInstance()->enableConsoleLogging();
+        break;
+
+    case 4:
+        Logger::getInstance()->enableConsoleLogging();
+        Logger::getInstance()->enaleLog();
+        break;
+
+    default:
+        Logger::getInstance()->updateLogType(NO_LOG);
+        break;
+    }
+#endif
+}
+
+inline bool HasLogging()
+{
+#ifdef USE_LOGGER
+    return true;
+#else
+    return false;
+#endif
+}
+
 #endif // LOGGING_HPP

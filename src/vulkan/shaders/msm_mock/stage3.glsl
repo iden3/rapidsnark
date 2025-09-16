@@ -24,8 +24,8 @@ layout(binding = 5) buffer bufTemp2 { Point  buckets[]; };
 #define chunkIdx  gl_WorkGroupID.x
 #define threadIdx gl_LocalInvocationID.x
 
-void main() {
-
+void main()
+{
     const int q = 4;
     const int r = nBuckets / q;
 

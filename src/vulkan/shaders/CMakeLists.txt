@@ -51,6 +51,8 @@ endfunction()
 
 preproc_shader(math fq "")
 preproc_shader(math g1 "")
+preproc_shader(math g2 "")
+preproc_shader(math curve "")
 
 build_shader_set(curve_mock ${opt_comp})
 build_shader_set(curve_g1   ${opt_comp})
@@ -60,7 +62,9 @@ build_shader_set(msm_g2     "")
 
 add_custom_target(math DEPENDS
     math/fq.glsl
+    math/curve.glsl
     math/g1.glsl
+    math/g2.glsl
     )
 
 add_custom_target(curve_mock DEPENDS
@@ -90,6 +94,7 @@ add_custom_target(msm_g1 DEPENDS
 add_custom_target(msm_g2 DEPENDS
     msm_g2/stage0.spv
     msm_g2/stage1.spv
+    msm_g2/stage2.spv
     )
 
 add_dependencies(test_vulkan

@@ -16,8 +16,8 @@ layout(binding = 4) buffer bufTemp       { uint slicedScalars[]; };
 
 #define pointIdx gl_GlobalInvocationID.x
 
-void main() {
-
+void main()
+{
     if (gl_GlobalInvocationID.x >= nPoints) {
         return;
     }

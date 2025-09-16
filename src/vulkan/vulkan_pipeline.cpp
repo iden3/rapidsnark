@@ -1,4 +1,5 @@
 #include "vulkan_pipeline.h"
+#include "utils.h"
 #include <fstream>
 #include <vector>
 #include <cassert>
@@ -41,31 +42,15 @@ VulkanPipeline::VulkanPipeline(VkPhysicalDevice physicalDevice,
     , m_pipelines(workgroups.size(), VK_NULL_HANDLE)
     , m_workgroups(workgroups)
     , m_shaderSize(0)
+    , m_compileTime(0)
+    , m_computeTime(0)
 {
     assert(workgroups.size() > 0);
 
     try {
-        initQueue();
-        initCommandPool();
-        initCommandBuffer();
-        initFence();
-        initShaderModules(shaderDir);
-        initDescriptorPool();
-        initDescriptorSetLayout();
-        initDescriptorSet();
-        initPipelineLayout();
-        initPipelines();
-
-        m_bufferA = createBuffer(memoryLayout.sizeA);
-        m_bufferB = createBuffer(memoryLayout.sizeB);
-        m_bufferR = createBuffer(memoryLayout.sizeR);
-        m_bufferParams = createBuffer(memoryLayout.sizeParams, VulkanBuffer::Uniform | VulkanBuffer::DeviceOnly);
-        m_bufferTemp   = createBuffer(memoryLayout.sizeTemp, VulkanBuffer::DeviceOnly);
-        m_bufferTemp2  = createBuffer(memoryLayout.sizeTemp2, VulkanBuffer::DeviceOnly);
-
-        updateDescriptorSet();
-
-        buildCommandBuffer(params);
+        m_compileTime = measureTime([&] {
+            build(shaderDir, memoryLayout, params);
+        });
 
     } catch (...) {
         destroy();
@@ -76,6 +61,34 @@ VulkanPipeline::VulkanPipeline(VkPhysicalDevice physicalDevice,
 VulkanPipeline::~VulkanPipeline()
 {
     destroy();
+}
+
+void VulkanPipeline::build(
+               const std::string        &shaderDir,
+               const VulkanMemoryLayout &memoryLayout,
+               const void               *params)
+{
+    initQueue();
+    initCommandPool();
+    initCommandBuffer();
+    initFence();
+    initShaderModules(shaderDir);
+    initDescriptorPool();
+    initDescriptorSetLayout();
+    initDescriptorSet();
+    initPipelineLayout();
+    initPipelines();
+
+    m_bufferA = createBuffer(memoryLayout.sizeA);
+    m_bufferB = createBuffer(memoryLayout.sizeB);
+    m_bufferR = createBuffer(memoryLayout.sizeR);
+    m_bufferParams = createBuffer(memoryLayout.sizeParams, VulkanBuffer::Uniform | VulkanBuffer::DeviceOnly);
+    m_bufferTemp   = createBuffer(memoryLayout.sizeTemp, VulkanBuffer::DeviceOnly);
+    m_bufferTemp2  = createBuffer(memoryLayout.sizeTemp2, VulkanBuffer::DeviceOnly);
+
+    updateDescriptorSet();
+
+    buildCommandBuffer(params);
 }
 
 void VulkanPipeline::buildCommandBuffer(const void *params)
@@ -126,8 +139,10 @@ void VulkanPipeline::buildCommandBuffer(const void *params)
 
 void VulkanPipeline::run(VulkanBufferView &r, const VulkanBufferView &a, const VulkanBufferView &b)
 {
-    runAsync(a, b);
-    wait(r);
+    m_computeTime = measureTime([&] {
+        runAsync(a, b);
+        wait(r);
+    });
 }
 
 void VulkanPipeline::runAsync(const VulkanBufferView &a, const VulkanBufferView &b)

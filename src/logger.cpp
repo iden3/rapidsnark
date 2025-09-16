@@ -296,7 +296,7 @@ void Logger::trace(const char* text) throw()
    }
 }
 
-void Logger::trace(std::string& text) throw()
+void Logger::trace(const std::string &text) throw()
 {
    trace(text.data());
 }
@@ -324,7 +324,7 @@ void Logger::debug(const char* text) throw()
    }
 }
 
-void Logger::debug(std::string& text) throw()
+void Logger::debug(const std::string& text) throw()
 {
    debug(text.data());
 }
@@ -366,6 +366,6 @@ void Logger::enableConsoleLogging()
 
 void Logger::enableFileLogging()
 {
-   m_LogType = FILE_LOG ;
+   m_LogType = FILE_LOG;
 }
 

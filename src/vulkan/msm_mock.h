@@ -124,7 +124,12 @@ struct CurveMock
     typedef Element Point;
     typedef Element PointAffine;
 
-    Element zero() { return {0}; }
+    Element zero() const { return {0}; }
+    Element one()  const { return {1}; }
+
+    Element zeroAffine() const { return {0}; }
+    Element oneAffine()  const { return {1}; }
+
     void copy(Element &r, const Element &a) { Fq_rawCopy(r.v, a.v); }
     void add(Element &r, const Element &a, const Element &b) { Fq_rawAdd(r.v, a.v, b.v); }
     void sub(Element &r, const Element &a, const Element &b) { Fq_rawSub(r.v, a.v, b.v); }

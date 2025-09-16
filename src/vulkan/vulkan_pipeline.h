@@ -57,6 +57,14 @@ class VulkanPipeline
     using Pipelines     = std::vector<VkPipeline>;
 
 public:
+    struct Perf
+    {
+        size_t shaderSize;
+        long   compileTime;
+        long   computeTime;
+    };
+
+public:
     VulkanPipeline(VkPhysicalDevice          physicalDevice,
                    VkDevice                  device,
                    uint32_t                  queueFamilyIndex,
@@ -70,7 +78,7 @@ public:
     void runAsync(const VulkanBufferView &a, const VulkanBufferView &b);
     void wait(VulkanBufferView &r);
 
-    size_t shaderSize() const { return m_shaderSize; }
+    Perf getPerf() const { return { m_shaderSize, m_compileTime, m_computeTime}; }
 
 private:
     void initQueue();
@@ -86,6 +94,9 @@ private:
     void initPipelines();
     void updateDescriptorSet();
 
+    void build(const std::string        &shaderDir,
+               const VulkanMemoryLayout &memoryLayout,
+               const void               *params);
     void destroy();
 
     void buildCommandBuffer(const void *params);
@@ -116,6 +127,8 @@ private:
     Pipelines              m_pipelines;
     VulkanWorkgroups       m_workgroups;
     size_t                 m_shaderSize;
+    long                   m_compileTime;
+    long                   m_computeTime;
     BufferPtr              m_bufferA;
     BufferPtr              m_bufferB;
     BufferPtr              m_bufferR;

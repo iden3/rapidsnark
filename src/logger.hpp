@@ -59,7 +59,7 @@ namespace CPlusPlusLogging
    typedef enum LOG_LEVEL
    {
       DISABLE_LOG       = 1,
-      LOG_LEVEL_INFO	   = 2,
+      LOG_LEVEL_INFO	= 2,
       LOG_LEVEL_BUFFER	= 3,
       LOG_LEVEL_TRACE   = 4,
       LOG_LEVEL_DEBUG   = 5,
@@ -106,12 +106,12 @@ namespace CPlusPlusLogging
 
          // Interface for Trace log 
          void trace(const char* text) throw();
-         void trace(std::string& text) throw();
+         void trace(const std::string& text) throw();
          void trace(std::ostringstream& stream) throw();
 
          // Interface for Debug log 
          void debug(const char* text) throw();
-         void debug(std::string& text) throw();
+         void debug(const std::string& text) throw();
          void debug(std::ostringstream& stream) throw();
 
          // Error and Alarm log must be always enable

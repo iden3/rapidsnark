@@ -5,16 +5,18 @@ project(rapidsnark LANGUAGES CXX C ASM)
 set(USE_ASM    ON  CACHE BOOL "Use asm implementation for Fr and Fq")
 set(USE_OPENMP ON  CACHE BOOL "Use OpenMP")
 set(USE_VULKAN OFF CACHE BOOL "Use Vulkan accelaration")
+set(USE_LOGGER OFF CACHE BOOL "Use logger")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/platform.cmake)
 
-message("BITS_PER_CHUNK=" ${BITS_PER_CHUNK})
 message("USE_ASM=" ${USE_ASM})
 message("USE_OPENMP=" ${USE_OPENMP})
 message("USE_VULKAN=" ${USE_VULKAN})
+message("USE_LOGGER=" ${USE_LOGGER})
+message("BITS_PER_CHUNK=" ${BITS_PER_CHUNK})
 message("CMAKE_CROSSCOMPILING=" ${CMAKE_CROSSCOMPILING})
 
 message("GMP_PREFIX=" ${GMP_PREFIX})
@@ -51,31 +53,32 @@ if(Vulkan_FOUND)
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/vulkan)
 
     set(SHADER_BIN_DIR ${CMAKE_BINARY_DIR}/src/vulkan/shaders)
-    set(SHADER_SRC_DIR src/vulkan/shaders)
+    set(SHADER_SRC_DIR ${CMAKE_SOURCE_DIR}/src/vulkan/shaders)
 
-    function(install_shader dir name)
+    function(install_shader dir filename)
+        cmake_path(GET filename STEM name)
+
         install(FILES ${SHADER_BIN_DIR}/${dir}/${name}.spv
                       ${SHADER_SRC_DIR}/${dir}/${name}.glsl
                 DESTINATION ${CMAKE_INSTALL_PREFIX}/shaders/${dir})
     endfunction()
 
-    install_shader(curve_mock stage0)
-    install_shader(curve_g1 stage0)
+    function(install_shader_set dir)
 
-    install_shader(msm_mock stage0)
-    install_shader(msm_mock stage1)
-    install_shader(msm_mock stage2)
-    install_shader(msm_mock stage3)
-    install_shader(msm_mock stage4)
+        file(GLOB shaderList LIST_DIRECTORIES FALSE
+             RELATIVE ${SHADER_SRC_DIR}/${dir}
+             ${SHADER_SRC_DIR}/${dir}/*.glsl)
 
-    install_shader(msm_g1 stage0)
-    install_shader(msm_g1 stage1)
-    install_shader(msm_g1 stage2)
-    install_shader(msm_g1 stage3)
-    install_shader(msm_g1 stage4)
+        foreach(filename IN LISTS shaderList)
+            install_shader("${dir}" "${filename}")
+        endforeach()
+    endfunction()
 
-    install_shader(msm_g2 stage0)
-    install_shader(msm_g2 stage1)
+    install_shader_set(curve_mock)
+    install_shader_set(curve_g1)
+    install_shader_set(msm_mock)
+    install_shader_set(msm_g1)
+    install_shader_set(msm_g2)
 endif()
 
 enable_testing()

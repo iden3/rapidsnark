@@ -59,8 +59,10 @@ namespace Groth16 {
     struct ProverParams {
         std::string shaderDirMsmG1;
         std::string shaderDirMsmG2;
-        u_int64_t   cpuMsmTime;
-        u_int64_t   gpuMsmTime;
+        int64_t     timeMsmCpuG1;
+        int64_t     timeMsmGpuG1;
+        int64_t     timeMsmCpuG2;
+        int64_t     timeMsmGpuG2;
     };
 
     template <typename Engine>
@@ -158,6 +160,9 @@ namespace Groth16 {
         #endif
         }
 
+        std::string curveName(typename Engine::G1&) const { return "G1"; }
+        std::string curveName(typename Engine::G2&) const { return "G2"; }
+
         void computeCoefs(typename Engine::FrElement *a, typename Engine::FrElement *wtns);
 
         template <typename Curve>
@@ -170,10 +175,12 @@ namespace Groth16 {
                         const std::string           &varName,
                         Device                       device = CpuDevice);
 #ifdef USE_VULKAN
-        void computePointsOnDevice(const JobSizes &jobSizes, const Jobs &jobs);
+        void computePointsOnDevice(const Jobs &jobs, const JobSizes &jobSizes);
 
         std::string shaderPath(typename Engine::G1&) const { return params.shaderDirMsmG1; }
         std::string shaderPath(typename Engine::G2&) const { return params.shaderDirMsmG2; }
+        Dispatcher::JobSize jobG1(uint64_t size) const { return {size, Dispatcher::G1}; }
+        Dispatcher::JobSize jobG2(uint64_t size) const { return {size, Dispatcher::G2}; }
 #endif
     };
 

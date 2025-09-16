@@ -25,8 +25,8 @@ layout(binding = 5) buffer bufTemp2 { Point  buckets[]; };
 #define chunkIdx  gl_WorkGroupID.x
 #define threadIdx gl_LocalInvocationID.x
 
-void main() {
-
+void main()
+{
     const int q = 4;
     const int r = nBuckets / q;
 
@@ -46,6 +46,6 @@ void main() {
         Point t;
         add(t, buckets[s + 0], buckets[s + 1]);
 
-        AssignPoint(chunks[chunkIdx], t, N);
+        AssignPoint(chunks[chunkIdx], t);
     }
 }

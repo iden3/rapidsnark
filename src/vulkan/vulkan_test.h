@@ -17,18 +17,22 @@ extern "C" {
 
 /**
  * 'shader_path' should point to the directory with
- *  MSM shaders for G1 curve.
+ * 'test_type' subdirectory which contains shaders.
  *
- * log_level is in range [0 - 3].
+ * 'test_type' is one of msm_mock, msm_g1, msm_g2,
+ *                 curve_mock, curve_g1, curve_g2.
+ *
+ * 'log_level' is in range [0 - 3].
  * The higher log_level the more logging is provided.
  *
- * test_level is in range [0 - 2]:
+ * 'test_level' is in range [0 - 2]:
     0 - test GPU
     1 - test GPU + ParallelCPU
     2 - test GPU + ParallelCPU + SingleCPU
  */
 int vulkan_test_params(
     const char   *shader_path,
+    const char   *test_type,
     unsigned int  point_count,
     unsigned int  log_level,
     unsigned int  test_level,
@@ -36,8 +40,9 @@ int vulkan_test_params(
     long          msg_max_size);
 
 /**
- * The default log_level is 0.
- * The default test_level is 1.
+ * The default 'log_level' is 0.
+ * The default 'test_level' is 1.
+ * The default 'test_type' is msm_g1.
  */
 int vulkan_test(
     const char *shader_path,
@@ -49,8 +54,9 @@ int vulkan_test(
 #define VULKAN_TEST_CURVE_G2 2
 
 struct vulkan_msm_time {
-    unsigned long long gpu;
-    unsigned long long cpu;
+    long long gpu;
+    long long cpu;
+    long long compile;
 };
 
 /**
@@ -60,7 +66,7 @@ struct vulkan_msm_time {
  * 'curve' should be one of VULKAN_TEST_CURVE_* IDs.
  *
  * 'shader_path' must point to the directory with a set of shader used for computation.
- * The set of shaders consists of 'stage0.spv' and 'stage1.spv'.
+ * The set of shaders consists of 'stage*.spv' files.
  *
  * If 'error_msg' is not NULL it keeps an error message in case of error.
  *

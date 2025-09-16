@@ -12,20 +12,15 @@ extern "C" {
 #define PROVER_INVALID_WITNESS_LENGTH 0x3
 
 /**
- * Parameters to tune prover performance.
- *
- * the directory by 'shader_dir' should contain:
- *  msm_g1/
- *      stage0.spv
- *      stage1.spv
- *  msm_g2/
- *      stage0.spv
- *      stage1.spv
+ * Parameters to let prover use GPU.
  */
 struct prover_params {
-    const char         *shader_dir;
-    unsigned long long  cpu_msm_time;
-    unsigned long long  gpu_msm_time;
+    const char *shader_dir_msm_g1;
+    const char *shader_dir_msm_g2;
+    long long   time_msm_cpu_g1;
+    long long   time_msm_gpu_g1;
+    long long   time_msm_cpu_g2;
+    long long   time_msm_gpu_g2;
 };
 
 /**
@@ -129,7 +124,9 @@ groth16_prover_destroy(void *prover_object);
  * @return error code:
  *         PROVER_OK - in case of success
  *         PPOVER_ERROR - in case of an error
- *         PROVER_ERROR_SHORT_BUFFER - in case of a short buffer error, also updates proof_size and public_size with actual proof and public sizes
+ *         PROVER_ERROR_SHORT_BUFFER - in case of a short buffer error,
+ *                                      also updates proof_size and public_size
+ *                                      with actual proof and public sizes
  */
 int
 groth16_prover(
@@ -153,7 +150,9 @@ groth16_prover(
  * @return error code:
  *         PROVER_OK - in case of success
  *         PPOVER_ERROR - in case of an error
- *         PROVER_ERROR_SHORT_BUFFER - in case of a short buffer error, also updates proof_size and public_size with actual proof and public sizes
+ *         PROVER_ERROR_SHORT_BUFFER - in case of a short buffer error,
+ *                                     also updates proof_size and public_size
+ *                                     with actual proof and public sizes
  */
 int
 groth16_prover_zkey_file(

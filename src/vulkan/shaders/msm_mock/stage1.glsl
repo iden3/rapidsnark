@@ -6,6 +6,7 @@
 #define Point       Element
 #define PointAffine Element
 #define PointZero   ElementZero
+#define AssignPoint AssignElement
 
 layout (local_size_x = 256) in;
 
@@ -26,7 +27,8 @@ layout(binding = 5) buffer bufTemp2      { Point       buckets[]; };
 #define chunkIdx  gl_WorkGroupID.x
 #define threadIdx gl_LocalInvocationID.x
 
-void main() {
+void main()
+{
     Point bucket = PointZero;
 
     for (uint i = 0; i < nPoints; i++) {
@@ -40,5 +42,5 @@ void main() {
         add(bucket, bucket, bases[i]);
     }
 
-    buckets[chunkIdx*workgroupSize + threadIdx] = bucket;
+    AssignPoint(buckets[chunkIdx*workgroupSize + threadIdx], bucket);
 }

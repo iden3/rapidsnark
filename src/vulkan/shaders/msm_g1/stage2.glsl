@@ -5,8 +5,9 @@
 
 #define Point       CurvePoint
 #define PointZero   CurvePointZero
+#define AssignPoint AssignCurvePoint
 
-layout (local_size_x = 64) in;
+layout (local_size_x = 1) in;
 
 layout(binding = 0) uniform bufParams {
     uint nPoints;
@@ -24,22 +25,17 @@ layout(binding = 5) buffer bufTemp2 { Point  buckets[]; };
 #define chunkIdx  gl_WorkGroupID.x
 #define threadIdx gl_LocalInvocationID.x
 
-void main() {
+void main()
+{
+    const uint s = chunkIdx * nBuckets;
 
-    const int q = 4;
-    const int r = nBuckets / q;
+    Point t = buckets[s + nBuckets - 1];
+    Point tmp = t;
 
-    const uint k = threadIdx;
-    const uint s = chunkIdx*workgroupSize + k*q;
-
-    Point a = buckets[s + q];
-    Point b = a;
-
-    for (int i = q - 1; i >= 1; i--) {
-        add(a, a, buckets[s + i]);
-        add(b, b, a);
+    for (int i = nBuckets - 2; i >= 1 ; i--) {
+        add(tmp, tmp, buckets[s + i]);
+        add(t, t, tmp);
     }
 
-    buckets[s+0] = a;
-    buckets[s+1] = b;
+    chunks[chunkIdx] = t;
 }

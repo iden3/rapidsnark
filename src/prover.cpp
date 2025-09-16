@@ -195,27 +195,21 @@ public:
         return PublicBufferMinSize(zkeyHeader->nPublic);
     }
 
-    std::string getShaderPath(const std::string &shaderDir, const std::string &shaderSubdir)
-    {
-        std::string shaderPath;
-
-        if (!shaderDir.empty()) {
-            shaderPath = shaderDir + "/";
-        }
-
-        return shaderPath + shaderSubdir;
-    }
-
     void initPerfParams(const prover_params *params)
     {
         if (params) {
-            if (params->shader_dir) {
-                perfParams.shaderDirMsmG1 = getShaderPath(params->shader_dir, "msm_g1");
-                perfParams.shaderDirMsmG2 = getShaderPath(params->shader_dir, "msm_g2");
+            if (params->shader_dir_msm_g1) {
+                perfParams.shaderDirMsmG1 = params->shader_dir_msm_g1;
             }
 
-            perfParams.cpuMsmTime = params->cpu_msm_time;
-            perfParams.gpuMsmTime = params->gpu_msm_time;
+            if (params->shader_dir_msm_g2) {
+                perfParams.shaderDirMsmG2 = params->shader_dir_msm_g2;
+            }
+
+            perfParams.timeMsmCpuG1 = params->time_msm_cpu_g1;
+            perfParams.timeMsmGpuG1 = params->time_msm_gpu_g1;
+            perfParams.timeMsmCpuG2 = params->time_msm_cpu_g2;
+            perfParams.timeMsmGpuG2 = params->time_msm_gpu_g2;
         }
     }
 };

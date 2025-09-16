@@ -190,17 +190,29 @@ void Prover<Engine>::computeMsm(Curve                       &g,
                                 const std::string           &varName,
                                 Device                       device)
 {
+    const std::string sizeStr = " [" + std::to_string(nPoints) + "]";
+    const std::string title = "Multiexp " + curveName(g) + " " + pointName;
+    const std::string traceMsg = "Start " + title + sizeStr;
+
     if (device == GpuDevice) {
 #ifdef USE_VULKAN
-        LOG_TRACE("Start Multiexp " + pointName + " on GPU");
+        LOG_TRACE(traceMsg + " on GPU");
 
-        vkMSM.run(shaderPath(g), bases, scalars, sizeof(result), sizeof(bases[0]), sizeof(scalars[0]), nPoints);
+        vkMSM.init(shaderPath(g), bases, scalars, sizeof(result), sizeof(bases[0]), sizeof(scalars[0]), nPoints);
+        vkMSM.run();
         vkMSM.computeResult(g, &result);
+
+        const auto perf = vkMSM.getPerf();
+
+        LOG_TRACE("Finished " + title + " compile time: " + std::to_string(perf.compileTime) +
+                                        " compute time: " + std::to_string(perf.computeTime));
 #endif
     } else {
-        LOG_TRACE("Start Multiexp " + pointName);
+        LOG_TRACE(traceMsg);
 
         g.multiMulByScalarMSM(result, bases, (uint8_t *)scalars, sizeof(scalars[0]), nPoints, threadPool);
+
+        LOG_TRACE("Finished " + title);
     }
 
     LOG_DEBUG(varName + ": " + g.toString(result));
@@ -208,32 +220,45 @@ void Prover<Engine>::computeMsm(Curve                       &g,
 
 #ifdef USE_VULKAN
 template <typename Engine>
-void Prover<Engine>::computePointsOnDevice(const JobSizes &jobSizes, const Jobs &jobs)
+void Prover<Engine>::computePointsOnDevice(const Jobs &jobs, const JobSizes &jobSizes)
 {
-    Dispatcher dispatcher(params.cpuMsmTime, params.gpuMsmTime, 16000);
+    Dispatcher dispatcher(params.timeMsmCpuG1, params.timeMsmGpuG1,
+                          params.timeMsmCpuG2, params.timeMsmGpuG2,
+                          16000);
 
     dispatcher.schedule(jobSizes);
+
+    LOG_TRACE("GPU schedule: " + dispatcher.scheduleStr());
 
     bool gpuFailed = false;
 
     if (dispatcher.hasGpuJobs()) {
         gpuWorker.submit([&] {
             try {
-                dispatcher.run(jobs, Dispatcher::GpuJob, GpuDevice);
+                dispatcher.run(jobs, Dispatcher::GPU, GpuDevice);
+
+            } catch (std::exception &e) {
+                gpuFailed = true;
+
+                LOG_TRACE("GPU computation: " + std::string(e.what()));
 
             } catch (...) {
                 gpuFailed = true;
+
+                LOG_TRACE("GPU computation failed");
             }
         });
     }
 
-    dispatcher.run(jobs, Dispatcher::CpuJob, CpuDevice);
+    dispatcher.run(jobs, Dispatcher::CPU, CpuDevice);
 
     if (dispatcher.hasGpuJobs()) {
         gpuWorker.wait();
 
         if (gpuFailed) {
-            dispatcher.run(jobs, Dispatcher::GpuJob, CpuDevice);
+            LOG_TRACE("Dispathing to CPU failed GPU jobs");
+
+            dispatcher.run(jobs, Dispatcher::GPU, CpuDevice);
         }
     }
 }
@@ -278,8 +303,12 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
         computeMsm(E.g1, pih,  pointsH,  scalarsH, nPointsH,  "H",  "pih",  device); };
 
 #ifdef USE_VULKAN
-    computePointsOnDevice({nPointsA, nPointsB1, nPointsB2, nPointsC, nPointsH},
-                          {computeA, computeB1, computeB2, computeC, computeH});
+    computePointsOnDevice({computeA, computeB1, computeB2, computeC, computeH},
+                          {jobG1(nPointsA),
+                           jobG1(nPointsB1),
+                           jobG2(nPointsB2),
+                           jobG1(nPointsC),
+                           jobG1(nPointsH)});
 #else
     computeA();
     computeB1();
@@ -287,6 +316,8 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     computeC();
     computeH();
 #endif
+
+    LOG_TRACE("Finished A B1 B2 C H");
 
     delete [] a;
 

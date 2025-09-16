@@ -29,5 +29,5 @@ void main() {
         add(r, a, b);
     }
 
-    AssignElement(R[x], r, N);
+    AssignElement(R[x], r);
 }

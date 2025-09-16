@@ -7,8 +7,8 @@ const Element ElementOne  = {0xc58f0d9d,0xd35d438d,0xf5c70b3d,0x0a78eb28,0x78794
 const Element fq_q        = {0xd87cfd47,0x3c208c16,0x6871ca8d,0x97816a91,0x8181585d,0xb85045b6,0xe131a029,0x30644e72};
 const uint    fq_np       = 0xe4866389;
 
-#define AssignElement(res, arg, size)     \
-    for (int i = 0; i < size; i++) {res[i] = arg[i];}
+#define AssignElement(res, arg)     \
+    for (int i = 0; i < N; i++) {res[i] = arg[i];}
 
 int mp_cmp(Element a, Element b)
 {
@@ -116,4 +116,9 @@ void mul(out Element r, Element a, Element b)
     if (mp_cmp(r, fq_q) >= 0) {
         mp_sub(r, r, fq_q);
     }
+}
+
+bool isZero(Element a)
+{
+    return a == ElementZero;
 }

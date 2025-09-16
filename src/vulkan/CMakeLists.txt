@@ -48,5 +48,10 @@ endif()
 add_executable(test_vulkan test_vulkan.cpp)
 target_link_libraries(test_vulkan vulkan_test)
 
-add_subdirectory(shaders)
 
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(test_vulkan OpenMP::OpenMP_CXX)
+endif()
+
+
+add_subdirectory(shaders)
