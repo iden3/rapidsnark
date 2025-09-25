@@ -6,6 +6,7 @@
 #define Point       CurvePoint
 #define PointAffine CurvePointAffine
 #define PointZero   CurvePointZero
+#define AssignPoint AssignCurvePoint
 
 layout (local_size_x = 256) in;
 
@@ -15,7 +16,6 @@ layout(binding = 0) uniform bufParams {
     uint bitsPerChunk;
     uint nChunks;
     int  nBuckets;
-    uint workgroupSize;
 };
 
 layout(binding = 2) buffer readonly bufB { PointAffine bases[]; };
@@ -41,5 +41,5 @@ void main()
         add(bucket, bucket, bases[i]);
     }
 
-    buckets[chunkIdx * nBuckets + threadIdx] = bucket;
+    AssignPoint(buckets[chunkIdx * nBuckets + threadIdx], bucket);
 }

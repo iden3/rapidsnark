@@ -33,6 +33,7 @@ add_library(vulkan_test SHARED
     vulkan_manager.cpp
     vulkan_pipeline.cpp
     vulkan_buffer.cpp
+    vulkan_msm.cpp
     ../../depends/ffiasm/c/misc.cpp
     ../../depends/ffiasm/c/naf.cpp
     ../../depends/ffiasm/c/splitparstr.cpp
@@ -52,6 +53,5 @@ target_link_libraries(test_vulkan vulkan_test)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(test_vulkan OpenMP::OpenMP_CXX)
 endif()
-
 
 add_subdirectory(shaders)

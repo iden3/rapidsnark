@@ -8,7 +8,6 @@ layout(binding = 0) uniform bufParams {
     uint bitsPerChunk;
     uint nChunks;
     int  nBuckets;
-    uint workgroupSize;
 };
 
 layout(binding = 1) buffer readonly bufA { uint scalars[]; };

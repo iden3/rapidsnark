@@ -15,7 +15,6 @@ layout(binding = 0) uniform bufParams {
     uint bitsPerChunk;
     uint nChunks;
     int  nBuckets;
-    uint workgroupSize;
 };
 
 layout(binding = 3) buffer bufR     { Point  chunks[]; };
@@ -27,25 +26,19 @@ layout(binding = 5) buffer bufTemp2 { Point  buckets[]; };
 
 void main()
 {
-    const int q = 4;
-    const int r = nBuckets / q;
+    const uint s = chunkIdx * nBuckets;
 
-    const uint k = threadIdx;
-    const uint s = chunkIdx*workgroupSize + k*q;
+    for (int l = nBuckets / 2; l > 1; l >>= 1) {
+        const uint idx = s + threadIdx * 2;
 
-    for (int i = 1; i < r; i <<= 1) {
-
-        if (k % (2*i) == 0) {
-            add(buckets[s+0], buckets[s+0], buckets[s + i*q+0]);
-            add(buckets[s+1], buckets[s+1], buckets[s + i*q+1]);
+        if (threadIdx * 2 < l) {
+            add(buckets[idx], buckets[idx], buckets[idx + l]);
         }
+
         barrier();
     }
 
     if (threadIdx == 0) {
-        Point t;
-        add(t, buckets[s + 0], buckets[s + 1]);
-
-        AssignPoint(chunks[chunkIdx], t);
+        AssignPoint(chunks[chunkIdx], buckets[s]);
     }
 }

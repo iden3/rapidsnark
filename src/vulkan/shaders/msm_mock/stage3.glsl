@@ -3,8 +3,9 @@
 
 #include "math/fq.glsl"
 
-#define Point     Element
-#define PointZero ElementZero
+#define Point       Element
+#define PointZero   ElementZero
+#define AssignPoint AssignElement
 
 layout (local_size_x = 64) in;
 
@@ -14,7 +15,6 @@ layout(binding = 0) uniform bufParams {
     uint bitsPerChunk;
     uint nChunks;
     int  nBuckets;
-    uint workgroupSize;
 };
 
 layout(binding = 3) buffer bufR     { Point  chunks[]; };
@@ -26,17 +26,13 @@ layout(binding = 5) buffer bufTemp2 { Point  buckets[]; };
 
 void main()
 {
-    const int q = 4;
-    const int r = nBuckets / q;
-
-    const uint k = threadIdx;
-    const uint s = chunkIdx*workgroupSize + k*q;
+    const int  q = 4;
+    const uint s = chunkIdx * nBuckets + threadIdx * q;
+    const uint e = q * threadIdx;
 
     Point a = PointZero;
 
-    uint e = q * k;
-
-    for (int i = 31; i >= 0; i--) {
+    for (int i = findMSB(e); i >= 0; i--) {
         add(a, a, a);
 
         if (bitfieldExtract(e, i, 1) == 1) {

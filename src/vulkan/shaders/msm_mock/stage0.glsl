@@ -1,6 +1,6 @@
 #version 460
 
-layout (local_size_x = 256) in;
+layout (local_size_x = 128) in;
 
 layout(binding = 0) uniform bufParams {
     uint nPoints;
@@ -8,7 +8,6 @@ layout(binding = 0) uniform bufParams {
     uint bitsPerChunk;
     uint nChunks;
     int  nBuckets;
-    uint workgroupSize;
 };
 
 layout(binding = 1) buffer readonly bufA { uint scalars[]; };

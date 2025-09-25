@@ -7,7 +7,7 @@
 #define PointZero   CurvePointZero
 #define AssignPoint AssignCurvePoint
 
-layout (local_size_x = 1) in;
+layout (local_size_x = 64) in;
 
 layout(binding = 0) uniform bufParams {
     uint nPoints;
@@ -15,7 +15,6 @@ layout(binding = 0) uniform bufParams {
     uint bitsPerChunk;
     uint nChunks;
     int  nBuckets;
-    uint workgroupSize;
 };
 
 layout(binding = 3) buffer bufR     { Point  chunks[]; };
@@ -27,15 +26,18 @@ layout(binding = 5) buffer bufTemp2 { Point  buckets[]; };
 
 void main()
 {
-    const uint s = chunkIdx * nBuckets;
+    const int  q = 4;
+    const uint ofs = chunkIdx * nBuckets;
+    const uint s = ofs + threadIdx * q;
 
-    Point t = buckets[s + nBuckets - 1];
-    Point tmp = t;
+    Point a = buckets[ofs + (threadIdx * q + q) % nBuckets];
+    Point b = a;
 
-    for (int i = nBuckets - 2; i >= 1 ; i--) {
-        add(tmp, tmp, buckets[s + i]);
-        add(t, t, tmp);
+    for (int i = q - 1; i >= 1; i--) {
+        add(a, a, buckets[s + i]);
+        add(b, b, a);
     }
 
-    chunks[chunkIdx] = t;
+    buckets[s+0] = a;
+    buckets[s+2] = b;
 }

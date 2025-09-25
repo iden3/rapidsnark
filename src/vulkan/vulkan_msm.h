@@ -2,8 +2,7 @@
 #define VULKAN_MSM_H
 
 #include "vulkan_manager.h"
-#include "msm.hpp"
-#include "utils.h"
+#include <string>
 #include <cstdint>
 #include <cstring>
 
@@ -14,13 +13,11 @@ struct MsmShaderParams
     uint32_t bitsPerChunk;
     uint32_t nChunks;
     uint32_t nBuckets;
-    uint32_t workgroupSize;
 };
 
 class VulkanMSM
 {
     static const uint32_t bitsPerChunk = 8;
-    static const uint32_t workgroupSize = 256;
 
 public:
     VulkanMSM(bool enableMgrExceptions = true)
@@ -30,47 +27,14 @@ public:
     bool isValid() const { return m_vkMgr.isValid(); }
 
     void init(const std::string &shaderPath,
-             void              *bases,
-             void              *scalars,
-             uint32_t           pointSize,
-             uint32_t           affinePointSize,
-             uint32_t           scalarSize,
-             uint32_t           nPoints)
-    {
-        if (!m_vkMgr.isValid()) {
-            throw std::runtime_error("invalid Vulkan manager");
-        }
+              void              *bases,
+              void              *scalars,
+              uint32_t           pointSize,
+              uint32_t           affinePointSize,
+              uint32_t           scalarSize,
+              uint32_t           nPoints);
 
-        m_params = createShaderParams(nPoints, scalarSize);
-        m_chunks.clear();
-        m_chunks.resize(m_params.nChunks * pointSize);
-
-        m_vR = { m_chunks.data(), m_chunks.size() };
-        m_vA = { scalars, scalarSize * nPoints };
-        m_vB = { bases, affinePointSize * nPoints };
-
-        VulkanWorkgroups workgroups = { div_ceil(nPoints, workgroupSize),
-                                        m_params.nChunks,
-//                                        m_params.nChunks,
-//                                        m_params.nChunks,
-                                        m_params.nChunks };
-
-        const uint32_t slicedScalarsSize = nPoints * m_params.nChunks * sizeof(uint32_t);
-        const uint32_t bucketsSize = (workgroupSize + 1) * m_params.nChunks * pointSize;
-
-        VulkanMemoryLayout memoryLayout = {sizeof(m_params), m_vR.size, m_vA.size, m_vB.size, slicedScalarsSize, bucketsSize};
-
-        m_pipeline = m_vkMgr.createPipeline(shaderPath, workgroups, memoryLayout, &m_params);
-
-        if (!m_pipeline) {
-            throw std::runtime_error("failed to create vulkan pipeline");
-        }
-    }
-
-    void run()
-    {
-        m_pipeline->run(m_vR, m_vA, m_vB);
-    }
+    void run();
 
     template<typename Curve>
     void computeResult(Curve &g, void *result)
@@ -113,18 +77,7 @@ private:
         }
     }
 
-    MsmShaderParams createShaderParams(uint32_t nPoints, uint32_t scalarSize)
-    {
-        MSMParams msmParams(nPoints, scalarSize, bitsPerChunk);
-
-        return { nPoints,
-                 scalarSize,
-                 (uint32_t)msmParams.getBitsPerChunk(),
-                 (uint32_t)msmParams.getChunkCount(),
-                 (uint32_t)msmParams.getBucketCountNoNaf(),
-                 workgroupSize
-               };
-    }
+    MsmShaderParams createShaderParams(uint32_t nPoints, uint32_t scalarSize);
 
 private:
     VulkanManager              m_vkMgr;

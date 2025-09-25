@@ -15,7 +15,6 @@ layout(binding = 0) uniform bufParams {
     uint bitsPerChunk;
     uint nChunks;
     int  nBuckets;
-    uint workgroupSize;
 };
 
 layout(binding = 2) buffer readonly bufB { PointAffine bases[]; };

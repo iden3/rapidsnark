@@ -517,6 +517,7 @@ void test_msm(
 
     initPoints(curve, a);
     initVecInc(b, 2);
+
     test_gpu_msm(curve, r_vk, a, b, shaderPath, oss);
 
     if (testLevel >= 1) {
