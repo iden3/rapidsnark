@@ -364,6 +364,9 @@ groth16_prover_prove(
                                   stringPublic.length(), public_size,
                                   "Required");
 
+        *proof_size = stringProof.length();
+        *public_size = stringPublic.length();
+
         std::strncpy(proof_buffer, stringProof.c_str(), *proof_size);
         std::strncpy(public_buffer, stringPublic.c_str(), *public_size);
 

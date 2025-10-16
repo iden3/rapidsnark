@@ -322,6 +322,7 @@ build_macos_arch()
   cd "$BUILD_DIR"
   ../configure --prefix="${PACKAGE_DIR}" \
          CC="$(xcrun --sdk macosx --find clang)" \
+         CPP_FOR_BUILD="$(xcrun --sdk macosx --find clang) -E" \
          CFLAGS="-O3 -isysroot $(xcrun --sdk macosx --show-sdk-path) ${ARCH_FLAGS} -fvisibility=hidden -mmacos-version-min=14.0" \
          LDFLAGS="" \
          --host "${ARCH}-apple-darwin" --disable-assembly --enable-static --disable-shared --with-pic &&
