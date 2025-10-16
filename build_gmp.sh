@@ -25,7 +25,7 @@ usage()
 
 get_gmp()
 {
-    GMP_NAME=gmp-6.2.1
+    GMP_NAME=gmp-6.3.0
     GMP_ARCHIVE=${GMP_NAME}.tar.xz
     GMP_URL=https://ftp.gnu.org/gnu/gmp/${GMP_ARCHIVE}
 
@@ -324,7 +324,7 @@ build_macos_arch()
          CC="$(xcrun --sdk macosx --find clang)" \
          CFLAGS="-O3 -isysroot $(xcrun --sdk macosx --show-sdk-path) ${ARCH_FLAGS} -fvisibility=hidden -mmacos-version-min=14.0" \
          LDFLAGS="" \
-         --host "${ARCH}-apple-darwin" --disable-assembly --enable-static --disable-shared --with-pic &&
+         --host "${ARCH}-apple-darwin" --enable-static --disable-shared --with-pic &&
     make -j${NPROC} &&
     make install
   cd ..
