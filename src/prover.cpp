@@ -360,15 +360,21 @@ groth16_prover_prove(
 
         prover->prove(wtns_buffer, wtns_size, stringProof, stringPublic);
 
-        CheckAndUpdateBufferSizes(stringProof.length(), proof_size,
-                                  stringPublic.length(), public_size,
+        unsigned long long original_proof_size = *proof_size;
+        unsigned long long original_public_size = *public_size;
+
+        CheckAndUpdateBufferSizes(stringProof.length() + 1, proof_size,
+                                  stringPublic.length() + 1, public_size,
                                   "Required");
 
         *proof_size = stringProof.length();
         *public_size = stringPublic.length();
 
         std::strncpy(proof_buffer, stringProof.c_str(), *proof_size);
+        proof_buffer[*proof_size] = '\0';
+
         std::strncpy(public_buffer, stringPublic.c_str(), *public_size);
+        public_buffer[*public_size] = '\0';
 
     } catch(InvalidWitnessLengthException& e) {
         CopyError(error_msg, error_msg_maxsize, e);
