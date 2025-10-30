@@ -27,16 +27,36 @@ get_gmp()
 {
     GMP_NAME=gmp-6.3.0
     GMP_ARCHIVE=${GMP_NAME}.tar.xz
-    GMP_URL=https://ftp.gnu.org/gnu/gmp/${GMP_ARCHIVE}
+    GMP_MIRRORS=(
+        "https://ftpmirror.gnu.org/gmp/${GMP_ARCHIVE}"
+        "https://gmplib.org/download/gmp/${GMP_ARCHIVE}"
+        "https://ftp.gnu.org/gnu/gmp/${GMP_ARCHIVE}"
+    )
 
     if [ ! -f ${GMP_ARCHIVE} ]; then
+        for url in "${GMP_MIRRORS[@]}"; do
+            echo "Attempting to download from: $url"
+            set +e
+            $fetch_cmd "$url"
+            exit_code=$?
+            set -e
 
-        $fetch_cmd ${GMP_URL}
+            if [ $exit_code -eq 0 ]; then
+                echo "Successfully downloaded from: $url"
+                break
+            else
+                echo "Failed to download from: $url"
+                rm -f ${GMP_ARCHIVE}
+            fi
+        done
+
+        if [ ! -f ${GMP_ARCHIVE} ]; then
+            echo "ERROR: Failed to download GMP from all mirrors"
+            exit 1
+        fi
     fi
 
-
     if [ ! -d gmp ]; then
-
         tar -xvf ${GMP_ARCHIVE}
         mv ${GMP_NAME} gmp
     fi
