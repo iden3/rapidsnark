@@ -1,6 +1,7 @@
 #include <gmp.h>
 #include <string>
 #include <cstring>
+#include <cstdarg>
 #include <stdexcept>
 #include <alt_bn128.hpp>
 #include <nlohmann/json.hpp>
