@@ -14,13 +14,6 @@
 using json = nlohmann::json;
 
 
-class ShortBufferException : public std::invalid_argument
-{
-public:
-    explicit ShortBufferException(const std::string &msg)
-        : std::invalid_argument(msg) {}
-};
-
 class InvalidWitnessLengthException : public std::invalid_argument
 {
 public:
@@ -31,23 +24,33 @@ public:
 static void
 CopyError(
     char                 *error_msg,
-    unsigned long long    error_msg_maxsize,
+    size_t                error_msg_maxsize,
     const std::exception &e)
 {
-    if (error_msg) {
-        strncpy(error_msg, e.what(), error_msg_maxsize);
-    }
+    if (!error_msg || error_msg_maxsize == 0) return;
+    std::snprintf(error_msg, error_msg_maxsize, "%s", e.what());
 }
 
 static void
-CopyError(
+CopyErrorFmt(
     char               *error_msg,
     unsigned long long  error_msg_maxsize,
-    const char         *str)
+    const char         *format,
+    ...) __attribute__((format(printf, 3, 4)));
+
+static void
+CopyErrorFmt(
+    char               *error_msg,
+    unsigned long long  error_msg_maxsize,
+    const char         *format,
+    ...)
 {
-    if (error_msg) {
-        strncpy(error_msg, str, error_msg_maxsize);
-    }
+    if (!error_msg || error_msg_maxsize == 0) return;
+
+    va_list args;
+    va_start(args, format);
+    std::vsnprintf(error_msg, error_msg_maxsize, format, args);
+    va_end(args);
 }
 
 static unsigned long long
@@ -88,33 +91,6 @@ BuildPublicString(AltBn128::FrElement *wtnsData, uint32_t nPublic)
     }
 
     return jsonPublic.dump();
-}
-
-static void
-CheckAndUpdateBufferSizes(
-    unsigned long long   proofCalcSize,
-    unsigned long long  *proofSize,
-    unsigned long long   publicCalcSize,
-    unsigned long long  *publicSize,
-    const std::string   &type)
-{
-    if (*proofSize < proofCalcSize || *publicSize < publicCalcSize) {
-
-        *proofSize  = proofCalcSize;
-        *publicSize = publicCalcSize;
-
-        if (*proofSize < proofCalcSize) {
-            throw ShortBufferException("Proof buffer is too short. " + type + " size: "
-                                       + std::to_string(proofCalcSize) +
-                                       ", actual size: "
-                                       + std::to_string(*proofSize));
-        } else {
-            throw ShortBufferException("Public buffer is too short. " + type + " size: "
-                                       + std::to_string(proofCalcSize) +
-                                       ", actual size: "
-                                       + std::to_string(*proofSize));
-       }
-    }
 }
 
 class Groth16Prover
@@ -210,7 +186,7 @@ groth16_public_size_for_zkey_buf(
         return PROVER_ERROR;
 
     } catch (...) {
-        CopyError(error_msg, error_msg_maxsize, "unknown error");
+        CopyErrorFmt(error_msg, error_msg_maxsize, "unknown error");
         return PROVER_ERROR;
     }
 
@@ -235,7 +211,7 @@ groth16_public_size_for_zkey_file(
         return PROVER_ERROR;
 
     } catch (...) {
-        CopyError(error_msg, error_msg_maxsize, "unknown error");
+        CopyErrorFmt(error_msg, error_msg_maxsize, "unknown error");
         return PROVER_ERROR;
     }
 
@@ -280,7 +256,7 @@ groth16_prover_create(
         return PROVER_ERROR;
 
     } catch (...) {
-        CopyError(error_msg, error_msg_maxsize, "unknown error");
+        CopyErrorFmt(error_msg, error_msg_maxsize, "unknown error");
         return PROVER_ERROR;
     }
 
@@ -324,65 +300,62 @@ groth16_prover_prove(
     char                *error_msg,
     unsigned long long   error_msg_maxsize)
 {
+    if (!prover_object) {
+        CopyErrorFmt(error_msg, error_msg_maxsize, "Null prover object");
+        return PROVER_ERROR;
+    }
+
+    if (!wtns_buffer) {
+        CopyErrorFmt(error_msg, error_msg_maxsize, "Null witness buffer");
+        return PROVER_ERROR;
+    }
+
+    if (!proof_buffer) {
+        CopyErrorFmt(error_msg, error_msg_maxsize, "Null proof buffer");
+        return PROVER_ERROR;
+    }
+
+    if (!proof_size) {
+        CopyErrorFmt(error_msg, error_msg_maxsize, "Null proof size");
+        return PROVER_ERROR;
+    }
+
+    if (!public_buffer) {
+        CopyErrorFmt(error_msg, error_msg_maxsize, "Null public buffer");
+        return PROVER_ERROR;
+    }
+
+    if (!public_size) {
+        CopyErrorFmt(error_msg, error_msg_maxsize, "Null public size");
+        return PROVER_ERROR;
+    }
+
+    Groth16Prover *prover = static_cast<Groth16Prover*>(prover_object);
+
+    unsigned long long minProofSize = prover->proofBufferMinSize();
+    unsigned long long minPublicSize = prover->publicBufferMinSize();
+
+    if (*proof_size < minProofSize || *public_size < minPublicSize) {
+        unsigned long long origProofSize = *proof_size;
+        unsigned long long origPublicSize = *public_size;
+        *proof_size = minProofSize;
+        *public_size = minPublicSize;
+
+        CopyErrorFmt(error_msg, error_msg_maxsize,
+            "Buffer too small. Minimum required - proof: %llu (provided: %llu), public: %llu (provided: %llu)",
+            minProofSize, origProofSize, minPublicSize, origPublicSize);
+        return PROVER_ERROR_SHORT_BUFFER;
+    }
+
+    std::string stringProof;
+    std::string stringPublic;
+
     try {
-        if (prover_object == NULL) {
-            throw std::invalid_argument("Null prover object");
-        }
-
-        if (wtns_buffer == NULL) {
-            throw std::invalid_argument("Null witness buffer");
-        }
-
-        if (proof_buffer == NULL) {
-            throw std::invalid_argument("Null proof buffer");
-        }
-
-        if (proof_size == NULL) {
-            throw std::invalid_argument("Null proof size");
-        }
-
-        if (public_buffer == NULL) {
-            throw std::invalid_argument("Null public buffer");
-        }
-
-        if (public_size == NULL) {
-            throw std::invalid_argument("Null public size");
-        }
-
-        Groth16Prover *prover = static_cast<Groth16Prover*>(prover_object);
-
-        CheckAndUpdateBufferSizes(prover->proofBufferMinSize(), proof_size,
-                                  prover->publicBufferMinSize(), public_size,
-                                  "Minimum");
-
-        std::string stringProof;
-        std::string stringPublic;
-
         prover->prove(wtns_buffer, wtns_size, stringProof, stringPublic);
-
-        unsigned long long original_proof_size = *proof_size;
-        unsigned long long original_public_size = *public_size;
-
-        CheckAndUpdateBufferSizes(stringProof.length() + 1, proof_size,
-                                  stringPublic.length() + 1, public_size,
-                                  "Required");
-
-        *proof_size = stringProof.length();
-        *public_size = stringPublic.length();
-
-        std::strncpy(proof_buffer, stringProof.c_str(), *proof_size);
-        proof_buffer[*proof_size] = '\0';
-
-        std::strncpy(public_buffer, stringPublic.c_str(), *public_size);
-        public_buffer[*public_size] = '\0';
 
     } catch(InvalidWitnessLengthException& e) {
         CopyError(error_msg, error_msg_maxsize, e);
         return PROVER_INVALID_WITNESS_LENGTH;
-
-    } catch(ShortBufferException& e) {
-        CopyError(error_msg, error_msg_maxsize, e);
-        return PROVER_ERROR_SHORT_BUFFER;
 
     } catch (std::exception& e) {
         CopyError(error_msg, error_msg_maxsize, e);
@@ -394,9 +367,38 @@ groth16_prover_prove(
         return PROVER_ERROR;
 
     } catch (...) {
-        CopyError(error_msg, error_msg_maxsize, "unknown error");
+        CopyErrorFmt(error_msg, error_msg_maxsize, "unknown error");
         return PROVER_ERROR;
     }
+
+    // Check for overflow before adding 1 for null terminator
+    if (stringProof.length() >= ULLONG_MAX || stringPublic.length() >= ULLONG_MAX) {
+        CopyErrorFmt(error_msg, error_msg_maxsize, "Proof or public data too large");
+        return PROVER_ERROR;
+    }
+
+    unsigned long long requiredProofSize = stringProof.length() + 1;
+    unsigned long long requiredPublicSize = stringPublic.length() + 1;
+
+    if (*proof_size < requiredProofSize || *public_size < requiredPublicSize) {
+        unsigned long long origProofSize = *proof_size;
+        unsigned long long origPublicSize = *public_size;
+        *proof_size = requiredProofSize;
+        *public_size = requiredPublicSize;
+
+        CopyErrorFmt(error_msg, error_msg_maxsize,
+            "Buffer insufficient for generated proof. Required - proof: %llu (provided: %llu), public: %llu (provided: %llu)",
+            requiredProofSize, origProofSize, requiredPublicSize, origPublicSize);
+        return PROVER_ERROR_INSUFFICIENT_BUFFER;
+    }
+
+    std::memcpy(proof_buffer, stringProof.c_str(), stringProof.length());
+    proof_buffer[stringProof.length()] = '\0';
+    *proof_size = stringProof.length();
+
+    std::memcpy(public_buffer, stringPublic.c_str(), stringPublic.length());
+    public_buffer[stringPublic.length()] = '\0';
+    *public_size = stringPublic.length();
 
     return PROVER_OK;
 }

@@ -5,11 +5,16 @@
 extern "C" {
 #endif
 
-//Error codes returned by the functions.
-#define PROVER_OK                     0x0
-#define PROVER_ERROR                  0x1
-#define PROVER_ERROR_SHORT_BUFFER     0x2
-#define PROVER_INVALID_WITNESS_LENGTH 0x3
+// Error codes returned by the functions.
+#define PROVER_OK                        0x0
+#define PROVER_ERROR                     0x1
+// Buffer smaller than minimum required size (checked before proof generation).
+// Proof generation is not attempted. Updated sizes are written to *_size params.
+#define PROVER_ERROR_SHORT_BUFFER        0x2
+#define PROVER_INVALID_WITNESS_LENGTH    0x3
+// Buffer smaller than actual proof output size (checked after proof generation).
+// Proof was generated but couldn't be written. Updated sizes are written to *_size params.
+#define PROVER_ERROR_INSUFFICIENT_BUFFER 0x4
 
 /**
  * Calculates buffer size to output public signals as json string
@@ -75,10 +80,27 @@ groth16_prover_create_zkey_file(
 
 /**
  * Proves 'wtns_buffer' and saves results to 'proof_buffer' and 'public_buffer'.
+ *
+ * @param prover_object Prover object created by groth16_prover_create
+ * @param wtns_buffer Witness data buffer
+ * @param wtns_size Size of witness buffer
+ * @param proof_buffer Buffer for proof output (JSON string)
+ * @param proof_size [in/out] On input: buffer size. On output: bytes written (excluding null terminator)
+ * @param public_buffer Buffer for public signals output (JSON string)
+ * @param public_size [in/out] On input: buffer size. On output: bytes written (excluding null terminator)
+ * @param error_msg Buffer for error message
+ * @param error_msg_maxsize Size of error message buffer
+ *
  * @return error code:
- *         PROVER_OK - in case of success
- *         PPOVER_ERROR - in case of an error
- *         PROVER_ERROR_SHORT_BUFFER - in case of a short buffer error, also updates proof_size and public_size with actual proof and public sizes
+ *         PROVER_OK - success, proof_size and public_size contain bytes written (excluding null terminator)
+ *         PROVER_ERROR_SHORT_BUFFER - buffers too small before proof generation,
+ *                                      both proof_size and public_size are always updated with minimum
+ *                                      required sizes (even if only one buffer is insufficient)
+ *         PROVER_ERROR_INSUFFICIENT_BUFFER - buffers too small for generated proof,
+ *                                             both proof_size and public_size are always updated with
+ *                                             required sizes (even if only one buffer is insufficient)
+ *         PROVER_INVALID_WITNESS_LENGTH - witness length doesn't match circuit
+ *         PROVER_ERROR - other error, see error_msg
  */
 int
 groth16_prover_prove(
