@@ -32,6 +32,10 @@ if(TARGET_PLATFORM MATCHES "android")
 
     message("CMAKE_ANDROID_ARCH_ABI=" ${CMAKE_ANDROID_ARCH_ABI})
 
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,max-page-size=16384")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,max-page-size=16384")
+    message("Android ELF page alignment set to 16k")
+
 elseif(TARGET_PLATFORM MATCHES "ios")
 
     set(CMAKE_SYSTEM_NAME iOS)
