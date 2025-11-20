@@ -25,18 +25,38 @@ usage()
 
 get_gmp()
 {
-    GMP_NAME=gmp-6.2.1
+    GMP_NAME=gmp-6.3.0
     GMP_ARCHIVE=${GMP_NAME}.tar.xz
-    GMP_URL=https://ftp.gnu.org/gnu/gmp/${GMP_ARCHIVE}
+    GMP_MIRRORS=(
+        "https://ftpmirror.gnu.org/gmp/${GMP_ARCHIVE}"
+        "https://gmplib.org/download/gmp/${GMP_ARCHIVE}"
+        "https://ftp.gnu.org/gnu/gmp/${GMP_ARCHIVE}"
+    )
 
     if [ ! -f ${GMP_ARCHIVE} ]; then
+        for url in "${GMP_MIRRORS[@]}"; do
+            echo "Attempting to download from: $url"
+            set +e
+            $fetch_cmd "$url"
+            exit_code=$?
+            set -e
 
-        $fetch_cmd ${GMP_URL}
+            if [ $exit_code -eq 0 ]; then
+                echo "Successfully downloaded from: $url"
+                break
+            else
+                echo "Failed to download from: $url"
+                rm -f ${GMP_ARCHIVE}
+            fi
+        done
+
+        if [ ! -f ${GMP_ARCHIVE} ]; then
+            echo "ERROR: Failed to download GMP from all mirrors"
+            exit 1
+        fi
     fi
 
-
     if [ ! -d gmp ]; then
-
         tar -xvf ${GMP_ARCHIVE}
         mv ${GMP_NAME} gmp
     fi
@@ -325,7 +345,7 @@ build_macos_arch()
          CPP_FOR_BUILD="$(xcrun --sdk macosx --find clang) -E" \
          CFLAGS="-O3 -isysroot $(xcrun --sdk macosx --show-sdk-path) ${ARCH_FLAGS} -fvisibility=hidden -mmacos-version-min=14.0" \
          LDFLAGS="" \
-         --host "${ARCH}-apple-darwin" --disable-assembly --enable-static --disable-shared --with-pic &&
+         --host "${ARCH}-apple-darwin" --enable-static --disable-shared --with-pic &&
     make -j${NPROC} &&
     make install
   cd ..
