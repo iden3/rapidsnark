@@ -243,7 +243,7 @@ build_ios()
     export MIN_IOS_VERSION=8.0
 
     export ARCH_FLAGS="-arch arm64 -arch arm64e"
-    export OPT_FLAGS="-O3 -g3 -fembed-bitcode"
+    export OPT_FLAGS="-O3 -g3"
     HOST_FLAGS="${ARCH_FLAGS} -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot $(xcrun --sdk ${SDK} --show-sdk-path)"
 
     CC=$(xcrun --find --sdk "${SDK}" clang)
@@ -262,7 +262,7 @@ build_ios()
     mkdir "$BUILD_DIR"
     cd "$BUILD_DIR"
 
-    ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft --disable-assembly &&
+    ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft &&
     make -j${NPROC} &&
     make install
 
