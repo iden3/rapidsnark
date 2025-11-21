@@ -21,7 +21,7 @@
 int
 test_groth16_public_size(const char *zkey_fname, unsigned long long *public_size) {
     int ret_val = 0;
-    const int error_sz = 256;
+    enum { error_sz = 256 };
     char error_msg[error_sz];
 
     int fd = open(zkey_fname, O_RDONLY);
@@ -73,7 +73,7 @@ cleanup:
 int
 test_groth16_public_size_for_zkey_file(const char *zkey_fname,
                                        unsigned long long *public_size) {
-    const int err_ln = 256;
+    enum { err_ln = 256 };
     char error_msg[err_ln];
     int ret = groth16_public_size_for_zkey_file(zkey_fname, public_size, error_msg, err_ln);
 
