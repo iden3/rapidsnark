@@ -3,7 +3,7 @@
 set -e
 
 NPROC=8
-fetch_cmd=$( (type wget > /dev/null 2>&1 && echo "wget") || echo "curl -O" )
+fetch_cmd=$( (type wget > /dev/null 2>&1 && echo "wget --tries=1 --timeout=30 --connect-timeout=10") || echo "curl -O --connect-timeout 10 --max-time 120 --retry 0" )
 
 usage()
 {
