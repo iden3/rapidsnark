@@ -7,6 +7,12 @@ static FqRawElement Fq_rawR2  = {0xf32cfc5b538afa89,0xb5e71911d44501fb,0x47ab1ef
 static uint64_t     Fq_np     = {0x87d20782e4866389};
 static uint64_t     lboMask   =  0x3fffffffffffffff;
 
+#if defined(USE_ASM)
+// Declaration for assembly-implemented function
+extern "C" void Fq_rawMMul(FqRawElement pRawResult, const FqRawElement pRawA, const FqRawElement pRawB);
+#endif
+
+#if !(defined(USE_ASM)
 
 void Fq_rawAdd(FqRawElement pRawResult, const FqRawElement pRawA, const FqRawElement pRawB)
 {
@@ -147,10 +153,14 @@ void Fq_rawMMul(FqRawElement pRawResult, const FqRawElement pRawA, const FqRawEl
     }
 }
 
+#endif // !(defined(USE_ASM)
+
 void Fq_rawMSquare(FqRawElement pRawResult, const FqRawElement pRawA)
 {
     Fq_rawMMul(pRawResult, pRawA, pRawA);
 }
+
+#if !(defined(USE_ASM)
 
 void Fq_rawMMul1(FqRawElement pRawResult, const FqRawElement pRawA, uint64_t pRawB)
 {
@@ -189,10 +199,14 @@ void Fq_rawMMul1(FqRawElement pRawResult, const FqRawElement pRawA, uint64_t pRa
     }
 }
 
+#endif // !(defined(USE_ASM)
+
 void Fq_rawToMontgomery(FqRawElement pRawResult, const FqRawElement &pRawA)
 {
     Fq_rawMMul(pRawResult, pRawA, Fq_rawR2);
 }
+
+#if !(defined(USE_ASM)
 
 void Fq_rawFromMontgomery(FqRawElement pRawResult, const FqRawElement &pRawA)
 {
@@ -363,3 +377,5 @@ void Fq_rawNot(FqRawElement pRawResult, FqRawElement pRawA)
         mpn_sub_n(pRawResult, pRawResult, Fq_rawq, Fq_N64);
     }
 }
+
+#endif // !(defined(USE_ASM) && defined(ARCH_ARM64))
