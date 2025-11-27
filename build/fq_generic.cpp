@@ -7,7 +7,17 @@ FqElement Fq_R2 = {0, 0x80000000, {0xf32cfc5b538afa89,0xb5e71911d44501fb,0x47ab1
 FqElement Fq_R3 = {0, 0x80000000, {0xb1cd6dafda1530df,0x62f210e6a7283db6,0xef7f0b0c0ada0afb,0x20fd6e902d592544}};
 
 static FqRawElement half = {0x9e10460b6c3e7ea3,0xcbc0b548b438e546,0xdc2822db40c0ac2e,0x183227397098d014};
+static FqRawElement Fq_rawR2 = {0xf32cfc5b538afa89,0xb5e71911d44501fb,0x47ab1eff0a417ff6,0x06d89f71cab8351f};
 
+void Fq_rawMSquare(FqRawElement pRawResult, const FqRawElement pRawA)
+{
+    Fq_rawMMul(pRawResult, pRawA, pRawA);
+}
+
+void Fq_rawToMontgomery(FqRawElement pRawResult, const FqRawElement &pRawA)
+{
+    Fq_rawMMul(pRawResult, pRawA, Fq_rawR2);
+}
 
 void Fq_copy(PFqElement r, const PFqElement a)
 {

@@ -3,7 +3,6 @@
 #include <cstring>
 
 static uint64_t     Fq_rawq[] = {0x3c208c16d87cfd47,0x97816a916871ca8d,0xb85045b68181585d,0x30644e72e131a029, 0};
-static FqRawElement Fq_rawR2  = {0xf32cfc5b538afa89,0xb5e71911d44501fb,0x47ab1eff0a417ff6,0x06d89f71cab8351f};
 static uint64_t     Fq_np     = {0x87d20782e4866389};
 static uint64_t     lboMask   =  0x3fffffffffffffff;
 
@@ -147,11 +146,6 @@ void Fq_rawMMul(FqRawElement pRawResult, const FqRawElement pRawA, const FqRawEl
     }
 }
 
-void Fq_rawMSquare(FqRawElement pRawResult, const FqRawElement pRawA)
-{
-    Fq_rawMMul(pRawResult, pRawA, pRawA);
-}
-
 void Fq_rawMMul1(FqRawElement pRawResult, const FqRawElement pRawA, uint64_t pRawB)
 {
     const mp_size_t  N = Fq_N64+1;
@@ -187,11 +181,6 @@ void Fq_rawMMul1(FqRawElement pRawResult, const FqRawElement pRawA, uint64_t pRa
     {
         mpn_sub_n(pRawResult, pRawResult, mq, Fq_N64);
     }
-}
-
-void Fq_rawToMontgomery(FqRawElement pRawResult, const FqRawElement &pRawA)
-{
-    Fq_rawMMul(pRawResult, pRawA, Fq_rawR2);
 }
 
 void Fq_rawFromMontgomery(FqRawElement pRawResult, const FqRawElement &pRawA)
