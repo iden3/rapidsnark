@@ -262,7 +262,7 @@ build_ios()
     mkdir "$BUILD_DIR"
     cd "$BUILD_DIR"
 
-    ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft &&
+    ../configure --host $TARGET --prefix="$PACKAGE_DIR" --with-pic --disable-fft --disable-assembly &&
     make -j${NPROC} &&
     make install
 
