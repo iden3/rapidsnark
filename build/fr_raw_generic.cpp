@@ -3,7 +3,6 @@
 #include <cstring>
 
 static uint64_t     Fr_rawq[] = {0x43e1f593f0000001,0x2833e84879b97091,0xb85045b68181585d,0x30644e72e131a029, 0};
-static FrRawElement Fr_rawR2  = {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
 static uint64_t     Fr_np     = {0xc2e1f593efffffff};
 static uint64_t     lboMask   =  0x3fffffffffffffff;
 
@@ -147,11 +146,6 @@ void Fr_rawMMul(FrRawElement pRawResult, const FrRawElement pRawA, const FrRawEl
     }
 }
 
-void Fr_rawMSquare(FrRawElement pRawResult, const FrRawElement pRawA)
-{
-    Fr_rawMMul(pRawResult, pRawA, pRawA);
-}
-
 void Fr_rawMMul1(FrRawElement pRawResult, const FrRawElement pRawA, uint64_t pRawB)
 {
     const mp_size_t  N = Fr_N64+1;
@@ -187,11 +181,6 @@ void Fr_rawMMul1(FrRawElement pRawResult, const FrRawElement pRawA, uint64_t pRa
     {
         mpn_sub_n(pRawResult, pRawResult, mq, Fr_N64);
     }
-}
-
-void Fr_rawToMontgomery(FrRawElement pRawResult, const FrRawElement &pRawA)
-{
-    Fr_rawMMul(pRawResult, pRawA, Fr_rawR2);
 }
 
 void Fr_rawFromMontgomery(FrRawElement pRawResult, const FrRawElement &pRawA)

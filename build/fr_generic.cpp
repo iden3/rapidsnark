@@ -7,7 +7,17 @@ FrElement Fr_R2 = {0, 0x80000000, {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c498
 FrElement Fr_R3 = {0, 0x80000000, {0x5e94d8e1b4bf0040,0x2a489cbe1cfbb6b8,0x893cc664a19fcfed,0x0cf8594b7fcc657c}};
 
 static FrRawElement half = {0xa1f0fac9f8000000,0x9419f4243cdcb848,0xdc2822db40c0ac2e,0x183227397098d014};
+static FrRawElement Fr_rawR2 = {0x1bb8e645ae216da7,0x53fe3ab1e35c59e3,0x8c49833d53bb8085,0x0216d0b17f4e44a5};
 
+void Fr_rawMSquare(FrRawElement pRawResult, const FrRawElement pRawA)
+{
+    Fr_rawMMul(pRawResult, pRawA, pRawA);
+}
+
+void Fr_rawToMontgomery(FrRawElement pRawResult, const FrRawElement &pRawA)
+{
+    Fr_rawMMul(pRawResult, pRawA, Fr_rawR2);
+}
 
 void Fr_copy(PFrElement r, const PFrElement a)
 {
