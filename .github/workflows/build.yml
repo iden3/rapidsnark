@@ -28,7 +28,7 @@ jobs:
         with:
           path: |
             depends/gmp
-            depends/gmp-6.2.1.tar.xz
+            depends/gmp-6.3.0.tar.xz
           key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: Build gmp for Android arm64
@@ -196,7 +196,7 @@ jobs:
         with:
           path: |
             depends/gmp
-            depends/gmp-6.2.1.tar.xz
+            depends/gmp-6.3.0.tar.xz
           key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: Build gmp for Linux arm64
@@ -253,7 +253,7 @@ jobs:
         with:
           path: |
             depends/gmp
-            depends/gmp-6.2.1.tar.xz
+            depends/gmp-6.3.0.tar.xz
           key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: build
@@ -352,7 +352,7 @@ jobs:
         with:
           path: |
             depends/gmp
-            depends/gmp-6.2.1.tar.xz
+            depends/gmp-6.3.0.tar.xz
           key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
 
       - name: install dependencies

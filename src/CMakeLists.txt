@@ -40,7 +40,7 @@ set(FR_SOURCES
 
 if(USE_ASM)
     if(ARCH MATCHES "arm64")
-        set(FR_SOURCES ${FR_SOURCES} ../build/fr_raw_arm64.s ../build/fr_raw_generic.cpp ../build/fr_generic.cpp)
+        set(FR_SOURCES ${FR_SOURCES} ../build/fr_raw_arm64.s ../build/fr_generic.cpp)
     elseif(ARCH MATCHES "x86_64")
         set(FR_SOURCES ${FR_SOURCES} ../build/fr_asm.o)
     endif()
@@ -60,7 +60,7 @@ set(FQ_SOURCES
 
 if(USE_ASM)
     if(ARCH MATCHES "arm64")
-        set(FQ_SOURCES ${FQ_SOURCES} ../build/fq_raw_arm64.s ../build/fq_raw_generic.cpp ../build/fq_generic.cpp)
+        set(FQ_SOURCES ${FQ_SOURCES} ../build/fq_raw_arm64.s ../build/fq_generic.cpp)
     elseif(ARCH MATCHES "x86_64")
         set(FQ_SOURCES ${FQ_SOURCES} ../build/fq_asm.o)
     endif()

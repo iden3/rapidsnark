@@ -3,7 +3,7 @@
 set -e
 
 NPROC=8
-fetch_cmd=$( (type wget > /dev/null 2>&1 && echo "wget") || echo "curl -O" )
+fetch_cmd=$( (type wget > /dev/null 2>&1 && echo "wget --tries=1 --timeout=30 --connect-timeout=10") || echo "curl -O --connect-timeout 10 --max-time 120 --retry 0" )
 
 usage()
 {
@@ -25,7 +25,7 @@ usage()
 
 get_gmp()
 {
-    GMP_NAME=gmp-6.2.1
+    GMP_NAME=gmp-6.3.0
     GMP_ARCHIVE=${GMP_NAME}.tar.xz
     GMP_MIRRORS=(
         "https://ftpmirror.gnu.org/gmp/${GMP_ARCHIVE}"
@@ -243,7 +243,7 @@ build_ios()
     export MIN_IOS_VERSION=8.0
 
     export ARCH_FLAGS="-arch arm64 -arch arm64e"
-    export OPT_FLAGS="-O3 -g3 -fembed-bitcode"
+    export OPT_FLAGS="-O3 -g3"
     HOST_FLAGS="${ARCH_FLAGS} -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot $(xcrun --sdk ${SDK} --show-sdk-path)"
 
     CC=$(xcrun --find --sdk "${SDK}" clang)
@@ -345,7 +345,7 @@ build_macos_arch()
          CPP_FOR_BUILD="$(xcrun --sdk macosx --find clang) -E" \
          CFLAGS="-O3 -isysroot $(xcrun --sdk macosx --show-sdk-path) ${ARCH_FLAGS} -fvisibility=hidden -mmacos-version-min=14.0" \
          LDFLAGS="" \
-         --host "${ARCH}-apple-darwin" --disable-assembly --enable-static --disable-shared --with-pic &&
+         --host "${ARCH}-apple-darwin" --enable-static --disable-shared --with-pic &&
     make -j${NPROC} &&
     make install
   cd ..
