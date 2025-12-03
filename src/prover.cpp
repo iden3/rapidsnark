@@ -156,16 +156,6 @@ public:
         stringProof = proof->toJson().dump();
         stringPublic = BuildPublicString(wtnsData, zkeyHeader->nPublic);
     }
-
-    unsigned long long proofBufferMinSize() const
-    {
-        return ProofBufferMinSize();
-    }
-
-    unsigned long long publicBufferMinSize() const
-    {
-        return PublicBufferMinSize(zkeyHeader->nPublic);
-    }
 };
 
 int
@@ -331,22 +321,7 @@ groth16_prover_prove(
         return PROVER_ERROR;
     }
 
-    Groth16Prover *prover = static_cast<Groth16Prover*>(prover_object);
-
-    unsigned long long minProofSize = prover->proofBufferMinSize();
-    unsigned long long minPublicSize = prover->publicBufferMinSize();
-
-    if (*proof_size < minProofSize || *public_size < minPublicSize) {
-        unsigned long long origProofSize = *proof_size;
-        unsigned long long origPublicSize = *public_size;
-        *proof_size = minProofSize;
-        *public_size = minPublicSize;
-
-        CopyErrorFmt(error_msg, error_msg_maxsize,
-            "Buffer too small. Minimum required - proof: %llu (provided: %llu), public: %llu (provided: %llu)",
-            minProofSize, origProofSize, minPublicSize, origPublicSize);
-        return PROVER_ERROR_SHORT_BUFFER;
-    }
+    auto prover = static_cast<Groth16Prover*>(prover_object);
 
     std::string stringProof;
     std::string stringPublic;
@@ -390,7 +365,7 @@ groth16_prover_prove(
         CopyErrorFmt(error_msg, error_msg_maxsize,
             "Buffer insufficient for generated proof. Required - proof: %llu (provided: %llu), public: %llu (provided: %llu)",
             requiredProofSize, origProofSize, requiredPublicSize, origPublicSize);
-        return PROVER_ERROR_INSUFFICIENT_BUFFER;
+        return PROVER_ERROR_SHORT_BUFFER;
     }
 
     std::memcpy(proof_buffer, stringProof.c_str(), stringProof.length());
