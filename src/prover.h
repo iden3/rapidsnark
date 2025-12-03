@@ -115,8 +115,9 @@ groth16_prover_destroy(void *prover_object);
  * groth16_prover
  * @return error code:
  *         PROVER_OK - in case of success
- *         PROVER_ERROR - in case of an error
- *         PROVER_ERROR_SHORT_BUFFER - in case of a short buffer error, also updates proof_size and public_size with actual proof and public sizes
+ *         PROVER_ERROR_SHORT_BUFFER - buffers too small, proof_size and public_size updated with required sizes
+ *         PROVER_INVALID_WITNESS_LENGTH - witness length doesn't match circuit
+ *         PROVER_ERROR - other error, see error_msg
  */
 int
 groth16_prover(
@@ -135,8 +136,9 @@ groth16_prover(
  * groth16_prover_zkey_file
  * @return error code:
  *         PROVER_OK - in case of success
- *         PROVER_ERROR - in case of an error
- *         PROVER_ERROR_SHORT_BUFFER - in case of a short buffer error, also updates proof_size and public_size with actual proof and public sizes
+ *         PROVER_ERROR_SHORT_BUFFER - buffers too small, proof_size and public_size updated with required sizes
+ *         PROVER_INVALID_WITNESS_LENGTH - witness length doesn't match circuit
+ *         PROVER_ERROR - other error, see error_msg
  */
 int
 groth16_prover_zkey_file(
