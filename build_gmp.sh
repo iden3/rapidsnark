@@ -102,7 +102,7 @@ build_host()
     mkdir "$BUILD_DIR"
     cd "$BUILD_DIR"
 
-    ../configure --prefix="$PACKAGE_DIR" --with-pic --disable-fft &&
+    ../configure --prefix="$PACKAGE_DIR" --with-pic --disable-fft --enable-fat &&
     make -j${NPROC} &&
     make install
 
