@@ -70,6 +70,7 @@ jobs:
         run: |
           set -x
           set -e
+          cat /proc/cpuinfo
           gdb -q --batch -ex "set disassembly-flavor intel" \
             -ex "run" \
             -ex "bt" \
