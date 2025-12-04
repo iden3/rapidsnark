@@ -20,7 +20,7 @@ jobs:
       - name: install requirements
         uses: awalsh128/cache-apt-pkgs-action@v1
         with:
-          packages: build-essential cmake m4 nasm
+          packages: build-essential cmake m4 nasm gdb
           version: x86_64-1.0
 
       - name: Cache gmp build
