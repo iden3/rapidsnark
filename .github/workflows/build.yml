@@ -20,7 +20,7 @@ jobs:
       - name: install requirements
         uses: awalsh128/cache-apt-pkgs-action@v1
         with:
-          packages: build-essential cmake m4 nasm gdb
+          packages: build-essential cmake m4 nasm
           version: x86_64-1.0
 
       - name: Cache gmp build
@@ -70,13 +70,18 @@ jobs:
         run: |
           set -x
           set -e
-          cat /proc/cpuinfo
-          gdb -q --batch -ex "set disassembly-flavor intel" \
-            -ex "run" \
-            -ex "bt" \
-            -ex "info registers" \
-            -ex "x/10i \$pc" \
-            --args package/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
+          # To debug the `invalid instruction` crash, we can uncomment this
+          # code to see the state of the process during the crash.
+          # IMPORTANT: don't forget to install gdb before uncommenting
+          #
+          # cat /proc/cpuinfo
+          # gdb -q --batch -ex "set disassembly-flavor intel" \
+          #   -ex "run" \
+          #   -ex "bt" \
+          #   -ex "info registers" \
+          #   -ex "x/10i \$pc" \
+          #   --args package/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
+          time package/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
           time package/bin/verifier testdata/verification_key.json public.json proof.json
           # make a wrong public.json by decrementing the first element by 1
           (value_0=$(jq '.[0]' public.json | tr -d '"') && value_0=$(echo "$value_0 - 1" | BC_LINE_LENGTH=100 bc) && jq --arg value_0 "$value_0" '.[0] = $value_0' public.json) > public_bad.json
