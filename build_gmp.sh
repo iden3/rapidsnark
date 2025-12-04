@@ -102,6 +102,12 @@ build_host()
     mkdir "$BUILD_DIR"
     cd "$BUILD_DIR"
 
+    # Although the target is named `host`, we still assume that if we build on
+    # linux x86_64, the binary should work on any linux x86_64. That is why we
+    # add the --enable-fat flag. Without it, for example, if we cache the build
+    # artifacts of GMP that were built on one GitHub CI server, we would get a
+    # crash on another server that does not support instructions from the
+    # original builder.
     ../configure --prefix="$PACKAGE_DIR" --with-pic --disable-fft --enable-fat &&
     make -j${NPROC} &&
     make install
