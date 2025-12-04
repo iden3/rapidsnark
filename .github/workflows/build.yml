@@ -70,7 +70,12 @@ jobs:
         run: |
           set -x
           set -e
-          time package/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
+          gdb -q --batch -ex "set disassembly-flavor intel" \
+            -ex "run" \
+            -ex "bt" \
+            -ex "info registers" \
+            -ex "x/10i \$pc" \
+            --args package/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
           time package/bin/verifier testdata/verification_key.json public.json proof.json
           # make a wrong public.json by decrementing the first element by 1
           (value_0=$(jq '.[0]' public.json | tr -d '"') && value_0=$(echo "$value_0 - 1" | BC_LINE_LENGTH=100 bc) && jq --arg value_0 "$value_0" '.[0] = $value_0' public.json) > public_bad.json
