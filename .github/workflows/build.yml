@@ -264,7 +264,7 @@ jobs:
           make ios
           make ios_simulator
           make macos_arm64
-          ctest --rerun-failed --output-on-failure
+          cd build_prover_macos_arm64 && ctest --rerun-failed --output-on-failure
 
       - name: test rapidsnark
         run: |
