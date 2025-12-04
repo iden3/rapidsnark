@@ -70,6 +70,17 @@ jobs:
         run: |
           set -x
           set -e
+          # To debug the `invalid instruction` crash, we can uncomment this
+          # code to see the state of the process during the crash.
+          # IMPORTANT: don't forget to install gdb before uncommenting
+          #
+          # cat /proc/cpuinfo
+          # gdb -q --batch -ex "set disassembly-flavor intel" \
+          #   -ex "run" \
+          #   -ex "bt" \
+          #   -ex "info registers" \
+          #   -ex "x/10i \$pc" \
+          #   --args package/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
           time package/bin/prover testdata/circuit_final.zkey testdata/witness.wtns proof.json public.json
           time package/bin/verifier testdata/verification_key.json public.json proof.json
           # make a wrong public.json by decrementing the first element by 1
@@ -341,7 +352,7 @@ jobs:
           gh release upload ${{ github.event.release.tag_name }} rapidsnark-macOS-arm64-${{ github.ref_name }}.zip
 
   build-apple-x86_64:
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
         with:
