@@ -1,6 +1,6 @@
 ## Important note 
 
-**This is a new implementation of rapidsnark. The original (and now obsoleted) implemenation is available here: [rapidsnark-old](https://github.com/iden3/rapidsnark-old).**
+**This is a new implementation of rapidsnark. The original (and now obsoleted) implementation is available here: [rapidsnark-old](https://github.com/iden3/rapidsnark-old).**
 
 # rapidsnark
 
@@ -171,7 +171,7 @@ Rapidsnark can be used with several programming languages and environments throu
 
 This prover parallelizes as much as it can the proof generation.
 
-The prover is much faster that snarkjs and faster than bellman.
+The prover is much faster than snarkjs and faster than bellman.
 
 [TODO] Some comparative tests should be done.
 
