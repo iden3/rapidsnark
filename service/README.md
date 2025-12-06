@@ -7,7 +7,7 @@ Just copy the file `rapidsnark.service` to `/etc/systemd/system/rapidsnark.servi
 and update the `ExecStart` parameter with the correct path for binary, `.dat` file
 and `.zkey` file.
 
-After save the file run:
+After saving the file run:
 
 ```
 $ sudo systemctl daemon-reload
