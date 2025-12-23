@@ -3,7 +3,7 @@
 set -e
 
 NPROC=8
-fetch_cmd=$( (type wget > /dev/null 2>&1 && echo "wget --tries=1 --timeout=30 --connect-timeout=10") || echo "curl -O --connect-timeout 10 --max-time 120 --retry 0" )
+fetch_cmd=$( (type wget > /dev/null 2>&1 && echo "wget --tries=1 --timeout=30 --connect-timeout=10") || echo "curl -L -O --connect-timeout 10 --max-time 120 --retry 0" )
 
 usage()
 {
@@ -27,11 +27,24 @@ get_gmp()
 {
     GMP_NAME=gmp-6.3.0
     GMP_ARCHIVE=${GMP_NAME}.tar.xz
+    GMP_SHA256="a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898"
     GMP_MIRRORS=(
         "https://ftpmirror.gnu.org/gmp/${GMP_ARCHIVE}"
         "https://gmplib.org/download/gmp/${GMP_ARCHIVE}"
         "https://ftp.gnu.org/gnu/gmp/${GMP_ARCHIVE}"
     )
+
+    verify_checksum()
+    {
+        if command -v sha256sum > /dev/null 2>&1; then
+            echo "${GMP_SHA256}  ${GMP_ARCHIVE}" | sha256sum -c -
+        elif command -v shasum > /dev/null 2>&1; then
+            echo "${GMP_SHA256}  ${GMP_ARCHIVE}" | shasum -a 256 -c -
+        else
+            echo "WARNING: No sha256sum or shasum found, skipping checksum verification"
+            return 0
+        fi
+    }
 
     if [ ! -f ${GMP_ARCHIVE} ]; then
         for url in "${GMP_MIRRORS[@]}"; do
@@ -55,6 +68,14 @@ get_gmp()
             exit 1
         fi
     fi
+
+    echo "Verifying checksum..."
+    if ! verify_checksum; then
+        echo "ERROR: Checksum verification failed for ${GMP_ARCHIVE}"
+        rm -f ${GMP_ARCHIVE}
+        exit 1
+    fi
+    echo "Checksum verified successfully"
 
     if [ ! -d gmp ]; then
         tar -xvf ${GMP_ARCHIVE}
