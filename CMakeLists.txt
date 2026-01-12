@@ -15,23 +15,6 @@ message("USE_ASM=" ${USE_ASM})
 message("USE_OPENMP=" ${USE_OPENMP})
 message("CMAKE_CROSSCOMPILING=" ${CMAKE_CROSSCOMPILING})
 
-message("GMP_PREFIX=" ${GMP_PREFIX})
-message("GMP_INCLUDE_DIR=" ${GMP_INCLUDE_DIR})
-message("GMP_LIB_DIR=" ${GMP_LIB_DIR})
-
-if (NOT EXISTS ${GMP_INCLUDE_FILE_FULLPATH})
-    message("WARNING: ${GMP_INCLUDE_FILE_FULLPATH} is not found and so system ${GMP_INCLUDE_FILE} is used.")
-endif()
-
-if (NOT EXISTS ${GMP_LIB_FILE_FULLPATH})
-    message("WARNING: ${GMP_LIB_FILE_FULLPATH} is not found and so system ${GMP_LIB_FILE} is used.")
-    set(GMP_LIB gmp)
-endif()
-
-
-include_directories(BEFORE ${GMP_INCLUDE_DIR})
-
-
 if(USE_OPENMP)
     find_package(OpenMP)
 
@@ -50,17 +33,12 @@ if(USE_OPENMP)
     endif()
 endif()
 
-
 add_subdirectory(src)
-
 
 install(TARGETS prover verifier rapidsnark rapidsnarkStatic rapidsnarkStaticFrFq test_prover fr fq
     RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
     BUNDLE DESTINATION ${CMAKE_INSTALL_PREFIX}/app
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-
-install(FILES "${GMP_LIB_DIR}/${GMP_LIB_FILE}"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 install(FILES src/prover.h src/verifier.h
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include)

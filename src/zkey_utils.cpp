@@ -1,56 +1,67 @@
-#include <stdexcept>
-
 #include "zkey_utils.hpp"
+
+#include <stdexcept>
 
 namespace ZKeyUtils {
 
-
-Header::Header() {
-    mpz_init(qPrime);
-    mpz_init(rPrime);
-}
-
-Header::~Header() {
-    mpz_clear(qPrime);
-    mpz_clear(rPrime);
-}
-
-
-std::unique_ptr<Header> loadHeader(BinFileUtils::BinFile *f) {
-
-    std::unique_ptr<Header> h(new Header());
-
-    f->startReadSection(1);
-    uint32_t protocol = f->readU32LE();
-    if (protocol != 1) {
-        throw std::invalid_argument( "zkey file is not groth16" );
+    Header::Header()
+        : n8q(0),
+          n8r(0),
+          nVars(0),
+          nPublic(0),
+          domainSize(0),
+          nCoefs(0),
+          vk_alpha1(nullptr),
+          vk_beta1(nullptr),
+          vk_beta2(nullptr),
+          vk_gamma2(nullptr),
+          vk_delta1(nullptr),
+          vk_delta2(nullptr)
+    {
     }
-    f->endReadSection();
 
-    f->startReadSection(2);
+    Header::~Header() = default;
 
-    h->n8q = f->readU32LE();
-    mpz_import(h->qPrime, h->n8q, -1, 1, -1, 0, f->read(h->n8q));
+    std::unique_ptr<Header> loadHeader(BinFileUtils::BinFile *f) {
+        auto h = new Header();
 
-    h->n8r = f->readU32LE();
-    mpz_import(h->rPrime, h->n8r , -1, 1, -1, 0, f->read(h->n8r));
+        f->startReadSection(1);
+        uint32_t protocol = f->readU32LE();
+        if (protocol != 1) {
+            throw std::invalid_argument( "zkey file is not groth16" );
+        }
+        f->endReadSection();
 
-    h->nVars = f->readU32LE();
-    h->nPublic = f->readU32LE();
-    h->domainSize = f->readU32LE();
+        f->startReadSection(2);
 
-    h->vk_alpha1 = f->read(h->n8q*2);
-    h->vk_beta1 = f->read(h->n8q*2);
-    h->vk_beta2 = f->read(h->n8q*4);
-    h->vk_gamma2 = f->read(h->n8q*4);
-    h->vk_delta1 = f->read(h->n8q*2);
-    h->vk_delta2 = f->read(h->n8q*4);
-    f->endReadSection();
+        h->n8q = f->readU32LE();
+        {
+            const uint8_t* p = reinterpret_cast<const uint8_t*>(f->read(h->n8q));
+            h->qPrime.assign(p, p + h->n8q);
+        }
 
-    h->nCoefs = f->getSectionSize(4) / (12 + h->n8r);
+        h->n8r = f->readU32LE();
+        {
+            const uint8_t* p = reinterpret_cast<const uint8_t*>(f->read(h->n8r));
+            h->rPrime.assign(p, p + h->n8r);
+        }
 
-    return h;
-}
+        h->nVars = f->readU32LE();
+        h->nPublic = f->readU32LE();
+        h->domainSize = f->readU32LE();
+
+        h->vk_alpha1 = f->read(h->n8q*2);
+        h->vk_beta1 = f->read(h->n8q*2);
+        h->vk_beta2 = f->read(h->n8q*4);
+        h->vk_gamma2 = f->read(h->n8q*4);
+        h->vk_delta1 = f->read(h->n8q*2);
+        h->vk_delta2 = f->read(h->n8q*4);
+        f->endReadSection();
+
+        h->nCoefs = f->getSectionSize(4) / (12 + h->n8r);
+
+        return std::unique_ptr<Header>(h);
+    }
 
 } // namespace
 

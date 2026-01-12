@@ -23,23 +23,6 @@ jobs:
           packages: build-essential cmake m4 nasm
           version: x86_64-1.0
 
-      - name: Cache gmp build
-        uses: actions/cache@v4
-        with:
-          path: |
-            depends/gmp
-            depends/gmp-6.3.0.tar.xz
-          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
-
-      - name: Build gmp for Android arm64
-        run: if [[ ! -d "depends/gmp/package_android_arm64" ]]; then ./build_gmp.sh android; fi
-
-      - name: Build gmp for Android x86_64
-        run: if [[ ! -d "depends/gmp/package_android_x86_64" ]]; then ./build_gmp.sh android_x86_64; fi
-
-      - name: Build gmp for Linux x86_64
-        run: if [[ ! -d "depends/gmp/package" ]]; then ./build_gmp.sh host; fi
-
       - name: Build prover Android ARM64
         run: |
           make android
@@ -202,17 +185,6 @@ jobs:
           packages: build-essential cmake m4 nasm
           version: arm64-1.0
 
-      - name: Cache gmp build
-        uses: actions/cache@v4
-        with:
-          path: |
-            depends/gmp
-            depends/gmp-6.3.0.tar.xz
-          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
-
-      - name: Build gmp for Linux arm64
-        run: if [[ ! -d "depends/gmp/package_aarch64" ]]; then ./build_gmp.sh aarch64; fi
-
       - name: Build prover Linux arm64
         run: |
           make host_arm64
@@ -259,19 +231,8 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: Cache gmp build
-        uses: actions/cache@v4
-        with:
-          path: |
-            depends/gmp
-            depends/gmp-6.3.0.tar.xz
-          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
-
       - name: build
         run: |
-          if [[ ! -d "depends/gmp/package_ios_arm64" ]]; then ./build_gmp.sh ios; fi
-          if [[ ! -d "depends/gmp/package_iphone_simulator" ]]; then ./build_gmp.sh ios_simulator; fi
-          if [[ ! -d "depends/gmp/package_macos_arm64" ]]; then ./build_gmp.sh macos_arm64; fi
           make ios
           make ios_simulator
           make macos_arm64
@@ -358,21 +319,12 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: Cache gmp build
-        uses: actions/cache@v4
-        with:
-          path: |
-            depends/gmp
-            depends/gmp-6.3.0.tar.xz
-          key: ${{ runner.os }}-${{ runner.arch }}-gmp-${{ hashFiles('build_gmp.sh') }}
-
       - name: install dependencies
         run: |
           brew install nasm
 
       - name: build
         run: |
-          if [[ ! -d "depends/gmp/package_macos_x86_64" ]]; then ./build_gmp.sh macos_x86_64; fi
           make macos_x86_64
           ctest --rerun-failed --output-on-failure
 

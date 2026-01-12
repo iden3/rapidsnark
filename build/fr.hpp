@@ -4,7 +4,6 @@
 #include "fr_element.hpp"
 #include <cstdint>
 #include <string>
-#include <gmp.h>
 
 #ifdef __APPLE__
 #include <sys/types.h> // typedef unsigned int uint;
@@ -13,8 +12,6 @@
 extern FrElement Fr_q;
 extern FrElement Fr_R2;
 extern FrElement Fr_R3;
-extern FrRawElement Fr_rawq;
-extern FrRawElement Fr_rawR3;
 
 #ifdef USE_ASM
 
@@ -204,11 +201,9 @@ void Fr_div(PFrElement r, PFrElement a, PFrElement b);
 void Fr_pow(PFrElement r, PFrElement a, PFrElement b);
 
 class RawFr {
-
 public:
     const static int N64 = Fr_N64;
     const static int MaxBits = 254;
-
 
     struct Element {
         FrRawElement v;
@@ -220,7 +215,6 @@ private:
     Element fNegOne;
 
 public:
-
     RawFr();
     ~RawFr();
 
@@ -266,9 +260,6 @@ public:
     int inline eq(const Element &a, const Element &b) { return Fr_rawIsEq(a.v, b.v); };
     int inline isZero(const Element &a) { return Fr_rawIsZero(a.v); };
 
-    void toMpz(mpz_t r, const Element &a);
-    void fromMpz(Element &a, const mpz_t r);
-
     int toRprBE(const Element &element, uint8_t *data, int bytes);
     int fromRprBE(Element &element, const uint8_t *data, int bytes);
 
@@ -277,9 +268,7 @@ public:
     void fromUI(Element &r, unsigned long int v);
 
     static RawFr field;
-
 };
-
 
 #endif // __FR_H
 

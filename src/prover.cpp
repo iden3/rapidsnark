@@ -1,10 +1,11 @@
-#include <gmp.h>
 #include <string>
 #include <cstring>
 #include <cstdarg>
 #include <stdexcept>
+#include <climits>
 #include <alt_bn128.hpp>
 #include <nlohmann/json.hpp>
+
 #include "prover.h"
 #include "groth16.hpp"
 #include "zkey_utils.hpp"
@@ -13,7 +14,6 @@
 #include "fileloader.hpp"
 
 using json = nlohmann::json;
-
 
 class InvalidWitnessLengthException : public std::invalid_argument
 {
@@ -67,18 +67,22 @@ PublicBufferMinSize(unsigned long long count)
 }
 
 static bool
-PrimeIsValid(mpz_srcptr prime)
+PrimeIsValid(const std::vector<uint8_t> &prime_le)
 {
-    mpz_t altBbn128r;
+    static constexpr uint8_t kAltBn128rLE[32] = {
+        0x01, 0x00, 0x00, 0xF0, 0x93, 0xF5, 0xE1, 0x43,
+        0x91, 0x70, 0xB9, 0x79, 0x48, 0xE8, 0x33, 0x28,
+        0x5D, 0x58, 0x81, 0x81, 0xB6, 0x45, 0x50, 0xB8,
+        0x29, 0xA0, 0x31, 0xE1, 0x72, 0x4E, 0x64, 0x30
+    };
 
-    mpz_init(altBbn128r);
-    mpz_set_str(altBbn128r, "21888242871839275222246405745257275088548364400416034343698204186575808495617", 10);
+    if (prime_le.size() < 32) return false;
 
-    const bool is_valid = (mpz_cmp(prime, altBbn128r) == 0);
+    for (size_t i = 32; i < prime_le.size(); i++) {
+        if (prime_le[i] != 0) return false;
+    }
 
-    mpz_clear(altBbn128r);
-
-    return is_valid;
+    return std::memcmp(prime_le.data(), kAltBn128rLE, 32) == 0;
 }
 
 static std::string
@@ -384,7 +388,6 @@ groth16_prover_destroy(void *prover_object)
 {
     if (prover_object != NULL) {
         Groth16Prover *prover = static_cast<Groth16Prover*>(prover_object);
-
         delete prover;
     }
 }

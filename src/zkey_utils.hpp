@@ -1,8 +1,9 @@
 #ifndef ZKEY_UTILS_H
 #define ZKEY_UTILS_H
 
-#include <gmp.h>
 #include <memory>
+#include <vector>
+#include <cstdint>
 
 #include "binfile_utils.hpp"
 
@@ -13,9 +14,10 @@ namespace ZKeyUtils {
 
     public:
         u_int32_t n8q;
-        mpz_t qPrime;
+        std::vector<uint8_t> qPrime;
+
         u_int32_t n8r;
-        mpz_t rPrime;
+        std::vector<uint8_t> rPrime;
 
         u_int32_t nVars;
         u_int32_t nPublic;

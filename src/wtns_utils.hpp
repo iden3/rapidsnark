@@ -1,7 +1,9 @@
 #ifndef WTNS_UTILS
 #define WTNS_UTILS
 
-#include <gmp.h>
+#include <cstdint>
+#include <memory>
+#include <vector>
 
 #include "binfile_utils.hpp"
 
@@ -10,7 +12,7 @@ namespace WtnsUtils {
     class Header {
     public:
         u_int32_t n8;
-        mpz_t prime;
+        std::vector<uint8_t> prime;
 
         u_int32_t nVars;
 
@@ -20,6 +22,6 @@ namespace WtnsUtils {
 
     std::unique_ptr<Header> loadHeader(BinFileUtils::BinFile *f);
 
-}
+} // namespace WtnsUtils
 
-#endif // ZKEY_UTILS_H
+#endif // WTNS_UTILS

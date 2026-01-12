@@ -4,7 +4,6 @@
 #include "fq_element.hpp"
 #include <cstdint>
 #include <string>
-#include <gmp.h>
 
 #ifdef __APPLE__
 #include <sys/types.h> // typedef unsigned int uint;
@@ -13,8 +12,6 @@
 extern FqElement Fq_q;
 extern FqElement Fq_R2;
 extern FqElement Fq_R3;
-extern FqRawElement Fq_rawq;
-extern FqRawElement Fq_rawR3;
 
 #ifdef USE_ASM
 
@@ -209,7 +206,6 @@ public:
     const static int N64 = Fq_N64;
     const static int MaxBits = 254;
 
-
     struct Element {
         FqRawElement v;
     };
@@ -220,7 +216,6 @@ private:
     Element fNegOne;
 
 public:
-
     RawFq();
     ~RawFq();
 
@@ -266,9 +261,6 @@ public:
     int inline eq(const Element &a, const Element &b) { return Fq_rawIsEq(a.v, b.v); };
     int inline isZero(const Element &a) { return Fq_rawIsZero(a.v); };
 
-    void toMpz(mpz_t r, const Element &a);
-    void fromMpz(Element &a, const mpz_t r);
-
     int toRprBE(const Element &element, uint8_t *data, int bytes);
     int fromRprBE(Element &element, const uint8_t *data, int bytes);
 
@@ -277,9 +269,7 @@ public:
     void fromUI(Element &r, unsigned long int v);
 
     static RawFq field;
-
 };
-
 
 #endif // __FQ_H
 
