@@ -14,13 +14,13 @@ function createFieldSources() {
         sh("nasm -fmacho64 --prefix _ fq.asm", {cwd: "build"});
     }  else if (process.platform === "linux") {
         sh("nasm -felf64 fq.asm", {cwd: "build"});
-    } else throw("Unsupported platform");
+    } else throw new Error("Unsupported platform");
 
     if (process.platform === "darwin") {
         sh("nasm -fmacho64 --prefix _ fr.asm", {cwd: "build"});
     }  else if (process.platform === "linux") {
         sh("nasm -felf64 fr.asm", {cwd: "build"});
-    } else throw("Unsupported platform");
+    } else throw new Error("Unsupported platform");
 }
 
 function buildPistache() {
