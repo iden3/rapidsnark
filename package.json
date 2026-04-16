@@ -22,7 +22,7 @@
     "fast"
   ],
   "author": "Jordi Baylina",
-  "license": "GPL-3.0",
+  "license": "LGPL-3.0",
   "devDependencies": {
     "tasksfile": "^5.1.1"
   },
