@@ -42,7 +42,7 @@ std::unique_ptr<Header> loadHeader(BinFileUtils::BinFile *f) {
     h->vk_alpha1 = f->read(h->n8q*2);
     h->vk_beta1 = f->read(h->n8q*2);
     h->vk_beta2 = f->read(h->n8q*4);
-    h->vk_gamma2 = f->read(h->n8q*4);
+    f->read(h->n8q*4);
     h->vk_delta1 = f->read(h->n8q*2);
     h->vk_delta2 = f->read(h->n8q*4);
     f->endReadSection();
