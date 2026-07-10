@@ -231,6 +231,78 @@ void correctness()
     }
 }
 
+// Simulates the prover's witness phase: A, B1 (G1, shared scalars),
+// B2 (G2, shared scalars), C (G1, scalar suffix) batched into one task
+// region, checked against independent single-MSM runs.
+void batchCorrectness()
+{
+    const int n = 8192;
+    const int nPublic = 100;
+
+    std::vector<G1PointAffine> basesA(n), basesB1(n), basesC(n - nPublic - 1);
+    std::vector<G2PointAffine> basesB2(n);
+    std::vector<Scalar> scalars(n);
+
+    fillBases(G1, basesA.data(), n, 512);
+    fillBases(G1, basesB1.data(), n, 300);
+    fillBases(G1, basesC.data(), n - nPublic - 1, 700);
+    fillBases(G2, basesB2.data(), n, 256);
+    fillScalars(scalars.data(), n, DIST_IDEN3);
+
+    ThreadPool &pool = ThreadPool::defaultPool();
+    const uint64_t nThreads = pool.getThreadCount();
+    const uint64_t share = nThreads >= 4 ? nThreads/4 : 1;
+
+    MSM<Curve<RawFq>, RawFq> msmA(G1), msmB1(G1), msmC(G1);
+    MSM<Curve<F2Field<RawFq>>, F2Field<RawFq>> msmB2(G2);
+
+    msmA.prepare(basesA.data(), (uint8_t *)scalars.data(), sizeof(Scalar), n, share);
+    msmB1.prepare(basesB1.data(), (uint8_t *)scalars.data(), sizeof(Scalar), n, share);
+    msmB2.prepare(basesB2.data(), (uint8_t *)scalars.data(), sizeof(Scalar), n, share);
+    msmC.prepare(basesC.data(), (uint8_t *)(scalars.data() + nPublic + 1), sizeof(Scalar), n - nPublic - 1, share);
+
+    const uint64_t g1Buckets = std::max(msmA.maxBuckets(),
+                               std::max(msmB1.maxBuckets(), msmC.maxBuckets()));
+    const uint64_t g2Buckets = msmB2.maxBuckets();
+
+    std::vector<G1Point> g1Arena(nThreads * g1Buckets);
+    std::vector<G2Point> g2Arena(nThreads * g2Buckets);
+
+    std::vector<std::function<void(uint64_t)>> tasks;
+    msmB2.collectTasks(tasks, g2Arena.data(), g2Buckets);
+    msmA.collectTasks(tasks, g1Arena.data(), g1Buckets);
+    msmB1.collectTasks(tasks, g1Arena.data(), g1Buckets);
+    msmC.collectTasks(tasks, g1Arena.data(), g1Buckets);
+
+    pool.parallelFor(0, tasks.size(), [&] (int begin, int end, int numThread) {
+        for (int t = begin; t < end; t++) {
+            tasks[t]((uint64_t)numThread);
+        }
+    });
+
+    G1Point rA, rB1, rC, refA, refB1, refC;
+    G2Point rB2, refB2;
+
+    msmA.finish(rA);
+    msmB1.finish(rB1);
+    msmB2.finish(rB2);
+    msmC.finish(rC);
+
+    G1.multiMulByScalarMSM(refA, basesA.data(), (uint8_t *)scalars.data(), sizeof(Scalar), n);
+    G1.multiMulByScalarMSM(refB1, basesB1.data(), (uint8_t *)scalars.data(), sizeof(Scalar), n);
+    G2.multiMulByScalarMSM(refB2, basesB2.data(), (uint8_t *)scalars.data(), sizeof(Scalar), n);
+    G1.multiMulByScalarMSM(refC, basesC.data(), (uint8_t *)(scalars.data() + nPublic + 1), sizeof(Scalar), n - nPublic - 1);
+
+    bool ok = G1.eq(rA, refA) && G1.eq(rB1, refB1) && G2.eq(rB2, refB2) && G1.eq(rC, refC);
+
+    if (!ok) {
+        printf("FAIL batch A/B1/B2/C\n");
+        failures++;
+    } else {
+        printf("ok   batch A/B1/B2/C\n");
+    }
+}
+
 double medianMs(std::vector<double> &v)
 {
     std::sort(v.begin(), v.end());
@@ -302,6 +374,7 @@ void bench()
 int main(int argc, char **argv)
 {
     correctness();
+    batchCorrectness();
 
     if (failures) {
         printf("\n%d FAILURES\n", failures);

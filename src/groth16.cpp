@@ -1,9 +1,13 @@
 #include "random_generator.hpp"
 #include "logging.hpp"
 #include "misc.hpp"
+#include "msm.hpp"
 #include <sstream>
 #include <vector>
 #include <mutex>
+#include <memory>
+#include <functional>
+#include <algorithm>
 
 namespace Groth16 {
 
@@ -50,32 +54,85 @@ template <typename Engine>
 std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement *wtns) {
 
     ThreadPool &threadPool = ThreadPool::defaultPool();
+    const uint64_t nThreads = threadPool.getThreadCount();
 
-    LOG_TRACE("Start Multiexp A");
     uint32_t sW = sizeof(wtns[0]);
     typename Engine::G1Point pi_a;
-    E.g1.multiMulByScalarMSM(pi_a, pointsA, (uint8_t *)wtns, sW, nVars);
+    typename Engine::G1Point pib1;
+    typename Engine::G2Point pi_b;
+    typename Engine::G1Point pi_c;
+
+    uint8_t *scalarsABB2 = (uint8_t *)wtns;
+    uint8_t *scalarsC = (uint8_t *)((uint64_t)wtns + (nPublic +1)*sW);
+    const uint64_t nC = nVars - nPublic - 1;
+
+    if (nThreads >= 12) {
+        // Batched: prepare all four witness MSMs, then run every bucket task
+        // in one parallel region so no MSM's straggler tail leaves cores idle.
+        // Each MSM sizes windows/slices for a quarter of the pool.
+        LOG_TRACE("Start Multiexp A+B1+B2+C (batched)");
+        const uint64_t share = std::max<uint64_t>(1, nThreads/4);
+
+        MSM<typename Engine::G1, typename Engine::F1> msmA(E.g1), msmB1(E.g1), msmC(E.g1);
+        MSM<typename Engine::G2, typename Engine::F2> msmB2(E.g2);
+
+        msmA.prepare(pointsA, scalarsABB2, sW, nVars, share);
+        msmB1.prepare(pointsB1, scalarsABB2, sW, nVars, share);
+        msmB2.prepare(pointsB2, scalarsABB2, sW, nVars, share);
+        msmC.prepare(pointsC, scalarsC, sW, nC, share);
+
+        const uint64_t g1Buckets = std::max(msmA.maxBuckets(),
+                                   std::max(msmB1.maxBuckets(), msmC.maxBuckets()));
+        const uint64_t g2Buckets = msmB2.maxBuckets();
+
+        std::unique_ptr<typename Engine::G1Point[]> g1Arena(
+            g1Buckets ? new typename Engine::G1Point[nThreads * g1Buckets] : nullptr);
+        std::unique_ptr<typename Engine::G2Point[]> g2Arena(
+            g2Buckets ? new typename Engine::G2Point[nThreads * g2Buckets] : nullptr);
+
+        std::vector<std::function<void(uint64_t)>> tasks;
+
+        // G2 tasks are the heaviest per point: schedule them first.
+        msmB2.collectTasks(tasks, g2Arena.get(), g2Buckets);
+        msmA.collectTasks(tasks, g1Arena.get(), g1Buckets);
+        msmB1.collectTasks(tasks, g1Arena.get(), g1Buckets);
+        msmC.collectTasks(tasks, g1Arena.get(), g1Buckets);
+
+        if (!tasks.empty()) {
+            threadPool.parallelFor(0, tasks.size(), [&] (int begin, int end, int numThread) {
+                for (int t = begin; t < end; t++) {
+                    tasks[t]((uint64_t)numThread);
+                }
+            });
+        }
+
+        msmA.finish(pi_a);
+        msmB1.finish(pib1);
+        msmB2.finish(pi_b);
+        msmC.finish(pi_c);
+    } else {
+        LOG_TRACE("Start Multiexp A");
+        E.g1.multiMulByScalarMSM(pi_a, pointsA, scalarsABB2, sW, nVars);
+
+        LOG_TRACE("Start Multiexp B1");
+        E.g1.multiMulByScalarMSM(pib1, pointsB1, scalarsABB2, sW, nVars);
+
+        LOG_TRACE("Start Multiexp B2");
+        E.g2.multiMulByScalarMSM(pi_b, pointsB2, scalarsABB2, sW, nVars);
+
+        LOG_TRACE("Start Multiexp C");
+        E.g1.multiMulByScalarMSM(pi_c, pointsC, scalarsC, sW, nC);
+    }
+
     std::ostringstream ss2;
     ss2 << "pi_a: " << E.g1.toString(pi_a);
     LOG_DEBUG(ss2);
-
-    LOG_TRACE("Start Multiexp B1");
-    typename Engine::G1Point pib1;
-    E.g1.multiMulByScalarMSM(pib1, pointsB1, (uint8_t *)wtns, sW, nVars);
     std::ostringstream ss3;
     ss3 << "pib1: " << E.g1.toString(pib1);
     LOG_DEBUG(ss3);
-
-    LOG_TRACE("Start Multiexp B2");
-    typename Engine::G2Point pi_b;
-    E.g2.multiMulByScalarMSM(pi_b, pointsB2, (uint8_t *)wtns, sW, nVars);
     std::ostringstream ss4;
     ss4 << "pi_b: " << E.g2.toString(pi_b);
     LOG_DEBUG(ss4);
-
-    LOG_TRACE("Start Multiexp C");
-    typename Engine::G1Point pi_c;
-    E.g1.multiMulByScalarMSM(pi_c, pointsC, (uint8_t *)((uint64_t)wtns + (nPublic +1)*sW), sW, nVars-nPublic-1);
     std::ostringstream ss5;
     ss5 << "pi_c: " << E.g1.toString(pi_c);
     LOG_DEBUG(ss5);
