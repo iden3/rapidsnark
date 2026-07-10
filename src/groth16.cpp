@@ -184,68 +184,31 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     });
 
     LOG_TRACE("Initializing fft");
-    u_int32_t domainPower = fft->log2(domainSize);
 
-    LOG_TRACE("Start iFFT A");
-    fft->ifft(a, domainSize);
-    LOG_TRACE("a After ifft:");
-    LOG_DEBUG(E.fr.toString(a[0]).c_str());
-    LOG_DEBUG(E.fr.toString(a[1]).c_str());
-    LOG_TRACE("Start Shift A");
+    // Permutation-free coset pipeline: DIF-iFFT leaves the coefficients in
+    // bit-reversed order, the fused pointwise pass applies the ω_2n coset
+    // shift (with 1/n folded in) through the bit-reversed table, and the
+    // DIT-FFT consumes bit-reversed input, returning the coset evaluations
+    // in natural order — same result as ifft+shift+fft, minus six
+    // bit-reversal permutation passes and three scaling passes.
+    typename Engine::FrElement *abc[3] = { a, b, c };
 
-    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
-        for (u_int64_t i=begin; i<end; i++) {
-            E.fr.mul(a[i], a[i], fft->root(domainPower+1, i));
-        }
-    });
+    for (int poly = 0; poly < 3; poly++) {
+        typename Engine::FrElement *v = abc[poly];
 
-    LOG_TRACE("a After shift:");
-    LOG_DEBUG(E.fr.toString(a[0]).c_str());
-    LOG_DEBUG(E.fr.toString(a[1]).c_str());
-    LOG_TRACE("Start FFT A");
-    fft->fft(a, domainSize);
-    LOG_TRACE("a After fft:");
-    LOG_DEBUG(E.fr.toString(a[0]).c_str());
-    LOG_DEBUG(E.fr.toString(a[1]).c_str());
-    LOG_TRACE("Start iFFT B");
-    fft->ifft(b, domainSize);
-    LOG_TRACE("b After ifft:");
-    LOG_DEBUG(E.fr.toString(b[0]).c_str());
-    LOG_DEBUG(E.fr.toString(b[1]).c_str());
-    LOG_TRACE("Start Shift B");
-    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
-        for (u_int64_t i=begin; i<end; i++) {
-            E.fr.mul(b[i], b[i], fft->root(domainPower+1, i));
-        }
-    });
-    LOG_TRACE("b After shift:");
-    LOG_DEBUG(E.fr.toString(b[0]).c_str());
-    LOG_DEBUG(E.fr.toString(b[1]).c_str());
-    LOG_TRACE("Start FFT B");
-    fft->fft(b, domainSize);
-    LOG_TRACE("b After fft:");
-    LOG_DEBUG(E.fr.toString(b[0]).c_str());
-    LOG_DEBUG(E.fr.toString(b[1]).c_str());
+        LOG_TRACE("Start iFFT (DIF)");
+        fft->ifftDIFNatToRev(v, domainSize);
 
-    LOG_TRACE("Start iFFT C");
-    fft->ifft(c, domainSize);
-    LOG_TRACE("c After ifft:");
-    LOG_DEBUG(E.fr.toString(c[0]).c_str());
-    LOG_DEBUG(E.fr.toString(c[1]).c_str());
-    LOG_TRACE("Start Shift C");
-    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
-        for (u_int64_t i=begin; i<end; i++) {
-            E.fr.mul(c[i], c[i], fft->root(domainPower+1, i));
-        }
-    });
-    LOG_TRACE("c After shift:");
-    LOG_DEBUG(E.fr.toString(c[0]).c_str());
-    LOG_DEBUG(E.fr.toString(c[1]).c_str());
-    LOG_TRACE("Start FFT C");
-    fft->fft(c, domainSize);
-    LOG_TRACE("c After fft:");
-    LOG_DEBUG(E.fr.toString(c[0]).c_str());
-    LOG_DEBUG(E.fr.toString(c[1]).c_str());
+        LOG_TRACE("Start coset shift");
+        threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
+            for (u_int64_t i=begin; i<end; i++) {
+                E.fr.mul(v[i], v[i], cosetBR[i]);
+            }
+        });
+
+        LOG_TRACE("Start FFT (DIT)");
+        fft->fftDITRevToNat(v, domainSize);
+    }
 
     LOG_TRACE("Start ABC");
     threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {

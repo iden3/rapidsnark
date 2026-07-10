@@ -69,6 +69,7 @@ namespace Groth16 {
         typename Engine::G1PointAffine *pointsH;
 
         FFT<typename Engine::Fr> *fft;
+        typename Engine::FrElement *cosetBR;
     public:
         Prover(
             Engine &_E, 
@@ -104,12 +105,27 @@ namespace Groth16 {
             pointsB2(_pointsB2),
             pointsC(_pointsC),
             pointsH(_pointsH)
-        { 
+        {
             fft = new FFT<typename Engine::Fr>(domainSize*2);
+
+            // Coset shift ω_2n^BR(i) with the iFFT's 1/n folded in, indexed
+            // in bit-reversed order for the permutation-free h pipeline.
+            // Built once; reused by every proof of this prover.
+            cosetBR = new typename Engine::FrElement[domainSize];
+
+            u_int32_t domainPow = fft->log2(domainSize);
+
+            ThreadPool::defaultPool().parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
+                for (int i=begin; i<end; i++) {
+                    E.fr.mul(cosetBR[i], fft->nInv(domainPow),
+                             fft->root(domainPow+1, BR(i, domainPow)));
+                }
+            });
         }
 
         ~Prover() {
             delete fft;
+            delete [] cosetBR;
         }
 
         std::unique_ptr<Proof<Engine>> prove(typename Engine::FrElement *wtns);

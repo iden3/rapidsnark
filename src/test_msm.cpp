@@ -16,6 +16,7 @@
 #include <algorithm>
 
 #include "alt_bn128.hpp"
+#include "fft.hpp"
 
 using namespace AltBn128;
 
@@ -256,6 +257,48 @@ void correctness()
     }
 }
 
+// The permutation-free DIF -> bitrev-indexed coset shift -> DIT pipeline
+// must produce exactly the ifft -> shift -> fft coset evaluations the
+// prover previously computed.
+void fftEquivalence()
+{
+    const int n = 1024;
+
+    FFT<RawFr> F(n*2);
+    const u_int32_t pow = F.log2(n);
+
+    std::vector<Scalar> x(n), y(n);
+
+    for (int i = 0; i < n; i++) {
+        setRand254(x[i]);
+        y[i] = x[i];
+    }
+
+    // classic path
+    F.ifft(x.data(), n);
+    for (int i = 0; i < n; i++) {
+        Fr.mul(x[i], x[i], F.root(pow+1, i));
+    }
+    F.fft(x.data(), n);
+
+    // permutation-free path (1/n deferred into the pointwise pass)
+    F.ifftDIFNatToRev(y.data(), n);
+    for (int i = 0; i < n; i++) {
+        Fr.mul(y[i], y[i], F.nInv(pow));
+        Fr.mul(y[i], y[i], F.root(pow+1, BR(i, pow)));
+    }
+    F.fftDITRevToNat(y.data(), n);
+
+    for (int i = 0; i < n; i++) {
+        if (!Fr.eq(x[i], y[i])) {
+            printf("FAIL fft pipeline equivalence at %d\n", i);
+            failures++;
+            return;
+        }
+    }
+    printf("ok   fft pipeline equivalence n=%d\n", n);
+}
+
 // Simulates the prover's witness phase: A, B1 (G1, shared scalars),
 // B2 (G2, shared scalars), C (G1, scalar suffix) batched into one task
 // region, checked against independent single-MSM runs.
@@ -400,6 +443,7 @@ int main(int argc, char **argv)
 {
     correctness();
     batchCorrectness();
+    fftEquivalence();
 
     if (failures) {
         printf("\n%d FAILURES\n", failures);
