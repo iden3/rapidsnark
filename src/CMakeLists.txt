@@ -143,6 +143,10 @@ if(BUILD_TESTS)
     target_link_libraries(test_public_size rapidsnarkStaticFrFq pthread)
     add_test(NAME test_public_size COMMAND test_public_size circuit_final.zkey 86
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/testdata)
+
+    add_executable(test_msm test_msm.cpp)
+    target_link_libraries(test_msm rapidsnarkStaticFrFq pthread)
+    add_test(NAME test_msm COMMAND test_msm)
 endif()
 
 if(OpenMP_CXX_FOUND)
@@ -156,6 +160,9 @@ if(OpenMP_CXX_FOUND)
         target_link_libraries(prover OpenMP::OpenMP_CXX)
         target_link_libraries(verifier OpenMP::OpenMP_CXX)
         target_link_libraries(test_public_size OpenMP::OpenMP_CXX)
+        if(BUILD_TESTS)
+            target_link_libraries(test_msm OpenMP::OpenMP_CXX)
+        endif()
     endif()
 
 endif()
