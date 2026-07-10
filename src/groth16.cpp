@@ -81,22 +81,20 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
         msmB2.prepare(pointsB2, scalarsABB2, sW, nVars, share);
         msmC.prepare(pointsC, scalarsC, sW, nC, share);
 
-        const uint64_t g1Buckets = std::max(msmA.maxBuckets(),
-                                   std::max(msmB1.maxBuckets(), msmC.maxBuckets()));
-        const uint64_t g2Buckets = msmB2.maxBuckets();
+        const uint64_t g1Bytes = std::max(msmA.arenaBytesPerThread(),
+                                 std::max(msmB1.arenaBytesPerThread(), msmC.arenaBytesPerThread()));
+        const uint64_t g2Bytes = msmB2.arenaBytesPerThread();
 
-        std::unique_ptr<typename Engine::G1Point[]> g1Arena(
-            g1Buckets ? new typename Engine::G1Point[nThreads * g1Buckets] : nullptr);
-        std::unique_ptr<typename Engine::G2Point[]> g2Arena(
-            g2Buckets ? new typename Engine::G2Point[nThreads * g2Buckets] : nullptr);
+        std::unique_ptr<uint8_t[]> g1Arena(g1Bytes ? new uint8_t[nThreads * g1Bytes] : nullptr);
+        std::unique_ptr<uint8_t[]> g2Arena(g2Bytes ? new uint8_t[nThreads * g2Bytes] : nullptr);
 
         std::vector<std::function<void(uint64_t)>> tasks;
 
         // G2 tasks are the heaviest per point: schedule them first.
-        msmB2.collectTasks(tasks, g2Arena.get(), g2Buckets);
-        msmA.collectTasks(tasks, g1Arena.get(), g1Buckets);
-        msmB1.collectTasks(tasks, g1Arena.get(), g1Buckets);
-        msmC.collectTasks(tasks, g1Arena.get(), g1Buckets);
+        msmB2.collectTasks(tasks, g2Arena.get(), g2Bytes);
+        msmA.collectTasks(tasks, g1Arena.get(), g1Bytes);
+        msmB1.collectTasks(tasks, g1Arena.get(), g1Bytes);
+        msmC.collectTasks(tasks, g1Arena.get(), g1Bytes);
 
         if (!tasks.empty()) {
             threadPool.parallelFor(0, tasks.size(), [&] (int begin, int end, int numThread) {

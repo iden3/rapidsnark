@@ -198,6 +198,31 @@ void correctness()
         checkG1("n3", bases.data(), scalars.data(), 3);
     }
 
+    // ~10% infinity bases (real zkeys contain them in pointsA/B)
+    {
+        std::vector<G1PointAffine> basesInf(bases);
+
+        for (int i = 0; i < n; i += 10) {
+            G1.copy(basesInf[i], G1.zeroAffine());
+        }
+        fillScalars(scalars.data(), n, DIST_IDEN3);
+        checkG1("infinity", basesInf.data(), scalars.data(), n);
+        fillScalars(scalars.data(), n, DIST_RAND254);
+        checkG1("infinity254", basesInf.data(), scalars.data(), n);
+    }
+
+    // tiny base pool: many equal points land in the same bucket, forcing
+    // the doubling/cancellation paths of the batch-affine accumulator
+    {
+        std::vector<G1PointAffine> basesDup(n);
+
+        fillBases(G1, basesDup.data(), n, 4);
+        fillScalars(scalars.data(), n, DIST_RAND254);
+        checkG1("dup4-rand", basesDup.data(), scalars.data(), n);
+        fillScalars(scalars.data(), n, DIST_U64);
+        checkG1("dup4-u64", basesDup.data(), scalars.data(), n);
+    }
+
     // n=1 against plain scalar mul
     {
         G1Point res, ref;
@@ -261,18 +286,18 @@ void batchCorrectness()
     msmB2.prepare(basesB2.data(), (uint8_t *)scalars.data(), sizeof(Scalar), n, share);
     msmC.prepare(basesC.data(), (uint8_t *)(scalars.data() + nPublic + 1), sizeof(Scalar), n - nPublic - 1, share);
 
-    const uint64_t g1Buckets = std::max(msmA.maxBuckets(),
-                               std::max(msmB1.maxBuckets(), msmC.maxBuckets()));
-    const uint64_t g2Buckets = msmB2.maxBuckets();
+    const uint64_t g1Bytes = std::max(msmA.arenaBytesPerThread(),
+                             std::max(msmB1.arenaBytesPerThread(), msmC.arenaBytesPerThread()));
+    const uint64_t g2Bytes = msmB2.arenaBytesPerThread();
 
-    std::vector<G1Point> g1Arena(nThreads * g1Buckets);
-    std::vector<G2Point> g2Arena(nThreads * g2Buckets);
+    std::vector<uint8_t> g1Arena(nThreads * g1Bytes);
+    std::vector<uint8_t> g2Arena(nThreads * g2Bytes);
 
     std::vector<std::function<void(uint64_t)>> tasks;
-    msmB2.collectTasks(tasks, g2Arena.data(), g2Buckets);
-    msmA.collectTasks(tasks, g1Arena.data(), g1Buckets);
-    msmB1.collectTasks(tasks, g1Arena.data(), g1Buckets);
-    msmC.collectTasks(tasks, g1Arena.data(), g1Buckets);
+    msmB2.collectTasks(tasks, g2Arena.data(), g2Bytes);
+    msmA.collectTasks(tasks, g1Arena.data(), g1Bytes);
+    msmB1.collectTasks(tasks, g1Arena.data(), g1Bytes);
+    msmC.collectTasks(tasks, g1Arena.data(), g1Bytes);
 
     pool.parallelFor(0, tasks.size(), [&] (int begin, int end, int numThread) {
         for (int t = begin; t < end; t++) {
