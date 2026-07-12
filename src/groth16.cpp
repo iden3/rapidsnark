@@ -81,20 +81,22 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
         msmB2.prepare(pointsB2, scalarsABB2, sW, nVars, share);
         msmC.prepare(pointsC, scalarsC, sW, nC, share);
 
-        const uint64_t g1Bytes = std::max(msmA.arenaBytesPerThread(),
-                                 std::max(msmB1.arenaBytesPerThread(), msmC.arenaBytesPerThread()));
-        const uint64_t g2Bytes = msmB2.arenaBytesPerThread();
+        // One bucket arena serves every MSM: a thread runs one task at a
+        // time, and a shared stride keeps the per-thread rows disjoint
+        // across curves.
+        const uint64_t arenaBytes = std::max(
+            std::max(msmA.arenaBytesPerThread(), msmB1.arenaBytesPerThread()),
+            std::max(msmC.arenaBytesPerThread(), msmB2.arenaBytesPerThread()));
 
-        std::unique_ptr<uint8_t[]> g1Arena(g1Bytes ? new uint8_t[nThreads * g1Bytes] : nullptr);
-        std::unique_ptr<uint8_t[]> g2Arena(g2Bytes ? new uint8_t[nThreads * g2Bytes] : nullptr);
+        std::unique_ptr<uint8_t[]> arena(arenaBytes ? new uint8_t[nThreads * arenaBytes] : nullptr);
 
         std::vector<std::function<void(uint64_t)>> tasks;
 
         // G2 tasks are the heaviest per point: schedule them first.
-        msmB2.collectTasks(tasks, g2Arena.get(), g2Bytes);
-        msmA.collectTasks(tasks, g1Arena.get(), g1Bytes);
-        msmB1.collectTasks(tasks, g1Arena.get(), g1Bytes);
-        msmC.collectTasks(tasks, g1Arena.get(), g1Bytes);
+        msmB2.collectTasks(tasks, arena.get(), arenaBytes);
+        msmA.collectTasks(tasks, arena.get(), arenaBytes);
+        msmB1.collectTasks(tasks, arena.get(), arenaBytes);
+        msmC.collectTasks(tasks, arena.get(), arenaBytes);
 
         if (!tasks.empty()) {
             threadPool.parallelFor(0, tasks.size(), [&] (int begin, int end, int numThread) {

@@ -106,7 +106,10 @@ namespace Groth16 {
             pointsC(_pointsC),
             pointsH(_pointsH)
         {
-            fft = new FFT<typename Engine::Fr>(domainSize*2);
+            // The transforms only ever run at domainSize; the finer omega_2n
+            // needed for the coset shift is derived directly instead of
+            // paying for a roots table twice the transform size.
+            fft = new FFT<typename Engine::Fr>(domainSize);
 
             // Coset shift ω_2n^BR(i) with the iFFT's 1/n folded in, indexed
             // in bit-reversed order for the permutation-free h pipeline.
@@ -115,10 +118,27 @@ namespace Groth16 {
 
             u_int32_t domainPow = fft->log2(domainSize);
 
+            typename Engine::FrElement w2n;
+            fft->higherRootOfUnity(w2n, 1);
+
+            // sequential powers of omega_2n by chunked scan, then permute
+            // into bit-reversed order with 1/n folded in
+            std::unique_ptr<typename Engine::FrElement[]> seq(
+                new typename Engine::FrElement[domainSize]);
+
+            ThreadPool::defaultPool().parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
+                if (begin >= end) return;
+
+                u_int64_t k = begin;
+                E.fr.exp(seq[k], w2n, (uint8_t *)&k, sizeof(k));
+                for (k = begin+1; k < (u_int64_t)end; k++) {
+                    E.fr.mul(seq[k], seq[k-1], w2n);
+                }
+            });
+
             ThreadPool::defaultPool().parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
                 for (int i=begin; i<end; i++) {
-                    E.fr.mul(cosetBR[i], fft->nInv(domainPow),
-                             fft->root(domainPow+1, BR(i, domainPow)));
+                    E.fr.mul(cosetBR[i], fft->nInv(domainPow), seq[BR(i, domainPow)]);
                 }
             });
         }
