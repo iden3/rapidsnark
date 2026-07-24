@@ -14,6 +14,11 @@ if(DEFINED BITS_PER_CHUNK)
     add_definitions(-DMSM_BITS_PER_CHUNK=${BITS_PER_CHUNK})
 endif()
 
+option(BUILD_LINUX "Build for Linux (adds cstdint includes needed by GCC 16+)" OFF)
+if(BUILD_LINUX)
+    add_definitions(-DRAPIDSNARK_LINUX)
+endif()
+
 if(USE_ASM AND ARCH MATCHES "x86_64")
 
     if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin" AND NOT TARGET_PLATFORM MATCHES "^android(_x86_64)?")

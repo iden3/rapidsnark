@@ -1,3 +1,6 @@
+#ifdef RAPIDSNARK_LINUX
+#include <cstdint>
+#endif
 #include <stdexcept>
 
 #include "zkey_utils.hpp"

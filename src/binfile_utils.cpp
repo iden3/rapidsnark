@@ -7,6 +7,9 @@
 #include <memory.h>
 #include <stdexcept>
 
+#ifdef RAPIDSNARK_LINUX
+#include <cstdint>
+#endif
 #include "binfile_utils.hpp"
 #include "fileloader.hpp"
 
