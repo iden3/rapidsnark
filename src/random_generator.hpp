@@ -8,6 +8,9 @@
 #else
 
 #include <random>
+#ifdef RAPIDSNARK_LINUX
+#include <cstdint>
+#endif
 
 inline void
 randombytes_buf(void * const buf, const size_t size)

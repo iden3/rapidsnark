@@ -4,6 +4,9 @@
 #include <map>
 #include <vector>
 #include <memory>
+#ifdef RAPIDSNARK_LINUX
+#include <cstdint>
+#endif
 #include "fileloader.hpp"
 
 namespace BinFileUtils {

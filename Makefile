@@ -6,6 +6,11 @@ host:
 	cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package && \
 	make -j$(nproc) -vvv && make install
 
+host_linux:
+	rm -rf build_prover && mkdir build_prover && cd build_prover && \
+	cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package -DBUILD_LINUX=ON && \
+	make -j$(nproc) -vvv && make install
+
 host_noasm:
 	rm -rf build_prover_noasm && mkdir build_prover_noasm && cd build_prover_noasm && \
 		cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_noasm -DUSE_ASM=NO && \
