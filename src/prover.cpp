@@ -107,6 +107,22 @@ public:
         : zkey(zkey_buffer, zkey_size, "zkey", 1),
           zkeyHeader(ZKeyUtils::loadHeader(&zkey))
     {
+        init();
+    }
+
+    // File-path constructor: the BinFile owns its FileLoader (mmap) for the
+    // prover's lifetime, so the zkey sections stay mapped across every prove().
+    explicit Groth16Prover(const std::string &zkey_file_path)
+
+        : zkey(zkey_file_path, "zkey", 1),
+          zkeyHeader(ZKeyUtils::loadHeader(&zkey))
+    {
+        init();
+    }
+
+private:
+    void init()
+    {
         if (!PrimeIsValid(zkeyHeader->rPrime)) {
             throw std::invalid_argument("zkey curve not supported");
         }
@@ -130,6 +146,7 @@ public:
         );
     }
 
+public:
     void prove(const void         *wtns_buffer,
                unsigned long long  wtns_size,
                std::string        &stringProof,
@@ -261,22 +278,37 @@ groth16_prover_create_zkey_file(
     char                *error_msg,
     unsigned long long   error_msg_maxsize)
 {
-    BinFileUtils::FileLoader fileLoader;
-
     try {
-        fileLoader.load(zkey_file_path);
+        if (prover_object == NULL) {
+            throw std::invalid_argument("Null prover object");
+        }
+
+        if (zkey_file_path == NULL) {
+            throw std::invalid_argument("Null zkey file path");
+        }
+
+        // The Groth16Prover keeps the zkey mmap'd for its whole lifetime
+        // (BinFile owns the FileLoader), so section pointers stay valid across
+        // every prove() call.
+        Groth16Prover *prover = new Groth16Prover(std::string(zkey_file_path));
+
+        *prover_object = prover;
 
     } catch (std::exception& e) {
         CopyError(error_msg, error_msg_maxsize, e);
         return PROVER_ERROR;
+
+    } catch (std::exception *e) {
+        CopyError(error_msg, error_msg_maxsize, *e);
+        delete e;
+        return PROVER_ERROR;
+
+    } catch (...) {
+        CopyErrorFmt(error_msg, error_msg_maxsize, "unknown error");
+        return PROVER_ERROR;
     }
 
-    return groth16_prover_create(
-                prover_object,
-                fileLoader.dataBuffer(),
-                fileLoader.dataSize(),
-                error_msg,
-                error_msg_maxsize);
+    return PROVER_OK;
 }
 
 int

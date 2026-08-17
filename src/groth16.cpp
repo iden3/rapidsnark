@@ -1,9 +1,13 @@
 #include "random_generator.hpp"
 #include "logging.hpp"
 #include "misc.hpp"
+#include "msm.hpp"
 #include <sstream>
 #include <vector>
 #include <mutex>
+#include <memory>
+#include <functional>
+#include <algorithm>
 
 namespace Groth16 {
 
@@ -50,32 +54,85 @@ template <typename Engine>
 std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement *wtns) {
 
     ThreadPool &threadPool = ThreadPool::defaultPool();
+    const uint64_t nThreads = threadPool.getThreadCount();
 
-    LOG_TRACE("Start Multiexp A");
     uint32_t sW = sizeof(wtns[0]);
     typename Engine::G1Point pi_a;
-    E.g1.multiMulByScalarMSM(pi_a, pointsA, (uint8_t *)wtns, sW, nVars);
+    typename Engine::G1Point pib1;
+    typename Engine::G2Point pi_b;
+    typename Engine::G1Point pi_c;
+
+    uint8_t *scalarsABB2 = (uint8_t *)wtns;
+    uint8_t *scalarsC = (uint8_t *)((uint64_t)wtns + (nPublic +1)*sW);
+    const uint64_t nC = nVars - nPublic - 1;
+
+    if (nThreads >= 12) {
+        // Batched: prepare all four witness MSMs, then run every bucket task
+        // in one parallel region so no MSM's straggler tail leaves cores idle.
+        // Each MSM sizes windows/slices for a quarter of the pool.
+        LOG_TRACE("Start Multiexp A+B1+B2+C (batched)");
+        const uint64_t share = std::max<uint64_t>(1, nThreads/4);
+
+        MSM<typename Engine::G1, typename Engine::F1> msmA(E.g1), msmB1(E.g1), msmC(E.g1);
+        MSM<typename Engine::G2, typename Engine::F2> msmB2(E.g2);
+
+        msmA.prepare(pointsA, scalarsABB2, sW, nVars, share);
+        msmB1.prepare(pointsB1, scalarsABB2, sW, nVars, share);
+        msmB2.prepare(pointsB2, scalarsABB2, sW, nVars, share);
+        msmC.prepare(pointsC, scalarsC, sW, nC, share);
+
+        // One bucket arena serves every MSM: a thread runs one task at a
+        // time, and a shared stride keeps the per-thread rows disjoint
+        // across curves.
+        const uint64_t arenaBytes = std::max(
+            std::max(msmA.arenaBytesPerThread(), msmB1.arenaBytesPerThread()),
+            std::max(msmC.arenaBytesPerThread(), msmB2.arenaBytesPerThread()));
+
+        std::unique_ptr<uint8_t[]> arena(arenaBytes ? new uint8_t[nThreads * arenaBytes] : nullptr);
+
+        std::vector<std::function<void(uint64_t)>> tasks;
+
+        // G2 tasks are the heaviest per point: schedule them first.
+        msmB2.collectTasks(tasks, arena.get(), arenaBytes);
+        msmA.collectTasks(tasks, arena.get(), arenaBytes);
+        msmB1.collectTasks(tasks, arena.get(), arenaBytes);
+        msmC.collectTasks(tasks, arena.get(), arenaBytes);
+
+        if (!tasks.empty()) {
+            threadPool.parallelFor(0, tasks.size(), [&] (int begin, int end, int numThread) {
+                for (int t = begin; t < end; t++) {
+                    tasks[t]((uint64_t)numThread);
+                }
+            });
+        }
+
+        msmA.finish(pi_a);
+        msmB1.finish(pib1);
+        msmB2.finish(pi_b);
+        msmC.finish(pi_c);
+    } else {
+        LOG_TRACE("Start Multiexp A");
+        E.g1.multiMulByScalarMSM(pi_a, pointsA, scalarsABB2, sW, nVars);
+
+        LOG_TRACE("Start Multiexp B1");
+        E.g1.multiMulByScalarMSM(pib1, pointsB1, scalarsABB2, sW, nVars);
+
+        LOG_TRACE("Start Multiexp B2");
+        E.g2.multiMulByScalarMSM(pi_b, pointsB2, scalarsABB2, sW, nVars);
+
+        LOG_TRACE("Start Multiexp C");
+        E.g1.multiMulByScalarMSM(pi_c, pointsC, scalarsC, sW, nC);
+    }
+
     std::ostringstream ss2;
     ss2 << "pi_a: " << E.g1.toString(pi_a);
     LOG_DEBUG(ss2);
-
-    LOG_TRACE("Start Multiexp B1");
-    typename Engine::G1Point pib1;
-    E.g1.multiMulByScalarMSM(pib1, pointsB1, (uint8_t *)wtns, sW, nVars);
     std::ostringstream ss3;
     ss3 << "pib1: " << E.g1.toString(pib1);
     LOG_DEBUG(ss3);
-
-    LOG_TRACE("Start Multiexp B2");
-    typename Engine::G2Point pi_b;
-    E.g2.multiMulByScalarMSM(pi_b, pointsB2, (uint8_t *)wtns, sW, nVars);
     std::ostringstream ss4;
     ss4 << "pi_b: " << E.g2.toString(pi_b);
     LOG_DEBUG(ss4);
-
-    LOG_TRACE("Start Multiexp C");
-    typename Engine::G1Point pi_c;
-    E.g1.multiMulByScalarMSM(pi_c, pointsC, (uint8_t *)((uint64_t)wtns + (nPublic +1)*sW), sW, nVars-nPublic-1);
     std::ostringstream ss5;
     ss5 << "pi_c: " << E.g1.toString(pi_c);
     LOG_DEBUG(ss5);
@@ -129,68 +186,31 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement 
     });
 
     LOG_TRACE("Initializing fft");
-    u_int32_t domainPower = fft->log2(domainSize);
 
-    LOG_TRACE("Start iFFT A");
-    fft->ifft(a, domainSize);
-    LOG_TRACE("a After ifft:");
-    LOG_DEBUG(E.fr.toString(a[0]).c_str());
-    LOG_DEBUG(E.fr.toString(a[1]).c_str());
-    LOG_TRACE("Start Shift A");
+    // Permutation-free coset pipeline: DIF-iFFT leaves the coefficients in
+    // bit-reversed order, the fused pointwise pass applies the ω_2n coset
+    // shift (with 1/n folded in) through the bit-reversed table, and the
+    // DIT-FFT consumes bit-reversed input, returning the coset evaluations
+    // in natural order — same result as ifft+shift+fft, minus six
+    // bit-reversal permutation passes and three scaling passes.
+    typename Engine::FrElement *abc[3] = { a, b, c };
 
-    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
-        for (u_int64_t i=begin; i<end; i++) {
-            E.fr.mul(a[i], a[i], fft->root(domainPower+1, i));
-        }
-    });
+    for (int poly = 0; poly < 3; poly++) {
+        typename Engine::FrElement *v = abc[poly];
 
-    LOG_TRACE("a After shift:");
-    LOG_DEBUG(E.fr.toString(a[0]).c_str());
-    LOG_DEBUG(E.fr.toString(a[1]).c_str());
-    LOG_TRACE("Start FFT A");
-    fft->fft(a, domainSize);
-    LOG_TRACE("a After fft:");
-    LOG_DEBUG(E.fr.toString(a[0]).c_str());
-    LOG_DEBUG(E.fr.toString(a[1]).c_str());
-    LOG_TRACE("Start iFFT B");
-    fft->ifft(b, domainSize);
-    LOG_TRACE("b After ifft:");
-    LOG_DEBUG(E.fr.toString(b[0]).c_str());
-    LOG_DEBUG(E.fr.toString(b[1]).c_str());
-    LOG_TRACE("Start Shift B");
-    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
-        for (u_int64_t i=begin; i<end; i++) {
-            E.fr.mul(b[i], b[i], fft->root(domainPower+1, i));
-        }
-    });
-    LOG_TRACE("b After shift:");
-    LOG_DEBUG(E.fr.toString(b[0]).c_str());
-    LOG_DEBUG(E.fr.toString(b[1]).c_str());
-    LOG_TRACE("Start FFT B");
-    fft->fft(b, domainSize);
-    LOG_TRACE("b After fft:");
-    LOG_DEBUG(E.fr.toString(b[0]).c_str());
-    LOG_DEBUG(E.fr.toString(b[1]).c_str());
+        LOG_TRACE("Start iFFT (DIF)");
+        fft->ifftDIFNatToRev(v, domainSize);
 
-    LOG_TRACE("Start iFFT C");
-    fft->ifft(c, domainSize);
-    LOG_TRACE("c After ifft:");
-    LOG_DEBUG(E.fr.toString(c[0]).c_str());
-    LOG_DEBUG(E.fr.toString(c[1]).c_str());
-    LOG_TRACE("Start Shift C");
-    threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
-        for (u_int64_t i=begin; i<end; i++) {
-            E.fr.mul(c[i], c[i], fft->root(domainPower+1, i));
-        }
-    });
-    LOG_TRACE("c After shift:");
-    LOG_DEBUG(E.fr.toString(c[0]).c_str());
-    LOG_DEBUG(E.fr.toString(c[1]).c_str());
-    LOG_TRACE("Start FFT C");
-    fft->fft(c, domainSize);
-    LOG_TRACE("c After fft:");
-    LOG_DEBUG(E.fr.toString(c[0]).c_str());
-    LOG_DEBUG(E.fr.toString(c[1]).c_str());
+        LOG_TRACE("Start coset shift");
+        threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
+            for (u_int64_t i=begin; i<end; i++) {
+                E.fr.mul(v[i], v[i], cosetBR[i]);
+            }
+        });
+
+        LOG_TRACE("Start FFT (DIT)");
+        fft->fftDITRevToNat(v, domainSize);
+    }
 
     LOG_TRACE("Start ABC");
     threadPool.parallelFor(0, domainSize, [&] (int64_t begin, int64_t end, uint64_t idThread) {
