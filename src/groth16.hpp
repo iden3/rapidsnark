@@ -121,24 +121,32 @@ namespace Groth16 {
             typename Engine::FrElement w2n;
             fft->higherRootOfUnity(w2n, 1);
 
-            // sequential powers of omega_2n by chunked scan, then permute
-            // into bit-reversed order with 1/n folded in
-            std::unique_ptr<typename Engine::FrElement[]> seq(
-                new typename Engine::FrElement[domainSize]);
+            const typename Engine::FrElement nInv = fft->nInv(domainPow);
 
+            // One pass, no scratch array. Walking the exponent j upward lets
+            // each power chain from the previous one, and folding 1/n into the
+            // per-thread seed leaves a single multiply per element. The value is
+            // stored at BR(j) rather than j: BR is an involution, so sequential
+            // j fills exactly the bit-reversed table the h pipeline reads, and
+            // it is a bijection, so threads owning disjoint j ranges write
+            // disjoint slots.
+            //
+            // The previous form scanned the powers into a domainSize scratch
+            // array and permuted in a second pass -- two multiplies per element,
+            // and a second full-size table alive beside cosetBR (64 MB each at
+            // 2^21).
             ThreadPool::defaultPool().parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
                 if (begin >= end) return;
 
                 u_int64_t k = begin;
-                E.fr.exp(seq[k], w2n, (uint8_t *)&k, sizeof(k));
-                for (k = begin+1; k < (u_int64_t)end; k++) {
-                    E.fr.mul(seq[k], seq[k-1], w2n);
-                }
-            });
+                typename Engine::FrElement v;
 
-            ThreadPool::defaultPool().parallelFor(0, domainSize, [&] (int begin, int end, int numThread) {
-                for (int i=begin; i<end; i++) {
-                    E.fr.mul(cosetBR[i], fft->nInv(domainPow), seq[BR(i, domainPow)]);
+                E.fr.exp(v, w2n, (uint8_t *)&k, sizeof(k));
+                E.fr.mul(v, v, nInv);
+
+                for (u_int64_t j = begin; j < (u_int64_t)end; j++) {
+                    E.fr.copy(cosetBR[BR(j, domainPow)], v);
+                    E.fr.mul(v, v, w2n);
                 }
             });
         }
